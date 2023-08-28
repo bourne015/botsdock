@@ -210,6 +210,7 @@ class HomePage extends StatelessWidget {
             ),
             */
             const SizedBox(height: 81),
+            /*
             _DesktopHomeItem(
               child: Row(
                 children: [
@@ -253,6 +254,7 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
+            */
             const SizedBox(height: 109),
           ],
         ),

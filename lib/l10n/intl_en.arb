@@ -131,7 +131,7 @@
   "@cardsDemoTravelDestinationDescription3": {
     "description": "Temples"
   },
-  "homeHeaderGallery": "Gallery",
+  "homeHeaderGallery": "APP",
   "@homeHeaderGallery": {
     "description": "Header title on home screen for Gallery section."
   },
