@@ -24,6 +24,7 @@ import 'package:gallery/studies/reply/routes.dart' as reply_routes;
 import 'package:gallery/studies/shrine/colors.dart';
 import 'package:gallery/studies/shrine/routes.dart' as shrine_routes;
 import 'package:gallery/studies/starter/routes.dart' as starter_app_routes;
+import 'package:gallery/studies/chat/routes.dart' as chat_routes;
 import 'package:url_launcher/url_launcher.dart';
 
 const _horizontalPadding = 32.0;
@@ -44,6 +45,7 @@ class HomePage extends StatelessWidget {
     final localizations = GalleryLocalizations.of(context)!;
     final studyDemos = Demos.studies(localizations);
     final carouselCards = <Widget>[
+      /*
       _CarouselCard(
         demo: studyDemos['reply'],
         asset: const AssetImage(
@@ -133,6 +135,22 @@ class HomePage extends StatelessWidget {
         textColor: Colors.black,
         studyRoute: starter_app_routes.defaultRoute,
       ),
+      */
+      _CarouselCard(
+        demo: studyDemos['chat'],
+        textColor: RallyColors.accountColors[0],
+        asset: const AssetImage(
+          'assets/studies/rally_card.png',
+          package: 'flutter_gallery_assets',
+        ),
+        assetColor: const Color(0xFFD1F2E6),
+        assetDark: const AssetImage(
+          'assets/studies/rally_card_dark.png',
+          package: 'flutter_gallery_assets',
+        ),
+        assetDarkColor: const Color(0xFF253538),
+        studyRoute: chat_routes.homeRoute,
+      ),
     ];
 
     if (isDesktop) {
@@ -178,6 +196,7 @@ class HomePage extends StatelessWidget {
               height: _carouselHeight(0.7, context),
               children: carouselCards,
             ),
+            /*
             _DesktopHomeItem(child: _CategoriesHeader()),
             SizedBox(
               height: 585,
@@ -189,6 +208,7 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
+            */
             const SizedBox(height: 81),
             _DesktopHomeItem(
               child: Row(
@@ -401,11 +421,11 @@ class _AnimatedHomePageState extends State<_AnimatedHomePage>
               restorationId: 'home_carousel',
               children: widget.carouselCards,
             ),
-            Container(
-              margin:
-                  const EdgeInsets.symmetric(horizontal: _horizontalPadding),
-              child: _CategoriesHeader(),
-            ),
+            // Container(
+            //   margin:
+            //       const EdgeInsets.symmetric(horizontal: _horizontalPadding),
+            //   child: _CategoriesHeader(),
+            // ),
             _AnimatedCategoryItem(
               startDelayFraction: 0.00,
               controller: _animationController,

@@ -21,6 +21,8 @@ import 'package:gallery/studies/shrine/app.dart' deferred as shrine;
 import 'package:gallery/studies/shrine/routes.dart' as shrine_routes;
 import 'package:gallery/studies/starter/app.dart' as starter_app;
 import 'package:gallery/studies/starter/routes.dart' as starter_app_routes;
+import 'package:gallery/studies/chat/app.dart' as chat;
+import 'package:gallery/studies/chat/routes.dart' as chat_routes;
 
 typedef PathWidgetBuilder = Widget Function(BuildContext, String?);
 
@@ -91,6 +93,12 @@ class RouteConfiguration {
             // ignore: prefer_const_constructors
             () => fortnightly.FortnightlyApp()),
       ),
+      openInSecondScreen: true,
+    ),
+    Path(
+      r'^' + chat_routes.homeRoute,
+      (context, match) =>
+          const StudyWrapper(study: chat.ChatApp(), hasBottomNavBar: false),
       openInSecondScreen: true,
     ),
     Path(

@@ -155,6 +155,10 @@
   "@replyDescription": {
     "description": "Study description for Reply."
   },
+  "chatDescription": "An app based on ChatGPT",
+  "@chatDescription": {
+    "description": "Study description for Chat."
+  },
   "rallyAccountDataChecking": "Checking",
   "@rallyAccountDataChecking": {
     "description": "Name for account made up by user."

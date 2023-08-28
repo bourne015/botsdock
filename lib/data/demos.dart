@@ -168,6 +168,12 @@ class Demos {
         category: GalleryDemoCategory.study,
         studyId: 'reply',
       ),
+      'chat': GalleryDemo(
+        title: 'Chat',
+        subtitle: localizations.chatDescription,
+        category: GalleryDemoCategory.study,
+        studyId: 'chat',
+      ),
       'starterApp': GalleryDemo(
         title: localizations.starterAppTitle,
         subtitle: localizations.starterAppDescription,

@@ -37,6 +37,7 @@ dependencies:
   transparent_image: ^2.0.1
   url_launcher: ^6.1.2
   vector_math: ^2.1.2
+  dio: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -258,3 +259,6 @@ flutter:
     - packages/shrine_images/35-0.jpg
     - packages/shrine_images/36-0.jpg
     - packages/shrine_images/37-0.jpg
+    - assets/images/chatgpt.png
+    - assets/images/chatgpt_green.png
+    - assets/images/chatgpt_red.png

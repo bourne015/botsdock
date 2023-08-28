@@ -62,6 +62,7 @@
   "demoContainerTransformDemoInstructions": "卡片、列表和 FAB",
   "demoNavigationDrawerSubtitle": "在应用栏中显示抽屉式导航栏",
   "replyDescription": "高效并且重点突出的电子邮件应用",
+  "chatDescription": "基于ChatGPT的聊天程序",
   "demoNavigationDrawerDescription": "从屏幕边缘水平滑入以在应用中显示导航链接的 Material Design 面板。",
   "replyDraftsLabel": "草稿",
   "demoNavigationDrawerToPageOne": "第一个项目",

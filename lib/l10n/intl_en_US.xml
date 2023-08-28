@@ -142,6 +142,10 @@
     description="Study description for Reply."
     >An efficient, focused email app</string>
   <string
+      name="chatDescription"
+    description="Study description for Chat."
+    >An ChatGPT app</string>
+  <string
     name="rallyAccountDataChecking"
     description="Name for account made up by user."
     >Checking</string>
