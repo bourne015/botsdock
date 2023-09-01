@@ -32,6 +32,7 @@ void main() async {
       defaultTargetPlatform != TargetPlatform.windows &&
       defaultTargetPlatform != TargetPlatform.macOS) {
     WidgetsFlutterBinding.ensureInitialized();
+    /*
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
@@ -43,6 +44,7 @@ void main() async {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
       return true;
     };
+    */
   }
 
   runApp(const GalleryApp());
@@ -112,12 +114,14 @@ class RootPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // return ApplyTextOptions(
+    //   child: SplashPage(
+    //     child: Backdrop(
+    //       isDesktop: isDisplayDesktop(context),
+    //     ),
+    //   ),
+    // );
     return ApplyTextOptions(
-      child: SplashPage(
-        child: Backdrop(
-          isDesktop: isDisplayDesktop(context),
-        ),
-      ),
-    );
+        child: Backdrop(isDesktop: isDisplayDesktop(context)));
   }
 }
