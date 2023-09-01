@@ -360,9 +360,9 @@ class _AnimatedHomePageState extends State<_AnimatedHomePage>
 
   @override
   void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    registerForRestoration(_isMaterialListExpanded, 'material_list');
-    registerForRestoration(_isCupertinoListExpanded, 'cupertino_list');
-    registerForRestoration(_isOtherListExpanded, 'other_list');
+    // registerForRestoration(_isMaterialListExpanded, 'material_list');
+    // registerForRestoration(_isCupertinoListExpanded, 'cupertino_list');
+    // registerForRestoration(_isOtherListExpanded, 'other_list');
   }
 
   @override
@@ -394,9 +394,9 @@ class _AnimatedHomePageState extends State<_AnimatedHomePage>
     _animationController.dispose();
     _launchTimer?.cancel();
     _launchTimer = null;
-    _isMaterialListExpanded.dispose();
-    _isCupertinoListExpanded.dispose();
-    _isOtherListExpanded.dispose();
+    // _isMaterialListExpanded.dispose();
+    // _isCupertinoListExpanded.dispose();
+    // _isOtherListExpanded.dispose();
     super.dispose();
   }
 
@@ -428,6 +428,7 @@ class _AnimatedHomePageState extends State<_AnimatedHomePage>
             //       const EdgeInsets.symmetric(horizontal: _horizontalPadding),
             //   child: _CategoriesHeader(),
             // ),
+            /*
             _AnimatedCategoryItem(
               startDelayFraction: 0.00,
               controller: _animationController,
@@ -478,6 +479,7 @@ class _AnimatedHomePageState extends State<_AnimatedHomePage>
                     _isOtherListExpanded.value = shouldOpenList;
                   }),
             ),
+            */
           ],
         ),
         Align(
