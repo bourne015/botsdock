@@ -1191,6 +1191,7 @@ class _StudyWrapperState extends State<StudyWrapper> {
               child: widget.study,
             ),
           ),
+          /*
           if (!isDisplayFoldable(context))
             SafeArea(
               child: Align(
@@ -1228,6 +1229,7 @@ class _StudyWrapperState extends State<StudyWrapper> {
                 ),
               ),
             ),
+            */
         ],
       ),
     );
