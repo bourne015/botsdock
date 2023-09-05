@@ -155,6 +155,7 @@ class HomePage extends StatelessWidget {
 
     if (isDesktop) {
       // Desktop layout
+      /*
       final desktopCategoryItems = <_DesktopCategoryItem>[
         _DesktopCategoryItem(
           category: GalleryDemoCategory.material,
@@ -181,6 +182,7 @@ class HomePage extends StatelessWidget {
           demos: Demos.otherDemos(localizations),
         ),
       ];
+      */
 
       return Scaffold(
         body: ListView(

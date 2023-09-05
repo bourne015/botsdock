@@ -163,10 +163,10 @@ class _BackdropState extends State<Backdrop> with TickerProviderStateMixin {
           if (!isDesktop) ...[
             // Slides the settings page up and down from the top of the
             // screen.
-            PositionedTransition(
-              rect: _slideDownSettingsPageAnimation(constraints),
-              child: settingsPage,
-            ),
+            // PositionedTransition(
+            //   rect: _slideDownSettingsPageAnimation(constraints),
+            //   child: settingsPage,
+            // ),
             // Slides the home page up and down below the bottom of the
             // screen.
             PositionedTransition(
@@ -176,21 +176,21 @@ class _BackdropState extends State<Backdrop> with TickerProviderStateMixin {
           ],
           if (isDesktop) ...[
             Semantics(sortKey: const OrdinalSortKey(2), child: homePage),
-            ValueListenableBuilder<bool>(
-              valueListenable: _isSettingsOpenNotifier,
-              builder: (context, isSettingsOpen, child) {
-                if (isSettingsOpen) {
-                  return ExcludeSemantics(
-                    child: Listener(
-                      onPointerDown: (_) => _toggleSettings(),
-                      child: const ModalBarrier(dismissible: false),
-                    ),
-                  );
-                } else {
-                  return Container();
-                }
-              },
-            ),
+            // ValueListenableBuilder<bool>(
+            //   valueListenable: _isSettingsOpenNotifier,
+            //   builder: (context, isSettingsOpen, child) {
+            //     if (isSettingsOpen) {
+            //       return ExcludeSemantics(
+            //         child: Listener(
+            //           onPointerDown: (_) => _toggleSettings(),
+            //           child: const ModalBarrier(dismissible: false),
+            //         ),
+            //       );
+            //     } else {
+            //       return Container();
+            //     }
+            //   },
+            // ),
             Semantics(
               sortKey: const OrdinalSortKey(3),
               child: ScaleTransition(
@@ -221,11 +221,11 @@ class _BackdropState extends State<Backdrop> with TickerProviderStateMixin {
               ),
             ),
           ],
-          _SettingsIcon(
-            animationController: _iconController,
-            toggleSettings: _toggleSettings,
-            isSettingsOpenNotifier: _isSettingsOpenNotifier,
-          ),
+          // _SettingsIcon(
+          //   animationController: _iconController,
+          //   toggleSettings: _toggleSettings,
+          //   isSettingsOpenNotifier: _isSettingsOpenNotifier,
+          // ),
         ],
       ),
     );
