@@ -264,8 +264,7 @@ class HomePage extends StatelessWidget {
       return Scaffold(
         body: _AnimatedHomePage(
           restorationId: 'animated_page',
-          isSplashPageAnimationFinished:
-              SplashPageAnimation.of(context)!.isFinished,
+          isSplashPageAnimationFinished: true,
           carouselCards: carouselCards,
         ),
       );

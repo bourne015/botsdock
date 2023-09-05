@@ -78,7 +78,7 @@ class GalleryApp extends StatelessWidget {
           final hasHinge = MediaQuery.of(context).hinge?.bounds != null;
           return MaterialApp(
             restorationScopeId: 'rootGallery',
-            title: 'Flutter Gallery',
+            title: 'AppGallery',
             debugShowCheckedModeBanner: false,
             themeMode: options.themeMode,
             theme: GalleryThemeData.lightThemeData.copyWith(
