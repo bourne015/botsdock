@@ -216,7 +216,7 @@ Future<void> runDemos(
 }
 
 void main([List<String> args = const <String>[]]) {
-  group('Flutter Gallery transitions', () {
+  group('App Gallery transitions', () {
     late FlutterDriver driver;
 
     late bool isTestingCraneOnly;

@@ -1,6 +1,6 @@
 {
-    "name": "Flutter Gallery",
-    "short_name": "Flutter Gallery",
+    "name": "App Gallery",
+    "short_name": "App Gallery",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#030303",

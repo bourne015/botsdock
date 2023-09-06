@@ -524,7 +524,7 @@
   <string
     name="settingsAbout"
     description="Title for information button."
-    >About Flutter Gallery</string>
+    >About App Gallery</string>
   <string
     name="settingsFeedback"
     description="Title for feedback button."

@@ -1,1 +1,1 @@
-Flutter Gallery
+App Gallery

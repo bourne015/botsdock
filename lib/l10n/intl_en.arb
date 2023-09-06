@@ -4,7 +4,7 @@
     "description": "Represents a link to a GitHub repository.",
     "placeholders": {
       "repoName": {
-        "example": "Flutter Gallery"
+        "example": "App Gallery"
       }
     }
   },
@@ -13,7 +13,7 @@
     "description": "A description about how to view the source code for this app.",
     "placeholders": {
       "repoLink": {
-        "example": "Flutter Gallery GitHub repository"
+        "example": "App Gallery GitHub repository"
       }
     }
   },
@@ -601,7 +601,7 @@
   "@settingsSlowMotion": {
     "description": "Title for slow motion setting."
   },
-  "settingsAbout": "About Flutter Gallery",
+  "settingsAbout": "About App Gallery",
   "@settingsAbout": {
     "description": "Title for information button."
   },
