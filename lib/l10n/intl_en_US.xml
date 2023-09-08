@@ -120,7 +120,7 @@
   <string
     name="homeHeaderGallery"
     description="Header title on home screen for Gallery section."
-    >Gallery</string>
+    >APP</string>
   <string
     name="homeHeaderCategories"
     description="Header title on home screen for Categories section."
@@ -142,9 +142,9 @@
     description="Study description for Reply."
     >An efficient, focused email app</string>
   <string
-      name="chatDescription"
+    name="chatDescription"
     description="Study description for Chat."
-    >An ChatGPT app</string>
+    >An app based on ChatGPT</string>
   <string
     name="rallyAccountDataChecking"
     description="Name for account made up by user."
