@@ -56,7 +56,7 @@ class ChatPage extends StatefulWidget {
 
 class ChatBody extends State<ChatPage> {
   static GlobalKey chatKey = GlobalKey();
-  String url = "http://167.179.90.80:8001/v1/stream/chat";
+  String url = "https://fantao.life:8001/v1/stream/chat";
   String content = '';
   String tokenSpent_ = '';
   String selectModel = 'gpt35';
