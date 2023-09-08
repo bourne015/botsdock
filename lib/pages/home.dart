@@ -24,7 +24,7 @@ import 'package:gallery/studies/rally/colors.dart';
 // import 'package:gallery/studies/shrine/colors.dart';
 // import 'package:gallery/studies/shrine/routes.dart' as shrine_routes;
 // import 'package:gallery/studies/starter/routes.dart' as starter_app_routes;
-import 'package:gallery/studies/chat/routes.dart' as chat_routes;
+import 'package:gallery/studies/chat_ui/lib/routes.dart' as chat_routes;
 // import 'package:url_launcher/url_launcher.dart';
 
 const _horizontalPadding = 32.0;
