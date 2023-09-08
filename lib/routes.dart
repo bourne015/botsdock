@@ -21,7 +21,7 @@ import 'package:gallery/pages/home.dart';
 // import 'package:gallery/studies/shrine/routes.dart' as shrine_routes;
 // import 'package:gallery/studies/starter/app.dart' as starter_app;
 // import 'package:gallery/studies/starter/routes.dart' as starter_app_routes;
-import 'package:gallery/studies/chat/app.dart' as chat;
+import 'package:gallery/studies/chat/main.dart' as chat;
 import 'package:gallery/studies/chat/routes.dart' as chat_routes;
 
 typedef PathWidgetBuilder = Widget Function(BuildContext, String?);

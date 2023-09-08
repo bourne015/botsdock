@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:gallery/studies/chat/routes.dart' as routes;
 
 import 'home.dart';
+import 'routes.dart' as routes;
+
+void main() {
+  runApp(const ChatApp());
+}
 
 class ChatApp extends StatefulWidget {
   static const String homeRoute = routes.homeRoute;
