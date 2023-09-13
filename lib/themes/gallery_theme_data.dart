@@ -78,16 +78,26 @@ class GalleryThemeData {
   static const _semiBold = FontWeight.w600;
   static const _bold = FontWeight.w700;
 
-  static final TextTheme _textTheme = TextTheme(
-    headlineMedium: GoogleFonts.montserrat(fontWeight: _bold, fontSize: 20.0),
-    bodySmall: GoogleFonts.montserrat(fontWeight: _semiBold, fontSize: 16.0),
-    headlineSmall: GoogleFonts.montserrat(fontWeight: _medium, fontSize: 16.0),
-    titleMedium: GoogleFonts.montserrat(fontWeight: _medium, fontSize: 16.0),
-    labelSmall: GoogleFonts.montserrat(fontWeight: _medium, fontSize: 12.0),
-    bodyLarge: GoogleFonts.montserrat(fontWeight: _regular, fontSize: 14.0),
-    titleSmall: GoogleFonts.montserrat(fontWeight: _medium, fontSize: 14.0),
-    bodyMedium: GoogleFonts.montserrat(fontWeight: _regular, fontSize: 16.0),
-    titleLarge: GoogleFonts.montserrat(fontWeight: _bold, fontSize: 16.0),
-    labelLarge: GoogleFonts.montserrat(fontWeight: _semiBold, fontSize: 14.0),
+  static const TextTheme _textTheme = TextTheme(
+    headlineMedium:
+        TextStyle(fontFamily: 'notosanssc', fontWeight: _bold, fontSize: 20.0),
+    bodySmall: TextStyle(
+        fontFamily: 'notosanssc', fontWeight: _semiBold, fontSize: 16.0),
+    headlineSmall: TextStyle(
+        fontFamily: 'notosanssc', fontWeight: _medium, fontSize: 16.0),
+    titleMedium: TextStyle(
+        fontFamily: 'notosanssc', fontWeight: _medium, fontSize: 16.0),
+    labelSmall: TextStyle(
+        fontFamily: 'notosanssc', fontWeight: _medium, fontSize: 12.0),
+    bodyLarge: TextStyle(
+        fontFamily: 'notosanssc', fontWeight: _regular, fontSize: 14.0),
+    titleSmall: TextStyle(
+        fontFamily: 'notosanssc', fontWeight: _medium, fontSize: 14.0),
+    bodyMedium: TextStyle(
+        fontFamily: 'notosanssc', fontWeight: _regular, fontSize: 16.0),
+    titleLarge:
+        TextStyle(fontFamily: 'notosanssc', fontWeight: _bold, fontSize: 16.0),
+    labelLarge: TextStyle(
+        fontFamily: 'notosanssc', fontWeight: _semiBold, fontSize: 14.0),
   );
 }
