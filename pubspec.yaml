@@ -38,6 +38,7 @@ dependencies:
   url_launcher: ^6.1.2
   vector_math: ^2.1.2
   dio: ^5.1.0
+  image_picker: ^1.0.4
 
 dev_dependencies:
   flutter_test:
