@@ -12,7 +12,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  adaptive_breakpoints: ^0.1.1
+  adaptive_breakpoints: ^0.1.7
   animations: ^2.0.2
   collection: ^1.16.0
   cupertino_icons: ^1.0.4
@@ -23,8 +23,8 @@ dependencies:
   get_storage: ^2.1.1
   google_fonts: ^6.1.0
   intl: any # An exact version pin will be provided by the Flutter SDK
-  meta: ^1.7.0
-  package_info_plus: ^4.0.2
+  meta: ^1.11.0
+  package_info_plus: ^5.0.1
   path_provider: ^2.0.11
   provider: ^6.0.2
   rally_assets: ^3.0.1
@@ -36,22 +36,9 @@ dependencies:
   dio: ^5.1.0
   image_picker: ^1.0.4
   flutter_markdown: ^0.6.18+2
-  markdown: ^7.0.0
+  markdown: ^7.2.2
   string_scanner: ^1.2.0
   flutter_spinkit: ^5.2.0
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_driver:
-    sdk: flutter
-  args: ^2.3.1
-  flutter_lints: ^3.0.0
-  grinder: ^0.9.1
-  path: ^1.8.1
-  string_scanner: ^1.1.0
-  test: ^1.21.1
-  web_benchmarks: ^0.1.0
 
 flutter:
   generate: true # Enables generation of localized strings from arb files
