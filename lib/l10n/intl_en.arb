@@ -155,7 +155,7 @@
   "@replyDescription": {
     "description": "Study description for Reply."
   },
-  "chatDescription": "An app based on ChatGPT",
+  "chatDescription": "Based on ChatGPT",
   "@chatDescription": {
     "description": "Study description for Chat."
   },
@@ -609,7 +609,7 @@
   "@settingsFeedback": {
     "description": "Title for feedback button."
   },
-  "settingsAttribution": "Designed by TOASTER in London",
+  "settingsAttribution": "To the time to life",
   "@settingsAttribution": {
     "description": "Title for attribution (TOASTER is a proper name and should remain in English)."
   },
