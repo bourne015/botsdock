@@ -47,4 +47,5 @@ flutter:
     - assets/images/chatgpt.png
     - assets/images/chatgpt_green.png
     - assets/images/chatgpt_red.png
-    - assets/chat/rally_card.png
+    - assets/chat/chat_card.png
+    - assets/chat/chat_card_dark.png
