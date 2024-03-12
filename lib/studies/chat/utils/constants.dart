@@ -51,13 +51,13 @@ enum MsgType { text, image, mix }
 
 const double drawerWidth = 260;
 
-const String sseChatUrl = "https://fantao.life:8001/v1/stream/chat";
-const String chatUrl = "https://fantao.life:8001/v1/chat";
-const String imageUrl = "https://www.fantao.life:8001/v1/image";
+const String sseChatUrl = "http://127.0.0.1:8001/v1/stream/chat";
+const String chatUrl = "http://127.0.0.1:8001/v1/chat";
+const String imageUrl = "http://127.0.0.1:8001/v1/image";
 
 const String aboutText = """
 A Demo for ChatGPT.
 Please refresh the page if reached max tokens or don't need chat context
 """;
 
-const String appVersion = "0.1.3";
+const String appVersion = "0.1.4";
