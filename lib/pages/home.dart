@@ -12,20 +12,7 @@ import 'package:gallery/constants.dart';
 import 'package:gallery/data/demos.dart';
 import 'package:gallery/data/gallery_options.dart';
 import 'package:gallery/layout/adaptive.dart';
-import 'package:gallery/pages/category_list_item.dart';
-// import 'package:gallery/pages/settings.dart';
-// import 'package:gallery/pages/splash.dart';
-// import 'package:gallery/studies/crane/colors.dart';
-// import 'package:gallery/studies/crane/routes.dart' as crane_routes;
-// import 'package:gallery/studies/fortnightly/routes.dart' as fortnightly_routes;
-import 'package:gallery/studies/rally/colors.dart';
-// import 'package:gallery/studies/rally/routes.dart' as rally_routes;
-// import 'package:gallery/studies/reply/routes.dart' as reply_routes;
-// import 'package:gallery/studies/shrine/colors.dart';
-// import 'package:gallery/studies/shrine/routes.dart' as shrine_routes;
-// import 'package:gallery/studies/starter/routes.dart' as starter_app_routes;
 import 'package:gallery/studies/chat_ui/lib/routes.dart' as chat_routes;
-// import 'package:url_launcher/url_launcher.dart';
 
 const _horizontalPadding = 32.0;
 const _horizontalDesktopPadding = 81.0;
@@ -138,7 +125,7 @@ class HomePage extends StatelessWidget {
       */
       _CarouselCard(
         demo: studyDemos['chat'],
-        textColor: RallyColors.accountColors[0],
+        textColor: Color(0xFF005D57),
         asset: const AssetImage(
           'assets/studies/rally_card.png',
           package: 'flutter_gallery_assets',
@@ -155,35 +142,6 @@ class HomePage extends StatelessWidget {
 
     if (isDesktop) {
       // Desktop layout
-      /*
-      final desktopCategoryItems = <_DesktopCategoryItem>[
-        _DesktopCategoryItem(
-          category: GalleryDemoCategory.material,
-          asset: const AssetImage(
-            'assets/icons/material/material.png',
-            package: 'flutter_gallery_assets',
-          ),
-          demos: Demos.materialDemos(localizations),
-        ),
-        _DesktopCategoryItem(
-          category: GalleryDemoCategory.cupertino,
-          asset: const AssetImage(
-            'assets/icons/cupertino/cupertino.png',
-            package: 'flutter_gallery_assets',
-          ),
-          demos: Demos.cupertinoDemos(localizations),
-        ),
-        _DesktopCategoryItem(
-          category: GalleryDemoCategory.other,
-          asset: const AssetImage(
-            'assets/icons/reference/reference.png',
-            package: 'flutter_gallery_assets',
-          ),
-          demos: Demos.otherDemos(localizations),
-        ),
-      ];
-      */
-
       return Scaffold(
         body: ListView(
           // Makes integration tests possible.
@@ -198,65 +156,6 @@ class HomePage extends StatelessWidget {
               height: _carouselHeight(0.7, context),
               children: carouselCards,
             ),
-            /*
-            _DesktopHomeItem(child: _CategoriesHeader()),
-            SizedBox(
-              height: 585,
-              child: _DesktopHomeItem(
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: spaceBetween(28, desktopCategoryItems),
-                ),
-              ),
-            ),
-            */
-            const SizedBox(height: 81),
-            /*
-            _DesktopHomeItem(
-              child: Row(
-                children: [
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () async {
-                        final url = Uri.parse('https://flutter.dev');
-                        if (await canLaunchUrl(url)) {
-                          await launchUrl(url);
-                        }
-                      },
-                      excludeFromSemantics: true,
-                      child: FadeInImage(
-                        image: Theme.of(context).colorScheme.brightness ==
-                                Brightness.dark
-                            ? const AssetImage(
-                                'assets/logo/flutter_logo.png',
-                                package: 'flutter_gallery_assets',
-                              )
-                            : const AssetImage(
-                                'assets/logo/flutter_logo_color.png',
-                                package: 'flutter_gallery_assets',
-                              ),
-                        placeholder: MemoryImage(kTransparentImage),
-                        fadeInDuration: entranceAnimationDuration,
-                      ),
-                    ),
-                  ),
-                  const Expanded(
-                    child: Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      alignment: WrapAlignment.end,
-                      children: [
-                        SettingsAbout(),
-                        SettingsFeedback(),
-                        SettingsAttribution(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            */
             const SizedBox(height: 109),
           ],
         ),
@@ -291,16 +190,6 @@ class _GalleryHeader extends StatelessWidget {
     return Header(
       color: Theme.of(context).colorScheme.primaryContainer,
       text: GalleryLocalizations.of(context)!.homeHeaderGallery,
-    );
-  }
-}
-
-class _CategoriesHeader extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Header(
-      color: Theme.of(context).colorScheme.primary,
-      text: GalleryLocalizations.of(context)!.homeHeaderCategories,
     );
   }
 }
@@ -352,19 +241,12 @@ class _AnimatedHomePageState extends State<_AnimatedHomePage>
     with RestorationMixin, SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   Timer? _launchTimer;
-  final RestorableBool _isMaterialListExpanded = RestorableBool(false);
-  final RestorableBool _isCupertinoListExpanded = RestorableBool(false);
-  final RestorableBool _isOtherListExpanded = RestorableBool(false);
 
   @override
   String get restorationId => widget.restorationId;
 
   @override
-  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    // registerForRestoration(_isMaterialListExpanded, 'material_list');
-    // registerForRestoration(_isCupertinoListExpanded, 'cupertino_list');
-    // registerForRestoration(_isOtherListExpanded, 'other_list');
-  }
+  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {}
 
   @override
   void initState() {
@@ -395,9 +277,6 @@ class _AnimatedHomePageState extends State<_AnimatedHomePage>
     _animationController.dispose();
     _launchTimer?.cancel();
     _launchTimer = null;
-    // _isMaterialListExpanded.dispose();
-    // _isCupertinoListExpanded.dispose();
-    // _isOtherListExpanded.dispose();
     super.dispose();
   }
 
@@ -424,63 +303,6 @@ class _AnimatedHomePageState extends State<_AnimatedHomePage>
               restorationId: 'home_carousel',
               children: widget.carouselCards,
             ),
-            // Container(
-            //   margin:
-            //       const EdgeInsets.symmetric(horizontal: _horizontalPadding),
-            //   child: _CategoriesHeader(),
-            // ),
-            /*
-            _AnimatedCategoryItem(
-              startDelayFraction: 0.00,
-              controller: _animationController,
-              child: CategoryListItem(
-                  key: const PageStorageKey<GalleryDemoCategory>(
-                    GalleryDemoCategory.material,
-                  ),
-                  restorationId: 'home_material_category_list',
-                  category: GalleryDemoCategory.material,
-                  imageString: 'assets/icons/material/material.png',
-                  demos: Demos.materialDemos(localizations),
-                  initiallyExpanded:
-                      _isMaterialListExpanded.value || isTestMode,
-                  onTap: (shouldOpenList) {
-                    _isMaterialListExpanded.value = shouldOpenList;
-                  }),
-            ),
-            _AnimatedCategoryItem(
-              startDelayFraction: 0.05,
-              controller: _animationController,
-              child: CategoryListItem(
-                  key: const PageStorageKey<GalleryDemoCategory>(
-                    GalleryDemoCategory.cupertino,
-                  ),
-                  restorationId: 'home_cupertino_category_list',
-                  category: GalleryDemoCategory.cupertino,
-                  imageString: 'assets/icons/cupertino/cupertino.png',
-                  demos: Demos.cupertinoDemos(localizations),
-                  initiallyExpanded:
-                      _isCupertinoListExpanded.value || isTestMode,
-                  onTap: (shouldOpenList) {
-                    _isCupertinoListExpanded.value = shouldOpenList;
-                  }),
-            ),
-            _AnimatedCategoryItem(
-              startDelayFraction: 0.10,
-              controller: _animationController,
-              child: CategoryListItem(
-                  key: const PageStorageKey<GalleryDemoCategory>(
-                    GalleryDemoCategory.other,
-                  ),
-                  restorationId: 'home_other_category_list',
-                  category: GalleryDemoCategory.other,
-                  imageString: 'assets/icons/reference/reference.png',
-                  demos: Demos.otherDemos(localizations),
-                  initiallyExpanded: _isOtherListExpanded.value || isTestMode,
-                  onTap: (shouldOpenList) {
-                    _isOtherListExpanded.value = shouldOpenList;
-                  }),
-            ),
-            */
           ],
         ),
         Align(
@@ -521,147 +343,6 @@ class _DesktopHomeItem extends StatelessWidget {
         ),
         child: child,
       ),
-    );
-  }
-}
-
-class _DesktopCategoryItem extends StatelessWidget {
-  const _DesktopCategoryItem({
-    required this.category,
-    required this.asset,
-    required this.demos,
-  });
-
-  final GalleryDemoCategory category;
-  final ImageProvider asset;
-  final List<GalleryDemo> demos;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Material(
-      borderRadius: BorderRadius.circular(10),
-      clipBehavior: Clip.antiAlias,
-      color: colorScheme.surface,
-      child: Semantics(
-        container: true,
-        child: FocusTraversalGroup(
-          policy: WidgetOrderTraversalPolicy(),
-          child: Column(
-            children: [
-              _DesktopCategoryHeader(
-                category: category,
-                asset: asset,
-              ),
-              Divider(
-                height: 2,
-                thickness: 2,
-                color: colorScheme.background,
-              ),
-              Flexible(
-                child: ListView.builder(
-                  // Makes integration tests possible.
-                  key: ValueKey('${category.name}DemoList'),
-                  primary: false,
-                  itemBuilder: (context, index) =>
-                      CategoryDemoItem(demo: demos[index]),
-                  itemCount: demos.length,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _DesktopCategoryHeader extends StatelessWidget {
-  const _DesktopCategoryHeader({
-    required this.category,
-    required this.asset,
-  });
-
-  final GalleryDemoCategory category;
-  final ImageProvider asset;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Material(
-      // Makes integration tests possible.
-      key: ValueKey('${category.name}CategoryHeader'),
-      color: colorScheme.onBackground,
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: FadeInImage(
-              image: asset,
-              placeholder: MemoryImage(kTransparentImage),
-              fadeInDuration: entranceAnimationDuration,
-              width: 64,
-              height: 64,
-              excludeFromSemantics: true,
-            ),
-          ),
-          Flexible(
-            child: Padding(
-              padding: const EdgeInsetsDirectional.only(start: 8),
-              child: Semantics(
-                header: true,
-                child: SelectableText(
-                  category.displayTitle(GalleryLocalizations.of(context)!)!,
-                  style: Theme.of(context).textTheme.headlineSmall!.apply(
-                        color: colorScheme.onSurface,
-                      ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Animates the category item to stagger in. The [_AnimatedCategoryItem.startDelayFraction]
-/// gives a delay in the unit of a fraction of the whole animation duration,
-/// which is defined in [_AnimatedHomePageState].
-class _AnimatedCategoryItem extends StatelessWidget {
-  _AnimatedCategoryItem({
-    required double startDelayFraction,
-    required this.controller,
-    required this.child,
-  }) : topPaddingAnimation = Tween(
-          begin: 60.0,
-          end: 0.0,
-        ).animate(
-          CurvedAnimation(
-            parent: controller,
-            curve: Interval(
-              0.000 + startDelayFraction,
-              0.400 + startDelayFraction,
-              curve: Curves.ease,
-            ),
-          ),
-        );
-
-  final Widget child;
-  final AnimationController controller;
-  final Animation<double> topPaddingAnimation;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, child) {
-        return Padding(
-          padding: EdgeInsets.only(top: topPaddingAnimation.value),
-          child: child,
-        );
-      },
-      child: child,
     );
   }
 }

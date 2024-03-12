@@ -3,8 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:dual_screen/dual_screen.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
@@ -21,8 +19,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 // import 'firebase_options.dart';
 import 'layout/adaptive.dart';
-
-export 'package:gallery/data/demos.dart' show pumpDeferredLibraries;
 
 void main() async {
   GoogleFonts.config.allowRuntimeFetching = false;
