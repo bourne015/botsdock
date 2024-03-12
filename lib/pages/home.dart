@@ -12,7 +12,7 @@ import 'package:gallery/constants.dart';
 import 'package:gallery/data/demos.dart';
 import 'package:gallery/data/gallery_options.dart';
 import 'package:gallery/layout/adaptive.dart';
-import 'package:gallery/studies/chat/routes.dart' as chat_routes;
+import 'package:gallery/apps/chat/routes.dart' as chat_routes;
 
 const _horizontalPadding = 32.0;
 const _horizontalDesktopPadding = 81.0;
