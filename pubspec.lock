@@ -9,14 +9,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.1.7"
-  animations:
-    dependency: "direct main"
-    description:
-      name: animations
-      sha256: d3d6dcfb218225bbe68e87ccf6378bbb2e32a94900722c5f81611dad089911cb
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.11"
   args:
     dependency: transitive
     description:
@@ -73,14 +65,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.3"
-  cupertino_icons:
-    dependency: "direct main"
-    description:
-      name: cupertino_icons
-      sha256: d57953e10f9f8327ce64a508a355f0b1ec902193f66288e8cb5070e7c47eeb2d
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.6"
   dio:
     dependency: "direct main"
     description:
@@ -297,7 +281,7 @@ packages:
     source: hosted
     version: "0.18.1"
   markdown:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: markdown
       sha256: ef2a1298144e3f985cc736b22e0ccdaf188b5b3970648f2d9dc13efd1d9df051
@@ -361,7 +345,7 @@ packages:
     source: hosted
     version: "1.9.0"
   path_provider:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: path_provider
       sha256: b27217933eeeba8ff24845c34003b003b2b22151de3c908d0e679e8fe1aa078b
@@ -432,30 +416,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "6.1.2"
-  rally_assets:
-    dependency: "direct main"
-    description:
-      name: rally_assets
-      sha256: cdd331819d51e58f9d8766c98af99bc0955d1c4b6b306eee4d332d30e9deaa81
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.0.1"
-  scoped_model:
-    dependency: "direct main"
-    description:
-      name: scoped_model
-      sha256: "8dacc77cb5de78d5e159d54cab883847491a73dfaa3d28c52f4ec8b0be32645b"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.0"
-  shrine_images:
-    dependency: "direct main"
-    description:
-      name: shrine_images
-      sha256: "7417da1e83c22f483e222a9d947ffea04b66078c70090072eb0821b89872c26a"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.2"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -566,7 +526,7 @@ packages:
     source: hosted
     version: "3.1.1"
   vector_math:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: vector_math
       sha256: "80b3257d1492ce4d091729e3a67a60407d227c27241d6927be0130c98e741803"
