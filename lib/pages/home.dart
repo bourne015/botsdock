@@ -127,14 +127,10 @@ class HomePage extends StatelessWidget {
         demo: studyDemos['chat'],
         textColor: Color(0xFF005D57),
         asset: const AssetImage(
-          'assets/studies/rally_card.png',
-          package: 'flutter_gallery_assets',
+          'assets/chat/rally_card.png',
         ),
         assetColor: const Color(0xFFD1F2E6),
-        assetDark: const AssetImage(
-          'assets/studies/rally_card_dark.png',
-          package: 'flutter_gallery_assets',
-        ),
+        assetDark: AssetImage('assets/chat/rally_card_dark.png'),
         assetDarkColor: const Color(0xFF253538),
         studyRoute: chat_routes.homeRoute,
       ),
