@@ -152,6 +152,19 @@ class HomePage extends StatelessWidget {
               height: _carouselHeight(0.7, context),
               children: carouselCards,
             ),
+            const SizedBox(height: 81),
+            _DesktopHomeItem(
+                child: Row(children: [
+              Expanded(
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  alignment: WrapAlignment.end,
+                  children: [
+                    SettingsAttribution(),
+                  ],
+                ),
+              ),
+            ])),
             const SizedBox(height: 109),
           ],
         ),
@@ -917,3 +930,31 @@ class _StudyWrapperState extends State<StudyWrapper> {
 }
 
 class _BackButtonHeroTag {}
+
+class SettingsAttribution extends StatelessWidget {
+  const SettingsAttribution({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDesktop = isDisplayDesktop(context);
+    final verticalPadding = isDesktop ? 0.0 : 28.0;
+    return MergeSemantics(
+      child: Padding(
+        padding: EdgeInsetsDirectional.only(
+          start: isDesktop ? 24 : 32,
+          end: isDesktop ? 0 : 32,
+          top: verticalPadding,
+          bottom: verticalPadding,
+        ),
+        child: SelectableText(
+          GalleryLocalizations.of(context)!.settingsAttribution,
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSecondary,
+              ),
+          textAlign: isDesktop ? TextAlign.end : TextAlign.start,
+        ),
+      ),
+    );
+  }
+}
