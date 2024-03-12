@@ -5,24 +5,10 @@
 import 'package:dual_screen/dual_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:gallery/deferred_widget.dart';
 import 'package:gallery/main.dart';
-import 'package:gallery/pages/demo.dart';
 import 'package:gallery/pages/home.dart';
-// import 'package:gallery/studies/crane/app.dart' deferred as crane;
-// import 'package:gallery/studies/crane/routes.dart' as crane_routes;
-// import 'package:gallery/studies/fortnightly/app.dart' deferred as fortnightly;
-// import 'package:gallery/studies/fortnightly/routes.dart' as fortnightly_routes;
-// import 'package:gallery/studies/rally/app.dart' deferred as rally;
-// import 'package:gallery/studies/rally/routes.dart' as rally_routes;
-// import 'package:gallery/studies/reply/app.dart' as reply;
-// import 'package:gallery/studies/reply/routes.dart' as reply_routes;
-// import 'package:gallery/studies/shrine/app.dart' deferred as shrine;
-// import 'package:gallery/studies/shrine/routes.dart' as shrine_routes;
-// import 'package:gallery/studies/starter/app.dart' as starter_app;
-// import 'package:gallery/studies/starter/routes.dart' as starter_app_routes;
-import 'package:gallery/studies/chat_ui/lib/main.dart' as chat;
-import 'package:gallery/studies/chat_ui/lib/routes.dart' as chat_routes;
+import 'package:gallery/studies/chat/main.dart' as chat;
+import 'package:gallery/studies/chat/routes.dart' as chat_routes;
 
 typedef PathWidgetBuilder = Widget Function(BuildContext, String?);
 

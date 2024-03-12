@@ -1,4 +1,0 @@
-[submodule "lib/studies/chat_ui"]
-	path = lib/studies/chat_ui
-	url = git@github.com:bourne015/chat_ui.git
-	branch = dev
