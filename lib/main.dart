@@ -7,17 +7,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
-import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'package:gallery/constants.dart';
 import 'package:gallery/data/gallery_options.dart';
 import 'package:gallery/pages/backdrop.dart';
-// import 'package:gallery/pages/splash.dart';
 import 'package:gallery/routes.dart';
 import 'package:gallery/themes/gallery_theme_data.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// import 'firebase_options.dart';
 import 'layout/adaptive.dart';
 
 void main() async {
@@ -85,7 +82,7 @@ class GalleryApp extends StatelessWidget {
             ),
             localizationsDelegates: const [
               ...GalleryLocalizations.localizationsDelegates,
-              LocaleNamesLocalizationsDelegate()
+              //LocaleNamesLocalizationsDelegate()
             ],
             initialRoute: initialRoute,
             supportedLocales: GalleryLocalizations.supportedLocales,

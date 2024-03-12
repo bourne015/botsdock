@@ -142,27 +142,11 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_gallery_assets:
-    dependency: "direct main"
-    description:
-      name: flutter_gallery_assets
-      sha256: f8fecfeebcfbe80a2fabc00c0834046890abe681f59d3e2c5b1028faf887d94b
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.2"
   flutter_localizations:
     dependency: "direct main"
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_localized_locales:
-    dependency: "direct main"
-    description:
-      name: flutter_localized_locales
-      sha256: "478d10535edf07292e34cb4c757882edeeaf96d5e3dbb04b42733038bd41dd3f"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.5"
   flutter_markdown:
     dependency: "direct main"
     description:
