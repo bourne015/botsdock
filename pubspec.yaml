@@ -34,18 +34,17 @@ flutter:
   generate: true # Enables generation of localized strings from arb files
   uses-material-design: true
   fonts:
-    - family: NotoSans
+    - family: notosans
       fonts:
-        - asset: fonts/NotoSans-Regular.ttf
-    - family: notosanssc
-      fonts:
-        - asset: fonts/NotoSansSC.otf
-    - family: Roboto
-      fonts:
-        - asset: fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/google_fonts/NotoSans-Regular.ttf
+    # - family: notosanssc
+    #   fonts:
+    #     - asset: assets/fonts/google_fonts/NotoSansSC.otf
+    # - family: GalleryIcons
+    #   fonts:
+    #     - asset: assets/fonts/GalleryIcons.ttf
+
   assets:
-    - assets/images/chatgpt.png
-    - assets/images/chatgpt_green.png
     - assets/images/chatgpt_red.png
-    - assets/chat/chat_card.png
-    - assets/chat/chat_card_dark.png
+    - assets/images/chat/chat_card.png
+    - assets/images/chat/chat_card_dark.png

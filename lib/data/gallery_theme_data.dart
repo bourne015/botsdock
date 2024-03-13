@@ -80,24 +80,24 @@ class GalleryThemeData {
 
   static const TextTheme _textTheme = TextTheme(
     headlineMedium:
-        TextStyle(fontFamily: 'notosanssc', fontWeight: _bold, fontSize: 20.0),
+        TextStyle(fontFamily: 'notosans', fontWeight: _bold, fontSize: 20.0),
     bodySmall: TextStyle(
-        fontFamily: 'notosanssc', fontWeight: _semiBold, fontSize: 16.0),
-    headlineSmall: TextStyle(
-        fontFamily: 'notosanssc', fontWeight: _medium, fontSize: 16.0),
-    titleMedium: TextStyle(
-        fontFamily: 'notosanssc', fontWeight: _medium, fontSize: 16.0),
-    labelSmall: TextStyle(
-        fontFamily: 'notosanssc', fontWeight: _medium, fontSize: 12.0),
-    bodyLarge: TextStyle(
-        fontFamily: 'notosanssc', fontWeight: _regular, fontSize: 14.0),
-    titleSmall: TextStyle(
-        fontFamily: 'notosanssc', fontWeight: _medium, fontSize: 14.0),
-    bodyMedium: TextStyle(
-        fontFamily: 'notosanssc', fontWeight: _regular, fontSize: 16.0),
+        fontFamily: 'notosans', fontWeight: _semiBold, fontSize: 16.0),
+    headlineSmall:
+        TextStyle(fontFamily: 'notosans', fontWeight: _medium, fontSize: 16.0),
+    titleMedium:
+        TextStyle(fontFamily: 'notosans', fontWeight: _medium, fontSize: 16.0),
+    labelSmall:
+        TextStyle(fontFamily: 'notosans', fontWeight: _medium, fontSize: 12.0),
+    bodyLarge:
+        TextStyle(fontFamily: 'notosans', fontWeight: _regular, fontSize: 14.0),
+    titleSmall:
+        TextStyle(fontFamily: 'notosans', fontWeight: _medium, fontSize: 14.0),
+    bodyMedium:
+        TextStyle(fontFamily: 'notosans', fontWeight: _regular, fontSize: 16.0),
     titleLarge:
-        TextStyle(fontFamily: 'notosanssc', fontWeight: _bold, fontSize: 16.0),
+        TextStyle(fontFamily: 'notosans', fontWeight: _bold, fontSize: 16.0),
     labelLarge: TextStyle(
-        fontFamily: 'notosanssc', fontWeight: _semiBold, fontSize: 14.0),
+        fontFamily: 'notosans', fontWeight: _semiBold, fontSize: 14.0),
   );
 }
