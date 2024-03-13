@@ -36,7 +36,7 @@ class MainLayoutState extends State<MainLayout> {
     Pages pages = Provider.of<Pages>(context);
     return Row(children: <Widget>[
       if (pages.isDrawerOpen) const ChatDrawer(),
-      const VerticalDivider(width: 1),
+      //const VerticalDivider(width: 1),
       Expanded(
           child: Scaffold(
         backgroundColor: AppColors.chatPageBackground,

@@ -18,7 +18,12 @@ class ChatDrawerState extends State<ChatDrawer> {
     Pages pages = Provider.of<Pages>(context);
     return Drawer(
       width: drawerWidth,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.drawerBackground,
+      shape: isDisplayDesktop(context)
+          ? RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+            )
+          : null,
       child: Column(
         //padding: EdgeInsets.zero,
         children: [
