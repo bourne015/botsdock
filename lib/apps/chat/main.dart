@@ -30,7 +30,7 @@ class _AppState extends State<ChatApp> {
         child: MaterialApp(
           title: appTitle,
           theme: ThemeData(
-            fontFamily: 'notosanssc',
+            fontFamily: 'notosans',
             primarySwatch: AppColors.theme,
           ),
           initialRoute: ChatApp.homeRoute,

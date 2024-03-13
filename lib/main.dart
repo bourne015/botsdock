@@ -25,19 +25,6 @@ void main() async {
       defaultTargetPlatform != TargetPlatform.windows &&
       defaultTargetPlatform != TargetPlatform.macOS) {
     WidgetsFlutterBinding.ensureInitialized();
-    /*
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    FlutterError.onError = (errorDetails) {
-      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-    };
-    // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
-    PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-      return true;
-    };
-    */
   }
 
   runApp(const GalleryApp());
@@ -107,13 +94,6 @@ class RootPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return ApplyTextOptions(
-    //   child: SplashPage(
-    //     child: Backdrop(
-    //       isDesktop: isDisplayDesktop(context),
-    //     ),
-    //   ),
-    // );
     return ApplyTextOptions(
         child: Backdrop(isDesktop: isDisplayDesktop(context)));
   }
