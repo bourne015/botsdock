@@ -8,6 +8,7 @@ import 'package:markdown/markdown.dart' as md;
 import '../utils/constants.dart';
 import '../utils/markdown_extentions.dart';
 import '../utils/syntax_hightlighter.dart';
+import '../utils/utils.dart';
 
 class MessageBox extends StatelessWidget {
   final Map val;
@@ -16,9 +17,13 @@ class MessageBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: isDisplayDesktop(context)
+          ? EdgeInsets.only(left: 80, right: 120)
+          : null,
       margin: const EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           roleIcon(context),
           message(context),
@@ -28,15 +33,22 @@ class MessageBox extends StatelessWidget {
   }
 
   Widget roleIcon(BuildContext context) {
+    var icon =
+        val['role'] == MessageRole.user ? Icons.person : Icons.perm_identity;
+    var color = val['role'] == MessageRole.user ? Colors.blue : Colors.green;
+
     return Icon(
-        val['role'] == MessageRole.user ? Icons.person : Icons.perm_identity,
-        size: 32);
+      icon,
+      size: 32,
+      color: color,
+    );
   }
 
   Widget message(BuildContext context) {
     return Flexible(
       child: Container(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.only(
+            top: 3.0, bottom: 15.0, right: 10.0, left: 10.0),
         decoration: BoxDecoration(
             color: val['role'] == MessageRole.user
                 ? AppColors.userMsgBox
@@ -48,11 +60,24 @@ class MessageBox extends StatelessWidget {
               bottomRight: Radius.circular(6),
             )),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          messageRoleName(context),
           if (val["file"] != null) inputedImage(context),
           messageContent(context)
         ]),
       ),
     );
+  }
+
+  Widget messageRoleName(BuildContext context) {
+    var name = val['role'] == MessageRole.user ? "You" : "ChatGPT";
+
+    return Container(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: RichText(
+            text: TextSpan(
+          text: name,
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+        )));
   }
 
   Widget inputedImage(BuildContext context) {
@@ -107,8 +132,7 @@ class MessageBox extends StatelessWidget {
       styleSheet: MarkdownStyleSheet(
         //h1: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         //h2: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        // p: const TextStyle(fontSize: 17.0, color: AppColors.msgText),
-        // a: const TextStyle(color: Colors.blue),
+        p: const TextStyle(fontSize: 17.0, color: AppColors.msgText),
         code: const TextStyle(
           inherit: false,
           color: AppColors.msgText,

@@ -4,7 +4,7 @@ const String appTitle = 'Chat Demo';
 
 class AppColors {
   static const appBarText = Colors.black;
-  static final appBarBackground = Colors.grey[200];
+  static final appBarBackground = Colors.grey[50];
   static final initPageBackgroundText = Colors.grey[350];
   static const theme = Colors.blueGrey;
   static const chatPageTitle = Colors.white;
@@ -13,17 +13,18 @@ class AppColors {
   static const modelSelected = Colors.white;
   static const subTitle = Colors.grey;
 
+  static final drawerBackground = Colors.grey[100];
   static final drawerTabSelected = Colors.grey[300];
   static const drawerDivider = Colors.black12;
 
   static final chatPageBackground = Colors.grey[50];
   static final inputBoxBackground = Colors.grey[200];
   static final inputTextField = Colors.blue[50];
-  static final userMsgBox = Colors.purple[400];
-  static const aiMsgBox = Colors.white;
-  static const msgText = Colors.black;
+  static final userMsgBox = chatPageBackground;
+  static final aiMsgBox = chatPageBackground;
+  static const msgText = Color.fromARGB(255, 60, 58, 58);
 
-  static const generatingAnimation = Colors.black;
+  static const generatingAnimation = Colors.grey;
 
   static const msgCodeTitleBG = Color.fromARGB(255, 75, 74, 74);
   static const msgCodeTitle = Colors.white;
@@ -60,4 +61,4 @@ A Demo for ChatGPT.
 Please refresh the page if reached max tokens or don't need chat context
 """;
 
-const String appVersion = "0.1.5";
+const String appVersion = "0.1.6";
