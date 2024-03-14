@@ -78,7 +78,7 @@ class ChatDrawerState extends State<ChatDrawer> {
       Expanded(
           flex: 4,
           child: Container(
-              margin: const EdgeInsets.all(8.0),
+              margin: const EdgeInsets.all(10),
               child: OutlinedButton.icon(
                 onPressed: () {
                   // var newId = pages.assignNewPageID;
@@ -119,7 +119,7 @@ class ChatDrawerState extends State<ChatDrawer> {
                         const Size(double.infinity, 52)),
                     padding: MaterialStateProperty.all(EdgeInsets.zero),
                     shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8))),
+                        borderRadius: BorderRadius.circular(10))),
                   ),
                   child: const Icon(Icons.amp_stories_outlined),
                 ))),
@@ -130,7 +130,7 @@ class ChatDrawerState extends State<ChatDrawer> {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(
         icon: const Icon(Icons.close),
-        iconSize: 20,
+        iconSize: 16,
         onPressed: () {
           pages.delPage(removeID);
           pages.currentPageID = -1;
@@ -145,12 +145,21 @@ class ChatDrawerState extends State<ChatDrawer> {
     return Container(
         margin: const EdgeInsets.fromLTRB(8.0, 0, 10, 0),
         child: ListTile(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
           selectedTileColor: AppColors.drawerTabSelected,
           selected: pages.currentPageID == page.id,
-          leading: const Icon(Icons.chat_bubble_outline, size: 18),
+          leading: const Icon(Icons.chat_bubble_outline, size: 16),
           minLeadingWidth: 0,
           contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-          title: Text(page.title, overflow: TextOverflow.ellipsis, maxLines: 1),
+          title: RichText(
+              text: TextSpan(
+                text: page.title,
+                style: TextStyle(fontSize: 15.5, color: AppColors.msgText),
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1),
           onTap: () {
             pages.currentPageID = page.id;
             pages.displayInitPage = false;
