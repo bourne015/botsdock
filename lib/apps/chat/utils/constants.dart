@@ -14,7 +14,7 @@ class AppColors {
   static const subTitle = Colors.grey;
 
   static final drawerBackground = Colors.grey[100];
-  static final drawerTabSelected = Colors.grey[300];
+  static final drawerTabSelected = Colors.grey[350];
   static const drawerDivider = Colors.black12;
 
   static final chatPageBackground = Colors.grey[50];
