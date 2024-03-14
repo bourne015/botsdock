@@ -39,11 +39,11 @@ class MyAppBarState extends State<MyAppBar> {
           pages.defaultModelVersion = value;
         },
         children: const <String, Widget>{
-          ModelVersion.gptv35: Padding(
+          GPTModel.gptv35: Padding(
             padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
             child: Text('GPT-3.5'),
           ),
-          ModelVersion.gptv40: Padding(
+          GPTModel.gptv40: Padding(
             padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
             child: Text('GPT-4.0'),
           ),
