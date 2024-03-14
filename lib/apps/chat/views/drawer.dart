@@ -39,7 +39,11 @@ class ChatDrawerState extends State<ChatDrawer> {
           ListTile(
             leading: const Icon(Icons.delete),
             minLeadingWidth: 0,
-            title: const Text('Clear Conversations'),
+            title: RichText(
+                text: TextSpan(
+              text: 'clear conversations',
+              style: TextStyle(fontSize: 17, color: AppColors.msgText),
+            )),
             onTap: () {
               if (pages.currentPage?.onGenerating == false) {
                 pages.clearMsg(pages.currentPageID);
@@ -51,13 +55,18 @@ class ChatDrawerState extends State<ChatDrawer> {
           ListTile(
               leading: const Icon(Icons.info),
               minLeadingWidth: 0,
-              title: const Text('About'),
+              title: RichText(
+                  text: TextSpan(
+                text: 'about',
+                style: TextStyle(fontSize: 17, color: AppColors.msgText),
+              )),
               onTap: () {
                 if (!isDisplayDesktop(context)) {
                   Navigator.pop(context); // hide sidebar
                 }
                 aboutButton(context);
-              })
+              }),
+          const SizedBox(height: 10),
         ],
       ),
     );

@@ -69,7 +69,7 @@ class MessageBox extends StatelessWidget {
   }
 
   Widget messageRoleName(BuildContext context) {
-    var name = val['role'] == MessageRole.user ? "You" : "ChatGPT";
+    var name = val['role'] == MessageRole.user ? "You" : "Assistant";
 
     return Container(
         padding: const EdgeInsets.only(bottom: 10),

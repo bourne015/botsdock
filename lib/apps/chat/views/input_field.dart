@@ -43,10 +43,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
       child: Row(
         children: [
           if ((!pages.displayInitPage &&
-                  pages.currentPage?.modelVersion ==
-                      ModelVersion.gptv40Vision) ||
+                  pages.currentPage?.modelVersion == GPTModel.gptv40Vision) ||
               (pages.displayInitPage &&
-                  pages.defaultModelVersion == ModelVersion.gptv40Vision))
+                  pages.defaultModelVersion == GPTModel.gptv40Vision))
             pickButton(context),
           inputField(context),
           (!pages.displayInitPage && pages.currentPage!.onGenerating)
@@ -103,14 +102,14 @@ class _ChatInputFieldState extends State<ChatInputField> {
     String hintText = "Send a message";
 
     if ((pages.displayInitPage &&
-            pages.defaultModelVersion == ModelVersion.gptv40Vision) ||
+            pages.defaultModelVersion == GPTModel.gptv40Vision) ||
         (!pages.displayInitPage &&
-            pages.currentPage!.modelVersion == ModelVersion.gptv40Vision)) {
+            pages.currentPage!.modelVersion == GPTModel.gptv40Vision)) {
       hintText = "pick image and input questions";
     } else if ((pages.displayInitPage &&
-            pages.defaultModelVersion == ModelVersion.gptv40Dall) ||
+            pages.defaultModelVersion == GPTModel.gptv40Dall) ||
         (!pages.displayInitPage &&
-            pages.currentPage!.modelVersion == ModelVersion.gptv40Dall)) {
+            pages.currentPage!.modelVersion == GPTModel.gptv40Dall)) {
       hintText = "describe the image";
     }
 
@@ -203,7 +202,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   void titleGenerate(Pages pages, int handlePageID) async {
     String q;
-    if (pages.getPage(handlePageID).modelVersion == ModelVersion.gptv40Dall) {
+    if (pages.getPage(handlePageID).modelVersion == GPTModel.gptv40Dall) {
       q = pages.getMessages(handlePageID)!.first.content;
     } else if (pages.getMessages(handlePageID)!.length > 1) {
       q = pages.getMessages(handlePageID)![1].content;
@@ -212,7 +211,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       return;
     }
     var chatData1 = {
-      "model": ModelVersion.gptv35,
+      "model": GPTModel.gptv35,
       "question": "为这段话写一个5个字左右的标题:$q"
     };
     final response = await dio.post(chatUrl, data: chatData1);
@@ -234,27 +233,27 @@ class _ChatInputFieldState extends State<ChatInputField> {
         timestamp: DateTime.now());
     pages.addMessage(handlePageID, msgQ);
 
-    if (pages.defaultModelVersion == ModelVersion.gptv40Dall) {
-      String q = pages.getMessages(handlePageID)!.last.content;
-      var chatData1 = {"model": ModelVersion.gptv40Dall, "question": q};
-      pages.getPage(handlePageID).onGenerating = true;
-      final response = await dio.post(imageUrl, data: chatData1);
-      pages.getPage(handlePageID).onGenerating = false;
-      if (response.statusCode == 200 &&
-          pages.getPage(handlePageID).title == "Chat $handlePageID") {
-        titleGenerate(pages, handlePageID);
-      }
+    try {
+      if (pages.defaultModelVersion == GPTModel.gptv40Dall) {
+        String q = pages.getMessages(handlePageID)!.last.content;
+        var chatData1 = {"model": GPTModel.gptv40Dall, "question": q};
+        pages.getPage(handlePageID).onGenerating = true;
+        final response = await dio.post(imageUrl, data: chatData1);
+        pages.getPage(handlePageID).onGenerating = false;
+        if (response.statusCode == 200 &&
+            pages.getPage(handlePageID).title == "Chat $handlePageID") {
+          titleGenerate(pages, handlePageID);
+        }
 
-      Message msgA = Message(
-          id: '1',
-          pageID: handlePageID,
-          role: MessageRole.assistant,
-          type: MsgType.image,
-          content: response.data,
-          timestamp: DateTime.now());
-      pages.addMessage(handlePageID, msgA);
-    } else {
-      try {
+        Message msgA = Message(
+            id: '1',
+            pageID: handlePageID,
+            role: MessageRole.assistant,
+            type: MsgType.image,
+            content: response.data,
+            timestamp: DateTime.now());
+        pages.addMessage(handlePageID, msgA);
+      } else {
         var chatData = {
           "model": pages.currentPage?.modelVersion,
           "question": pages.getPage(handlePageID).msgsToMap()
@@ -294,10 +293,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
           }
           pages.getPage(handlePageID).onGenerating = false;
         });
-      } catch (e) {
-        debugPrint("error: $e");
-        pages.getPage(handlePageID).onGenerating = false;
       }
+    } catch (e) {
+      debugPrint("error: $e");
+      pages.getPage(handlePageID).onGenerating = false;
     }
   }
 }
