@@ -55,7 +55,7 @@ class Chat {
     List<Map> res = [];
     for (int i = 0; i < messages.length; i++) {
       var val = messages[i];
-      res.add(val.toMap());
+      res.add(val.toMap(modelVersion));
     }
     msg = res;
     return msg;

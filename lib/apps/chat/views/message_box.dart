@@ -74,7 +74,8 @@ class MessageBoxState extends State<MessageBox> {
             )),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           messageRoleName(context),
-          if (widget.val["file"] != null) inputedImage(context),
+          if (widget.val["file"] != null)
+            contentImage(context, widget.val["file"]!.path),
           messageContent(context)
         ]),
       ),
@@ -93,29 +94,11 @@ class MessageBoxState extends State<MessageBox> {
         )));
   }
 
-  Widget inputedImage(BuildContext context) {
-    return GestureDetector(
-        onTap: () {
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return Dialog(
-                  //child: Container(
-                  child: Image.network(widget.val["file"]!.path),
-                );
-              });
-        },
-        onLongPressStart: (details) {
-          _showDownloadMenu(
-              context, details.globalPosition, widget.val["file"]!.path);
-        },
-        child: Image.network(widget.val["file"]!.path,
-            height: 250, width: 200, fit: BoxFit.cover));
-  }
-
   Widget messageContent(BuildContext context) {
     if (widget.val["type"] == MsgType.image) {
-      return contentImage(context);
+      String imageBase64Str = widget.val['content'];
+      String imageB64Url = "data:image/png;base64,$imageBase64Str";
+      return contentImage(context, imageB64Url);
     } else if (widget.val['role'] == MessageRole.user) {
       return SelectableText(
         widget.val['content'],
@@ -206,9 +189,7 @@ class MessageBoxState extends State<MessageBox> {
     );
   }
 
-  Widget contentImage(BuildContext context) {
-    String imageBase64Str = widget.val['content'];
-    String imageB64Url = "data:image/png;base64,$imageBase64Str";
+  Widget contentImage(BuildContext context, imageB64Url) {
     return GestureDetector(
         onTap: () {
           showDialog(
@@ -216,8 +197,8 @@ class MessageBoxState extends State<MessageBox> {
               builder: (BuildContext context) {
                 return Dialog(
                     //child: Container(
-                    child: Image.memory(base64Decode(
-                        widget.val['content'])) //Image.network(val['content']),
+                    child: Image.network(
+                        imageB64Url) //Image.network(val['content']),
                     );
               });
         },
