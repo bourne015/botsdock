@@ -32,28 +32,23 @@ class Chat {
   void addMessage(Message newMsg) {
     messages.add(newMsg);
     messageBox.insert(
-        0,
-        Container(
-          alignment: Alignment.centerRight,
-          child: MessageBox(val: {
-            "role": newMsg.role,
-            "type": newMsg.type,
-            "content": newMsg.content,
-            "file": newMsg.file
-          }),
-        ));
+      0,
+      MessageBox(val: {
+        "role": newMsg.role,
+        "type": newMsg.type,
+        "content": newMsg.content,
+        "file": newMsg.file
+      }),
+    );
   }
 
   void appendMessage(String newMsg) {
     int lastMsgID = messages.isNotEmpty ? messages.length - 1 : 0;
     messages[lastMsgID].content += newMsg;
-    messageBox[0] = Container(
-      alignment: Alignment.centerRight,
-      child: MessageBox(val: {
-        "role": MessageRole.assistant,
-        "content": messages[lastMsgID].content
-      }),
-    );
+    messageBox[0] = MessageBox(val: {
+      "role": MessageRole.assistant,
+      "content": messages[lastMsgID].content
+    });
   }
 
   List<Map> msgsToMap() {
