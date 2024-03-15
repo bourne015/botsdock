@@ -43,9 +43,12 @@ class _ChatInputFieldState extends State<ChatInputField> {
       child: Row(
         children: [
           if ((!pages.displayInitPage &&
-                  pages.currentPage?.modelVersion == GPTModel.gptv40Vision) ||
+                  (pages.currentPage?.modelVersion == GPTModel.gptv40Vision ||
+                      pages.currentPage?.modelVersion.substring(0, 6) ==
+                          "claude")) ||
               (pages.displayInitPage &&
-                  pages.defaultModelVersion == GPTModel.gptv40Vision))
+                  (pages.defaultModelVersion == GPTModel.gptv40Vision ||
+                      pages.defaultModelVersion.substring(0, 6) == "claude")))
             pickButton(context),
           inputField(context),
           (!pages.displayInitPage && pages.currentPage!.onGenerating)
@@ -102,10 +105,12 @@ class _ChatInputFieldState extends State<ChatInputField> {
     String hintText = "Send a message";
 
     if ((pages.displayInitPage &&
-            pages.defaultModelVersion == GPTModel.gptv40Vision) ||
+            (pages.defaultModelVersion == GPTModel.gptv40Vision ||
+                pages.defaultModelVersion.substring(0, 6) == 'claude')) ||
         (!pages.displayInitPage &&
-            pages.currentPage!.modelVersion == GPTModel.gptv40Vision)) {
-      hintText = "pick image and input questions";
+            (pages.currentPage!.modelVersion == GPTModel.gptv40Vision ||
+                pages.currentPage?.modelVersion.substring(0, 6) == "claude"))) {
+      hintText = "input questions with or without image";
     } else if ((pages.displayInitPage &&
             pages.defaultModelVersion == GPTModel.gptv40Dall) ||
         (!pages.displayInitPage &&

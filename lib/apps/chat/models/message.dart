@@ -24,7 +24,7 @@ class Message {
     required this.timestamp,
   });
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toMap(String modelVersion) {
     var res = <String, dynamic>{};
     if (file != null) {
       final html.File htmlFile = html.File(
@@ -34,18 +34,37 @@ class Message {
       );
       String fileType = htmlFile.type;
       String fileBase64 = base64Encode(fileBytes!);
-      res = {
-        'role': role,
-        'content': [
-          {'type': 'text', 'text': content},
-          {
-            'type': 'image_url',
-            'image_url': {
-              'url': "data:$fileType;base64,$fileBase64",
+      if (modelVersion.substring(0, 6) == "claude") {
+        //claude model
+        res = {
+          'role': role,
+          'content': [
+            {'type': 'text', 'text': content},
+            {
+              'type': 'image',
+              'source': {
+                'type': 'base64',
+                "media_type": fileType,
+                'data': fileBase64,
+              },
             },
-          },
-        ]
-      };
+          ]
+        };
+      } else {
+        //gpt model
+        res = {
+          'role': role,
+          'content': [
+            {'type': 'text', 'text': content},
+            {
+              'type': 'image_url',
+              'image_url': {
+                'url': "data:$fileType;base64,$fileBase64",
+              },
+            },
+          ]
+        };
+      }
     } else {
       res = {
         'role': role,
