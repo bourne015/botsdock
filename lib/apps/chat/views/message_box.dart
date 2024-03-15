@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:html' as html;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:markdown/markdown.dart' as md;
 
@@ -10,17 +11,24 @@ import '../utils/markdown_extentions.dart';
 import '../utils/syntax_hightlighter.dart';
 import '../utils/utils.dart';
 
-class MessageBox extends StatelessWidget {
+class MessageBox extends StatefulWidget {
   final Map val;
-  const MessageBox({super.key, required this.val});
 
+  MessageBox({super.key, required this.val});
+
+  @override
+  State createState() => MessageBoxState();
+}
+
+class MessageBoxState extends State<MessageBox> {
+  static bool _hasCopyIcon = false;
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: isDisplayDesktop(context)
           ? EdgeInsets.only(left: 80, right: 120)
           : null,
-      margin: const EdgeInsets.symmetric(vertical: 10.0),
+      margin: const EdgeInsets.symmetric(vertical: 1.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,9 +41,11 @@ class MessageBox extends StatelessWidget {
   }
 
   Widget roleIcon(BuildContext context) {
-    var icon =
-        val['role'] == MessageRole.user ? Icons.person : Icons.perm_identity;
-    var color = val['role'] == MessageRole.user ? Colors.blue : Colors.green;
+    var icon = widget.val['role'] == MessageRole.user
+        ? Icons.person
+        : Icons.perm_identity;
+    var color =
+        widget.val['role'] == MessageRole.user ? Colors.blue : Colors.green;
 
     return Icon(
       icon,
@@ -45,12 +55,15 @@ class MessageBox extends StatelessWidget {
   }
 
   Widget message(BuildContext context) {
+    double bottom_v = 0;
+    if (widget.val['role'] == MessageRole.user) bottom_v = 30.0;
     return Flexible(
       child: Container(
-        padding: const EdgeInsets.only(
-            top: 3.0, bottom: 15.0, right: 10.0, left: 10.0),
+        margin: EdgeInsets.only(bottom: bottom_v),
+        padding:
+            EdgeInsets.only(top: 1.0, bottom: 1.0, right: 10.0, left: 10.0),
         decoration: BoxDecoration(
-            color: val['role'] == MessageRole.user
+            color: widget.val['role'] == MessageRole.user
                 ? AppColors.userMsgBox
                 : AppColors.aiMsgBox,
             borderRadius: const BorderRadius.only(
@@ -61,7 +74,7 @@ class MessageBox extends StatelessWidget {
             )),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           messageRoleName(context),
-          if (val["file"] != null) inputedImage(context),
+          if (widget.val["file"] != null) inputedImage(context),
           messageContent(context)
         ]),
       ),
@@ -69,7 +82,7 @@ class MessageBox extends StatelessWidget {
   }
 
   Widget messageRoleName(BuildContext context) {
-    var name = val['role'] == MessageRole.user ? "You" : "Assistant";
+    var name = widget.val['role'] == MessageRole.user ? "You" : "Assistant";
 
     return Container(
         padding: const EdgeInsets.only(bottom: 10),
@@ -88,36 +101,84 @@ class MessageBox extends StatelessWidget {
               builder: (BuildContext context) {
                 return Dialog(
                   //child: Container(
-                  child: Image.network(val["file"]!.path),
+                  child: Image.network(widget.val["file"]!.path),
                 );
               });
         },
         onLongPressStart: (details) {
-          _showDownloadMenu(context, details.globalPosition, val["file"]!.path);
+          _showDownloadMenu(
+              context, details.globalPosition, widget.val["file"]!.path);
         },
-        child: Image.network(val["file"]!.path,
+        child: Image.network(widget.val["file"]!.path,
             height: 250, width: 200, fit: BoxFit.cover));
   }
 
   Widget messageContent(BuildContext context) {
-    if (val["type"] == MsgType.image) {
+    if (widget.val["type"] == MsgType.image) {
       return contentImage(context);
-    } else if (val['role'] == MessageRole.user) {
+    } else if (widget.val['role'] == MessageRole.user) {
       return SelectableText(
-        val['content'],
+        widget.val['content'],
         //overflow: TextOverflow.ellipsis,
         //showCursor: false,
         maxLines: null,
         style: const TextStyle(fontSize: 17.0, color: AppColors.msgText),
       );
     } else {
-      return contentMarkdown(context);
+      return wrapContentbyCopy(context);
     }
+  }
+
+  Widget visibilityCopyButton(BuildContext context) {
+    return Visibility(
+        visible: _hasCopyIcon,
+        maintainSize: true,
+        maintainAnimation: true,
+        maintainState: true,
+        child: IconButton(
+          tooltip: "Copy",
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: widget.val['content']))
+                .then((value) => ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        duration: Duration(milliseconds: 200),
+                        content: Text('Copied'),
+                      ),
+                    ));
+          },
+          icon: const Icon(
+            Icons.copy,
+            size: 15,
+          ),
+        ));
+  }
+
+  void _setHovering(bool hovering) {
+    setState(() {
+      _hasCopyIcon = hovering;
+    });
+  }
+
+  Widget wrapContentbyCopy(BuildContext context) {
+    return MouseRegion(
+        onEnter: (_) => _setHovering(true),
+        onExit: (_) => _setHovering(false),
+        child: Container(
+            padding: const EdgeInsets.all(0),
+            margin: const EdgeInsets.all(0),
+            //color: Colors.grey[200],
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  contentMarkdown(context),
+                  visibilityCopyButton(context)
+                ])));
   }
 
   Widget contentMarkdown(BuildContext context) {
     return MarkdownBody(
-      data: val['content'], //markdownTest,
+      data: widget.val['content'], //markdownTest,
       selectable: true,
       syntaxHighlighter: Highlighter(),
       //extensionSet: MarkdownExtensionSet.githubFlavored.value,
@@ -146,7 +207,7 @@ class MessageBox extends StatelessWidget {
   }
 
   Widget contentImage(BuildContext context) {
-    String imageBase64Str = val['content'];
+    String imageBase64Str = widget.val['content'];
     String imageB64Url = "data:image/png;base64,$imageBase64Str";
     return GestureDetector(
         onTap: () {
@@ -156,7 +217,7 @@ class MessageBox extends StatelessWidget {
                 return Dialog(
                     //child: Container(
                     child: Image.memory(base64Decode(
-                        val['content'])) //Image.network(val['content']),
+                        widget.val['content'])) //Image.network(val['content']),
                     );
               });
         },
