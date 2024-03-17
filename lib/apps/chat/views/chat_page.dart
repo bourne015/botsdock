@@ -3,8 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../models/pages.dart';
 import './input_field.dart';
-import '../utils/utils.dart';
-import './drawer_button.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({
@@ -18,10 +16,7 @@ class ChatPage extends StatefulWidget {
 class ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
     return Column(children: [
-      if (isDisplayDesktop(context) && !pages.isDrawerOpen)
-        const ChatDrawerButton(),
       messageList(context),
       const ChatInputField(),
     ]);

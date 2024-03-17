@@ -38,8 +38,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
             bottomLeft: Radius.circular(7),
             bottomRight: Radius.circular(7),
           )),
-      margin: const EdgeInsets.only(left: 50, right: 50, top: 5, bottom: 15),
-      padding: const EdgeInsets.only(left: 7, right: 1, top: 1, bottom: 1),
+      margin: const EdgeInsets.fromLTRB(80, 5, 80, 25),
+      padding: const EdgeInsets.fromLTRB(4, 1, 1, 1),
       child: Row(
         children: [
           if ((!pages.displayInitPage &&
