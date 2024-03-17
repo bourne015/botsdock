@@ -78,7 +78,7 @@ class ChatDrawerState extends State<ChatDrawer> {
       Expanded(
           flex: 4,
           child: Container(
-              margin: const EdgeInsets.all(10),
+              margin: const EdgeInsets.fromLTRB(10, 15, 10, 25),
               child: OutlinedButton.icon(
                 onPressed: () {
                   // var newId = pages.assignNewPageID;
@@ -97,32 +97,9 @@ class ChatDrawerState extends State<ChatDrawer> {
                   padding: MaterialStateProperty.all(EdgeInsets.zero),
                   //padding: EdgeInsets.symmetric(horizontal: 20.0),
                   shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8))),
+                      borderRadius: BorderRadius.circular(10))),
                 ),
               ))),
-      if (isDisplayDesktop(context))
-        Expanded(
-            flex: 1,
-            child: Container(
-                margin:
-                    const EdgeInsets.only(left: 0, right: 7, top: 7, bottom: 7),
-                child: OutlinedButton(
-                  onPressed: () {
-                    if (isDisplayDesktop(context)) {
-                      pages.isDrawerOpen = !pages.isDrawerOpen;
-                    } else {
-                      Scaffold.of(context).openDrawer();
-                    }
-                  },
-                  style: ButtonStyle(
-                    minimumSize: MaterialStateProperty.all(
-                        const Size(double.infinity, 52)),
-                    padding: MaterialStateProperty.all(EdgeInsets.zero),
-                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10))),
-                  ),
-                  child: const Icon(Icons.amp_stories_outlined),
-                ))),
     ]);
   }
 
@@ -130,7 +107,7 @@ class ChatDrawerState extends State<ChatDrawer> {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(
         icon: const Icon(Icons.close),
-        iconSize: 16,
+        iconSize: 15,
         onPressed: () {
           pages.delPage(removeID);
           pages.currentPageID = -1;
@@ -143,7 +120,7 @@ class ChatDrawerState extends State<ChatDrawer> {
   Widget chatPageTab(BuildContext context, Pages pages, int index) {
     final page = pages.getPage(pages.getNthPageID(index));
     return Container(
-        margin: const EdgeInsets.fromLTRB(8.0, 0, 10, 0),
+        margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
         child: ListTile(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),

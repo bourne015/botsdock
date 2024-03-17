@@ -4,9 +4,7 @@ import 'package:flutter/cupertino.dart';
 
 import '../models/pages.dart';
 import '../utils/constants.dart';
-import '../utils/utils.dart';
 import './input_field.dart';
-import './drawer_button.dart';
 
 class InitPage extends StatefulWidget {
   const InitPage({
@@ -62,8 +60,6 @@ class InitPageState extends State<InitPage> {
 
     return Column(children: <Widget>[
       Row(children: [
-        if (isDisplayDesktop(context) && !pages.isDrawerOpen)
-          const ChatDrawerButton(),
         const Spacer(),
         modelSelectButton(context),
         const Spacer(),
