@@ -6,7 +6,8 @@ import '../utils/utils.dart';
 import '../models/pages.dart';
 
 class ChatDrawer extends StatefulWidget {
-  const ChatDrawer({super.key});
+  final double drawersize;
+  const ChatDrawer({super.key, required this.drawersize});
 
   @override
   State<ChatDrawer> createState() => ChatDrawerState();
@@ -17,7 +18,7 @@ class ChatDrawerState extends State<ChatDrawer> {
   Widget build(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
     return Drawer(
-      width: drawerWidth,
+      width: widget.drawersize,
       backgroundColor: AppColors.drawerBackground,
       shape: isDisplayDesktop(context)
           ? RoundedRectangleBorder(
@@ -36,36 +37,48 @@ class ChatDrawerState extends State<ChatDrawer> {
             endIndent: 10,
             color: AppColors.drawerDivider,
           ),
-          ListTile(
-            leading: const Icon(Icons.delete),
-            minLeadingWidth: 0,
-            title: RichText(
-                text: TextSpan(
-              text: 'clear conversations',
-              style: TextStyle(fontSize: 17, color: AppColors.msgText),
-            )),
-            onTap: () {
-              if (pages.currentPage?.onGenerating == false) {
-                pages.clearMsg(pages.currentPageID);
-              }
-              pages.currentPage?.title = "Chat ${pages.currentPage?.id}";
-              if (!isDisplayDesktop(context)) Navigator.pop(context);
-            },
-          ),
-          ListTile(
-              leading: const Icon(Icons.info),
-              minLeadingWidth: 0,
-              title: RichText(
-                  text: TextSpan(
-                text: 'about',
-                style: TextStyle(fontSize: 17, color: AppColors.msgText),
+          Container(
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+              child: ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                leading: const Icon(Icons.delete),
+                minLeadingWidth: 0,
+                contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                title: RichText(
+                    text: TextSpan(
+                  text: 'clear conversations',
+                  style: TextStyle(fontSize: 17, color: AppColors.msgText),
+                )),
+                onTap: () {
+                  if (pages.currentPage?.onGenerating == false) {
+                    pages.clearMsg(pages.currentPageID);
+                  }
+                  pages.currentPage?.title = "Chat ${pages.currentPage?.id}";
+                  if (!isDisplayDesktop(context)) Navigator.pop(context);
+                },
               )),
-              onTap: () {
-                if (!isDisplayDesktop(context)) {
-                  Navigator.pop(context); // hide sidebar
-                }
-                aboutButton(context);
-              }),
+          Container(
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+              child: ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  leading: const Icon(Icons.info),
+                  minLeadingWidth: 0,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                  title: RichText(
+                      text: TextSpan(
+                    text: 'about',
+                    style: TextStyle(fontSize: 17, color: AppColors.msgText),
+                  )),
+                  onTap: () {
+                    if (!isDisplayDesktop(context)) {
+                      Navigator.pop(context); // hide sidebar
+                    }
+                    aboutButton(context);
+                  })),
           const SizedBox(height: 10),
         ],
       ),
@@ -81,10 +94,6 @@ class ChatDrawerState extends State<ChatDrawer> {
               margin: const EdgeInsets.fromLTRB(10, 15, 10, 25),
               child: OutlinedButton.icon(
                 onPressed: () {
-                  // var newId = pages.assignNewPageID;
-                  // pages.addPage(
-                  //     newId, Chat(chatId: newId, title: "Chat $newId"));
-                  // pages.currentPageID = newId;
                   pages.displayInitPage = true;
                   pages.currentPageID = -1;
                   if (!isDisplayDesktop(context)) Navigator.pop(context);
