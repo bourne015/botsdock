@@ -18,6 +18,7 @@ class MainLayout extends StatefulWidget {
 
 class MainLayoutState extends State<MainLayout> {
   var _drawerButton = Icons.more_vert_rounded;
+  double _drawerWidth = drawerWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,9 @@ class MainLayoutState extends State<MainLayout> {
       return Scaffold(
         backgroundColor: AppColors.chatPageBackground,
         appBar: const MyAppBar(),
-        drawer: const ChatDrawer(),
+        drawer: const ChatDrawer(
+          drawersize: drawerWidth,
+        ),
         body: pages.displayInitPage ? InitPage() : const ChatPage(),
       );
     }
@@ -53,14 +56,20 @@ class MainLayoutState extends State<MainLayout> {
                 ? Icons.arrow_forward_ios_rounded
                 : _drawerButton),
             tooltip: pages.isDrawerOpen ? "close sidebar" : "open sidebar",
-            onPressed: () => pages.isDrawerOpen = !pages.isDrawerOpen));
+            onPressed: () {
+              pages.isDrawerOpen = !pages.isDrawerOpen;
+              _drawerWidth = pages.isDrawerOpen ? drawerWidth : 0;
+            }));
   }
 
   Widget desktopLayout(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
     return Row(children: <Widget>[
-      if (pages.isDrawerOpen) const ChatDrawer(),
-      //const VerticalDivider(width: 1),
+      AnimatedSize(
+        curve: pages.isDrawerOpen ? Curves.linear : Curves.ease, //out: in
+        duration: Duration(milliseconds: 200),
+        child: ChatDrawer(drawersize: _drawerWidth),
+      ),
       Container(
           alignment: Alignment.center,
           color: AppColors.chatPageBackground,
