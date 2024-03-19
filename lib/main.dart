@@ -44,7 +44,7 @@ class GalleryApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ModelBinding(
       initialModel: GalleryOptions(
-        themeMode: ThemeMode.system,
+        themeMode: ThemeMode.light,
         textScaleFactor: systemTextScaleFactorOption,
         customTextDirection: CustomTextDirection.localeBased,
         locale: null,
