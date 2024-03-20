@@ -31,15 +31,11 @@ class _ChatInputFieldState extends State<ChatInputField> {
     Pages pages = Provider.of<Pages>(context);
     return Container(
       decoration: BoxDecoration(
-          color: AppColors.inputBoxBackground,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(7),
-            topRight: Radius.circular(7),
-            bottomLeft: Radius.circular(7),
-            bottomRight: Radius.circular(7),
-          )),
-      margin: const EdgeInsets.fromLTRB(80, 5, 80, 25),
-      padding: const EdgeInsets.fromLTRB(4, 1, 1, 1),
+          //color: AppColors.inputBoxBackground,
+          border: Border.all(color: Colors.grey[350]!, width: 1.0),
+          borderRadius: const BorderRadius.all(Radius.circular(15))),
+      margin: const EdgeInsets.fromLTRB(70, 5, 70, 25),
+      padding: const EdgeInsets.fromLTRB(15, 4, 1, 4),
       child: Row(
         children: [
           if ((!pages.displayInitPage &&
@@ -76,7 +72,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     }
     return Container(
       decoration: BoxDecoration(
-          color: AppColors.inputBoxBackground,
+          //color: AppColors.inputBoxBackground,
           borderRadius: const BorderRadius.all(Radius.circular(15))),
       margin: const EdgeInsets.all(5),
       padding: const EdgeInsets.all(1),
@@ -110,7 +106,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
         (!pages.displayInitPage &&
             (pages.currentPage!.modelVersion == GPTModel.gptv40Vision ||
                 pages.currentPage?.modelVersion.substring(0, 6) == "claude"))) {
-      hintText = "input questions with or without image";
+      hintText = "input text or image";
     } else if ((pages.displayInitPage &&
             pages.defaultModelVersion == GPTModel.gptv40Dall) ||
         (!pages.displayInitPage &&
@@ -125,8 +121,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
         });
       },
       decoration: InputDecoration(
-          filled: true,
-          fillColor: AppColors.inputBoxBackground,
+          //filled: true,
+          //fillColor: AppColors.inputBoxBackground,
           border: InputBorder.none,
           hintText: hintText),
       minLines: 1,
