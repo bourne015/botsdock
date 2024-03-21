@@ -12,71 +12,35 @@ class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
   State<MyAppBar> createState() => MyAppBarState();
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 1.0);
 }
 
 class MyAppBarState extends State<MyAppBar> {
   @override
-  PreferredSizeWidget build(BuildContext context) {
+  Widget build(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
-    return AppBar(
-      leading: appbarLeading(context, pages),
-      title: appbarTitle(context),
-      //actions: appbarActions(context, pages),
-    );
-  }
-
-  List<Widget> appbarActions(BuildContext context, Pages pages) {
-    return [
-      CupertinoSlidingSegmentedControl<String>(
-        thumbColor: AppColors.modelSelected,
-        backgroundColor: AppColors.modelSelectorBackground!,
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-        // This represents a currently selected segmented control.
-        groupValue: pages.defaultModelVersion,
-        // Callback that sets the selected segmented control.
-        onValueChanged: (String? value) {
-          pages.defaultModelVersion = value;
-        },
-        children: const <String, Widget>{
-          GPTModel.gptv35: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-            child: Text('GPT-3.5'),
-          ),
-          GPTModel.gptv40: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-            child: Text('GPT-4.0'),
-          ),
-        },
+    return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+      AppBar(
+        leading: appbarLeading(context, pages),
+        title: appbarTitle(context),
+        backgroundColor: AppColors.appBarBackground,
+        toolbarHeight: 44,
       ),
-      IconButton(
-          tooltip: "About",
-          onPressed: () {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(const SnackBar(content: Text(aboutText)));
-          },
-          icon: const Icon(Icons.info))
-    ];
+      Divider(
+        height: 1.0,
+        thickness: 1.0,
+        color: AppColors.drawerDivider,
+      ),
+    ]);
   }
 
   Widget appbarTitle(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
     return RichText(
         text: TextSpan(
-            text:
-                pages.currentPageID > -1 ? pages.currentPage!.modelVersion : "",
-            style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.chatPageTitle),
-            children: const [
-          TextSpan(
-              text: "",
-              style: TextStyle(
-                  fontSize: 9.5,
-                  //fontStyle: FontStyle.normal,
-                  color: AppColors.chatPageTitleToken))
-        ]));
+      text: pages.currentPageID > -1 ? pages.currentPage!.modelVersion : "",
+      style: const TextStyle(fontSize: 16, color: AppColors.appBarText),
+    ));
   }
 
   Widget appbarLeading(BuildContext context, Pages pages) {
