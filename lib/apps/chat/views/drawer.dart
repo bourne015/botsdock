@@ -30,7 +30,7 @@ class ChatDrawerState extends State<ChatDrawer> {
         children: [
           newchatButton(context),
           chatPageTabList(context),
-          const Divider(
+          Divider(
             height: 20,
             thickness: 1,
             indent: 10,
