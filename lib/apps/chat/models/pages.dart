@@ -10,7 +10,7 @@ class Pages with ChangeNotifier {
   final List<int> _pagesID = [];
   int _currentPageID = -1;
   int _maxPageID = 0;
-  String _defaultModelVersion = GPTModel.gptv35;
+  String _defaultModelVersion = ClaudeModel.haiku;
   bool _isDrawerOpen = true;
   bool _displayInitPage = true;
 
