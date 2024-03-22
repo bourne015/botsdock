@@ -35,7 +35,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
           border: Border.all(color: Colors.grey[350]!, width: 1.0),
           borderRadius: const BorderRadius.all(Radius.circular(15))),
       margin: const EdgeInsets.fromLTRB(70, 5, 70, 25),
-      padding: const EdgeInsets.fromLTRB(15, 4, 1, 4),
+      padding: const EdgeInsets.fromLTRB(1, 4, 1, 4),
       child: Row(
         children: [
           if ((!pages.displayInitPage &&
@@ -45,7 +45,11 @@ class _ChatInputFieldState extends State<ChatInputField> {
               (pages.displayInitPage &&
                   (pages.defaultModelVersion == GPTModel.gptv40Vision ||
                       pages.defaultModelVersion.substring(0, 6) == "claude")))
-            pickButton(context),
+            pickButton(context)
+          else
+            const SizedBox(
+              width: 15,
+            ),
           inputField(context),
           (!pages.displayInitPage && pages.currentPage!.onGenerating)
               ? generatingAnimation(context)
