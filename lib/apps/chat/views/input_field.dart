@@ -207,21 +207,25 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   void titleGenerate(Pages pages, int handlePageID) async {
     String q;
-    if (pages.getPage(handlePageID).modelVersion == GPTModel.gptv40Dall) {
-      q = pages.getMessages(handlePageID)!.first.content;
-    } else if (pages.getMessages(handlePageID)!.length > 1) {
-      q = pages.getMessages(handlePageID)![1].content;
-    } else {
-      //in case no input
-      return;
+    try {
+      if (pages.getPage(handlePageID).modelVersion == GPTModel.gptv40Dall) {
+        q = pages.getMessages(handlePageID)!.first.content;
+      } else if (pages.getMessages(handlePageID)!.length > 1) {
+        q = pages.getMessages(handlePageID)![1].content;
+      } else {
+        //in case no input
+        return;
+      }
+      var chatData1 = {
+        "model": ClaudeModel.haiku,
+        "question": "为这段话写一个5个字左右的标题:$q"
+      };
+      final response = await dio.post(chatUrl, data: chatData1);
+      var title = response.data;
+      pages.setPageTitle(handlePageID, title);
+    } catch (e) {
+      debugPrint("titleGenerate error: $e");
     }
-    var chatData1 = {
-      "model": GPTModel.gptv35,
-      "question": "为这段话写一个5个字左右的标题:$q"
-    };
-    final response = await dio.post(chatUrl, data: chatData1);
-    var title = response.data;
-    pages.setPageTitle(handlePageID, title);
   }
 
   void _submitText(Pages pages, int handlePageID, String text) async {
