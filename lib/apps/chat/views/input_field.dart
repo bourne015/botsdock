@@ -1,9 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../models/pages.dart';
 import '../models/chat.dart';
@@ -23,8 +25,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
   final ChatSSE chatServer = ChatSSE();
   final _controller = TextEditingController();
   bool _hasInputContent = false;
-  XFile? _imageFile;
-  List<int>? _imageBytes;
+  String? _fileName;
+  MsgType? _type = MsgType.text;
+  List<int>? _fileBytes;
 
   @override
   Widget build(BuildContext context) {
@@ -63,16 +66,41 @@ class _ChatInputFieldState extends State<ChatInputField> {
     return Expanded(
         child: Stack(alignment: Alignment.topLeft, children: <Widget>[
       Column(children: [
-        imageField(context),
+        fileField(context),
         const SizedBox(width: 8),
         textField(context),
       ]),
     ]));
   }
 
-  Widget imageField(BuildContext context) {
-    if (_imageFile == null) {
+  Widget fileField(BuildContext context) {
+    if (_type == null || _type == MsgType.text) {
       return Container();
+    }
+    if (_type == MsgType.file) {
+      return Container(
+        alignment: Alignment.topLeft,
+        decoration: BoxDecoration(
+            //color: AppColors.inputBoxBackground,
+            borderRadius: const BorderRadius.all(Radius.circular(15))),
+        margin: const EdgeInsets.all(5),
+        padding: const EdgeInsets.all(1),
+        child: InputChip(
+          side: BorderSide.none,
+          label: Text(_fileName!),
+          avatar: const Icon(
+            Icons.file_copy_outlined,
+            size: 15,
+          ),
+          onPressed: () {},
+          onDeleted: () {
+            setState(() {
+              _fileName = null;
+              _type = null;
+            });
+          },
+        ),
+      );
     }
     return Container(
       decoration: BoxDecoration(
@@ -82,7 +110,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       padding: const EdgeInsets.all(1),
       child: Row(
         children: [
-          Image.network(_imageFile!.path,
+          Image.memory(Uint8List.fromList(_fileBytes!),
               height: 60, width: 60, fit: BoxFit.cover),
           IconButton(
             icon: const Icon(
@@ -91,7 +119,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
             ),
             onPressed: () {
               setState(() {
-                _imageFile = null;
+                _fileName = null;
+                _type = null;
               });
             },
           ),
@@ -110,7 +139,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
         (!pages.displayInitPage &&
             (pages.currentPage!.modelVersion == GPTModel.gptv40Vision ||
                 pages.currentPage?.modelVersion.substring(0, 6) == "claude"))) {
-      hintText = "input text or image";
+      hintText = "input text, image or text file";
     } else if ((pages.displayInitPage &&
             pages.defaultModelVersion == GPTModel.gptv40Dall) ||
         (!pages.displayInitPage &&
@@ -139,10 +168,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Widget pickButton(BuildContext context) {
     return IconButton(
         icon: const Icon(
-          Icons.image_rounded,
+          Icons.attach_file,
           size: 20,
         ),
-        onPressed: _pickImage);
+        onPressed: _pickFile);
   }
 
   Widget generatingAnimation(BuildContext context) {
@@ -158,13 +187,13 @@ class _ChatInputFieldState extends State<ChatInputField> {
     Pages pages = Provider.of<Pages>(context);
     return IconButton(
       icon: const Icon(Icons.send),
-      color: ((_imageFile != null || _hasInputContent) &&
+      color: ((_fileName != null || _hasInputContent) &&
               (pages.displayInitPage ||
                   (pages.currentPageID >= 0 &&
                       !pages.currentPage!.onGenerating)))
           ? Colors.blue
           : Colors.grey,
-      onPressed: ((_imageFile != null || _hasInputContent) &&
+      onPressed: ((_fileName != null || _hasInputContent) &&
               (pages.displayInitPage ||
                   (pages.currentPageID >= 0 &&
                       !pages.currentPage!.onGenerating)))
@@ -186,23 +215,68 @@ class _ChatInputFieldState extends State<ChatInputField> {
                 _controller.text,
               );
               _hasInputContent = false;
-              _imageFile = null;
+              _fileName = null;
+              _type = null;
             }
           : () {},
     );
   }
 
-  Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    setState(() {
-      if (pickedFile != null) {
-        _imageFile = pickedFile;
-      } else {
-        _imageFile = null;
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      final fileName = result.files.first.name;
+      debugPrint('Selected file: $fileName');
+      String fileType = fileName.split('.').last.toLowerCase();
+      debugPrint('Selected file type: $fileType');
+      switch (fileType) {
+        case 'txt':
+        case 'md':
+        case 'dart':
+        case 'py':
+        case 'c':
+        case 'cpp':
+        case 'h':
+        case 'hpp':
+        case 'java':
+        case 'sh':
+          debugPrint('Text file');
+          _type = MsgType.file;
+          _getTextFile(result);
+          break;
+        case 'jpg':
+        case 'png':
+          _getImage(result);
+          debugPrint('Image file: $fileType');
+          _type = MsgType.image;
+          break;
+        case 'pdf':
+          debugPrint('PDF file');
+          break;
+        case 'doc':
+        case 'docx':
+          debugPrint('Word file');
+          break;
+        default:
+          debugPrint('unknow file');
       }
+    } else {
+      debugPrint('No file selected.');
+    }
+  }
+
+  Future<void> _getTextFile(textfile) async {
+    setState(() {
+      _fileName = textfile.files.first.name;
     });
-    _imageBytes = await _imageFile!.readAsBytes();
+    _fileBytes = textfile.files.first.bytes;
+  }
+
+  Future<void> _getImage(imagefile) async {
+    setState(() {
+      _fileName = imagefile.files.first.name;
+    });
+    _fileBytes = imagefile.files.first.bytes;
   }
 
   void titleGenerate(Pages pages, int handlePageID) async {
@@ -231,14 +305,15 @@ class _ChatInputFieldState extends State<ChatInputField> {
   void _submitText(Pages pages, int handlePageID, String text) async {
     bool append = false;
     _controller.clear();
+
     Message msgQ = Message(
         id: '0',
         pageID: handlePageID,
         role: MessageRole.user,
-        type: _imageFile == null ? MsgType.text : MsgType.mix,
+        type: _type,
         content: text,
-        file: _imageFile,
-        fileBytes: _imageBytes,
+        fileName: _fileName,
+        fileBytes: _fileBytes,
         timestamp: DateTime.now());
     pages.addMessage(handlePageID, msgQ);
 

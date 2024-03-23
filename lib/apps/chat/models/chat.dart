@@ -37,7 +37,8 @@ class Chat {
         "role": newMsg.role,
         "type": newMsg.type,
         "content": newMsg.content,
-        "file": newMsg.file
+        "fileName": newMsg.fileName,
+        "fileBytes": newMsg.fileBytes
       }),
     );
   }
