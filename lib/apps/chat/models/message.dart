@@ -1,15 +1,13 @@
 import 'dart:convert';
-import 'dart:html' as html;
-import 'package:image_picker/image_picker.dart';
 import '../utils/constants.dart';
 
 class Message {
   final String id;
   final int pageID;
   final String role;
-  MsgType type;
+  MsgType? type;
   String content;
-  XFile? file;
+  String? fileName;
   List<int>? fileBytes;
   final DateTime timestamp;
 
@@ -19,20 +17,20 @@ class Message {
     required this.role,
     this.type = MsgType.text,
     required this.content,
-    this.file,
+    this.fileName,
     this.fileBytes,
     required this.timestamp,
   });
 
   Map<String, dynamic> toMap(String modelVersion) {
     var res = <String, dynamic>{};
-    if (file != null) {
-      final html.File htmlFile = html.File(
-        fileBytes!,
-        file!.name,
-        {'type': file!.mimeType},
-      );
-      String fileType = htmlFile.type;
+    if (type == MsgType.image && fileBytes != null) {
+      // final html.File htmlFile = html.File(
+      //   fileBytes!,
+      //   file!.name,
+      //   {'type': file!.mimeType},
+      // );
+      String fileType = fileName!.split('.').last.toLowerCase();
       String fileBase64 = base64Encode(fileBytes!);
       if (modelVersion.substring(0, 6) == "claude") {
         //claude model
@@ -44,7 +42,7 @@ class Message {
               'type': 'image',
               'source': {
                 'type': 'base64',
-                "media_type": fileType,
+                "media_type": 'image/$fileType',
                 'data': fileBase64,
               },
             },
@@ -68,7 +66,9 @@ class Message {
     } else {
       res = {
         'role': role,
-        'content': content,
+        'content': type == MsgType.file
+            ? '<paper>$fileBytes</paper>' + content
+            : content,
       };
     }
     return res;

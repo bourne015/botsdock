@@ -73,8 +73,8 @@ class MessageBoxState extends State<MessageBox> {
             )),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           messageRoleName(context),
-          if (widget.val["file"] != null)
-            contentImage(context, widget.val["file"]!.path),
+          //if (widget.val["type"] != MsgType.text)
+          contentAttachment(context, widget.val["fileBytes"]),
           messageContent(context)
         ]),
       ),
@@ -94,7 +94,8 @@ class MessageBoxState extends State<MessageBox> {
   }
 
   Widget messageContent(BuildContext context) {
-    if (widget.val["type"] == MsgType.image) {
+    if (widget.val["type"] == MsgType.image &&
+        widget.val['role'] == MessageRole.assistant) {
       String imageBase64Str = widget.val['content'];
       String imageB64Url = "data:image/png;base64,$imageBase64Str";
       return contentImage(context, imageB64Url);
@@ -188,6 +189,36 @@ class MessageBoxState extends State<MessageBox> {
     );
   }
 
+  Widget contentAttachment(BuildContext context, fileBytes) {
+    if (widget.val["type"] == MsgType.image) {
+      return contentImage(context, fileBytes);
+    } else if (widget.val["type"] == MsgType.file) {
+      return contentFile(context, fileBytes);
+    }
+    return Container();
+  }
+
+  Widget contentFile(BuildContext context, imageB64Url) {
+    return Container(
+      alignment: Alignment.topLeft,
+      decoration: BoxDecoration(
+          //color: AppColors.inputBoxBackground,
+          borderRadius: const BorderRadius.all(Radius.circular(15))),
+      margin: const EdgeInsets.all(5),
+      padding: const EdgeInsets.all(1),
+      child: InputChip(
+        side: BorderSide.none,
+        label: Text(widget.val["fileName"]!),
+        avatar: const Icon(
+          Icons.file_copy_outlined,
+          size: 17,
+        ),
+        onDeleted: null,
+        onPressed: () {},
+      ),
+    );
+  }
+
   Widget contentImage(BuildContext context, imageB64Url) {
     return GestureDetector(
         onTap: () {
@@ -196,7 +227,7 @@ class MessageBoxState extends State<MessageBox> {
               builder: (BuildContext context) {
                 return Dialog(
                     //child: Container(
-                    child: Image.network(
+                    child: Image.memory(
                         imageB64Url) //Image.network(val['content']),
                     );
               });
@@ -204,27 +235,10 @@ class MessageBoxState extends State<MessageBox> {
         onLongPressStart: (details) {
           _showDownloadMenu(context, details.globalPosition, imageB64Url);
         },
-        child: Image.network(
+        child: Image.memory(
           imageB64Url,
           height: 250,
           width: 200,
-          loadingBuilder: (BuildContext context, Widget child,
-              ImageChunkEvent? loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Center(
-              child: CircularProgressIndicator(
-                color: AppColors.appBarBackground,
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes!
-                    : null,
-              ),
-            );
-          },
-          errorBuilder:
-              (BuildContext context, Object exception, StackTrace? stackTrace) {
-            return const Text('image load error');
-          },
         ));
   }
 

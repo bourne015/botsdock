@@ -54,7 +54,7 @@ class ClaudeModel {
   static const String opus = "claude-3-opus-20240229";
 }
 
-enum MsgType { text, image, mix }
+enum MsgType { text, image, file }
 
 const double drawerWidth = 260;
 
