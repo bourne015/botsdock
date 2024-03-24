@@ -1,5 +1,5 @@
-import 'dart:typed_data';
-
+import 'package:file_picker/_internal/file_picker_web.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -223,7 +223,15 @@ class _ChatInputFieldState extends State<ChatInputField> {
   }
 
   Future<void> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles();
+    var result;
+    if (kIsWeb) {
+      debugPrint('web platform');
+      result = await FilePickerWeb.platform
+          .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles);
+    } else {
+      result = await FilePicker.platform
+          .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles);
+    }
     if (result != null) {
       final fileName = result.files.first.name;
       debugPrint('Selected file: $fileName');

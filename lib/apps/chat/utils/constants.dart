@@ -56,6 +56,27 @@ class ClaudeModel {
 
 enum MsgType { text, image, file }
 
+const supportedFiles = [
+  'txt',
+  'md',
+  'png',
+  'jpg',
+  'jpeg',
+  'gif',
+  'pdf',
+  'doc',
+  'docx',
+  'sh',
+  'bash',
+  'py',
+  'dart',
+  'java',
+  'cpp',
+  'hpp',
+  'c',
+  'h',
+];
+
 const double drawerWidth = 260;
 
 const String sseChatUrl = "http://127.0.0.1:8001/v1/stream/chat";
