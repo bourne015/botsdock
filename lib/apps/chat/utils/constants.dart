@@ -88,4 +88,4 @@ A Demo for ChatGPT.
 Please refresh the page if reached max tokens or don't need chat context
 """;
 
-const String appVersion = "0.1.9";
+const String appVersion = "0.1.11";
