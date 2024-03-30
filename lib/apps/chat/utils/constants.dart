@@ -75,6 +75,9 @@ const supportedFiles = [
   'hpp',
   'c',
   'h',
+  'html',
+  'css',
+  'json',
 ];
 
 const double drawerWidth = 260;
