@@ -1,15 +1,14 @@
 import 'dart:html';
-import 'dart:js_util';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 
 import '../utils/constants.dart';
 import '../utils/utils.dart';
 import '../models/user.dart';
+import '../utils/global.dart';
 
 class UserInfo extends StatefulWidget {
   const UserInfo({super.key});
@@ -71,6 +70,7 @@ class UserInfoState extends State<UserInfo> {
               break;
             case 'Logout':
               user.isLogedin = false;
+              Global.saveProfile(user);
               _pwdcontroller.clear();
               break;
             default:
@@ -155,9 +155,10 @@ class UserInfoState extends State<UserInfo> {
             child: Text('登录'),
             onPressed: () async {
               var res = await checkLogin(user);
-              if (user.isLogedin)
+              if (user.isLogedin) {
                 Navigator.of(context).pop();
-              else
+                Global.saveProfile(user);
+              } else
                 notifyBox(title: "login status", content: res);
             },
           ),
@@ -231,13 +232,11 @@ class UserInfoState extends State<UserInfo> {
           }
           user.name = _namecontroller.text;
           user.email = _emailcontroller.text;
-          await checkSingUp(user);
+          var res = await checkSingUp(user);
           if (user.signUP) {
             Navigator.of(context).pop();
           } else {
-            // setState(() {
-            //   //user.signUP = false;
-            // });
+            notifyBox(title: "warning", content: res);
           }
         },
       )
@@ -257,24 +256,30 @@ class UserInfoState extends State<UserInfo> {
     ));
   }
 
-  Future<void> checkSingUp(user) async {
+  Future<String?> checkSingUp(user) async {
     int avatarNum = random.nextInt(15) + 1;
-    var userdata = {
-      "name": user.name,
-      "email": user.email,
-      "phone": user.phone,
-      "avatar": avatarNum.toString(),
-      "pwd": _pwdcontroller.text,
-    };
-    final response = await dio.post(userUrl, data: userdata);
-    if (response.statusCode == 200) {
-      user.signUP = true;
-      user.id = response.data["id"];
-      user.avatar = avatarNum.toString();
-      print("user.signUP = true;");
-    } else {
-      user.signUP = false;
+    Response response;
+    try {
+      var userdata = {
+        "name": user.name,
+        "email": user.email,
+        "phone": user.phone,
+        "avatar": avatarNum.toString(),
+        "pwd": _pwdcontroller.text,
+      };
+      response = await dio.post(userUrl, data: userdata);
+      if (response.data["result"] == 'success') {
+        user.signUP = true;
+        user.id = response.data["id"];
+        user.avatar = avatarNum.toString();
+        print("user.signUP = true;");
+      } else {
+        user.signUP = false;
+      }
+    } catch (e) {
+      return e.toString();
     }
+    return response.data["result"];
   }
 
   Future<String?> checkLogin(user) async {

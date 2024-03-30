@@ -5,7 +5,8 @@ import './models/pages.dart';
 import './models/user.dart';
 import 'main_layout.dart';
 import 'routes.dart' as routes;
-import 'utils/constants.dart';
+import './utils/constants.dart';
+import './utils/global.dart';
 
 void main() {
   runApp(const ChatApp());
@@ -23,10 +24,12 @@ class ChatApp extends StatefulWidget {
 class _AppState extends State<ChatApp> {
   @override
   Widget build(BuildContext context) {
+    User user = User();
+    Global.init(user);
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (context) => Pages()),
-          ChangeNotifierProvider(create: (context) => User()),
+          ChangeNotifierProvider(create: (context) => user),
         ],
         child: MaterialApp(
           title: appTitle,
