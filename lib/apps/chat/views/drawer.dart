@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../utils/constants.dart';
 import '../utils/utils.dart';
 import '../models/pages.dart';
+import '../views/user.dart';
 
 class ChatDrawer extends StatefulWidget {
   final double drawersize;
@@ -61,24 +62,7 @@ class ChatDrawerState extends State<ChatDrawer> {
               )),
           Container(
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-              child: ListTile(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  leading: const Icon(Icons.info),
-                  minLeadingWidth: 0,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 5),
-                  title: RichText(
-                      text: TextSpan(
-                    text: 'about',
-                    style: TextStyle(fontSize: 17, color: AppColors.msgText),
-                  )),
-                  onTap: () {
-                    if (!isDisplayDesktop(context)) {
-                      Navigator.pop(context); // hide sidebar
-                    }
-                    aboutButton(context);
-                  })),
+              child: UserInfo()),
           const SizedBox(height: 10),
         ],
       ),
@@ -167,29 +151,5 @@ class ChatDrawerState extends State<ChatDrawer> {
         itemBuilder: (context, index) => chatPageTab(context, pages, index),
       ),
     );
-  }
-
-  Future aboutButton(BuildContext context) {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-              title: const Text('About'),
-              content: const SingleChildScrollView(
-                child: ListBody(
-                  children: <Widget>[
-                    Text(aboutText),
-                    Text('Version $appVersion'),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('OK'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ));
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import './models/pages.dart';
+import './models/user.dart';
 import 'main_layout.dart';
 import 'routes.dart' as routes;
 import 'utils/constants.dart';
@@ -22,10 +23,10 @@ class ChatApp extends StatefulWidget {
 class _AppState extends State<ChatApp> {
   @override
   Widget build(BuildContext context) {
-    final pages = Pages();
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (context) => pages),
+          ChangeNotifierProvider(create: (context) => Pages()),
+          ChangeNotifierProvider(create: (context) => User()),
         ],
         child: MaterialApp(
           title: appTitle,
