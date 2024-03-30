@@ -248,6 +248,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
         case 'hpp':
         case 'java':
         case 'sh':
+        case 'html':
+        case 'css':
+        case 'json':
           debugPrint('Text file');
           _type = MsgType.file;
           _getTextFile(result);
