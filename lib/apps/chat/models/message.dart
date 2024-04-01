@@ -5,11 +5,11 @@ class Message {
   final String id;
   final int pageID;
   final String role;
-  MsgType? type;
+  MsgType type;
   String content;
   String? fileName;
   List<int>? fileBytes;
-  final DateTime timestamp;
+  final int timestamp;
 
   Message({
     required this.id,
@@ -71,6 +71,17 @@ class Message {
             : content,
       };
     }
-    return res;
+    var totalVal = {
+      "id": id,
+      "pageID": pageID,
+      "role": role,
+      "type": type.index,
+      "fileName": fileName,
+      "fileBytes": null,
+      "timestamp": timestamp,
+      //...res
+      "content": content, //in image case its a list causes error
+    };
+    return {"all": totalVal, "gpt": res};
   }
 }

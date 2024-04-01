@@ -85,10 +85,11 @@ const double drawerWidth = 260;
 const String sseChatUrl = "http://127.0.0.1:8001/v1/stream/chat";
 const String chatUrl = "http://127.0.0.1:8001/v1/chat";
 const String imageUrl = "http://127.0.0.1:8001/v1/image";
+const String userUrl = "http://127.0.0.1:8001/v1/user";
 
 const String aboutText = """
 A Demo for ChatGPT.
 Please refresh the page if reached max tokens or don't need chat context
 """;
 
-const String appVersion = "0.1.11";
+const String appVersion = "0.1.12";
