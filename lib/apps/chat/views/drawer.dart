@@ -51,7 +51,7 @@ class ChatDrawerState extends State<ChatDrawer> {
                 contentPadding: const EdgeInsets.symmetric(vertical: 5),
                 title: RichText(
                     text: TextSpan(
-                  text: 'clear conversations',
+                  text: 'Clear conversations',
                   style: TextStyle(fontSize: 17, color: AppColors.msgText),
                 )),
                 onTap: () {

@@ -1,5 +1,6 @@
 import 'dart:html';
 import 'dart:math';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,17 +28,19 @@ class UserInfoState extends State<UserInfo> {
   final _pwdconfirmcontroller = TextEditingController();
   final dio = Dio();
   Random random = Random();
+  GlobalKey _signInformKey = GlobalKey<FormState>();
+  GlobalKey _signUpformKey = GlobalKey<FormState>();
 
-  @override
-  void initState() {}
+  // @override
+  // void initState() {}
 
-  @override
-  void Dispose() {
-    _emailcontroller.dispose();
-    _namecontroller.dispose();
-    _pwdcontroller.dispose();
-    _pwdconfirmcontroller.dispose();
-  }
+  // @override
+  // void Dispose() {
+  //   _emailcontroller.dispose();
+  //   _namecontroller.dispose();
+  //   _pwdcontroller.dispose();
+  //   _pwdconfirmcontroller.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +61,7 @@ class UserInfoState extends State<UserInfo> {
           contentPadding: const EdgeInsets.symmetric(vertical: 5),
           title: RichText(
               text: TextSpan(
-            text: 'Manage',
+            text: 'Administrator',
             style: TextStyle(fontSize: 16, color: AppColors.msgText),
           )),
         ),
@@ -129,6 +132,8 @@ class UserInfoState extends State<UserInfo> {
   Future loginDialog(BuildContext context) {
     User user = Provider.of<User>(context, listen: false);
     Pages pages = Provider.of<Pages>(context, listen: false);
+    if (_pwdcontroller.text.isNotEmpty) _pwdcontroller.text = '';
+    if (_pwdconfirmcontroller.text.isNotEmpty) _pwdconfirmcontroller.text = '';
     return showDialog(
       context: context,
       builder: (BuildContext context) => buildLoginDialog(context, user, pages),
@@ -158,9 +163,11 @@ class UserInfoState extends State<UserInfo> {
           ElevatedButton(
             child: Text('登录'),
             onPressed: () async {
-              print("press");
+              if (!(_signInformKey.currentState as FormState).validate()) {
+                //notifyBox(title: "warning", content: "内容不能为空");
+                return;
+              }
               var res = await checkLogin(user);
-              print("pressed done: $res");
               if (user.isLogedin) {
                 ////fetch chat data from db
                 var chatdbUrl = userUrl + "/" + "${user.id}" + "/chats";
@@ -173,13 +180,13 @@ class UserInfoState extends State<UserInfo> {
                     //user dbID to recovery pageID,
                     //incase no user log, c["contents"][0]["pageID"] == currentPageID
                     var pid = c["id"]; //c["contents"][0]["pageID"];
-                    print("cccc: ${c["title"]}, $pid");
+                    //print("cccc: ${c["title"]}, $pid");
                     pages.defaultModelVersion = ClaudeModel.haiku;
                     pages.addPage(pid, Chat(chatId: pid, title: c["title"]));
                     pages.getPage(pid).modelVersion = c["model"];
                     pages.getPage(pid).dbID = pid;
                     for (var m in c["contents"]) {
-                      print("ttt:${m["type"]}, ${MsgType.values[m["type"]]}");
+                      //print("ttt:${m["type"]}, ${MsgType.values[m["type"]]}");
                       Message msgQ = Message(
                           id: '0',
                           pageID: pid,
@@ -191,6 +198,7 @@ class UserInfoState extends State<UserInfo> {
                           timestamp: m["timestamp"]);
                       pages.addMessage(pid, msgQ);
                     }
+                    Global.saveChats(user, pid, jsonEncode(c));
                     //pid += 1;
                   }
                 }
@@ -224,13 +232,15 @@ class UserInfoState extends State<UserInfo> {
       //padding: EdgeInsets.all(20),
       //margin: EdgeInsets.symmetric(horizontal: 50, vertical: 25),
       child: Scrollable(viewportBuilder: (context, position) {
-        return Column(
-          //mainAxisSize: MainAxisSize.min,
-          children: [
-            logTextFormField(context, "邮箱", _emailcontroller, false),
-            logTextFormField(context, "密码", _pwdcontroller, true),
-          ],
-        );
+        return Form(
+            key: _signInformKey,
+            child: Column(
+              //mainAxisSize: MainAxisSize.min,
+              children: [
+                logTextFormField(context, "邮箱", _emailcontroller, false),
+                logTextFormField(context, "密码", _pwdcontroller, true),
+              ],
+            ));
       }),
     );
   }
@@ -269,14 +279,20 @@ class UserInfoState extends State<UserInfo> {
             notifyBox(title: "warning", content: "密码不一致");
             return;
           }
+          if (!(_signUpformKey.currentState as FormState).validate()) {
+            //notifyBox(title: "warning", content: "内容不能为空");
+            return;
+          }
           user.name = _namecontroller.text;
           user.email = _emailcontroller.text;
           var res = await checkSingUp(user);
           if (user.signUP) {
+            notifyBox(title: "success", content: "注册成功,请登录");
             Navigator.of(context).pop();
           } else {
             notifyBox(title: "warning", content: res);
           }
+          (_signUpformKey.currentState as FormState).reset();
         },
       )
     ];
@@ -284,15 +300,17 @@ class UserInfoState extends State<UserInfo> {
 
   Widget sigupDialogContent(BuildContext context) {
     return SingleChildScrollView(
-        child: Column(
-      //mainAxisSize: MainAxisSize.min,
-      children: [
-        logTextFormField(context, "邮箱", _emailcontroller, false),
-        logTextFormField(context, "昵称", _namecontroller, false),
-        logTextFormField(context, "密码", _pwdcontroller, true),
-        logTextFormField(context, "确认密码", _pwdconfirmcontroller, true),
-      ],
-    ));
+        child: Form(
+            key: _signUpformKey,
+            child: Column(
+              //mainAxisSize: MainAxisSize.min,
+              children: [
+                logTextFormField(context, "邮箱", _emailcontroller, false),
+                logTextFormField(context, "昵称", _namecontroller, false),
+                logTextFormField(context, "密码", _pwdcontroller, true),
+                logTextFormField(context, "确认密码", _pwdconfirmcontroller, true),
+              ],
+            )));
   }
 
   Future<String?> checkSingUp(user) async {
@@ -356,17 +374,19 @@ class UserInfoState extends State<UserInfo> {
   Widget logTextFormField(
       BuildContext context, String text, var ctr, bool obscure) {
     return TextFormField(
-      decoration: InputDecoration(
-          //filled: true,
-          //fillColor: AppColors.inputBoxBackground,
-          labelText: text,
-          border: InputBorder.none,
-          hintText: text),
-      obscureText: obscure,
-      maxLines: 1,
-      textInputAction: TextInputAction.newline,
-      controller: ctr,
-    );
+        decoration: InputDecoration(
+            //filled: true,
+            //fillColor: AppColors.inputBoxBackground,
+            labelText: text,
+            border: InputBorder.none,
+            hintText: text),
+        obscureText: obscure,
+        maxLines: 1,
+        textInputAction: TextInputAction.newline,
+        controller: ctr,
+        validator: (v) {
+          return v == null || v.trim().isNotEmpty ? null : "$text不能为空";
+        });
   }
 
   void notifyBox({var title, var content}) {
