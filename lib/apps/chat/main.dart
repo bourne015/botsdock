@@ -25,10 +25,11 @@ class _AppState extends State<ChatApp> {
   @override
   Widget build(BuildContext context) {
     User user = User();
-    Global.init(user);
+    Pages pages = Pages();
+    Global().init(user, pages);
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (context) => Pages()),
+          ChangeNotifierProvider(create: (context) => pages),
           ChangeNotifierProvider(create: (context) => user),
         ],
         child: MaterialApp(

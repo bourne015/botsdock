@@ -8,6 +8,9 @@ import 'package:dio/dio.dart';
 import '../utils/constants.dart';
 import '../utils/utils.dart';
 import '../models/user.dart';
+import '../models/pages.dart';
+import '../models/chat.dart';
+import '../models/message.dart';
 import '../utils/global.dart';
 
 class UserInfo extends StatefulWidget {
@@ -70,7 +73,7 @@ class UserInfoState extends State<UserInfo> {
               break;
             case 'Logout':
               user.isLogedin = false;
-              Global.saveProfile(user);
+              Global.reset();
               _pwdcontroller.clear();
               break;
             default:
@@ -125,13 +128,14 @@ class UserInfoState extends State<UserInfo> {
 
   Future loginDialog(BuildContext context) {
     User user = Provider.of<User>(context, listen: false);
+    Pages pages = Provider.of<Pages>(context, listen: false);
     return showDialog(
       context: context,
-      builder: (BuildContext context) => buildLoginDialog(context, user),
+      builder: (BuildContext context) => buildLoginDialog(context, user, pages),
     );
   }
 
-  Widget buildLoginDialog(BuildContext context, user) {
+  Widget buildLoginDialog(BuildContext context, user, pages) {
     return AlertDialog(
       title: Text(
         textAlign: TextAlign.center,
@@ -142,11 +146,11 @@ class UserInfoState extends State<UserInfo> {
         ),
       ),
       content: loginDialogContent(context),
-      actions: loginDialogActions(context, user),
+      actions: loginDialogActions(context, user, pages),
     );
   }
 
-  List<Widget> loginDialogActions(context, user) {
+  List<Widget> loginDialogActions(context, user, pages) {
     return [
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -154,8 +158,43 @@ class UserInfoState extends State<UserInfo> {
           ElevatedButton(
             child: Text('登录'),
             onPressed: () async {
+              print("press");
               var res = await checkLogin(user);
+              print("pressed done: $res");
               if (user.isLogedin) {
+                ////fetch chat data from db
+                var chatdbUrl = userUrl + "/" + "${user.id}" + "/chats";
+                Response cres = await dio.post(
+                  chatdbUrl,
+                );
+                //var pid = 1;
+                if (cres.data["result"] == "success") {
+                  for (var c in cres.data["chats"]) {
+                    //user dbID to recovery pageID,
+                    //incase no user log, c["contents"][0]["pageID"] == currentPageID
+                    var pid = c["id"]; //c["contents"][0]["pageID"];
+                    print("cccc: ${c["title"]}, $pid");
+                    pages.defaultModelVersion = ClaudeModel.haiku;
+                    pages.addPage(pid, Chat(chatId: pid, title: c["title"]));
+                    pages.getPage(pid).modelVersion = c["model"];
+                    pages.getPage(pid).dbID = pid;
+                    for (var m in c["contents"]) {
+                      print("ttt:${m["type"]}, ${MsgType.values[m["type"]]}");
+                      Message msgQ = Message(
+                          id: '0',
+                          pageID: pid,
+                          role: m["role"],
+                          type: MsgType.values[m["type"]],
+                          content: m["content"],
+                          fileName: m["fileName"],
+                          fileBytes: m["fileBytes"],
+                          timestamp: m["timestamp"]);
+                      pages.addMessage(pid, msgQ);
+                    }
+                    //pid += 1;
+                  }
+                }
+                ////
                 Navigator.of(context).pop();
                 Global.saveProfile(user);
               } else

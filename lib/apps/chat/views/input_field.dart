@@ -1,6 +1,7 @@
 import 'package:file_picker/_internal/file_picker_web.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:gallery/apps/chat/models/user.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
@@ -26,7 +27,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   final _controller = TextEditingController();
   bool _hasInputContent = false;
   String? _fileName;
-  MsgType? _type = MsgType.text;
+  MsgType _type = MsgType.text;
   List<int>? _fileBytes;
 
   @override
@@ -96,7 +97,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
           onDeleted: () {
             setState(() {
               _fileName = null;
-              _type = null;
             });
           },
         ),
@@ -120,7 +120,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
             onPressed: () {
               setState(() {
                 _fileName = null;
-                _type = null;
               });
             },
           ),
@@ -185,6 +184,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   Widget sendButton(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
+    User user = Provider.of<User>(context);
     return IconButton(
       icon: const Icon(Icons.send),
       color: ((_fileName != null || _hasInputContent) &&
@@ -209,14 +209,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
               } else {
                 handlePageID = pages.currentPageID;
               }
-              _submitText(
-                pages,
-                handlePageID,
-                _controller.text,
-              );
+              _submitText(pages, handlePageID, _controller.text, user);
               _hasInputContent = false;
               _fileName = null;
-              _type = null;
             }
           : () {},
     );
@@ -290,7 +285,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     _fileBytes = imagefile.files.first.bytes;
   }
 
-  void titleGenerate(Pages pages, int handlePageID) async {
+  Future<void> titleGenerate(Pages pages, int handlePageID) async {
     String q;
     try {
       if (pages.getPage(handlePageID).modelVersion == GPTModel.gptv40Dall) {
@@ -313,7 +308,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     }
   }
 
-  void _submitText(Pages pages, int handlePageID, String text) async {
+  void _submitText(Pages pages, int handlePageID, String text, user) async {
     bool append = false;
     _controller.clear();
 
@@ -325,7 +320,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
         content: text,
         fileName: _fileName,
         fileBytes: _fileBytes,
-        timestamp: DateTime.now());
+        timestamp: DateTime.now().millisecondsSinceEpoch);
     pages.addMessage(handlePageID, msgQ);
 
     try {
@@ -346,12 +341,12 @@ class _ChatInputFieldState extends State<ChatInputField> {
             role: MessageRole.assistant,
             type: MsgType.image,
             content: response.data,
-            timestamp: DateTime.now());
+            timestamp: DateTime.now().millisecondsSinceEpoch);
         pages.addMessage(handlePageID, msgA);
       } else {
         var chatData = {
           "model": pages.currentPage?.modelVersion,
-          "question": pages.getPage(handlePageID).msgsToMap()
+          "question": pages.getPage(handlePageID).gptMsgs,
         };
         final stream = chatServer.connect(
           sseChatUrl,
@@ -371,7 +366,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
                 role: MessageRole.assistant,
                 type: MsgType.text,
                 content: data,
-                timestamp: DateTime.now());
+                timestamp: DateTime.now().millisecondsSinceEpoch);
             pages.addMessage(handlePageID, msgA);
           } else {
             pages.appendMessage(handlePageID, data);
@@ -381,12 +376,31 @@ class _ChatInputFieldState extends State<ChatInputField> {
         }, onError: (e) {
           debugPrint('SSE error: $e');
           pages.getPage(handlePageID).onGenerating = false;
-        }, onDone: () {
+        }, onDone: () async {
           debugPrint('SSE complete');
           if (pages.getPage(handlePageID).title == "Chat $handlePageID") {
-            titleGenerate(pages, handlePageID);
+            await titleGenerate(pages, handlePageID);
           }
           pages.getPage(handlePageID).onGenerating = false;
+          if (user.id != 0) {
+            //only store after user login
+            var chatdbUrl = userUrl + "/" + "${user.id}" + "/chat";
+            var chatData = {
+              "id": pages.getPage(handlePageID).dbID,
+              "title": pages.getPage(handlePageID).title,
+              "contents": pages.getPage(handlePageID).msgsAll,
+              "model": pages.getPage(handlePageID).modelVersion,
+            };
+
+            Response cres = await dio.post(
+              chatdbUrl,
+              data: chatData,
+            );
+            print("tttt:${chatData["contents"]}");
+            if (cres.data["result"] == "success") {
+              pages.getPage(handlePageID).dbID = cres.data["id"];
+            }
+          }
         });
       }
     } catch (e) {
