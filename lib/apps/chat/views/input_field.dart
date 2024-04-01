@@ -13,6 +13,7 @@ import '../models/chat.dart';
 import '../models/message.dart';
 import '../utils/constants.dart';
 import '../utils/utils.dart';
+import '../utils/global.dart';
 
 class ChatInputField extends StatefulWidget {
   const ChatInputField({super.key});
@@ -396,10 +397,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
               chatdbUrl,
               data: chatData,
             );
-            print("tttt:${chatData["contents"]}");
             if (cres.data["result"] == "success") {
               pages.getPage(handlePageID).dbID = cres.data["id"];
             }
+            Global.saveChats(user, cres.data["id"], jsonEncode(chatData));
           }
         });
       }
