@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dio/dio.dart';
 
 import '../utils/constants.dart';
 import '../utils/utils.dart';
 import '../models/pages.dart';
+import '../models/user.dart';
 import '../views/user.dart';
 
 class ChatDrawer extends StatefulWidget {
@@ -97,14 +99,20 @@ class ChatDrawerState extends State<ChatDrawer> {
   }
 
   Widget delChattabButton(BuildContext context, Pages pages, int removeID) {
+    User user = Provider.of<User>(context, listen: false);
     return Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(
         icon: const Icon(Icons.close),
         iconSize: 15,
         onPressed: () {
+          var did = pages.getPage(removeID).dbID;
           pages.delPage(removeID);
           pages.currentPageID = -1;
           pages.displayInitPage = true;
+          if (user.isLogedin) {
+            var chatdbUrl = userUrl + "/" + "${user.id}" + "/chat/" + "$did";
+            var cres = Dio().delete(chatdbUrl);
+          }
         },
       ),
     ]);

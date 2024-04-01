@@ -222,24 +222,28 @@ class MessageBoxState extends State<MessageBox> {
   Widget contentImage(BuildContext context, imageB64Url) {
     return GestureDetector(
         onTap: () {
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return Dialog(
-                    //child: Container(
-                    child: Image.memory(
-                        imageB64Url) //Image.network(val['content']),
-                    );
-              });
+          if (imageB64Url != null)
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                      //child: Container(
+                      child: Image.memory(
+                          imageB64Url) //Image.network(val['content']),
+                      );
+                });
         },
         onLongPressStart: (details) {
-          _showDownloadMenu(context, details.globalPosition, imageB64Url);
+          if (imageB64Url != null)
+            _showDownloadMenu(context, details.globalPosition, imageB64Url);
         },
-        child: Image.memory(
-          imageB64Url,
-          height: 250,
-          width: 200,
-        ));
+        child: imageB64Url == null
+            ? Container()
+            : Image.memory(
+                imageB64Url,
+                height: 250,
+                width: 200,
+              ));
   }
 
   void _showDownloadMenu(

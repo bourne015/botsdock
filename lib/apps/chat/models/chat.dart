@@ -7,9 +7,11 @@ import '../utils/constants.dart';
 //model of a chat page
 class Chat {
   final int id;
+  int _dbID = -1;
   List<Message> messages = [];
   List<Widget> messageBox = [];
-  List<Map> msg = [];
+  List<Map> _gptMsg = [];
+  List<Map> _msgsAll = [];
 
   String title;
   String _modelVersion = '';
@@ -24,8 +26,17 @@ class Chat {
 
   String get modelVersion => _modelVersion;
 
+  get gptMsgs => _gptMsg;
+  get msgsAll => _msgsAll;
+
   set modelVersion(String? v) {
     _modelVersion = v!;
+    //notifyListeners();
+  }
+
+  int get dbID => _dbID;
+  set dbID(int v) {
+    _dbID = v;
     //notifyListeners();
   }
 
@@ -41,6 +52,9 @@ class Chat {
         "fileBytes": newMsg.fileBytes
       }),
     );
+    var trNewMsg = newMsg.toMap(modelVersion);
+    _gptMsg.add(trNewMsg["gpt"]);
+    _msgsAll.add(trNewMsg["all"]);
   }
 
   void appendMessage(String newMsg) {
@@ -50,15 +64,21 @@ class Chat {
       "role": MessageRole.assistant,
       "content": messages[lastMsgID].content
     });
+
+    _gptMsg.last["content"] = messages[lastMsgID].content;
+    _msgsAll.last["content"] = messages[lastMsgID].content;
   }
 
-  List<Map> msgsToMap() {
-    List<Map> res = [];
-    for (int i = 0; i < messages.length; i++) {
-      var val = messages[i];
-      res.add(val.toMap(modelVersion));
-    }
-    msg = res;
-    return msg;
-  }
+  // List<Map> msgsToMap() {
+  //   List<Map> res = [];
+  //   List<Map> res1 = [];
+  //   for (int i = 0; i < messages.length; i++) {
+  //     var val = messages[i];
+  //     res.add(val.toMap(modelVersion)["gpt"]);
+  //     res1.add(val.toMap(modelVersion)["all"]);
+  //   }
+  //   msg = res;
+  //   msgAll = res1;
+  //   return msg;
+  // }
 }
