@@ -14,14 +14,14 @@ import '../models/chat.dart';
 import '../models/message.dart';
 import '../utils/global.dart';
 
-class UserInfo extends StatefulWidget {
-  const UserInfo({super.key});
+class Administrator extends StatefulWidget {
+  const Administrator({super.key});
 
   @override
-  State<UserInfo> createState() => UserInfoState();
+  State<Administrator> createState() => AdministratorState();
 }
 
-class UserInfoState extends State<UserInfo> {
+class AdministratorState extends State<Administrator> {
   final _emailcontroller = TextEditingController();
   final _namecontroller = TextEditingController();
   final _pwdcontroller = TextEditingController();
