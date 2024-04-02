@@ -29,7 +29,7 @@ class Global {
       if (jsonChat != null) {
         final c = jsonDecode(jsonChat);
         var pid = c["id"]; //c["contents"][0]["pageID"];
-        pages.defaultModelVersion = ClaudeModel.haiku;
+        //pages.defaultModelVersion = ClaudeModel.haiku;
         pages.addPage(pid, Chat(chatId: pid, title: c["title"]));
         pages.getPage(pid).modelVersion = c["model"];
         pages.getPage(pid).dbID = pid;
@@ -61,6 +61,10 @@ class Global {
 
   static saveChats(user, dbid, cdata) {
     _prefs.setString("chat_$dbid", cdata);
+  }
+
+  static deleteChat(dbid) {
+    _prefs.remove("chat_$dbid");
   }
 
   static reset() {
