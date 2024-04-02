@@ -329,7 +329,6 @@ class UserInfoState extends State<UserInfo> {
         user.signUP = true;
         user.id = response.data["id"];
         user.avatar = avatarNum.toString();
-        print("user.signUP = true;");
       } else {
         user.signUP = false;
       }

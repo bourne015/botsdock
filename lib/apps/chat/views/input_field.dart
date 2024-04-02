@@ -400,7 +400,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
             if (cres.data["result"] == "success") {
               pages.getPage(handlePageID).dbID = cres.data["id"];
             }
+            chatData["id"] = cres.data["id"];
             Global.saveChats(user, cres.data["id"], jsonEncode(chatData));
+            print("save: res id:${cres.data["id"]}, dataid:${chatData["id"]}");
           }
         });
       }

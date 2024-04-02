@@ -7,6 +7,7 @@ import '../utils/utils.dart';
 import '../models/pages.dart';
 import '../models/user.dart';
 import '../views/user.dart';
+import '../utils/global.dart';
 
 class ChatDrawer extends StatefulWidget {
   final double drawersize;
@@ -113,6 +114,7 @@ class ChatDrawerState extends State<ChatDrawer> {
             var chatdbUrl = userUrl + "/" + "${user.id}" + "/chat/" + "$did";
             var cres = Dio().delete(chatdbUrl);
           }
+          Global.deleteChat(did);
         },
       ),
     ]);
@@ -127,7 +129,8 @@ class ChatDrawerState extends State<ChatDrawer> {
             borderRadius: BorderRadius.circular(10),
           ),
           selectedTileColor: AppColors.drawerTabSelected,
-          selected: pages.currentPageID == page.id,
+          selected:
+              pages.currentPageID == (page.dbID == -1 ? page.id : page.dbID),
           leading: const Icon(Icons.chat_bubble_outline, size: 16),
           minLeadingWidth: 0,
           contentPadding: const EdgeInsets.symmetric(horizontal: 10),
@@ -139,7 +142,7 @@ class ChatDrawerState extends State<ChatDrawer> {
               overflow: TextOverflow.ellipsis,
               maxLines: 1),
           onTap: () {
-            pages.currentPageID = page.id;
+            pages.currentPageID = (page.dbID == -1 ? page.id : page.dbID);
             pages.displayInitPage = false;
             if (!isDisplayDesktop(context)) Navigator.pop(context);
           },
