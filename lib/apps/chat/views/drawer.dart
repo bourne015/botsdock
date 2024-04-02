@@ -6,7 +6,7 @@ import '../utils/constants.dart';
 import '../utils/utils.dart';
 import '../models/pages.dart';
 import '../models/user.dart';
-import '../views/user.dart';
+import 'administrator.dart';
 import '../utils/global.dart';
 
 class ChatDrawer extends StatefulWidget {
@@ -65,7 +65,7 @@ class ChatDrawerState extends State<ChatDrawer> {
               )),
           Container(
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-              child: UserInfo()),
+              child: Administrator()),
           const SizedBox(height: 10),
         ],
       ),
