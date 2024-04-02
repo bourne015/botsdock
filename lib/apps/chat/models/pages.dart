@@ -9,7 +9,6 @@ class Pages with ChangeNotifier {
   final Map<int, Chat> _pages = {};
   final List<int> _pagesID = [];
   int _currentPageID = -1;
-  int _maxPageID = 0;
   String _defaultModelVersion = ClaudeModel.haiku;
   bool _isDrawerOpen = true;
   bool _displayInitPage = true;
@@ -50,7 +49,10 @@ class Pages with ChangeNotifier {
   }
 
   int get assignNewPageID {
-    return _maxPageID++;
+    for (var i = 1; i < 1000; i++) {
+      if (!_pagesID.contains(i)) return i;
+    }
+    return _pagesID.length + 1;
   }
 
   void addPage(int pageID, Chat newChat) {
