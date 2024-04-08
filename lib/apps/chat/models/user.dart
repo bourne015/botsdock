@@ -33,6 +33,7 @@ class User with ChangeNotifier {
   String? get avatar => _avatar;
   set avatar(String? avatarNum) {
     _avatar = avatarNum;
+    notifyListeners();
   }
 
   bool get isLogedin => _isLogedin;

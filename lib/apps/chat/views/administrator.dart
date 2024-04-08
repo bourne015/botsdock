@@ -13,6 +13,7 @@ import '../models/pages.dart';
 import '../models/chat.dart';
 import '../models/message.dart';
 import '../utils/global.dart';
+import './user_info.dart';
 
 class Administrator extends StatefulWidget {
   const Administrator({super.key});
@@ -68,6 +69,9 @@ class AdministratorState extends State<Administrator> {
         padding: const EdgeInsets.only(left: 2),
         onSelected: (String value) {
           switch (value) {
+            case 'user':
+              userInfoDialog(context, user);
+              break;
             case 'Login':
               loginDialog(context);
               break;
@@ -124,9 +128,18 @@ class AdministratorState extends State<Administrator> {
             ]);
   }
 
+  void userInfoDialog(BuildContext context, user) {
+    showDialog(
+      context: context,
+      builder: (context) => UserInfo(
+        user: user,
+      ),
+    );
+  }
+
   void aboutDialog(BuildContext context) {
     var content = aboutText + '\nVersion $appVersion';
-    notifyBox(title: 'About', content: content);
+    notifyBox(context: context, title: 'About', content: content);
   }
 
   Future loginDialog(BuildContext context) {
@@ -206,7 +219,8 @@ class AdministratorState extends State<Administrator> {
                 Navigator.of(context).pop();
                 Global.saveProfile(user);
               } else
-                notifyBox(title: "login status", content: res);
+                notifyBox(
+                    context: context, title: "login status", content: res);
             },
           ),
           SizedBox(
@@ -276,7 +290,7 @@ class AdministratorState extends State<Administrator> {
         child: Text('注册'),
         onPressed: () async {
           if (_pwdcontroller.text != _pwdconfirmcontroller.text) {
-            notifyBox(title: "warning", content: "密码不一致");
+            notifyBox(context: context, title: "warning", content: "密码不一致");
             return;
           }
           if (!(_signUpformKey.currentState as FormState).validate()) {
@@ -287,10 +301,10 @@ class AdministratorState extends State<Administrator> {
           user.email = _emailcontroller.text;
           var res = await checkSingUp(user);
           if (user.signUP) {
-            notifyBox(title: "success", content: "注册成功,请登录");
+            notifyBox(context: context, title: "success", content: "注册成功,请登录");
             Navigator.of(context).pop();
           } else {
-            notifyBox(title: "warning", content: res);
+            notifyBox(context: context, title: "warning", content: res);
           }
           (_signUpformKey.currentState as FormState).reset();
         },
@@ -386,28 +400,5 @@ class AdministratorState extends State<Administrator> {
         validator: (v) {
           return v == null || v.trim().isNotEmpty ? null : "$text不能为空";
         });
-  }
-
-  void notifyBox({var title, var content}) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-              title: Text(title),
-              content: SingleChildScrollView(
-                child: ListBody(
-                  children: <Widget>[
-                    Text(content),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('OK'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ));
   }
 }
