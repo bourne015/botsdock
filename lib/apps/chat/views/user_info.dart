@@ -87,7 +87,8 @@ class _UserInfoTabState extends State<UserInfo> {
         // userInfoFormField(context, "昵称", widget.user.name ?? '',
         //     _namecontroller, false, _editName),
         userInfoFormField(
-            context, "邮箱", widget.user.email ?? '', _emailcontroller, false),
+            context, "邮箱", widget.user.email ?? '', _emailcontroller,
+            obscure: false, autofocus: false, readOnly: true),
         // userInfoFormField(context, "电话", widget.user.phone ?? '',
         //     _phonecontroller, false, _editPhone),
         Container(
@@ -212,36 +213,41 @@ class _UserInfoTabState extends State<UserInfo> {
           child: Form(
               key: _editPwdformKey,
               child: Column(
-                //mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  userInfoFormField(context, "原密码:", '', _pwdcontroller, true),
-                  userInfoFormField(
-                      context, "新密码:", '', _newpwdcontroller, true),
-                  userInfoFormField(
-                      context, "请确认:", '', _pwdconfirmcontroller, true),
+                  userInfoFormField(context, "原密码:", '', _pwdcontroller,
+                      obscure: true, autofocus: true, readOnly: false),
+                  userInfoFormField(context, "新密码:", '', _newpwdcontroller,
+                      obscure: true, autofocus: false, readOnly: false),
+                  userInfoFormField(context, "请确认:", '', _pwdconfirmcontroller,
+                      obscure: true, autofocus: false, readOnly: false),
                 ],
               ))),
       actions: [
         ElevatedButton(
           child: Text('保存'),
           onPressed: () async {
-            if (_pwdcontroller.text != _pwdconfirmcontroller.text) {
+            if (_newpwdcontroller.text != _pwdconfirmcontroller.text) {
               notifyBox(context: context, title: "warning", content: "密码不一致");
               return;
             }
             if (!(_editPwdformKey.currentState as FormState).validate()) {
               return;
             }
-            var editUser = userUrl +
-                "/${widget.user.id}/security" +
-                "/${_pwdcontroller.text}";
-            var userdata = {"pwd": _phonecontroller.text};
+            var editUser = userUrl + "/${widget.user.id}/security";
+            var userdata = {
+              "current_password": _pwdcontroller.text,
+              "new_password": _newpwdcontroller.text,
+            };
             var res = await dio.post(editUser, data: userdata);
-            if (res.statusCode == 200 && res.data["result"] == 'success') {
-              notifyBox(context: context, title: "success", content: "修改成功");
+            if (res.data["result"] == 'success') {
               Navigator.of(context).pop();
+              notifyBox(context: context, title: "success", content: "修改成功");
             } else {
-              notifyBox(context: context, title: "warning", content: res);
+              notifyBox(
+                  context: context,
+                  title: "warning",
+                  content: res.data["result"]);
             }
             (_editPwdformKey.currentState as FormState).reset();
           },
@@ -278,7 +284,8 @@ class _UserInfoTabState extends State<UserInfo> {
   }
 
   Widget userInfoFormField(
-      BuildContext context, String prefix, String text, var ctr, bool obscure) {
+      BuildContext context, String prefix, String text, var ctr,
+      {bool obscure = true, bool autofocus = false, bool readOnly = false}) {
     return Container(
         margin: EdgeInsets.only(left: 15, right: 5),
         alignment: Alignment.center,
@@ -298,7 +305,9 @@ class _UserInfoTabState extends State<UserInfo> {
             validator: (v) {
               return v == null || v.trim().isNotEmpty ? null : "$text不能为空";
             },
+            autofocus: autofocus,
             enabled: true,
+            readOnly: readOnly,
           )),
         ]));
   }
