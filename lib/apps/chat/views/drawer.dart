@@ -53,7 +53,7 @@ class ChatDrawerState extends State<ChatDrawer> {
                 title: RichText(
                     text: TextSpan(
                   text: 'Clear conversations',
-                  style: TextStyle(fontSize: 17, color: AppColors.msgText),
+                  style: TextStyle(fontSize: 16, color: AppColors.msgText),
                 )),
                 onTap: () {
                   if (pages.currentPage?.onGenerating == false) {

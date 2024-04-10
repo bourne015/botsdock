@@ -77,9 +77,9 @@ class _UserInfoTabState extends State<UserInfo> {
             showImagePicker(context, editUser);
           },
           child: CircleAvatar(
-            radius: 40,
+            radius: 50,
             backgroundImage:
-                NetworkImage('assets/images/avatar/${widget.user.avatar}.png'),
+                AssetImage('assets/images/avatar/${widget.user.avatar}.png'),
           ),
         ),
         SizedBox(height: 60),
@@ -232,8 +232,9 @@ class _UserInfoTabState extends State<UserInfo> {
             if (!(_editPwdformKey.currentState as FormState).validate()) {
               return;
             }
-            var editUser =
-                userUrl + "/${widget.user.id}/" + "${_pwdcontroller.text}";
+            var editUser = userUrl +
+                "/${widget.user.id}/security" +
+                "/${_pwdcontroller.text}";
             var userdata = {"pwd": _phonecontroller.text};
             var res = await dio.post(editUser, data: userdata);
             if (res.statusCode == 200 && res.data["result"] == 'success') {
@@ -308,7 +309,7 @@ class _UserInfoTabState extends State<UserInfo> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Image.network(
+          title: Image.asset(
             width: 200,
             height: 200,
             'assets/images/avatar/${widget.user.avatar}.png',
@@ -318,7 +319,6 @@ class _UserInfoTabState extends State<UserInfo> {
               child: SingleChildScrollView(
                 child: ListBody(
                   children: [
-                    // 在这里添加一个网格视图或列表视图来显示可选的头像图片
                     GridView.builder(
                       shrinkWrap: true,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -342,7 +342,7 @@ class _UserInfoTabState extends State<UserInfo> {
                               });
                             }
                           },
-                          child: Image.network(avatarImages[index]),
+                          child: Image.asset(avatarImages[index]),
                         );
                       },
                     ),
