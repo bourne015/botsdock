@@ -298,7 +298,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
         return;
       }
       var chatData1 = {
-        "model": ClaudeModel.haiku,
+        "model": GPTModel.gptv35,
         "question": "为这段话写一个5个字左右的标题:$q"
       };
       final response = await dio.post(chatUrl, data: chatData1);
