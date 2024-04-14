@@ -131,13 +131,13 @@ class ChatDrawerState extends State<ChatDrawer> {
           selectedTileColor: AppColors.drawerTabSelected,
           selected:
               pages.currentPageID == (page.dbID == -1 ? page.id : page.dbID),
-          leading: const Icon(Icons.chat_bubble_outline, size: 16),
+          //leading: const Icon(Icons.chat_bubble_outline, size: 16),
           minLeadingWidth: 0,
           contentPadding: const EdgeInsets.symmetric(horizontal: 10),
           title: RichText(
               text: TextSpan(
                 text: page.title,
-                style: TextStyle(fontSize: 15.5, color: AppColors.msgText),
+                style: TextStyle(fontSize: 15, color: AppColors.msgText),
               ),
               overflow: TextOverflow.ellipsis,
               maxLines: 1),
