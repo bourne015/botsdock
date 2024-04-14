@@ -9,7 +9,7 @@ class Pages with ChangeNotifier {
   final Map<int, Chat> _pages = {};
   final List<int> _pagesID = [];
   int _currentPageID = -1;
-  String _defaultModelVersion = ClaudeModel.haiku;
+  String _defaultModelVersion = GPTModel.gptv35;
   bool _isDrawerOpen = true;
   bool _displayInitPage = true;
 
