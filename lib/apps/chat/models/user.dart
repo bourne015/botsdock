@@ -9,10 +9,16 @@ class User with ChangeNotifier {
   String? _phone;
   String? _avatar;
   bool _signUP = true;
+  int _updated_at = 0;
 
   int get id => _id;
   set id(int user_id) {
     _id = user_id;
+  }
+
+  int get updated_at => _updated_at;
+  set updated_at(int updated_time) {
+    _updated_at = updated_time;
   }
 
   String? get name => _name;
