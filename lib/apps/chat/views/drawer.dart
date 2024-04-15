@@ -105,16 +105,16 @@ class ChatDrawerState extends State<ChatDrawer> {
       IconButton(
         icon: const Icon(Icons.close),
         iconSize: 15,
-        onPressed: () {
+        onPressed: () async {
           var did = pages.getPage(removeID).dbID;
           pages.delPage(removeID);
           pages.currentPageID = -1;
           pages.displayInitPage = true;
           if (user.isLogedin) {
             var chatdbUrl = userUrl + "/" + "${user.id}" + "/chat/" + "$did";
-            var cres = Dio().delete(chatdbUrl);
+            var cres = await Dio().delete(chatdbUrl);
+            Global.deleteChat(removeID, cres.data["updated_at"]);
           }
-          Global.deleteChat(did);
         },
       ),
     ]);
@@ -129,8 +129,7 @@ class ChatDrawerState extends State<ChatDrawer> {
             borderRadius: BorderRadius.circular(10),
           ),
           selectedTileColor: AppColors.drawerTabSelected,
-          selected:
-              pages.currentPageID == (page.dbID == -1 ? page.id : page.dbID),
+          selected: pages.currentPageID == page.id,
           //leading: const Icon(Icons.chat_bubble_outline, size: 16),
           minLeadingWidth: 0,
           contentPadding: const EdgeInsets.symmetric(horizontal: 10),
@@ -142,7 +141,7 @@ class ChatDrawerState extends State<ChatDrawer> {
               overflow: TextOverflow.ellipsis,
               maxLines: 1),
           onTap: () {
-            pages.currentPageID = (page.dbID == -1 ? page.id : page.dbID);
+            pages.currentPageID = page.id;
             pages.displayInitPage = false;
             if (!isDisplayDesktop(context)) Navigator.pop(context);
           },

@@ -192,12 +192,12 @@ class AdministratorState extends State<Administrator> {
                   for (var c in cres.data["chats"]) {
                     //user dbID to recovery pageID,
                     //incase no user log, c["contents"][0]["pageID"] == currentPageID
-                    var pid = c["id"]; //c["contents"][0]["pageID"];
+                    var pid = c["page_id"]; //c["contents"][0]["pageID"];
                     //print("cccc: ${c["title"]}, $pid");
-                    pages.defaultModelVersion = ClaudeModel.haiku;
+                    pages.defaultModelVersion = GPTModel.gptv35;
                     pages.addPage(pid, Chat(chatId: pid, title: c["title"]));
                     pages.getPage(pid).modelVersion = c["model"];
-                    pages.getPage(pid).dbID = pid;
+                    pages.getPage(pid).dbID = c["id"];
                     for (var m in c["contents"]) {
                       //print("ttt:${m["type"]}, ${MsgType.values[m["type"]]}");
                       Message msgQ = Message(
@@ -211,7 +211,7 @@ class AdministratorState extends State<Administrator> {
                           timestamp: m["timestamp"]);
                       pages.addMessage(pid, msgQ);
                     }
-                    Global.saveChats(user, pid, jsonEncode(c));
+                    Global.saveChats(user, pid, jsonEncode(c), 0);
                     //pid += 1;
                   }
                 }
@@ -373,6 +373,7 @@ class AdministratorState extends State<Administrator> {
         user.email = response.data["email"];
         user.phone = response.data["phone"];
         user.avatar = response.data["avatar"];
+        user.updated_at = response.data["updated_at"];
         user.isLogedin = true;
       } else {
         user.isLogedin = false;
