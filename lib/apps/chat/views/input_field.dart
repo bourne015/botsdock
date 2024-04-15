@@ -388,6 +388,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
             var chatdbUrl = userUrl + "/" + "${user.id}" + "/chat";
             var chatData = {
               "id": pages.getPage(handlePageID).dbID,
+              "page_id": handlePageID,
               "title": pages.getPage(handlePageID).title,
               "contents": pages.getPage(handlePageID).msgsAll,
               "model": pages.getPage(handlePageID).modelVersion,
@@ -399,10 +400,11 @@ class _ChatInputFieldState extends State<ChatInputField> {
             );
             if (cres.data["result"] == "success") {
               pages.getPage(handlePageID).dbID = cres.data["id"];
+
+              chatData["id"] = cres.data["id"];
+              Global.saveChats(user, chatData["page_id"], jsonEncode(chatData),
+                  cres.data["updated_at"]);
             }
-            chatData["id"] = cres.data["id"];
-            Global.saveChats(user, cres.data["id"], jsonEncode(chatData));
-            print("save: res id:${cres.data["id"]}, dataid:${chatData["id"]}");
           }
         });
       }
