@@ -123,12 +123,12 @@ class RouteConfiguration {
       if (regExpPattern.hasMatch(settings.name!)) {
         final firstMatch = regExpPattern.firstMatch(settings.name!)!;
         final match = (firstMatch.groupCount == 1) ? firstMatch.group(1) : null;
-        if (kIsWeb) {
-          return NoAnimationMaterialPageRoute<void>(
-            builder: (context) => path.builder(context, match),
-            settings: settings,
-          );
-        }
+        // if (kIsWeb) {
+        //   return NoAnimationMaterialPageRoute<void>(
+        //     builder: (context) => path.builder(context, match),
+        //     settings: settings,
+        //   );
+        // }
         if (path.openInSecondScreen && hasHinge) {
           return TwoPanePageRoute<void>(
             builder: (context) => path.builder(context, match),
