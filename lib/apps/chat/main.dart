@@ -22,11 +22,24 @@ class ChatApp extends StatefulWidget {
 }
 
 class _AppState extends State<ChatApp> {
+  User user = User();
+  Pages pages = Pages();
+
+  @override
+  void initState() {
+    super.initState();
+    _initData();
+  }
+
+  Future<void> _initData() async {
+    await Global().init(user, pages);
+    setState(() {
+      pages.isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    User user = User();
-    Pages pages = Pages();
-    Global().init(user, pages);
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (context) => pages),
