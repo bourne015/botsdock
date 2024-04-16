@@ -8,6 +8,7 @@ import '../utils/constants.dart';
 class Chat {
   final int id;
   int _dbID = -1;
+  int updated_at = DateTime.now().millisecondsSinceEpoch ~/ 1000;
   List<Message> messages = [];
   List<Widget> messageBox = [];
   List<Map> _gptMsg = [];
