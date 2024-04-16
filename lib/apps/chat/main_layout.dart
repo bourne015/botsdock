@@ -19,6 +19,20 @@ class MainLayout extends StatefulWidget {
 class MainLayoutState extends State<MainLayout> {
   var _drawerButton = Icons.more_vert_rounded;
   double _drawerWidth = drawerWidth;
+  late Duration _drawerAnimationDuration;
+  bool _isDrawerVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _toggleDrawer());
+  }
+
+  void _toggleDrawer() {
+    setState(() {
+      _isDrawerVisible = !_isDrawerVisible;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,11 +78,18 @@ class MainLayoutState extends State<MainLayout> {
 
   Widget desktopLayout(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
+    if (pages.isLoading)
+      _drawerAnimationDuration = Duration(milliseconds: 1150);
+    else
+      _drawerAnimationDuration = Duration(milliseconds: 270);
     return Row(children: <Widget>[
       AnimatedSize(
         curve: pages.isDrawerOpen ? Curves.linear : Curves.ease, //out: in
-        duration: Duration(milliseconds: 200),
-        child: ChatDrawer(drawersize: _drawerWidth),
+        duration: _drawerAnimationDuration,
+        alignment: Alignment.topRight,
+        child: _isDrawerVisible
+            ? ChatDrawer(drawersize: _drawerWidth)
+            : Container(),
       ),
       Container(
           alignment: Alignment.center,
