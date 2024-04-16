@@ -58,6 +58,7 @@ class Global {
         pages.addPage(pid, Chat(chatId: pid, title: c["title"]));
         pages.getPage(pid).modelVersion = c["model"];
         pages.getPage(pid).dbID = c["id"];
+        pages.getPage(pid).updated_at = c["updated_at"];
         for (var m in c["contents"]) {
           Message msgQ = Message(
               id: '0',
@@ -90,6 +91,7 @@ class Global {
         pages.addPage(pid, Chat(chatId: pid, title: c["title"]));
         pages.getPage(pid).modelVersion = c["model"];
         pages.getPage(pid).dbID = c["id"];
+        pages.getPage(pid).updated_at = c["updated_at"];
         for (var m in c["contents"]) {
           //print("ttt:${m["type"]}, ${MsgType.values[m["type"]]}");
           Message msgQ = Message(

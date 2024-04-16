@@ -59,11 +59,11 @@ class AdministratorState extends State<Administrator> {
                 )
               : Icon(Icons.account_circle),
           minLeadingWidth: 0,
-          contentPadding: const EdgeInsets.symmetric(vertical: 5),
+          contentPadding: const EdgeInsets.symmetric(vertical: 1),
           title: RichText(
               text: TextSpan(
             text: 'Administrator',
-            style: TextStyle(fontSize: 16, color: AppColors.msgText),
+            style: TextStyle(fontSize: 15, color: AppColors.msgText),
           )),
         ),
         padding: const EdgeInsets.only(left: 2),
@@ -198,6 +198,7 @@ class AdministratorState extends State<Administrator> {
                     pages.addPage(pid, Chat(chatId: pid, title: c["title"]));
                     pages.getPage(pid).modelVersion = c["model"];
                     pages.getPage(pid).dbID = c["id"];
+                    pages.getPage(pid).updated_at = c["updated_at"];
                     for (var m in c["contents"]) {
                       //print("ttt:${m["type"]}, ${MsgType.values[m["type"]]}");
                       Message msgQ = Message(

@@ -7,7 +7,7 @@ import '../utils/constants.dart';
 //all chat pages
 class Pages with ChangeNotifier {
   final Map<int, Chat> _pages = {};
-  final List<int> _pagesID = [];
+  List<int> _pagesID = [];
   int _currentPageID = -1;
   String _defaultModelVersion = GPTModel.gptv35;
   bool _isDrawerOpen = true;
@@ -76,12 +76,12 @@ class Pages with ChangeNotifier {
 
   Chat getPage(int pageID) => _pages[pageID]!;
 
-  int getNthPageID(int n) {
+  Chat getNthPage(int n) {
     if (n >= _pagesID.length) {
       debugPrint("out of range");
-      return _pagesID[0];
+      return _pages[_pagesID[0]]!;
     }
-    return _pagesID[n];
+    return _pages[_pagesID[n]]!;
   }
 
   void setPageTitle(int pageID, String title) {
@@ -106,5 +106,13 @@ class Pages with ChangeNotifier {
     _pages[pageID]?.messages.clear();
     _pages[pageID]?.messageBox.clear();
     notifyListeners();
+  }
+
+  void sortPages() {
+    //sort pages by page updated_at value
+    //sice _pages is map, only keep _pagesID in sorted
+    var entries = _pages.entries.toList();
+    entries.sort((a, b) => b.value.updated_at.compareTo(a.value.updated_at));
+    _pagesID = entries.map((e) => e.key).toList();
   }
 }

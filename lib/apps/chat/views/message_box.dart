@@ -89,7 +89,7 @@ class MessageBoxState extends State<MessageBox> {
         child: RichText(
             text: TextSpan(
           text: name,
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         )));
   }
 
@@ -105,7 +105,7 @@ class MessageBoxState extends State<MessageBox> {
         //overflow: TextOverflow.ellipsis,
         //showCursor: false,
         maxLines: null,
-        style: const TextStyle(fontSize: 17.0, color: AppColors.msgText),
+        style: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
       );
     } else {
       return wrapContentbyCopy(context);
@@ -176,7 +176,7 @@ class MessageBoxState extends State<MessageBox> {
       styleSheet: MarkdownStyleSheet(
         //h1: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         //h2: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        p: const TextStyle(fontSize: 17.0, color: AppColors.msgText),
+        p: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
         code: const TextStyle(
           inherit: false,
           color: AppColors.msgText,
@@ -211,7 +211,7 @@ class MessageBoxState extends State<MessageBox> {
         label: Text(widget.val["fileName"]!),
         avatar: const Icon(
           Icons.file_copy_outlined,
-          size: 17,
+          size: 16,
         ),
         onDeleted: null,
         onPressed: () {},
