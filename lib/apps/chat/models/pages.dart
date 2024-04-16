@@ -12,6 +12,13 @@ class Pages with ChangeNotifier {
   String _defaultModelVersion = GPTModel.gptv35;
   bool _isDrawerOpen = true;
   bool _displayInitPage = true;
+  bool _isLoading = true;
+
+  bool get isLoading => _isLoading;
+  set isLoading(bool val) {
+    _isLoading = val;
+    notifyListeners();
+  }
 
   bool get displayInitPage => _displayInitPage;
   set displayInitPage(bool val) {
