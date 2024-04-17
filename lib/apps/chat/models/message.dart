@@ -57,7 +57,7 @@ class Message {
             {
               'type': 'image_url',
               'image_url': {
-                'url': "data:$fileType;base64,$fileBase64",
+                'url': "data:image/ang$fileType;base64,$fileBase64",
               },
             },
           ]
