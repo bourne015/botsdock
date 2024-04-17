@@ -16,7 +16,7 @@ class InitPage extends StatefulWidget {
 }
 
 class InitPageState extends State<InitPage> {
-  List<String> gptSub = <String>['3.5', '4.0', 'Vision', 'DALL'];
+  List<String> gptSub = <String>['3.5', '4.0', 'DALL'];
   List<String> claudeSub = <String>['Haiku', 'Sonnet', 'Opus'];
   String gptDropdownValue = '3.5';
   String claudeDropdownValue = 'Haiku';
@@ -34,13 +34,13 @@ class InitPageState extends State<InitPage> {
         selected = 'ChatGPT';
         gptDropdownValue = gptSub[1];
         break;
-      case GPTModel.gptv40Vision:
-        selected = 'ChatGPT';
-        gptDropdownValue = gptSub[2];
-        break;
+      // case GPTModel.gptv40Vision:
+      //   selected = 'ChatGPT';
+      //   gptDropdownValue = gptSub[2];
+      //   break;
       case GPTModel.gptv40Dall:
         selected = 'ChatGPT';
-        gptDropdownValue = gptSub[3];
+        gptDropdownValue = gptSub[2];
         break;
       case ClaudeModel.haiku:
         selected = 'Claude';
@@ -150,9 +150,11 @@ class InitPageState extends State<InitPage> {
           pages.defaultModelVersion = GPTModel.gptv35;
         } else if (value == gptSub[1]) {
           pages.defaultModelVersion = GPTModel.gptv40;
-        } else if (value == gptSub[2]) {
-          pages.defaultModelVersion = GPTModel.gptv40Vision;
-        } else if (value == gptSub[3]) {
+        }
+        // else if (value == gptSub[2]) {
+        //   pages.defaultModelVersion = GPTModel.gptv40Vision;
+        // }
+        else if (value == gptSub[2]) {
           pages.defaultModelVersion = GPTModel.gptv40Dall;
         }
         gptDropdownValue = value;
@@ -183,17 +185,17 @@ class InitPageState extends State<InitPage> {
             //trailing: Icon(Icons.favorite_rounded),
           ),
         ),
-        const PopupMenuItem<String>(
-          value: "Vision",
-          child: ListTile(
-            leading: CircleAvatar(child: Text('V')),
-            title: Text("ChatGPT 4.0 - vision"),
-            subtitle: Text(
-              'GPT-4 with the ability to understand images.',
-              style: TextStyle(color: AppColors.subTitle),
-            ),
-          ),
-        ),
+        // const PopupMenuItem<String>(
+        //   value: "Vision",
+        //   child: ListTile(
+        //     leading: CircleAvatar(child: Text('V')),
+        //     title: Text("ChatGPT 4.0 - vision"),
+        //     subtitle: Text(
+        //       'GPT-4 with the ability to understand images.',
+        //       style: TextStyle(color: AppColors.subTitle),
+        //     ),
+        //   ),
+        // ),
         const PopupMenuItem<String>(
           value: "DALL",
           child: ListTile(
