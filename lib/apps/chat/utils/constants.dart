@@ -43,7 +43,7 @@ class MessageRole {
 
 class GPTModel {
   static const String gptv35 = "gpt-3.5-turbo-1106";
-  static const String gptv40 = "gpt-4-1106-preview";
+  static const String gptv40 = "gpt-4-turbo";
   static const String gptv40Vision = "gpt-4-vision-preview";
   static const String gptv40Dall = "dall-e-3";
 }
