@@ -34,6 +34,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   @override
   Widget build(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
+    User user = Provider.of<User>(context);
     return Container(
       decoration: BoxDecoration(
           //color: AppColors.inputBoxBackground,
@@ -56,9 +57,11 @@ class _ChatInputFieldState extends State<ChatInputField> {
               width: 15,
             ),
           inputField(context),
-          (!pages.displayInitPage && pages.currentPage!.onGenerating)
-              ? generatingAnimation(context)
-              : sendButton(context),
+          !user.isLogedin
+              ? lockButton(context)
+              : (!pages.displayInitPage && pages.currentPage!.onGenerating)
+                  ? generatingAnimation(context)
+                  : sendButton(context),
         ],
       ),
     );
@@ -183,6 +186,17 @@ class _ChatInputFieldState extends State<ChatInputField> {
         ));
   }
 
+  Widget lockButton(BuildContext context) {
+    Pages pages = Provider.of<Pages>(context);
+    User user = Provider.of<User>(context);
+    return IconButton(
+      icon: const Icon(Icons.lock_person_outlined),
+      tooltip: "请登录",
+      color: Colors.grey,
+      onPressed: () {},
+    );
+  }
+
   Widget sendButton(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
     User user = Provider.of<User>(context);
@@ -299,7 +313,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
         return;
       }
       var chatData1 = {
-        "model": GPTModel.gptv35,
+        "model": ClaudeModel.haiku,
         "question": "为这段话写一个5个字左右的标题:$q"
       };
       final response = await dio.post(chatUrl, data: chatData1);
