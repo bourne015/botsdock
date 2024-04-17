@@ -47,7 +47,6 @@ class Global {
   }
 
   void get_local_chats(user, pages) {
-    print("get_local_chats");
     final keys = _prefs.getKeys().where((key) => key.startsWith('chat_'));
     for (var key in keys) {
       final jsonChat = _prefs.getString(key);
@@ -76,7 +75,6 @@ class Global {
   }
 
   void get_db_chats(user, pages) async {
-    print("get_db_chats");
     var chatdbUrl = userUrl + "/" + "${user.id}" + "/chats";
     Response cres = await dio.post(
       chatdbUrl,

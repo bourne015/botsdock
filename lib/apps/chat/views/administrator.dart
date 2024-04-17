@@ -62,7 +62,7 @@ class AdministratorState extends State<Administrator> {
           contentPadding: const EdgeInsets.symmetric(vertical: 1),
           title: RichText(
               text: TextSpan(
-            text: 'Administrator',
+            text: user.isLogedin ? user.name : 'Administrator',
             style: TextStyle(fontSize: 15, color: AppColors.msgText),
           )),
         ),

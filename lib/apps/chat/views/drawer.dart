@@ -20,7 +20,7 @@ class ChatDrawer extends StatefulWidget {
 class ChatDrawerState extends State<ChatDrawer> {
   @override
   Widget build(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
+    //Pages pages = Provider.of<Pages>(context);
     return Drawer(
       width: widget.drawersize,
       backgroundColor: AppColors.drawerBackground,
