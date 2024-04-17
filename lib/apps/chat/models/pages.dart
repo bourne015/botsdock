@@ -17,7 +17,7 @@ class Pages with ChangeNotifier {
   bool get isLoading => _isLoading;
   set isLoading(bool val) {
     _isLoading = val;
-    notifyListeners();
+    //notifyListeners();
   }
 
   bool get displayInitPage => _displayInitPage;
