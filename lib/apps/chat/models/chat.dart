@@ -62,7 +62,7 @@ class Chat {
     int lastMsgID = messages.isNotEmpty ? messages.length - 1 : 0;
     messages[lastMsgID].content += newMsg;
     messageBox[0] = MessageBox(val: {
-      "role": MessageRole.assistant,
+      "role": messages[lastMsgID].role,
       "content": messages[lastMsgID].content
     });
 
