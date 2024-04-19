@@ -3,8 +3,13 @@ import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../models/pages.dart';
+import '../models/chat.dart';
+import '../models/message.dart';
+import '../models/user.dart';
 import '../utils/constants.dart';
+import '../utils/prompts.dart';
 import './input_field.dart';
+import '../utils/utils.dart';
 
 class InitPage extends StatefulWidget {
   const InitPage({
@@ -21,6 +26,7 @@ class InitPageState extends State<InitPage> {
   String gptDropdownValue = '3.5';
   String claudeDropdownValue = 'Haiku';
   String? selected;
+  final ChatGen chats = ChatGen();
 
   @override
   Widget build(BuildContext context) {
@@ -81,8 +87,96 @@ class InitPageState extends State<InitPage> {
       Expanded(
         child: Container(),
       ),
+      Expanded(
+          child: Container(
+        alignment: Alignment.bottomCenter,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          //crossAxisCount: 1,
+          // mainAxisSpacing: 3,
+          // crossAxisSpacing: 3,
+          //shrinkWrap: true,
+          //padding: const EdgeInsets.only(left: 70, bottom: 20),
+          //childAspectRatio: 1,
+          //scrollDirection: Axis.horizontal,
+          children: [
+            botCard(context, "宠物猫", "assets/images/avatar/cat.png", Prompt.cat),
+            botCard(
+                context, "占卜师", "assets/images/avatar/augur.png", Prompt.augur),
+            botCard(context, "程序员", "assets/images/avatar/hacker.png",
+                Prompt.program),
+            //botCard(context, "旅行规划", "", ""),
+            SizedBox(
+                width: 75,
+                height: 75,
+                child: ElevatedButton(
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStateProperty.all(Colors.black),
+                      elevation: MaterialStateProperty.all(5.0),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      )),
+                      padding: MaterialStateProperty.all(EdgeInsets.all(5)),
+                    ),
+                    onPressed: () {},
+                    child: Text("更多...")))
+          ],
+        ),
+      )),
       const ChatInputField(),
     ]);
+  }
+
+  Widget botCard(
+      BuildContext context, String name, String avartar, String prompt) {
+    Pages pages = Provider.of<Pages>(context);
+    User user = Provider.of<User>(context);
+    return Card(
+        clipBehavior: Clip.antiAlias,
+        elevation: 5.0,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(15.0))),
+        child: InkWell(
+          splashColor: Colors.blue.withAlpha(30),
+          onTap: () {
+            newBot(pages, user, name, prompt);
+          },
+          child: Ink(
+              width: 75,
+              height: 75,
+              padding: const EdgeInsets.only(top: 50),
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      fit: BoxFit.cover, image: AssetImage(avartar))),
+              child: Container(
+                  alignment: Alignment.bottomCenter,
+                  //width: double.infinity,
+                  color: Color.fromRGBO(128, 128, 128, 0.4),
+                  child: Text(name,
+                      style: TextStyle(
+                        fontSize: 17,
+                        color: Colors.white,
+                      )))),
+        ));
+  }
+
+  void newBot(pages, user, name, prompt) {
+    int handlePageID = pages.assignNewPageID;
+    String _botName = name + ' - ${handlePageID}';
+    pages.currentPageID = handlePageID;
+    pages.addPage(handlePageID, Chat(chatId: handlePageID, title: _botName));
+    pages.displayInitPage = false;
+    pages.currentPage?.modelVersion = pages.defaultModelVersion;
+    Message msgQ = Message(
+        id: '0',
+        pageID: handlePageID,
+        role: MessageRole.system,
+        type: MsgType.text,
+        content: prompt,
+        timestamp: DateTime.now().millisecondsSinceEpoch);
+    pages.addMessage(handlePageID, msgQ);
+    chats.submitText(pages, handlePageID, user);
   }
 
   Widget modelSelectButton(BuildContext context) {
