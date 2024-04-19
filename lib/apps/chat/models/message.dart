@@ -80,7 +80,9 @@ class Message {
       "fileBytes": null,
       "timestamp": timestamp,
       //...res
-      "content": content, //in image case its a list causes error
+      "content": (type == MsgType.image && role == MessageRole.assistant)
+          ? ""
+          : content, //in image case its a list causes error
     };
     return {"all": totalVal, "gpt": res};
   }

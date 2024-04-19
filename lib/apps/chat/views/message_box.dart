@@ -1,4 +1,5 @@
 import 'dart:html' as html;
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,20 +24,22 @@ class MessageBoxState extends State<MessageBox> {
   static bool _hasCopyIcon = false;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: isDisplayDesktop(context)
-          ? EdgeInsets.only(left: 80, right: 120)
-          : null,
-      margin: const EdgeInsets.symmetric(vertical: 1.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          roleIcon(context),
-          message(context),
-        ],
-      ),
-    );
+    return widget.val['role'] != MessageRole.system
+        ? Container(
+            padding: isDisplayDesktop(context)
+                ? EdgeInsets.only(left: 80, right: 120)
+                : null,
+            margin: const EdgeInsets.symmetric(vertical: 1.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                roleIcon(context),
+                message(context),
+              ],
+            ),
+          )
+        : Container();
   }
 
   Widget roleIcon(BuildContext context) {
@@ -96,9 +99,10 @@ class MessageBoxState extends State<MessageBox> {
   Widget messageContent(BuildContext context) {
     if (widget.val["type"] == MsgType.image &&
         widget.val['role'] == MessageRole.assistant) {
-      String imageBase64Str = widget.val['content'];
-      String imageB64Url = "data:image/png;base64,$imageBase64Str";
-      return contentImage(context, imageB64Url);
+      String imgBase64Str = widget.val['content'];
+      final Uint8List imgUint8List = base64Decode(imgBase64Str);
+      //String imageB64Url = "data:image/png;base64,$imgBase64Str";
+      return contentImage(context, imgUint8List);
     } else if (widget.val['role'] == MessageRole.user) {
       return SelectableText(
         widget.val['content'],
@@ -219,35 +223,34 @@ class MessageBoxState extends State<MessageBox> {
     );
   }
 
-  Widget contentImage(BuildContext context, imageB64Url) {
+  Widget contentImage(BuildContext context, Uint8List? imgData) {
     return GestureDetector(
         onTap: () {
-          if (imageB64Url != null)
+          if (imgData != null)
             showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return Dialog(
                       //child: Container(
-                      child: Image.memory(
-                          imageB64Url) //Image.network(val['content']),
+                      child:
+                          Image.memory(imgData) //Image.network(val['content']),
                       );
                 });
         },
         onLongPressStart: (details) {
-          if (imageB64Url != null)
-            _showDownloadMenu(context, details.globalPosition, imageB64Url);
+          if (imgData != null)
+            _showDownloadMenu(context, details.globalPosition, imgData);
         },
-        child: imageB64Url == null
+        child: imgData == null
             ? Container()
             : Image.memory(
-                imageB64Url,
+                imgData,
                 height: 250,
                 width: 200,
               ));
   }
 
-  void _showDownloadMenu(
-      BuildContext context, Offset position, String imageUrl) {
+  void _showDownloadMenu(BuildContext context, Offset position, imageUrl) {
     final RenderBox? overlay =
         Overlay.of(context).context.findRenderObject() as RenderBox?;
     final RelativeRect positionRect = RelativeRect.fromLTRB(
@@ -283,10 +286,12 @@ class MessageBoxState extends State<MessageBox> {
     });
   }
 
-  void _downloadImage(String imageUrl) {
+  void _downloadImage(Uint8List imageData) {
+    String base64Data = base64Encode(imageData);
+    final String url = 'data:image/png;base64,$base64Data';
     // create HTML的Anchor Element
-    final html.AnchorElement anchor = html.AnchorElement(href: imageUrl);
-    anchor.download = "gptsave"; // optional: download name
+    final html.AnchorElement anchor = html.AnchorElement(href: url)
+      ..download = "ai"; // optional: download name
     anchor.click();
   }
 }
