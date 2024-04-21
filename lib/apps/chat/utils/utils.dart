@@ -1,6 +1,7 @@
 import 'package:adaptive_breakpoints/adaptive_breakpoints.dart';
 import 'package:dual_screen/dual_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
 import 'dart:convert';
 import 'package:dio/dio.dart';
@@ -142,7 +143,7 @@ class ChatGen {
         "id": pages.getPage(handlePageID).dbID,
         "page_id": handlePageID,
         "title": pages.getPage(handlePageID).title,
-        "contents": pages.getPage(handlePageID).msgsAll,
+        "contents": pages.getPage(handlePageID).dbScheme,
         "model": pages.getPage(handlePageID).modelVersion,
       };
 
@@ -155,9 +156,21 @@ class ChatGen {
         pages.getPage(handlePageID).updated_at = cres.data["updated_at"];
 
         chatData["id"] = cres.data["id"];
+        chatData["updated_at"] = cres.data["updated_at"];
         Global.saveChats(user, chatData["page_id"], jsonEncode(chatData),
             cres.data["updated_at"]);
       }
+    }
+  }
+
+  Future<void> uploadImage(pages, pid, msg_id, filename, imgData) async {
+    try {
+      var resp = await Client().putObject(imgData, "chat/image/" + filename);
+      String? ossUrl =
+          (resp.statusCode == 200) ? resp.realUri.toString() : null;
+      if (ossUrl != null) pages.updateFileUrl(pid, msg_id, ossUrl);
+    } catch (e) {
+      debugPrint("uploadImage to oss error: $e");
     }
   }
 
@@ -171,25 +184,32 @@ class ChatGen {
         pages.getPage(handlePageID).onGenerating = true;
         final response = await dio.post(imageUrl, data: chatData1);
         pages.getPage(handlePageID).onGenerating = false;
-        if (response.statusCode == 200 &&
-            pages.getPage(handlePageID).title == "Chat $handlePageID") {
-          titleGenerate(pages, handlePageID);
-        }
 
+        var mt = DateTime.now().millisecondsSinceEpoch;
         Message msgA = Message(
-            id: '1',
+            id: pages.getPage(handlePageID).messages.length,
             pageID: handlePageID,
             role: MessageRole.assistant,
             type: MsgType.image,
-            content: response.data,
-            timestamp: DateTime.now().millisecondsSinceEpoch);
+            //fileUrl: ossUrl,
+            fileBytes: base64Decode(response.data),
+            content: "",
+            timestamp: mt);
         pages.addMessage(handlePageID, msgA);
+        if (response.statusCode == 200 &&
+            pages.getPage(handlePageID).title == "Chat $handlePageID") {
+          await titleGenerate(pages, handlePageID);
+        }
+        String oss_name = "ai${user.id}_${handlePageID}_${mt}.png";
+        await uploadImage(pages, handlePageID, msgA.id, oss_name,
+            base64Decode(response.data));
         saveChats(user, pages, handlePageID);
       } else {
         var chatData = {
           "model": pages.currentPage?.modelVersion,
-          "question": pages.getPage(handlePageID).gptMsgs,
+          "question": pages.getPage(handlePageID).chatScheme,
         };
+        ////debugPrint("send question: ${chatData["question"]}");
         final stream = chatServer.connect(
           sseChatUrl,
           "POST",
@@ -203,7 +223,7 @@ class ChatGen {
         stream.listen((data) {
           if (_isNewReply) {
             Message msgA = Message(
-                id: '1',
+                id: pages.getPage(handlePageID).messages.length,
                 pageID: handlePageID,
                 role: MessageRole.assistant,
                 type: MsgType.text,

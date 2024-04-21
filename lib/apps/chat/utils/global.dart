@@ -1,8 +1,13 @@
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert';
 
+import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
+
 import '../models/chat.dart';
+import '../models/user.dart';
+import '../models/pages.dart';
 import '../models/message.dart';
 import '../utils/constants.dart';
 
@@ -13,6 +18,7 @@ class Global {
   Future init(user, pages) async {
     _prefs = await SharedPreferences.getInstance();
     try {
+      oss_init();
       if (_prefs.containsKey("isLogedin") &&
           _prefs.getBool("isLogedin") == true) {
         var user_id = _prefs.getInt("id");
@@ -41,9 +47,41 @@ class Global {
         }
       }
     } catch (e) {
-      print("init error: reset");
+      debugPrint("init error, reset:${e}");
       Global.reset();
     }
+  }
+
+  static int restort_singel_page(User user, Pages pages, c) {
+    var pid = c["page_id"];
+    pages.addPage(pid, Chat(chatId: pid, title: c["title"]));
+    pages.getPage(pid).modelVersion = c["model"];
+    pages.getPage(pid).dbID = c["id"];
+    pages.getPage(pid).updated_at = c["updated_at"];
+    var msgContent;
+    for (var m in c["contents"]) {
+      //print("load: $m");
+      var smid = m["id"] ?? 0;
+      int mid = smid is String ? int.parse(smid) : smid;
+      if (MsgType.values[m["type"]] == MsgType.image &&
+          m["role"] == MessageRole.user &&
+          m["content"] is List) {
+        msgContent = jsonDecode(m["content"]);
+      } else
+        msgContent = m["content"];
+      Message msgQ = Message(
+          id: mid,
+          pageID: pid,
+          role: m["role"],
+          type: MsgType.values[m["type"]],
+          content: msgContent,
+          fileName: m["fileName"],
+          fileBytes: m["fileBytes"],
+          fileUrl: m["fileUrl"],
+          timestamp: m["timestamp"]);
+      pages.addMessage(pid, msgQ);
+    }
+    return pid;
   }
 
   void get_local_chats(user, pages) {
@@ -52,24 +90,7 @@ class Global {
       final jsonChat = _prefs.getString(key);
       if (jsonChat != null) {
         final c = jsonDecode(jsonChat);
-        var pid = c["page_id"]; //c["contents"][0]["pageID"];
-        //pages.defaultModelVersion = ClaudeModel.haiku;
-        pages.addPage(pid, Chat(chatId: pid, title: c["title"]));
-        pages.getPage(pid).modelVersion = c["model"];
-        pages.getPage(pid).dbID = c["id"];
-        pages.getPage(pid).updated_at = c["updated_at"];
-        for (var m in c["contents"]) {
-          Message msgQ = Message(
-              id: '0',
-              pageID: pid,
-              role: m["role"],
-              type: MsgType.values[m["type"]],
-              content: m["content"],
-              fileName: m["fileName"],
-              fileBytes: m["fileBytes"],
-              timestamp: m["timestamp"]);
-          pages.addMessage(pid, msgQ);
-        }
+        restort_singel_page(user, pages, c);
       }
     }
   }
@@ -83,26 +104,7 @@ class Global {
       for (var c in cres.data["chats"]) {
         //user dbID to recovery pageID,
         //incase no user log, c["contents"][0]["pageID"] == currentPageID
-        var pid = c["page_id"]; //c["contents"][0]["pageID"];
-        //print("cccc: ${c["title"]}, $pid");
-        pages.defaultModelVersion = GPTModel.gptv35;
-        pages.addPage(pid, Chat(chatId: pid, title: c["title"]));
-        pages.getPage(pid).modelVersion = c["model"];
-        pages.getPage(pid).dbID = c["id"];
-        pages.getPage(pid).updated_at = c["updated_at"];
-        for (var m in c["contents"]) {
-          //print("ttt:${m["type"]}, ${MsgType.values[m["type"]]}");
-          Message msgQ = Message(
-              id: '0',
-              pageID: pid,
-              role: m["role"],
-              type: MsgType.values[m["type"]],
-              content: m["content"],
-              fileName: m["fileName"],
-              fileBytes: m["fileBytes"],
-              timestamp: m["timestamp"]);
-          pages.addMessage(pid, msgQ);
-        }
+        var pid = restort_singel_page(user, pages, c);
         Global.saveChats(user, pid, jsonEncode(c), 0);
         //pid += 1;
       }
@@ -131,5 +133,36 @@ class Global {
 
   static reset() {
     _prefs.clear();
+  }
+
+  void oss_init() async {
+    Client.init(
+        //stsUrl: "server sts url",
+        ossEndpoint: "oss-cn-shanghai.aliyuncs.com",
+        bucketName: "app-gallary",
+        authGetter: _authGetter);
+  }
+
+  Future<Map> get_creds() async {
+    var res = {};
+    try {
+      var url = userUrl + "/23" + "/oss_credentials";
+      var response = await dio.post(url);
+      res = response.data["credentials"];
+    } catch (e) {
+      debugPrint("get_creds error: $e");
+      return {};
+    }
+    return res;
+  }
+
+  Future<Auth> _authGetter() async {
+    //Auth _authGetter() {
+    var creds = await get_creds();
+    return Auth(
+        accessKey: creds["AccessKeyId"] ?? "",
+        accessSecret: creds["AccessKeySecret"] ?? "",
+        expire: creds["Expiration"] ?? "",
+        secureToken: creds["SecurityToken"] ?? "");
   }
 }

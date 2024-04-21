@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
 import '../utils/constants.dart';
 import '../utils/utils.dart';
@@ -111,6 +112,7 @@ class ChatDrawerState extends State<ChatDrawer> {
         tooltip: "delete",
         onPressed: () async {
           var did = pages.getPage(removeID).dbID;
+          var msgs = pages.getPage(removeID).messages;
           pages.delPage(removeID);
           pages.currentPageID = -1;
           pages.displayInitPage = true;
@@ -118,6 +120,13 @@ class ChatDrawerState extends State<ChatDrawer> {
             var chatdbUrl = userUrl + "/" + "${user.id}" + "/chat/" + "$did";
             var cres = await Dio().delete(chatdbUrl);
             Global.deleteChat(removeID, cres.data["updated_at"]);
+          }
+          for (var m in msgs) {
+            if (m.fileUrl == null) continue;
+            var uri = Uri.parse(m.fileUrl!);
+            var path =
+                uri.path.startsWith('/') ? uri.path.substring(1) : uri.path;
+            Client().deleteObject(path);
           }
         },
       ),

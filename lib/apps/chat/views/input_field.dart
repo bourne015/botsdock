@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
 import '../models/pages.dart';
 import '../models/chat.dart';
@@ -224,7 +225,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
               _submitText(pages, handlePageID, _controller.text, user);
               _controller.clear();
               _hasInputContent = false;
-              _fileName = null;
+              //_fileName = null;
             }
           : () {},
     );
@@ -299,18 +300,30 @@ class _ChatInputFieldState extends State<ChatInputField> {
     _fileBytes = imagefile.files.first.bytes;
   }
 
-  void _submitText(Pages pages, int handlePageID, String text, user) {
-    Message msgQ = Message(
-        id: '0',
-        pageID: handlePageID,
-        role: MessageRole.user,
-        type: _type,
-        content: text,
-        fileName: _fileName,
-        fileBytes: _fileBytes,
-        timestamp: DateTime.now().millisecondsSinceEpoch);
-    pages.addMessage(handlePageID, msgQ);
-
+  void _submitText(
+      Pages pages, int handlePageID, String text, User user) async {
+    try {
+      pages.getPage(handlePageID).onGenerating = true;
+      var ts = DateTime.now().millisecondsSinceEpoch;
+      Message msgQ = Message(
+          id: pages.getPage(handlePageID).messages.length,
+          pageID: handlePageID,
+          role: MessageRole.user,
+          type: _type,
+          content: text,
+          fileName: _fileName,
+          fileBytes: _fileBytes,
+          //fileUrl: ossUrl,
+          timestamp: ts);
+      pages.addMessage(handlePageID, msgQ);
+      if (_type == MsgType.image && _fileBytes != null) {
+        String oss_name = "user${user.id}_${handlePageID}_${ts}" + _fileName!;
+        chats.uploadImage(pages, handlePageID, msgQ.id, oss_name, _fileBytes);
+      }
+    } catch (e) {
+      debugPrint("_submitText error: $e");
+      pages.getPage(handlePageID).onGenerating = false;
+    }
     chats.submitText(pages, handlePageID, user);
   }
 }
