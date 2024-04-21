@@ -169,7 +169,7 @@ class InitPageState extends State<InitPage> {
     pages.displayInitPage = false;
     pages.currentPage?.modelVersion = pages.defaultModelVersion;
     Message msgQ = Message(
-        id: '0',
+        id: 0,
         pageID: handlePageID,
         role: MessageRole.system,
         type: MsgType.text,

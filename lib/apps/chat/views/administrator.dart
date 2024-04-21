@@ -187,7 +187,6 @@ class AdministratorState extends State<Administrator> {
                 Response cres = await dio.post(
                   chatdbUrl,
                 );
-                //var pid = 1;
                 if (cres.data["result"] == "success") {
                   for (var c in cres.data["chats"]) {
                     //user dbID to recovery pageID,
@@ -195,28 +194,10 @@ class AdministratorState extends State<Administrator> {
                     var pid = c["page_id"]; //c["contents"][0]["pageID"];
                     //print("cccc: ${c["title"]}, $pid");
                     pages.defaultModelVersion = GPTModel.gptv35;
-                    pages.addPage(pid, Chat(chatId: pid, title: c["title"]));
-                    pages.getPage(pid).modelVersion = c["model"];
-                    pages.getPage(pid).dbID = c["id"];
-                    pages.getPage(pid).updated_at = c["updated_at"];
-                    for (var m in c["contents"]) {
-                      //print("ttt:${m["type"]}, ${MsgType.values[m["type"]]}");
-                      Message msgQ = Message(
-                          id: '0',
-                          pageID: pid,
-                          role: m["role"],
-                          type: MsgType.values[m["type"]],
-                          content: m["content"],
-                          fileName: m["fileName"],
-                          fileBytes: m["fileBytes"],
-                          timestamp: m["timestamp"]);
-                      pages.addMessage(pid, msgQ);
-                    }
+                    Global.restort_singel_page(user, pages, c);
                     Global.saveChats(user, pid, jsonEncode(c), 0);
-                    //pid += 1;
                   }
                 }
-                ////
                 Navigator.of(context).pop();
                 Global.saveProfile(user);
               } else
@@ -230,7 +211,6 @@ class AdministratorState extends State<Administrator> {
           ElevatedButton(
             child: Text('注册'),
             onPressed: () {
-              // 处理注册逻辑
               Navigator.of(context).pop();
               signUpDialog(context, user);
             },

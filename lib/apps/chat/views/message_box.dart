@@ -77,7 +77,8 @@ class MessageBoxState extends State<MessageBox> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           messageRoleName(context),
           //if (widget.val["type"] != MsgType.text)
-          contentAttachment(context, widget.val["fileBytes"]),
+          if (widget.val['role'] == MessageRole.user)
+            contentAttachment(context, widget.val["fileBytes"]),
           messageContent(context)
         ]),
       ),
@@ -99,10 +100,11 @@ class MessageBoxState extends State<MessageBox> {
   Widget messageContent(BuildContext context) {
     if (widget.val["type"] == MsgType.image &&
         widget.val['role'] == MessageRole.assistant) {
-      String imgBase64Str = widget.val['content'];
-      final Uint8List imgUint8List = base64Decode(imgBase64Str);
+      // String imgBase64Str = widget.val['fileBytes'];
+      // final Uint8List imgUint8List = base64Decode(imgBase64Str);
       //String imageB64Url = "data:image/png;base64,$imgBase64Str";
-      return contentImage(context, imgUint8List);
+      //final Uint8List imgUint8List = widget.val['fileBytes'];
+      return contentImage(context);
     } else if (widget.val['role'] == MessageRole.user) {
       return SelectableText(
         widget.val['content'],
@@ -195,7 +197,7 @@ class MessageBoxState extends State<MessageBox> {
 
   Widget contentAttachment(BuildContext context, fileBytes) {
     if (widget.val["type"] == MsgType.image) {
-      return contentImage(context, fileBytes);
+      return contentImage(context);
     } else if (widget.val["type"] == MsgType.file) {
       return contentFile(context, fileBytes);
     }
@@ -223,31 +225,51 @@ class MessageBoxState extends State<MessageBox> {
     );
   }
 
-  Widget contentImage(BuildContext context, Uint8List? imgData) {
+  Widget loadImage(BuildContext context, {height, width}) {
+    if (widget.val["fileUrl"] != null) {
+      return Image.network(
+        widget.val["fileUrl"],
+        height: height,
+        width: width,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) => Text('load image failed'),
+      );
+    } else if (widget.val["fileBytes"] != null) {
+      return Image.memory(
+        widget.val["fileBytes"],
+        height: height,
+        width: width,
+        errorBuilder: (context, error, stackTrace) => Text('load image failed'),
+      );
+    } else
+      return Text("load image failed");
+  }
+
+  Widget contentImage(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          if (imgData != null)
+          if (widget.val["fileUrl"] != null || widget.val["fileBytes"] != null)
             showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return Dialog(
-                      //child: Container(
-                      child:
-                          Image.memory(imgData) //Image.network(val['content']),
-                      );
+                  return Dialog(child: loadImage(context));
                 });
         },
         onLongPressStart: (details) {
-          if (imgData != null)
-            _showDownloadMenu(context, details.globalPosition, imgData);
+          // if (imgData != null)
+          //   _showDownloadMenu(context, details.globalPosition, imgData);
         },
-        child: imgData == null
-            ? Container()
-            : Image.memory(
-                imgData,
-                height: 250,
-                width: 200,
-              ));
+        child: loadImage(context, height: 250, width: 200));
   }
 
   void _showDownloadMenu(BuildContext context, Offset position, imageUrl) {
