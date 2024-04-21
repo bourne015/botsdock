@@ -99,6 +99,10 @@ class Pages with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateFileUrl(int pageID, int msgId, String url) {
+    _pages[pageID]?.updateFileUrl(msgId, url);
+  }
+
   List<Message>? getMessages(int pageID) => _pages[pageID]?.messages;
   List<Widget>? getMessageBox(int pageID) => _pages[pageID]?.messageBox;
 

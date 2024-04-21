@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 
 import 'message.dart';
 import '../views/message_box.dart';
@@ -11,8 +12,8 @@ class Chat {
   int updated_at = DateTime.now().millisecondsSinceEpoch ~/ 1000;
   List<Message> messages = [];
   List<Widget> messageBox = [];
-  List<Map> _gptMsg = [];
-  List<Map> _msgsAll = [];
+  List<Map> _chatScheme = [];
+  List<Map> _dbScheme = [];
 
   String title;
   String _modelVersion = '';
@@ -27,8 +28,8 @@ class Chat {
 
   String get modelVersion => _modelVersion;
 
-  get gptMsgs => _gptMsg;
-  get msgsAll => _msgsAll;
+  get chatScheme => _chatScheme;
+  get dbScheme => _dbScheme;
 
   set modelVersion(String? v) {
     _modelVersion = v!;
@@ -42,20 +43,25 @@ class Chat {
   }
 
   void addMessage(Message newMsg) {
-    messages.add(newMsg);
-    messageBox.insert(
-      0,
-      MessageBox(val: {
-        "role": newMsg.role,
-        "type": newMsg.type,
-        "content": newMsg.content,
-        "fileName": newMsg.fileName,
-        "fileBytes": newMsg.fileBytes
-      }),
-    );
-    var trNewMsg = newMsg.toMap(modelVersion);
-    _gptMsg.add(trNewMsg["gpt"]);
-    _msgsAll.add(trNewMsg["all"]);
+    try {
+      messages.add(newMsg);
+      messageBox.insert(
+        0,
+        MessageBox(val: {
+          "role": newMsg.role,
+          "type": newMsg.type,
+          "content": newMsg.content,
+          "fileName": newMsg.fileName,
+          "fileBytes": newMsg.fileBytes,
+          "fileUrl": newMsg.fileUrl
+        }),
+      );
+      var trNewMsg = newMsg.toMap(modelVersion);
+      _chatScheme.add(trNewMsg["chat_scheme"]);
+      _dbScheme.add(trNewMsg["db_scheme"]);
+    } catch (e) {
+      debugPrint("addMessage error:${e}");
+    }
   }
 
   void appendMessage(String newMsg) {
@@ -66,8 +72,26 @@ class Chat {
       "content": messages[lastMsgID].content
     });
 
-    _gptMsg.last["content"] = messages[lastMsgID].content;
-    _msgsAll.last["content"] = messages[lastMsgID].content;
+    _chatScheme.last["content"] = messages[lastMsgID].content;
+    _dbScheme.last["content"] = messages[lastMsgID].content;
+  }
+
+  void updateFileUrl(int msgId, String url) {
+    //int lastMsgID = messages.isNotEmpty ? messages.length - 1 : 0;
+    messages[msgId].fileUrl = url;
+    var msg = messages[msgId];
+    messageBox[0] = MessageBox(val: {
+      "role": msg.role,
+      "type": msg.type,
+      "content": msg.content,
+      "fileName": msg.fileName,
+      "fileBytes": msg.fileBytes,
+      "fileUrl": msg.fileUrl
+    });
+
+    // if (msg.role == MessageRole.user)
+    //   _chatScheme.last["content"][1]["image_url"]["url"] = url;
+    _dbScheme[msgId]["fileUrl"] = url;
   }
 
   // List<Map> msgsToMap() {

@@ -365,7 +365,7 @@ class DartSyntaxHighlighter extends SyntaxCostomHighlighter {
         lastLoopPosition = _scanner.position;
       }
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
 
     _simplify();
