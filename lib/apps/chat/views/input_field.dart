@@ -3,18 +3,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery/apps/chat/models/user.dart';
 import 'package:provider/provider.dart';
-import 'dart:convert';
-import 'package:dio/dio.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
 import '../models/pages.dart';
 import '../models/chat.dart';
 import '../models/message.dart';
 import '../utils/constants.dart';
 import '../utils/utils.dart';
-import '../utils/global.dart';
 
 class ChatInputField extends StatefulWidget {
   const ChatInputField({super.key});
@@ -71,41 +67,39 @@ class _ChatInputFieldState extends State<ChatInputField> {
     return Expanded(
         child: Stack(alignment: Alignment.topLeft, children: <Widget>[
       Column(children: [
-        fileField(context),
+        attathmentField(context),
         const SizedBox(width: 8),
         textField(context),
       ]),
     ]));
   }
 
-  Widget fileField(BuildContext context) {
-    if (_type == null || _type == MsgType.text) {
-      return Container();
-    }
-    if (_type == MsgType.file) {
-      return Container(
-        alignment: Alignment.topLeft,
-        decoration: BoxDecoration(
-            //color: AppColors.inputBoxBackground,
-            borderRadius: const BorderRadius.all(Radius.circular(15))),
-        margin: const EdgeInsets.all(5),
-        padding: const EdgeInsets.all(1),
-        child: InputChip(
-          side: BorderSide.none,
-          label: Text(_fileName!),
-          avatar: const Icon(
-            Icons.file_copy_outlined,
-            size: 15,
-          ),
-          onPressed: () {},
-          onDeleted: () {
-            setState(() {
-              _fileName = null;
-            });
-          },
+  Widget attachedFileIcon(BuildContext context) {
+    return Container(
+      alignment: Alignment.topLeft,
+      decoration: BoxDecoration(
+          //color: AppColors.inputBoxBackground,
+          borderRadius: const BorderRadius.all(Radius.circular(15))),
+      margin: const EdgeInsets.all(5),
+      padding: const EdgeInsets.all(1),
+      child: InputChip(
+        side: BorderSide.none,
+        label: Text(_fileName!),
+        avatar: const Icon(
+          Icons.file_copy_outlined,
+          size: 15,
         ),
-      );
-    }
+        onPressed: () {},
+        onDeleted: () {
+          setState(() {
+            _fileName = null;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget attachedImageIcon(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
           //color: AppColors.inputBoxBackground,
@@ -132,17 +126,21 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
+  Widget attathmentField(BuildContext context) {
+    if (_type == MsgType.text) return Container();
+    if (_type == MsgType.file) return attachedFileIcon(context);
+    return attachedImageIcon(context);
+  }
+
   Widget textField(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
-    String hintText = "Send a message";
+    String hintText = "text, image, text file";
 
     if ((pages.displayInitPage &&
-            (pages.defaultModelVersion == GPTModel.gptv40 ||
-                pages.defaultModelVersion.substring(0, 6) == 'claude')) ||
+            pages.defaultModelVersion == GPTModel.gptv35) ||
         (!pages.displayInitPage &&
-            (pages.currentPage?.modelVersion == GPTModel.gptv40 ||
-                pages.currentPage?.modelVersion.substring(0, 6) == "claude"))) {
-      hintText = "text, image, text file";
+            (pages.currentPage?.modelVersion == GPTModel.gptv35))) {
+      hintText = "Send a message";
     } else if ((pages.displayInitPage &&
             pages.defaultModelVersion == GPTModel.gptv40Dall) ||
         (!pages.displayInitPage &&
@@ -195,34 +193,33 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
+  bool isContentReady(pages) {
+    bool isReady = false;
+    if ((_fileName != null || _hasInputContent) &&
+        (pages.displayInitPage ||
+            (pages.currentPageID >= 0 && !pages.currentPage!.onGenerating)))
+      isReady = true;
+    return isReady;
+  }
+
   Widget sendButton(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
     User user = Provider.of<User>(context);
     return IconButton(
       icon: const Icon(Icons.send),
-      color: ((_fileName != null || _hasInputContent) &&
-              (pages.displayInitPage ||
-                  (pages.currentPageID >= 0 &&
-                      !pages.currentPage!.onGenerating)))
-          ? Colors.blue
-          : Colors.grey,
-      onPressed: ((_fileName != null || _hasInputContent) &&
-              (pages.displayInitPage ||
-                  (pages.currentPageID >= 0 &&
-                      !pages.currentPage!.onGenerating)))
+      color: isContentReady(pages) ? Colors.blue : Colors.grey,
+      onPressed: isContentReady(pages)
           ? () {
-              int handlePageID;
-              if (pages.currentPageID == -1) {
-                handlePageID = pages.assignNewPageID;
-                pages.currentPageID = handlePageID;
-                pages.addPage(handlePageID,
-                    Chat(chatId: handlePageID, title: "Chat $handlePageID"));
+              int newPageId;
+              if (pages.displayInitPage) {
+                newPageId = pages.addPage(Chat(title: "Chat 0"));
                 pages.displayInitPage = false;
+                pages.currentPageID = newPageId;
                 pages.currentPage?.modelVersion = pages.defaultModelVersion;
               } else {
-                handlePageID = pages.currentPageID;
+                newPageId = pages.currentPageID;
               }
-              _submitText(pages, handlePageID, _controller.text, user);
+              _submitText(pages, newPageId, _controller.text, user);
               _controller.clear();
               _hasInputContent = false;
               //_fileName = null;

@@ -21,7 +21,6 @@ class ChatDrawer extends StatefulWidget {
 class ChatDrawerState extends State<ChatDrawer> {
   @override
   Widget build(BuildContext context) {
-    //Pages pages = Provider.of<Pages>(context);
     return Drawer(
       width: widget.drawersize,
       backgroundColor: AppColors.drawerBackground,
@@ -31,42 +30,15 @@ class ChatDrawerState extends State<ChatDrawer> {
             )
           : null,
       child: Column(
-        //padding: EdgeInsets.zero,
         children: [
           newchatButton(context),
           chatPageTabList(context),
           Divider(
-            height: 10,
-            thickness: 1,
-            indent: 10,
-            endIndent: 10,
-            color: AppColors.drawerDivider,
-          ),
-          /*
-          Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-              child: ListTile(
-                dense: true,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                leading: const Icon(Icons.delete),
-                minLeadingWidth: 0,
-                contentPadding: const EdgeInsets.symmetric(vertical: 5),
-                title: RichText(
-                    text: TextSpan(
-                  text: 'Clear conversations',
-                  style: TextStyle(fontSize: 15, color: AppColors.msgText),
-                )),
-                onTap: () {
-                  if (pages.currentPage?.onGenerating == false) {
-                    pages.clearMsg(pages.currentPageID);
-                  }
-                  pages.currentPage?.title = "Chat ${pages.currentPage?.id}";
-                  if (!isDisplayDesktop(context)) Navigator.pop(context);
-                },
-              )),
-              */
+              height: 10,
+              thickness: 1,
+              indent: 10,
+              endIndent: 10,
+              color: AppColors.drawerDivider),
           Container(
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
               child: Administrator()),
@@ -172,13 +144,13 @@ class ChatDrawerState extends State<ChatDrawer> {
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1),
             onTap: () {
-              pages.currentPageID = page.id;
+              pages.currentPageID = page.id!;
               pages.displayInitPage = false;
               if (!isDisplayDesktop(context)) Navigator.pop(context);
             },
             //always keep chat 0
             trailing: (pages.currentPageID == page.id && pages.pagesLen > 1)
-                ? delChattabButton(context, pages, page.id)
+                ? delChattabButton(context, pages, page.id!)
                 : null,
           )
         ]));

@@ -9,10 +9,8 @@ import 'dart:async';
 import 'dart:html';
 
 import '../models/pages.dart';
-import '../models/chat.dart';
 import '../models/message.dart';
 import '../utils/constants.dart';
-import '../utils/utils.dart';
 import '../utils/global.dart';
 
 bool isDisplayDesktop(BuildContext context) =>

@@ -63,9 +63,9 @@ const supportedFiles = [
   'jpg',
   'jpeg',
   'gif',
-  'pdf',
-  'doc',
-  'docx',
+  // 'pdf',
+  // 'doc',
+  // 'docx',
   'sh',
   'bash',
   'py',
@@ -92,4 +92,4 @@ A Demo for ChatGPT.
 Please refresh the page if reached max tokens or don't need chat context
 """;
 
-const String appVersion = "0.2.5";
+const String appVersion = "0.2.6";

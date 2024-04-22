@@ -54,7 +54,7 @@ class Global {
 
   static int restort_singel_page(User user, Pages pages, c) {
     var pid = c["page_id"];
-    pages.addPage(pid, Chat(chatId: pid, title: c["title"]));
+    pages.addPage(Chat(chatId: pid, title: c["title"]));
     pages.getPage(pid).modelVersion = c["model"];
     pages.getPage(pid).dbID = c["id"];
     pages.getPage(pid).updated_at = c["updated_at"];
