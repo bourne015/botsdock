@@ -1,4 +1,3 @@
-import 'dart:html';
 import 'dart:math';
 import 'dart:convert';
 
@@ -10,8 +9,6 @@ import '../utils/constants.dart';
 import '../utils/utils.dart';
 import '../models/user.dart';
 import '../models/pages.dart';
-import '../models/chat.dart';
-import '../models/message.dart';
 import '../utils/global.dart';
 import './user_info.dart';
 

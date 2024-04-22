@@ -162,12 +162,12 @@ class InitPageState extends State<InitPage> {
   }
 
   void newBot(pages, user, name, prompt) {
-    int handlePageID = pages.assignNewPageID;
-    String _botName = name + ' - ${handlePageID}';
-    pages.currentPageID = handlePageID;
-    pages.addPage(handlePageID, Chat(chatId: handlePageID, title: _botName));
+    int handlePageID = pages.addPage(Chat(title: name));
     pages.displayInitPage = false;
+    pages.currentPageID = handlePageID;
+    pages.setPageTitle(handlePageID, name + " - $handlePageID");
     pages.currentPage?.modelVersion = pages.defaultModelVersion;
+
     Message msgQ = Message(
         id: 0,
         pageID: handlePageID,
