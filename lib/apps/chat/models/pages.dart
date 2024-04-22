@@ -55,17 +55,24 @@ class Pages with ChangeNotifier {
     notifyListeners();
   }
 
-  int get assignNewPageID {
+  int assignNewPageID() {
     for (var i = 1; i < 1000; i++) {
       if (!_pagesID.contains(i)) return i;
     }
     return _pagesID.length + 1;
   }
 
-  void addPage(int pageID, Chat newChat) {
-    _pages[pageID] = newChat;
-    _pagesID.add(pageID);
+  int addPage(Chat newChat) {
+    int? newID = newChat.id;
+    if (newID == null || newID < 0) {
+      newID = assignNewPageID();
+      newChat.id = newID;
+    }
+    //_currentPageID = newID;
+    _pages[newID] = newChat;
+    _pagesID.add(newID);
     notifyListeners();
+    return newID;
   }
 
   void delPage(int pageID) {

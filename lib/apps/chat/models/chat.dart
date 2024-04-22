@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
 
 import 'message.dart';
 import '../views/message_box.dart';
-import '../utils/constants.dart';
 
 //model of a chat page
 class Chat {
-  final int id;
+  int? id = -1;
   int _dbID = -1;
   int updated_at = DateTime.now().millisecondsSinceEpoch ~/ 1000;
   List<Message> messages = [];
@@ -21,7 +19,7 @@ class Chat {
   bool onGenerating = false;
 
   Chat({
-    required int chatId,
+    int? chatId,
     String? title,
   })  : id = chatId,
         title = title!;
@@ -33,13 +31,11 @@ class Chat {
 
   set modelVersion(String? v) {
     _modelVersion = v!;
-    //notifyListeners();
   }
 
   int get dbID => _dbID;
   set dbID(int v) {
     _dbID = v;
-    //notifyListeners();
   }
 
   void addMessage(Message newMsg) {
@@ -93,17 +89,4 @@ class Chat {
     //   _chatScheme.last["content"][1]["image_url"]["url"] = url;
     _dbScheme[msgId]["fileUrl"] = url;
   }
-
-  // List<Map> msgsToMap() {
-  //   List<Map> res = [];
-  //   List<Map> res1 = [];
-  //   for (int i = 0; i < messages.length; i++) {
-  //     var val = messages[i];
-  //     res.add(val.toMap(modelVersion)["gpt"]);
-  //     res1.add(val.toMap(modelVersion)["all"]);
-  //   }
-  //   msg = res;
-  //   msgAll = res1;
-  //   return msg;
-  // }
 }
