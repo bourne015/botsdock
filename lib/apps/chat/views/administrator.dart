@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:convert';
 
@@ -24,6 +25,8 @@ class AdministratorState extends State<Administrator> {
   final _namecontroller = TextEditingController();
   final _pwdcontroller = TextEditingController();
   final _pwdconfirmcontroller = TextEditingController();
+  final _newBotController1 = TextEditingController();
+  final _newBotController2 = TextEditingController();
   final dio = Dio();
   Random random = Random();
   GlobalKey _signInformKey = GlobalKey<FormState>();
@@ -72,7 +75,10 @@ class AdministratorState extends State<Administrator> {
             case 'Login':
               loginDialog(context);
               break;
-            case 'About':
+            case 'Customize ChatGPT':
+              //NewBotDialog(context);
+              break;
+            case 'Settings':
               aboutDialog(context);
               break;
             case 'Logout':
@@ -107,11 +113,19 @@ class AdministratorState extends State<Administrator> {
                         title: Text("Login"),
                       ),
                     ),
+              PopupMenuDivider(),
               PopupMenuItem(
-                value: "About",
+                value: "Customize ChatGPT",
                 child: ListTile(
-                  leading: Icon(Icons.info_outline),
-                  title: Text("About"),
+                  leading: Icon(Icons.add_home_outlined),
+                  title: Text("Customize ChatGPT"),
+                ),
+              ),
+              PopupMenuItem(
+                value: "Settings",
+                child: ListTile(
+                  leading: Icon(Icons.settings_rounded),
+                  title: Text("Settings"),
                 ),
               ),
               PopupMenuDivider(),
@@ -137,6 +151,67 @@ class AdministratorState extends State<Administrator> {
   void aboutDialog(BuildContext context) {
     var content = aboutText + '\nVersion $appVersion';
     notifyBox(context: context, title: 'About', content: content);
+  }
+
+  void NewBotDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Customize ChatGPT'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Custom Instructions',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextField(
+                  maxLines: 5,
+                  maxLength: 2048,
+                  controller: _newBotController1,
+                  decoration: InputDecoration(
+                    hintText: 'e.g., Information specific to my needs',
+                    border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Color.fromARGB(255, 254, 254, 254))),
+                    hintStyle: TextStyle(fontSize: 12),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text('How would you like ChatGPT to respond?',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextField(
+                  maxLines: 5,
+                  maxLength: 2048,
+                  controller: _newBotController2,
+                  decoration: InputDecoration(
+                    hintText: 'e.g., Be concise and direct',
+                    border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Color.fromARGB(255, 254, 254, 254))),
+                    hintStyle: TextStyle(fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Save'),
+              onPressed: () {
+                // Implement your save logic here
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future loginDialog(BuildContext context) {
@@ -279,8 +354,8 @@ class AdministratorState extends State<Administrator> {
           user.email = _emailcontroller.text;
           var res = await checkSingUp(user);
           if (user.signUP) {
-            notifyBox(context: context, title: "success", content: "注册成功,请登录");
             Navigator.of(context).pop();
+            notifyBox(context: context, title: "success", content: "注册成功,请登录");
           } else {
             notifyBox(context: context, title: "warning", content: res);
           }
