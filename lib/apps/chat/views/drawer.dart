@@ -162,6 +162,7 @@ class ChatDrawerState extends State<ChatDrawer> {
     bool day1Grouped = false;
     bool day2Grouped = false;
     bool day3Grouped = false;
+    bool day7Grouped = false;
     var today = DateTime.now();
     return Expanded(
       child: ListView.builder(
@@ -180,10 +181,14 @@ class ChatDrawerState extends State<ChatDrawer> {
             var isGrouped = day2Grouped;
             day2Grouped = true;
             return chatPageTab(context, pages, index, isGrouped, "昨天");
-          } else {
+          } else if (dayDiff >= 2 && dayDiff <= 7) {
             var isGrouped = day3Grouped;
             day3Grouped = true;
             return chatPageTab(context, pages, index, isGrouped, "三天前");
+          } else {
+            var isGrouped = day7Grouped;
+            day7Grouped = true;
+            return chatPageTab(context, pages, index, isGrouped, "一周前");
           }
         },
       ),
