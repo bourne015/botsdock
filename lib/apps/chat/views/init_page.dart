@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,6 +11,7 @@ import '../utils/constants.dart';
 import '../utils/prompts.dart';
 import './input_field.dart';
 import '../utils/utils.dart';
+import '../views/bots.dart';
 
 class InitPage extends StatefulWidget {
   const InitPage({
@@ -27,10 +29,12 @@ class InitPageState extends State<InitPage> {
   String claudeDropdownValue = 'Haiku';
   String? selected;
   final ChatGen chats = ChatGen();
+  final dio = Dio();
 
   @override
   Widget build(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
+    User user = Provider.of<User>(context, listen: false);
     switch (pages.defaultModelVersion) {
       case GPTModel.gptv35:
         selected = 'ChatGPT';
@@ -119,7 +123,17 @@ class InitPageState extends State<InitPage> {
                       )),
                       padding: MaterialStateProperty.all(EdgeInsets.all(5)),
                     ),
-                    onPressed: () {},
+                    onPressed: () async {
+                      if (user.isLogedin) {
+                        var botsURL = botURL + "/bots";
+                        Response bots = await dio.post(botsURL);
+                        showDialog(
+                          context: context,
+                          builder: (context) =>
+                              Bots(user: user, bots: bots.data["bots"]),
+                        );
+                      }
+                    },
                     child: Text("更多...")))
           ],
         ),
