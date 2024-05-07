@@ -19,6 +19,8 @@ class ChatDrawer extends StatefulWidget {
 }
 
 class ChatDrawerState extends State<ChatDrawer> {
+  bool isHovered = false;
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -75,6 +77,7 @@ class ChatDrawerState extends State<ChatDrawer> {
     ]);
   }
 
+/*
   Widget delChattabButton(BuildContext context, Pages pages, int removeID) {
     User user = Provider.of<User>(context, listen: false);
     return Row(mainAxisSize: MainAxisSize.min, children: [
@@ -126,36 +129,51 @@ class ChatDrawerState extends State<ChatDrawer> {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1),
             ),
-          ListTile(
-            dense: true,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            selectedTileColor: AppColors.drawerTabSelected,
-            selected: pages.currentPageID == page.id,
-            //leading: const Icon(Icons.chat_bubble_outline, size: 16),
-            minLeadingWidth: 0,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-            title: RichText(
-                text: TextSpan(
-                  text: page.title,
-                  style: TextStyle(fontSize: 15, color: AppColors.msgText),
+          MouseRegion(
+              onEnter: (event) {
+                print("in: $isHovered");
+                setState(() {
+                  isHovered = true;
+                });
+              },
+              onExit: (event) {
+                print("out: $isHovered");
+                setState(() {
+                  isHovered = false;
+                });
+              },
+              child: ListTile(
+                dense: true,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1),
-            onTap: () {
-              pages.currentPageID = page.id!;
-              pages.displayInitPage = false;
-              if (!isDisplayDesktop(context)) Navigator.pop(context);
-            },
-            //always keep chat 0
-            trailing: (pages.currentPageID == page.id && pages.pagesLen > 1)
-                ? delChattabButton(context, pages, page.id!)
-                : null,
-          )
+                selectedTileColor: AppColors.drawerTabSelected,
+                selected: pages.currentPageID == page.id,
+                //leading: const Icon(Icons.chat_bubble_outline, size: 16),
+                minLeadingWidth: 0,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                title: RichText(
+                    text: TextSpan(
+                      text: page.title,
+                      style: TextStyle(fontSize: 15, color: AppColors.msgText),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1),
+                onTap: () {
+                  pages.currentPageID = page.id!;
+                  pages.displayInitPage = false;
+                  if (!isDisplayDesktop(context)) Navigator.pop(context);
+                },
+                //always keep chat 0
+                trailing:
+                    (pages.currentPageID == page.id && pages.pagesLen > 1) ||
+                            isHovered
+                        ? delChattabButton(context, pages, page.id!)
+                        : null,
+              ))
         ]));
   }
-
+*/
   Widget chatPageTabList(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
     pages.sortPages();
@@ -164,6 +182,7 @@ class ChatDrawerState extends State<ChatDrawer> {
     bool day3Grouped = false;
     bool day7Grouped = false;
     var today = DateTime.now();
+    var _gourpTitle;
     return Expanded(
       child: ListView.builder(
         shrinkWrap: false,
@@ -173,25 +192,150 @@ class ChatDrawerState extends State<ChatDrawer> {
           var chat_day =
               DateTime.fromMillisecondsSinceEpoch(page.updated_at * 1000);
           int dayDiff = today.difference(chat_day).inDays.abs();
+          bool _isGrouped = false;
           if (dayDiff == 0) {
-            var isGrouped = day1Grouped;
+            _isGrouped = day1Grouped;
             day1Grouped = true;
-            return chatPageTab(context, pages, index, isGrouped, "今天");
+            _gourpTitle = "今天";
           } else if (dayDiff == 1) {
-            var isGrouped = day2Grouped;
+            _isGrouped = day2Grouped;
             day2Grouped = true;
-            return chatPageTab(context, pages, index, isGrouped, "昨天");
+            _gourpTitle = "昨天";
           } else if (dayDiff >= 2 && dayDiff <= 7) {
-            var isGrouped = day3Grouped;
+            _isGrouped = day3Grouped;
             day3Grouped = true;
-            return chatPageTab(context, pages, index, isGrouped, "三天前");
+            _gourpTitle = "三天前";
           } else {
-            var isGrouped = day7Grouped;
+            _isGrouped = day7Grouped;
             day7Grouped = true;
-            return chatPageTab(context, pages, index, isGrouped, "一周前");
+            _gourpTitle = "一周前";
           }
+          return ChatPageTab(
+              context: context,
+              pages: pages,
+              index: index,
+              isGrouped: _isGrouped,
+              groupTitle: _gourpTitle);
         },
       ),
     );
+  }
+}
+
+class ChatPageTab extends StatefulWidget {
+  final BuildContext context;
+  final Pages pages;
+  final int index;
+  final bool isGrouped;
+  final String groupTitle;
+
+  ChatPageTab({
+    required this.context,
+    required this.pages,
+    required this.index,
+    required this.isGrouped,
+    required this.groupTitle,
+  });
+
+  @override
+  _ChatPageTabState createState() => _ChatPageTabState();
+}
+
+class _ChatPageTabState extends State<ChatPageTab> {
+  bool isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final page = widget.pages.getNthPage(widget.index);
+    return Container(
+        margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+        child: Column(children: [
+          if (!widget.isGrouped)
+            ListTile(
+              dense: true,
+              enabled: false,
+              contentPadding: EdgeInsets.only(left: 10, top: 15),
+              title: RichText(
+                  text: TextSpan(
+                    text: widget.groupTitle,
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Color.fromARGB(255, 163, 162, 162)),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1),
+            ),
+          MouseRegion(
+              onEnter: (event) {
+                setState(() {
+                  isHovered = true;
+                });
+              },
+              onExit: (event) {
+                setState(() {
+                  isHovered = false;
+                });
+              },
+              child: ListTile(
+                dense: true,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                selectedTileColor: AppColors.drawerTabSelected,
+                selected: widget.pages.currentPageID == page.id,
+                //leading: const Icon(Icons.chat_bubble_outline, size: 16),
+                minLeadingWidth: 0,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                title: RichText(
+                    text: TextSpan(
+                      text: page.title,
+                      style: TextStyle(fontSize: 15, color: AppColors.msgText),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1),
+                onTap: () {
+                  widget.pages.currentPageID = page.id!;
+                  widget.pages.displayInitPage = false;
+                  if (!isDisplayDesktop(context)) Navigator.pop(context);
+                },
+                //always keep chat 0
+                trailing: widget.pages.pagesLen > 1 &&
+                        (widget.pages.currentPageID == page.id || isHovered)
+                    ? delChattabButton(context, widget.pages, page.id!)
+                    : null,
+              ))
+        ]));
+  }
+
+  Widget delChattabButton(BuildContext context, Pages pages, int removeID) {
+    User user = Provider.of<User>(context, listen: false);
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      IconButton(
+        icon: const Icon(Icons.close),
+        iconSize: 15,
+        tooltip: "delete",
+        onPressed: () async {
+          var did = pages.getPage(removeID).dbID;
+          var msgs = pages.getPage(removeID).messages;
+          pages.delPage(removeID);
+          if (removeID == pages.currentPageID) {
+            pages.currentPageID = -1;
+            pages.displayInitPage = true;
+          }
+          if (user.isLogedin) {
+            var chatdbUrl = userUrl + "/" + "${user.id}" + "/chat/" + "$did";
+            var cres = await Dio().delete(chatdbUrl);
+            Global.deleteChat(removeID, cres.data["updated_at"]);
+          }
+          for (var m in msgs) {
+            if (m.fileUrl == null) continue;
+            var uri = Uri.parse(m.fileUrl!);
+            var path =
+                uri.path.startsWith('/') ? uri.path.substring(1) : uri.path;
+            Client().deleteObject(path);
+          }
+        },
+      ),
+    ]);
   }
 }
