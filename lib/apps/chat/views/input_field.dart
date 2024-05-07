@@ -168,8 +168,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   Widget pickButton(BuildContext context) {
     return IconButton(
+        tooltip: "选择图片",
         icon: const Icon(
-          Icons.attach_file,
+          Icons.image_rounded,
           size: 20,
         ),
         onPressed: _pickFile);

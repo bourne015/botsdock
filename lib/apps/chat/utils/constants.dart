@@ -56,16 +56,16 @@ class ClaudeModel {
 
 enum MsgType { text, image, file }
 
-const supportedFiles = [
-  'txt',
-  'md',
+const supportedImageFiles = [
   'png',
   'jpg',
   'jpeg',
   'gif',
-  // 'pdf',
-  // 'doc',
-  // 'docx',
+];
+
+const supportedTextFiles = [
+  'txt',
+  'md',
   'sh',
   'bash',
   'py',
@@ -78,6 +78,10 @@ const supportedFiles = [
   'html',
   'css',
   'json',
+];
+const supportedFiles = [
+  ...supportedImageFiles,
+  //...supportedTextFiles,
 ];
 
 const double drawerWidth = 260;
