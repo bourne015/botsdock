@@ -31,6 +31,7 @@ class Global {
           user.name = response.data["name"];
           user.phone = response.data["phone"];
           user.avatar = response.data["avatar"];
+          user.credit = response.data["credit"];
           user.updated_at = response.data["updated_at"];
           user.isLogedin = true;
           Global.saveProfile(user);
@@ -41,6 +42,7 @@ class Global {
           user.name = _prefs.getString("name");
           user.phone = _prefs.getString("phone");
           user.avatar = _prefs.getString("avatar");
+          user.credit = _prefs.getDouble("credit");
           user.isLogedin = true;
           user.updated_at = _prefs.getInt("updated_at");
           get_local_chats(user, pages);
@@ -117,6 +119,7 @@ class Global {
     if (user.name != null) _prefs.setString("name", user.name);
     if (user.phone != null) _prefs.setString("phone", user.phone);
     if (user.avatar != null) _prefs.setString("avatar", user.avatar);
+    if (user.credit != null) _prefs.setDouble("credit", user.credit);
     if (user.isLogedin != null) _prefs.setBool("isLogedin", user.isLogedin);
     if (user.updated_at != null) _prefs.setInt("updated_at", user.updated_at);
   }

@@ -8,6 +8,7 @@ class User with ChangeNotifier {
   String? _email;
   String? _phone;
   String? _avatar;
+  double? _credit;
   bool _signUP = true;
   int _updated_at = 0;
 
@@ -52,5 +53,10 @@ class User with ChangeNotifier {
   set signUP(bool v) {
     _signUP = v;
     notifyListeners();
+  }
+
+  double? get credit => _credit;
+  set credit(double? recharge) {
+    _credit = recharge;
   }
 }

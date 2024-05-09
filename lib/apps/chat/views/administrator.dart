@@ -426,6 +426,7 @@ class AdministratorState extends State<Administrator> {
         user.email = response.data["email"];
         user.phone = response.data["phone"];
         user.avatar = response.data["avatar"];
+        user.credit = response.data["credit"];
         user.updated_at = response.data["updated_at"];
         user.isLogedin = true;
       } else {
