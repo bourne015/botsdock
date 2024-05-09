@@ -174,6 +174,9 @@ class _UserInfoTabState extends State<UserInfo> {
                       child: Text("取消"))
                 ])
             ])),
+        userInfoFormField(
+            context, "余额", widget.user.credit?.toStringAsFixed(2) ?? '0', null,
+            obscure: false, autofocus: false, readOnly: true),
         SizedBox(height: 60),
         // InputChip(
         //   //avatar: Text("密码"),
