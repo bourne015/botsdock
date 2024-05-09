@@ -56,7 +56,7 @@ class MainLayoutState extends State<MainLayout> {
     return MouseRegion(
         onEnter: (_) => {
               setState(() {
-                _drawerButton = Icons.arrow_back_ios_new_rounded;
+                _drawerButton = Icons.chevron_left_rounded;
               })
             },
         onExit: (_) => {
@@ -67,7 +67,7 @@ class MainLayoutState extends State<MainLayout> {
         child: IconButton(
             iconSize: 18,
             icon: Icon(!pages.isDrawerOpen
-                ? Icons.arrow_forward_ios_rounded
+                ? Icons.chevron_right_rounded
                 : _drawerButton),
             tooltip: pages.isDrawerOpen ? "close sidebar" : "open sidebar",
             onPressed: () {
