@@ -61,9 +61,36 @@ class _UserInfoTabState extends State<UserInfo> {
         body: TabBarView(
           children: <Widget>[
             UserInfoPage(context),
-            BlankPage(),
+            //UserCharge(context),
           ],
         ));
+  }
+
+  Widget UserCharge(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.only(top: 50, left: 10, bottom: 50),
+          child: Image.asset(
+            width: 200,
+            height: 200,
+            'assets/images/chat/paycode.jpeg',
+          ),
+        ),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+          ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("取消")),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("完成")),
+        ])
+      ],
+    );
   }
 
   Widget UserInfoPage(BuildContext context) {
@@ -174,9 +201,9 @@ class _UserInfoTabState extends State<UserInfo> {
                       child: Text("取消"))
                 ])
             ])),
-        userInfoFormField(
-            context, "余额", widget.user.credit?.toStringAsFixed(2) ?? '0', null,
-            obscure: false, autofocus: false, readOnly: true),
+        // userInfoFormField(
+        //     context, "余额", widget.user.credit?.toStringAsFixed(2) ?? '0', null,
+        //     obscure: false, autofocus: false, readOnly: true),
         SizedBox(height: 60),
         // InputChip(
         //   //avatar: Text("密码"),
