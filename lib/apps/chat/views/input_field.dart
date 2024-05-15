@@ -42,10 +42,12 @@ class _ChatInputFieldState extends State<ChatInputField> {
         children: [
           if ((!pages.displayInitPage &&
                   (pages.currentPage?.modelVersion == GPTModel.gptv40 ||
+                      pages.currentPage?.modelVersion == GPTModel.gptv40 ||
                       pages.currentPage?.modelVersion.substring(0, 6) ==
                           "claude")) ||
               (pages.displayInitPage &&
                   (pages.defaultModelVersion == GPTModel.gptv40 ||
+                      pages.defaultModelVersion == GPTModel.gptv4o ||
                       pages.defaultModelVersion.substring(0, 6) == "claude")))
             pickButton(context)
           else

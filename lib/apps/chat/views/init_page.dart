@@ -209,7 +209,7 @@ class InitPageState extends State<InitPage> {
         // Callback that sets the selected segmented control.
         onValueChanged: (String? value) {
           if (value == 'ChatGPT') {
-            pages.defaultModelVersion = GPTModel.gptv35;
+            pages.defaultModelVersion = GPTModel.gptv4o;
           } else {
             pages.defaultModelVersion = ClaudeModel.haiku;
           }

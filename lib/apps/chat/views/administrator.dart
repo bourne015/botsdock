@@ -265,7 +265,7 @@ class AdministratorState extends State<Administrator> {
                     //incase no user log, c["contents"][0]["pageID"] == currentPageID
                     var pid = c["page_id"]; //c["contents"][0]["pageID"];
                     //print("cccc: ${c["title"]}, $pid");
-                    pages.defaultModelVersion = GPTModel.gptv35;
+                    pages.defaultModelVersion = GPTModel.gptv4o;
                     Global.restort_singel_page(user, pages, c);
                     Global.saveChats(user, pid, jsonEncode(c), 0);
                   }
