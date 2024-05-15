@@ -9,7 +9,7 @@ class Pages with ChangeNotifier {
   final Map<int, Chat> _pages = {};
   List<int> _pagesID = [];
   int _currentPageID = -1;
-  String _defaultModelVersion = GPTModel.gptv35;
+  String _defaultModelVersion = GPTModel.gptv4o;
   bool _isDrawerOpen = true;
   bool _displayInitPage = true;
   bool _isLoading = true;
