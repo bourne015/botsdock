@@ -1,5 +1,5 @@
-import 'dart:html' as html;
-import 'dart:convert';
+// import 'dart:html' as html;
+// import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -272,6 +272,7 @@ class MessageBoxState extends State<MessageBox> {
         child: loadImage(context, height: 250, width: 200));
   }
 
+/*
   void _showDownloadMenu(BuildContext context, Offset position, imageUrl) {
     final RenderBox? overlay =
         Overlay.of(context).context.findRenderObject() as RenderBox?;
@@ -316,4 +317,5 @@ class MessageBoxState extends State<MessageBox> {
       ..download = "ai"; // optional: download name
     anchor.click();
   }
+  */
 }

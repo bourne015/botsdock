@@ -215,9 +215,9 @@ class BotsState extends State<Bots> {
 }
 
 class CreateBot extends StatefulWidget {
-  User user;
-  var bots;
-  var bot;
+  final User user;
+  final bots;
+  final bot;
 
   CreateBot({required this.user, this.bots, this.bot});
 

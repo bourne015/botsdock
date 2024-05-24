@@ -7,7 +7,7 @@ import '../utils/constants.dart';
 import '../utils/global.dart';
 
 class UserInfo extends StatefulWidget {
-  User user;
+  final User user;
   UserInfo({super.key, required this.user});
 
   @override
@@ -22,10 +22,10 @@ class _UserInfoTabState extends State<UserInfo> {
   final _newpwdcontroller = TextEditingController();
   final _pwdconfirmcontroller = TextEditingController();
   bool _editName = false;
-  bool _editEmail = false;
+  //bool _editEmail = false;
   bool _editPhone = false;
-  bool _editPwd = false;
-  bool _editAvatar = false;
+  //bool _editPwd = false;
+  //bool _editAvatar = false;
   GlobalKey _editPwdformKey = GlobalKey<FormState>();
   final dio = Dio();
 
