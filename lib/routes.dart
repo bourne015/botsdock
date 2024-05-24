@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:dual_screen/dual_screen.dart';
-import 'package:flutter/foundation.dart';
+//import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery/main.dart';
 import 'package:gallery/pages/home.dart';

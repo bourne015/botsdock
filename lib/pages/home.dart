@@ -291,8 +291,8 @@ class _AnimatedHomePageState extends State<_AnimatedHomePage>
 
   @override
   Widget build(BuildContext context) {
-    final localizations = GalleryLocalizations.of(context)!;
-    final isTestMode = GalleryOptions.of(context).isTestMode;
+    //final localizations = GalleryLocalizations.of(context)!;
+    //final isTestMode = GalleryOptions.of(context).isTestMode;
     return Stack(
       children: [
         ListView(
@@ -872,8 +872,8 @@ class StudyWrapper extends StatefulWidget {
 class _StudyWrapperState extends State<StudyWrapper> {
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    //final colorScheme = Theme.of(context).colorScheme;
+    //final textTheme = Theme.of(context).textTheme;
     return ApplyTextOptions(
       child: Stack(
         children: [
@@ -929,7 +929,7 @@ class _StudyWrapperState extends State<StudyWrapper> {
   }
 }
 
-class _BackButtonHeroTag {}
+//class _BackButtonHeroTag {}
 
 class SettingsAttribution extends StatelessWidget {
   const SettingsAttribution({super.key});
