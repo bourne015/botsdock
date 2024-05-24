@@ -38,7 +38,7 @@
       console.log(searchParams.get('renderer') + ' renderer requested in the URL');
     }
     // The value below is injected by flutter build, do not touch.
-    var serviceWorkerVersion = null;
+    var serviceWorkerVersion = "{{flutter_service_worker_version}}";
   </script>
 
   <script src="flutter.js" defer></script>
@@ -264,9 +264,10 @@
     <img src="icons/chatgpt_red.png" alt="Loading indicator..." />
   </div>
   <script>
+    {{flutter_build_config}}
     window.addEventListener('load', function () {
       var loading = document.querySelector('#loading');
-      _flutter.loader.loadEntrypoint({
+      _flutter.loader.load({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
         }

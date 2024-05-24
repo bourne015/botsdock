@@ -118,13 +118,13 @@ class InitPageState extends State<InitPage> {
                 height: 75,
                 child: ElevatedButton(
                     style: ButtonStyle(
-                      foregroundColor: MaterialStateProperty.all(Colors.black),
-                      elevation: MaterialStateProperty.all(5.0),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      foregroundColor: WidgetStateProperty.all(Colors.black),
+                      elevation: WidgetStateProperty.all(5.0),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15.0),
                       )),
-                      padding: MaterialStateProperty.all(EdgeInsets.all(5)),
+                      padding: WidgetStateProperty.all(EdgeInsets.all(5)),
                     ),
                     onPressed: () async {
                       if (user.isLogedin) {

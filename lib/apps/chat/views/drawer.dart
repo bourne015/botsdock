@@ -66,11 +66,11 @@ class ChatDrawerState extends State<ChatDrawer> {
                 icon: const Icon(Icons.add),
                 label: const Text('New Chat'),
                 style: ButtonStyle(
-                  minimumSize: MaterialStateProperty.all(
-                      const Size(double.infinity, 52)),
-                  padding: MaterialStateProperty.all(EdgeInsets.zero),
+                  minimumSize:
+                      WidgetStateProperty.all(const Size(double.infinity, 52)),
+                  padding: WidgetStateProperty.all(EdgeInsets.zero),
                   //padding: EdgeInsets.symmetric(horizontal: 20.0),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                  shape: WidgetStateProperty.all(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10))),
                 ),
               ))),
