@@ -9,22 +9,6 @@ class Pages with ChangeNotifier {
   final Map<int, Chat> _pages = {};
   List<int> _pagesID = [];
   int _currentPageID = -1;
-  String _defaultModelVersion = GPTModel.gptv4o;
-  bool _isDrawerOpen = true;
-  bool _displayInitPage = true;
-  bool _isLoading = true;
-
-  bool get isLoading => _isLoading;
-  set isLoading(bool val) {
-    _isLoading = val;
-    //notifyListeners();
-  }
-
-  bool get displayInitPage => _displayInitPage;
-  set displayInitPage(bool val) {
-    _displayInitPage = val;
-    notifyListeners();
-  }
 
   set currentPageID(int cid) {
     _currentPageID = cid;
@@ -32,6 +16,7 @@ class Pages with ChangeNotifier {
   }
 
   int get currentPageID => _currentPageID;
+
   Chat? get currentPage {
     if (currentPageID >= 0) {
       return _pages[_currentPageID]!;
@@ -42,19 +27,6 @@ class Pages with ChangeNotifier {
 
   int get pagesLen => _pages.length;
 
-  String get defaultModelVersion => _defaultModelVersion;
-
-  set defaultModelVersion(String? v) {
-    _defaultModelVersion = v!;
-    notifyListeners();
-  }
-
-  bool get isDrawerOpen => _isDrawerOpen;
-  set isDrawerOpen(bool v) {
-    _isDrawerOpen = v;
-    notifyListeners();
-  }
-
   int assignNewPageID() {
     for (var i = 1; i < 1000; i++) {
       if (!_pagesID.contains(i)) return i;
@@ -62,7 +34,7 @@ class Pages with ChangeNotifier {
     return _pagesID.length + 1;
   }
 
-  int addPage(Chat newChat) {
+  int addPage(Chat newChat, {bool sort = false}) {
     int? newID = newChat.id;
     if (newID == null || newID < 0) {
       newID = assignNewPageID();
@@ -71,6 +43,7 @@ class Pages with ChangeNotifier {
     //_currentPageID = newID;
     _pages[newID] = newChat;
     _pagesID.add(newID);
+    if (sort) sortPages();
     notifyListeners();
     return newID;
   }
@@ -125,5 +98,37 @@ class Pages with ChangeNotifier {
     var entries = _pages.entries.toList();
     entries.sort((a, b) => b.value.updated_at.compareTo(a.value.updated_at));
     _pagesID = entries.map((e) => e.key).toList();
+  }
+}
+
+class Property with ChangeNotifier {
+  String _initModelVersion = DefaultModelVersion;
+  bool _isDrawerOpen = true;
+  bool _onInitPage = true;
+  bool _isLoading = true;
+
+  String get initModelVersion => _initModelVersion;
+
+  set initModelVersion(String? v) {
+    _initModelVersion = v!;
+    notifyListeners();
+  }
+
+  bool get isDrawerOpen => _isDrawerOpen;
+  set isDrawerOpen(bool v) {
+    _isDrawerOpen = v;
+    notifyListeners();
+  }
+
+  bool get isLoading => _isLoading;
+  set isLoading(bool val) {
+    _isLoading = val;
+    //notifyListeners();
+  }
+
+  bool get onInitPage => _onInitPage;
+  set onInitPage(bool val) {
+    _onInitPage = val;
+    notifyListeners();
   }
 }

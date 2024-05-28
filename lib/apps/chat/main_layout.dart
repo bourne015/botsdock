@@ -20,39 +20,41 @@ class MainLayoutState extends State<MainLayout> {
   var _drawerButton = Icons.more_vert_rounded;
   double _drawerWidth = drawerWidth;
   late Duration _drawerAnimationDuration;
-  bool _isDrawerVisible = false;
+  //bool _isDrawerVisible = false;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _toggleDrawer());
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // WidgetsBinding.instance.addPostFrameCallback((_) => _toggleDrawer());
+  // }
 
-  void _toggleDrawer() {
-    setState(() {
-      _isDrawerVisible = !_isDrawerVisible;
-    });
-  }
+  // void _toggleDrawer() {
+  //   setState(() {
+  //     _isDrawerVisible = !_isDrawerVisible;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
-    if (isDisplayDesktop(context)) {
-      return desktopLayout(context);
-    } else {
-      return Scaffold(
-        backgroundColor: AppColors.chatPageBackground,
-        appBar: const MyAppBar(),
-        drawer: const ChatDrawer(
-          drawersize: drawerWidth,
-        ),
-        body: pages.displayInitPage ? InitPage() : const ChatPage(),
-      );
-    }
+    // print("MainLayoutState");
+    if (isDisplayDesktop(context)) return desktopLayout(context);
+    return mobilLayout(context);
+  }
+
+  Widget mobilLayout(BuildContext context) {
+    Property property = Provider.of<Property>(context);
+    return Scaffold(
+      backgroundColor: AppColors.chatPageBackground,
+      appBar: const MyAppBar(),
+      drawer: const ChatDrawer(
+        drawersize: drawerWidth,
+      ),
+      body: property.onInitPage ? InitPage() : const ChatPage(),
+    );
   }
 
   Widget customDrawerButton(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
+    Property property = Provider.of<Property>(context);
     return MouseRegion(
         onEnter: (_) => {
               setState(() {
@@ -66,28 +68,29 @@ class MainLayoutState extends State<MainLayout> {
             },
         child: IconButton(
             iconSize: 18,
-            icon: Icon(!pages.isDrawerOpen
-                ? Icons.chevron_right_rounded
-                : _drawerButton),
-            tooltip: pages.isDrawerOpen ? "close sidebar" : "open sidebar",
+            icon: Icon(property.isDrawerOpen
+                ? _drawerButton
+                : Icons.chevron_right_rounded),
+            tooltip: property.isDrawerOpen ? "close sidebar" : "open sidebar",
             onPressed: () {
-              pages.isDrawerOpen = !pages.isDrawerOpen;
-              _drawerWidth = pages.isDrawerOpen ? drawerWidth : 0;
+              property.isDrawerOpen = !property.isDrawerOpen;
+              _drawerWidth = property.isDrawerOpen ? drawerWidth : 0;
             }));
   }
 
   Widget desktopLayout(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
-    if (pages.isLoading)
+    Property property = Provider.of<Property>(context);
+    if (property.isLoading)
       _drawerAnimationDuration = Duration(milliseconds: 1150);
     else
       _drawerAnimationDuration = Duration(milliseconds: 270);
+    //print("desktopLayout");
     return Row(children: <Widget>[
       AnimatedSize(
-        curve: pages.isDrawerOpen ? Curves.linear : Curves.ease, //out: in
+        curve: property.isDrawerOpen ? Curves.linear : Curves.ease, //out: in
         duration: _drawerAnimationDuration,
         alignment: Alignment.topRight,
-        child: _isDrawerVisible
+        child: property.isDrawerOpen
             ? ChatDrawer(drawersize: _drawerWidth)
             : Container(),
       ),
@@ -99,7 +102,7 @@ class MainLayoutState extends State<MainLayout> {
           child: Scaffold(
         backgroundColor: AppColors.chatPageBackground,
         //appBar: const MyAppBar(),
-        body: pages.displayInitPage ? InitPage() : desktopChatPage(context),
+        body: property.onInitPage ? InitPage() : desktopChatPage(context),
       ))
     ]);
   }

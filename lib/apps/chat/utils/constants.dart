@@ -55,6 +55,8 @@ class ClaudeModel {
   static const String opus = "claude-3-opus-20240229";
 }
 
+const DefaultModelVersion = GPTModel.gptv4o;
+
 enum MsgType { text, image, file }
 
 const supportedImageFiles = [
@@ -97,4 +99,4 @@ A Demo for ChatGPT.
 Please refresh the page if reached max tokens or don't need chat context
 """;
 
-const String appVersion = "0.2.7";
+const String appVersion = "0.2.8";

@@ -47,6 +47,7 @@ class Global {
           user.updated_at = _prefs.getInt("updated_at");
           get_local_chats(user, pages);
         }
+        pages.sortPages();
       }
     } catch (e) {
       debugPrint("init error, reset:${e}");

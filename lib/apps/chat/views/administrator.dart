@@ -139,7 +139,7 @@ class AdministratorState extends State<Administrator> {
             ]);
   }
 
-  void userInfoDialog(BuildContext context, user) {
+  void userInfoDialog(BuildContext context, User user) {
     showDialog(
       context: context,
       builder: (context) => UserInfo(
@@ -217,15 +217,18 @@ class AdministratorState extends State<Administrator> {
   Future loginDialog(BuildContext context) {
     User user = Provider.of<User>(context, listen: false);
     Pages pages = Provider.of<Pages>(context, listen: false);
+    Property property = Provider.of<Property>(context, listen: false);
     if (_pwdcontroller.text.isNotEmpty) _pwdcontroller.text = '';
     if (_pwdconfirmcontroller.text.isNotEmpty) _pwdconfirmcontroller.text = '';
     return showDialog(
       context: context,
-      builder: (BuildContext context) => buildLoginDialog(context, user, pages),
+      builder: (BuildContext context) =>
+          buildLoginDialog(context, user, pages, property),
     );
   }
 
-  Widget buildLoginDialog(BuildContext context, user, pages) {
+  Widget buildLoginDialog(
+      BuildContext context, User user, Pages pages, Property property) {
     return AlertDialog(
       title: Text(
         textAlign: TextAlign.center,
@@ -236,11 +239,12 @@ class AdministratorState extends State<Administrator> {
         ),
       ),
       content: loginDialogContent(context),
-      actions: loginDialogActions(context, user, pages),
+      actions: loginDialogActions(context, user, pages, property),
     );
   }
 
-  List<Widget> loginDialogActions(context, user, pages) {
+  List<Widget> loginDialogActions(
+      context, User user, Pages pages, Property property) {
     return [
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -265,10 +269,11 @@ class AdministratorState extends State<Administrator> {
                     //incase no user log, c["contents"][0]["pageID"] == currentPageID
                     var pid = c["page_id"]; //c["contents"][0]["pageID"];
                     //print("cccc: ${c["title"]}, $pid");
-                    pages.defaultModelVersion = GPTModel.gptv4o;
+                    property.initModelVersion = DefaultModelVersion;
                     Global.restort_singel_page(user, pages, c);
                     Global.saveChats(user, pid, jsonEncode(c), 0);
                   }
+                  pages.sortPages();
                 }
                 Navigator.of(context).pop();
                 Global.saveProfile(user);
@@ -312,7 +317,7 @@ class AdministratorState extends State<Administrator> {
     );
   }
 
-  Future<void> signUpDialog(BuildContext context, user) {
+  Future<void> signUpDialog(BuildContext context, User user) {
     //User user = Provider.of<User>(context, listen: false);
     return showDialog(
       context: context,
@@ -320,7 +325,7 @@ class AdministratorState extends State<Administrator> {
     );
   }
 
-  Widget buildsignUpDialog(BuildContext context, user) {
+  Widget buildsignUpDialog(BuildContext context, User user) {
     return AlertDialog(
       titlePadding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
       contentPadding: EdgeInsets.fromLTRB(50, 5, 300, 5),
@@ -337,7 +342,7 @@ class AdministratorState extends State<Administrator> {
     );
   }
 
-  List<Widget> signupDialogActions(context, user) {
+  List<Widget> signupDialogActions(context, User user) {
     return [
       ElevatedButton(
         child: Text('注册'),
@@ -380,7 +385,7 @@ class AdministratorState extends State<Administrator> {
             )));
   }
 
-  Future<String?> checkSingUp(user) async {
+  Future<String?> checkSingUp(User user) async {
     int avatarNum = random.nextInt(15) + 1;
     Response response;
     try {
@@ -405,7 +410,7 @@ class AdministratorState extends State<Administrator> {
     return response.data["result"];
   }
 
-  Future<String?> checkLogin(user) async {
+  Future<String?> checkLogin(User user) async {
     var url = userUrl + "/login";
     Response response;
     try {

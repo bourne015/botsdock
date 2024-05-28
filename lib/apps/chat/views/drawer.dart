@@ -52,6 +52,7 @@ class ChatDrawerState extends State<ChatDrawer> {
 
   Widget newchatButton(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
+    Property property = Provider.of<Property>(context);
     return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
       Expanded(
           flex: 4,
@@ -59,7 +60,7 @@ class ChatDrawerState extends State<ChatDrawer> {
               margin: const EdgeInsets.fromLTRB(10, 15, 10, 10),
               child: OutlinedButton.icon(
                 onPressed: () {
-                  pages.displayInitPage = true;
+                  property.onInitPage = true;
                   pages.currentPageID = -1;
                   if (!isDisplayDesktop(context)) Navigator.pop(context);
                 },
@@ -176,13 +177,15 @@ class ChatDrawerState extends State<ChatDrawer> {
 */
   Widget chatPageTabList(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
-    pages.sortPages();
+    Property property = Provider.of<Property>(context);
+    // pages.sortPages();
     bool day1Grouped = false;
     bool day2Grouped = false;
     bool day3Grouped = false;
     bool day7Grouped = false;
     var today = DateTime.now();
     var _gourpTitle;
+    // print("chatPageTabList");
     return Expanded(
       child: ListView.builder(
         shrinkWrap: false,
@@ -214,6 +217,7 @@ class ChatDrawerState extends State<ChatDrawer> {
               context: context,
               pages: pages,
               index: index,
+              property: property,
               isGrouped: _isGrouped,
               groupTitle: _gourpTitle);
         },
@@ -226,6 +230,7 @@ class ChatPageTab extends StatefulWidget {
   final BuildContext context;
   final Pages pages;
   final int index;
+  final Property property;
   final bool isGrouped;
   final String groupTitle;
 
@@ -233,6 +238,7 @@ class ChatPageTab extends StatefulWidget {
     required this.context,
     required this.pages,
     required this.index,
+    required this.property,
     required this.isGrouped,
     required this.groupTitle,
   });
@@ -295,19 +301,21 @@ class _ChatPageTabState extends State<ChatPageTab> {
                     maxLines: 1),
                 onTap: () {
                   widget.pages.currentPageID = page.id!;
-                  widget.pages.displayInitPage = false;
+                  widget.property.onInitPage = false;
                   if (!isDisplayDesktop(context)) Navigator.pop(context);
                 },
                 //always keep chat 0
                 trailing: widget.pages.pagesLen > 1 &&
                         (widget.pages.currentPageID == page.id || isHovered)
-                    ? delChattabButton(context, widget.pages, page.id!)
+                    ? delChattabButton(
+                        context, widget.pages, page.id!, widget.property)
                     : null,
               ))
         ]));
   }
 
-  Widget delChattabButton(BuildContext context, Pages pages, int removeID) {
+  Widget delChattabButton(
+      BuildContext context, Pages pages, int removeID, Property property) {
     User user = Provider.of<User>(context, listen: false);
     return Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(
@@ -320,7 +328,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
           pages.delPage(removeID);
           if (removeID == pages.currentPageID) {
             pages.currentPageID = -1;
-            pages.displayInitPage = true;
+            property.onInitPage = true;
           }
           if (user.isLogedin) {
             var chatdbUrl = userUrl + "/" + "${user.id}" + "/chat/" + "$did";

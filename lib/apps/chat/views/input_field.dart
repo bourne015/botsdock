@@ -30,6 +30,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   @override
   Widget build(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
+    Property property = Provider.of<Property>(context);
     User user = Provider.of<User>(context);
     return Container(
       decoration: BoxDecoration(
@@ -40,15 +41,15 @@ class _ChatInputFieldState extends State<ChatInputField> {
       padding: const EdgeInsets.fromLTRB(1, 4, 1, 4),
       child: Row(
         children: [
-          if ((!pages.displayInitPage &&
+          if ((!property.onInitPage &&
                   (pages.currentPage?.modelVersion == GPTModel.gptv40 ||
                       pages.currentPage?.modelVersion == GPTModel.gptv40 ||
                       pages.currentPage?.modelVersion.substring(0, 6) ==
                           "claude")) ||
-              (pages.displayInitPage &&
-                  (pages.defaultModelVersion == GPTModel.gptv40 ||
-                      pages.defaultModelVersion == GPTModel.gptv4o ||
-                      pages.defaultModelVersion.substring(0, 6) == "claude")))
+              (property.onInitPage &&
+                  (property.initModelVersion == GPTModel.gptv40 ||
+                      property.initModelVersion == GPTModel.gptv4o ||
+                      property.initModelVersion.substring(0, 6) == "claude")))
             pickButton(context)
           else
             const SizedBox(
@@ -57,7 +58,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
           inputField(context),
           !user.isLogedin
               ? lockButton(context)
-              : (!pages.displayInitPage && pages.currentPage!.onGenerating)
+              : (!property.onInitPage && pages.currentPage!.onGenerating)
                   ? generatingAnimation(context)
                   : sendButton(context),
         ],
@@ -136,16 +137,16 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   Widget textField(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
+    Property property = Provider.of<Property>(context);
     String hintText = "text, image, text file";
 
-    if ((pages.displayInitPage &&
-            pages.defaultModelVersion == GPTModel.gptv35) ||
-        (!pages.displayInitPage &&
+    if ((property.onInitPage && property.initModelVersion == GPTModel.gptv35) ||
+        (!property.onInitPage &&
             (pages.currentPage?.modelVersion == GPTModel.gptv35))) {
       hintText = "Send a message";
-    } else if ((pages.displayInitPage &&
-            pages.defaultModelVersion == GPTModel.gptv40Dall) ||
-        (!pages.displayInitPage &&
+    } else if ((property.onInitPage &&
+            property.initModelVersion == GPTModel.gptv40Dall) ||
+        (!property.onInitPage &&
             pages.currentPage!.modelVersion == GPTModel.gptv40Dall)) {
       hintText = "describe the image";
     }
@@ -196,10 +197,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
-  bool isContentReady(pages) {
+  bool isContentReady(Pages pages, Property property) {
     bool isReady = false;
     if ((_fileName != null || _hasInputContent) &&
-        (pages.displayInitPage ||
+        (property.onInitPage ||
             (pages.currentPageID >= 0 && !pages.currentPage!.onGenerating)))
       isReady = true;
     return isReady;
@@ -207,22 +208,23 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   Widget sendButton(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
+    Property property = Provider.of<Property>(context);
     User user = Provider.of<User>(context);
     return IconButton(
       icon: const Icon(Icons.send),
-      color: isContentReady(pages) ? Colors.blue : Colors.grey,
-      onPressed: isContentReady(pages)
+      color: isContentReady(pages, property) ? Colors.blue : Colors.grey,
+      onPressed: isContentReady(pages, property)
           ? () {
               int newPageId;
-              if (pages.displayInitPage) {
-                newPageId = pages.addPage(Chat(title: "Chat 0"));
-                pages.displayInitPage = false;
+              if (property.onInitPage) {
+                newPageId = pages.addPage(Chat(title: "Chat 0"), sort: true);
+                property.onInitPage = false;
                 pages.currentPageID = newPageId;
-                pages.currentPage?.modelVersion = pages.defaultModelVersion;
+                pages.currentPage?.modelVersion = property.initModelVersion;
               } else {
                 newPageId = pages.currentPageID;
               }
-              _submitText(pages, newPageId, _controller.text, user);
+              _submitText(pages, property, newPageId, _controller.text, user);
               _controller.clear();
               _hasInputContent = false;
               //_fileName = null;
@@ -300,8 +302,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
     _fileBytes = imagefile.files.first.bytes;
   }
 
-  void _submitText(
-      Pages pages, int handlePageID, String text, User user) async {
+  void _submitText(Pages pages, Property property, int handlePageID,
+      String text, User user) async {
     try {
       pages.getPage(handlePageID).onGenerating = true;
       var ts = DateTime.now().millisecondsSinceEpoch;
@@ -324,6 +326,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
       debugPrint("_submitText error: $e");
       pages.getPage(handlePageID).onGenerating = false;
     }
-    chats.submitText(pages, handlePageID, user);
+    chats.submitText(pages, property, handlePageID, user);
   }
 }

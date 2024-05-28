@@ -17,10 +17,10 @@ class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
 class MyAppBarState extends State<MyAppBar> {
   @override
   Widget build(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
+    Property property = Provider.of<Property>(context);
     return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
       AppBar(
-        leading: appbarLeading(context, pages),
+        leading: appbarLeading(context, property),
         title: appbarTitle(context),
         backgroundColor: AppColors.appBarBackground,
         toolbarHeight: 44,
@@ -42,14 +42,12 @@ class MyAppBarState extends State<MyAppBar> {
     ));
   }
 
-  Widget appbarLeading(BuildContext context, Pages pages) {
+  Widget appbarLeading(BuildContext context, Property property) {
     return IconButton(
-      icon: isDisplayDesktop(context)
-          ? Icon(pages.isDrawerOpen ? Icons.menu_open : Icons.chevron_right)
-          : const Icon(Icons.menu),
+      icon: const Icon(Icons.menu),
       onPressed: () {
         if (isDisplayDesktop(context)) {
-          pages.isDrawerOpen = !pages.isDrawerOpen;
+          property.isDrawerOpen = !property.isDrawerOpen;
         } else {
           Scaffold.of(context).openDrawer();
         }

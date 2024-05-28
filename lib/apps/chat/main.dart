@@ -24,6 +24,7 @@ class ChatApp extends StatefulWidget {
 class _AppState extends State<ChatApp> {
   User user = User();
   Pages pages = Pages();
+  Property property = Property();
 
   @override
   void initState() {
@@ -34,7 +35,7 @@ class _AppState extends State<ChatApp> {
   Future<void> _initData() async {
     await Global().init(user, pages);
     setState(() {
-      pages.isLoading = false;
+      property.isLoading = false;
     });
   }
 
@@ -43,6 +44,7 @@ class _AppState extends State<ChatApp> {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (context) => pages),
+          ChangeNotifierProvider(create: (context) => property),
           ChangeNotifierProvider(create: (context) => user),
         ],
         child: MaterialApp(

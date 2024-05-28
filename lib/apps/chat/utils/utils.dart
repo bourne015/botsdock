@@ -172,11 +172,12 @@ class ChatGen {
     }
   }
 
-  void submitText(Pages pages, int handlePageID, user) async {
+  void submitText(
+      Pages pages, Property property, int handlePageID, user) async {
     bool _isNewReply = true;
 
     try {
-      if (pages.defaultModelVersion == GPTModel.gptv40Dall) {
+      if (property.initModelVersion == GPTModel.gptv40Dall) {
         String q = pages.getMessages(handlePageID)!.last.content;
         var chatData1 = {"model": GPTModel.gptv40Dall, "question": q};
         pages.getPage(handlePageID).onGenerating = true;
