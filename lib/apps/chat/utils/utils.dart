@@ -1,4 +1,4 @@
-import 'package:adaptive_breakpoints/adaptive_breakpoints.dart';
+//import 'package:adaptive_breakpoints/adaptive_breakpoints.dart';
 import 'package:dual_screen/dual_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
@@ -13,16 +13,35 @@ import '../models/message.dart';
 import '../utils/constants.dart';
 import '../utils/global.dart';
 
-bool isDisplayDesktop(BuildContext context) =>
-    !isDisplayFoldable(context) &&
-    getWindowType(context) >= AdaptiveWindowType.medium;
+enum AdaptiveWindowType {
+  small,
+  medium,
+  large,
+}
+
+AdaptiveWindowType getAdaptiveWindowType(BuildContext context) {
+  final double width = MediaQuery.of(context).size.width;
+
+  if (width < 600) {
+    return AdaptiveWindowType.small;
+  } else if (width < 1200) {
+    return AdaptiveWindowType.medium;
+  } else {
+    return AdaptiveWindowType.large;
+  }
+}
+
+bool isDisplayDesktop(BuildContext context) {
+  final windowType = getAdaptiveWindowType(context);
+  return windowType == AdaptiveWindowType.large;
+}
 
 bool isDisplayFoldable(BuildContext context) {
   final hinge = MediaQuery.of(context).hinge;
   if (hinge == null) {
     return false;
   } else {
-    // Vertical
+    // 判断是否为垂直铰链
     return hinge.bounds.size.aspectRatio < 1;
   }
 }
