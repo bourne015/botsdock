@@ -33,9 +33,9 @@ class InitPageState extends State<InitPage> {
 
   @override
   Widget build(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
+    Property property = Provider.of<Property>(context);
     User user = Provider.of<User>(context, listen: false);
-    switch (pages.defaultModelVersion) {
+    switch (property.initModelVersion) {
       case GPTModel.gptv35:
         selected = 'ChatGPT';
         gptDropdownValue = gptSub[0];
@@ -148,6 +148,7 @@ class InitPageState extends State<InitPage> {
   Widget botCard(
       BuildContext context, String name, String avartar, String prompt) {
     Pages pages = Provider.of<Pages>(context);
+    Property property = Provider.of<Property>(context);
     User user = Provider.of<User>(context);
     return Card(
         clipBehavior: Clip.antiAlias,
@@ -157,7 +158,7 @@ class InitPageState extends State<InitPage> {
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
           onTap: () {
-            newBot(pages, user, name, prompt);
+            newBot(pages, property, user, name, prompt);
           },
           child: Ink(
               width: 75,
@@ -178,12 +179,12 @@ class InitPageState extends State<InitPage> {
         ));
   }
 
-  void newBot(pages, user, name, prompt) {
-    int handlePageID = pages.addPage(Chat(title: name));
-    pages.displayInitPage = false;
+  void newBot(Pages pages, Property property, User user, name, prompt) {
+    int handlePageID = pages.addPage(Chat(title: name), sort: true);
+    property.onInitPage = false;
     pages.currentPageID = handlePageID;
     pages.setPageTitle(handlePageID, name + " - $handlePageID");
-    pages.currentPage?.modelVersion = pages.defaultModelVersion;
+    pages.currentPage?.modelVersion = property.initModelVersion;
 
     Message msgQ = Message(
         id: 0,
@@ -193,11 +194,11 @@ class InitPageState extends State<InitPage> {
         content: prompt,
         timestamp: DateTime.now().millisecondsSinceEpoch);
     pages.addMessage(handlePageID, msgQ);
-    chats.submitText(pages, handlePageID, user);
+    chats.submitText(pages, property, handlePageID, user);
   }
 
   Widget modelSelectButton(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
+    Property property = Provider.of<Property>(context);
     return Container(
       margin: const EdgeInsets.only(top: 25),
       child: CupertinoSlidingSegmentedControl<String>(
@@ -209,9 +210,9 @@ class InitPageState extends State<InitPage> {
         // Callback that sets the selected segmented control.
         onValueChanged: (String? value) {
           if (value == 'ChatGPT') {
-            pages.defaultModelVersion = GPTModel.gptv4o;
+            property.initModelVersion = GPTModel.gptv4o;
           } else {
-            pages.defaultModelVersion = ClaudeModel.haiku;
+            property.initModelVersion = ClaudeModel.haiku;
           }
           selected = value;
         },
@@ -246,7 +247,7 @@ class InitPageState extends State<InitPage> {
   }
 
   Widget gptdropdownMenu(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
+    Property property = Provider.of<Property>(context);
     return PopupMenuButton<String>(
       initialValue: gptDropdownValue,
       tooltip: "select model",
@@ -258,13 +259,13 @@ class InitPageState extends State<InitPage> {
       padding: const EdgeInsets.only(left: 2),
       onSelected: (String value) {
         if (value == gptSub[0]) {
-          pages.defaultModelVersion = GPTModel.gptv35;
+          property.initModelVersion = GPTModel.gptv35;
         } else if (value == gptSub[1]) {
-          pages.defaultModelVersion = GPTModel.gptv40;
+          property.initModelVersion = GPTModel.gptv40;
         } else if (value == gptSub[2]) {
-          pages.defaultModelVersion = GPTModel.gptv4o;
+          property.initModelVersion = GPTModel.gptv4o;
         } else if (value == gptSub[3]) {
-          pages.defaultModelVersion = GPTModel.gptv40Dall;
+          property.initModelVersion = GPTModel.gptv40Dall;
         }
         gptDropdownValue = value;
       },
@@ -321,7 +322,7 @@ class InitPageState extends State<InitPage> {
   }
 
   Widget claudedropdownMenu(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
+    Property property = Provider.of<Property>(context);
     return PopupMenuButton<String>(
       initialValue: claudeDropdownValue,
       tooltip: "select model",
@@ -333,11 +334,11 @@ class InitPageState extends State<InitPage> {
       padding: const EdgeInsets.only(left: 2),
       onSelected: (String value) {
         if (value == claudeSub[0]) {
-          pages.defaultModelVersion = ClaudeModel.haiku;
+          property.initModelVersion = ClaudeModel.haiku;
         } else if (value == claudeSub[1]) {
-          pages.defaultModelVersion = ClaudeModel.sonnet;
+          property.initModelVersion = ClaudeModel.sonnet;
         } else if (value == claudeSub[2]) {
-          pages.defaultModelVersion = ClaudeModel.opus;
+          property.initModelVersion = ClaudeModel.opus;
         }
         claudeDropdownValue = value;
       },

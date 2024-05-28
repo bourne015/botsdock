@@ -4,8 +4,8 @@ repository: https://github.com/flutter/gallery
 version: 2.10.2+021002 # See README.md for details on versioning.
 
 environment:
-  flutter: ^3.13.0
-  sdk: ^3.1.0
+  flutter: ^3.22.1
+  sdk: ^3.4.1
 
 dependencies:
   flutter:
@@ -15,22 +15,22 @@ dependencies:
   adaptive_breakpoints: ^0.1.7
   collection: ^1.18.0
   dual_screen: ^1.0.4
-  flutter_staggered_grid_view: ^0.7.0
+  # flutter_staggered_grid_view: ^0.7.0
   get_storage: ^2.1.1
   google_fonts: ^6.2.1
   intl: ^0.19.0
-  meta: ^1.11.0
-  package_info_plus: ^5.0.1
+  # meta: ^1.15.0
+  package_info_plus: ^8.0.0
   provider: ^6.1.2
   transparent_image: ^2.0.1
-  url_launcher: ^6.2.5
+  url_launcher: ^6.2.6
   dio: ^5.4.1
-  flutter_markdown: ^0.6.21
-  markdown: ^7.2.2
+  flutter_markdown: ^0.7.1
+  # markdown: ^7.2.2
   string_scanner: ^1.2.0
   flutter_spinkit: ^5.2.0
   file_picker: ^8.0.0+1
-  shared_preferences: ^2.2.2
+  shared_preferences: ^2.2.3
   flutter_oss_aliyun: ^6.4.1
 
 flutter:
