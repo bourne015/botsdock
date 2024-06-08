@@ -12,14 +12,14 @@ import 'package:gallery/data/gallery_options.dart';
 import 'package:gallery/pages/backdrop.dart';
 import 'package:gallery/routes.dart';
 import 'package:gallery/data/gallery_theme_data.dart';
-import 'package:get_storage/get_storage.dart';
+//import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'data/adaptive.dart';
 
 void main() async {
   GoogleFonts.config.allowRuntimeFetching = false;
-  await GetStorage.init();
+  //await GetStorage.init();
 
   if (defaultTargetPlatform != TargetPlatform.linux &&
       defaultTargetPlatform != TargetPlatform.windows &&

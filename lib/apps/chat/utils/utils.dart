@@ -1,12 +1,14 @@
 //import 'package:adaptive_breakpoints/adaptive_breakpoints.dart';
 import 'package:dual_screen/dual_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'dart:async';
-import 'dart:html';
+import 'package:http/http.dart' as http;
+import 'package:fetch_client/fetch_client.dart';
 
 import '../models/pages.dart';
 import '../models/message.dart';
@@ -47,58 +49,45 @@ bool isDisplayFoldable(BuildContext context) {
 }
 
 class ChatSSE {
-  Stream<String> connect(String path, String method,
-      {Map<String, dynamic>? headers, String? body}) {
-    int progress = 0;
-    //const asciiEncoder = AsciiEncoder();
-    final httpRequest = HttpRequest();
-    final streamController = StreamController<String>();
-    httpRequest.open(method, path);
-    headers?.forEach((key, value) {
-      httpRequest.setRequestHeader(key, value);
-    });
-    //httpRequest.onProgress.listen((event) {
-    httpRequest.addEventListener('progress', (event) {
-      final data = httpRequest.responseText!.substring(progress);
+  Stream<String> connect(
+    String url,
+    String method, {
+    Map<String, String>? headers,
+    String? body,
+  }) async* {
+    var request = http.Request(method, Uri.parse(url));
+    if (headers != null) request.headers.addAll(headers);
+    if (body != null) request.body = body;
 
-      var lines = data.split("\r\n\r");
-      for (var line in lines) {
-        line = line.trimLeft();
-        for (var vline in line.split('\n')) {
-          if (vline.startsWith("data:")) {
-            vline = vline.substring(5).replaceFirst(' ', '');
-            streamController.add(vline);
-          }
+    var client;
+    if (kIsWeb)
+      client = FetchClient(mode: RequestMode.cors);
+    else
+      client = http.Client();
+    var response = await client.send(request);
+    var stream = response.stream.transform<String>(utf8.decoder);
+    final controller = StreamController<String>();
+
+    try {
+      stream.transform(const LineSplitter()).listen((String line) {
+        if (line.isNotEmpty) {
+          var data = line.substring(5).replaceFirst(' ', '');
+          data = data.length > 0 ? data : '\n';
+          controller.add(data);
         }
-      }
-
-      progress += data.length;
-    });
-    httpRequest.addEventListener('loadstart', (event) {
-      final data = httpRequest.responseText!.substring(0);
-      debugPrint("event start:$data");
-    });
-    httpRequest.addEventListener('load', (event) {
-      debugPrint("event load");
-    });
-    httpRequest.addEventListener('loadend', (event) {
-      httpRequest.abort();
-      if (!streamController.isClosed) {
-        streamController.close();
-      }
-      debugPrint("event end");
-    });
-    httpRequest.addEventListener('error', (event) {
-      String status = httpRequest.status.toString();
-      String statusText = httpRequest.statusText ?? "Unknown error";
-      String responseText = httpRequest.responseText ?? 'No response text';
-      String errorMessage =
-          "Error Status: $status, Status Text: $statusText, Response Text: $responseText";
-      streamController.addError(errorMessage);
-      debugPrint("event error: $errorMessage");
-    });
-    httpRequest.send(body);
-    return streamController.stream;
+      }, onDone: () {
+        controller.close();
+        client.close();
+      }, onError: (error) {
+        controller.addError(error);
+        controller.close();
+        client.close();
+      });
+      yield* controller.stream;
+    } catch (e) {
+      controller.addError(e);
+      controller.close();
+    }
   }
 }
 
