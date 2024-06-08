@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:markdown/markdown.dart' as md;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/constants.dart';
 import '../utils/markdown_extentions.dart';
@@ -171,6 +172,8 @@ class MessageBoxState extends State<MessageBox> {
       selectable: true,
       syntaxHighlighter: Highlighter(),
       //extensionSet: MarkdownExtensionSet.githubFlavored.value,
+      onTapLink: (text, href, title) => launchUrl(Uri.parse(href!)),
+      onSelectionChanged: (text, selection, cause) {},
       extensionSet: md.ExtensionSet(
         md.ExtensionSet.gitHubFlavored.blockSyntaxes,
         <md.InlineSyntax>[
