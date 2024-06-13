@@ -248,11 +248,11 @@ class ChatGen {
         }, onDone: () async {
           debugPrint('SSE complete');
           pages.getPage(handlePageID).onGenerating = false;
-          saveChats(user, pages, handlePageID);
           var pageTitle = pages.getPage(handlePageID).title;
           if (pageTitle.length >= 6 && pageTitle.substring(0, 6) == "Chat 0") {
             await titleGenerate(pages, handlePageID);
           }
+          saveChats(user, pages, handlePageID);
         });
       }
     } catch (e) {
