@@ -56,8 +56,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
               width: 15,
             ),
           inputField(context),
-          !user.isLogedin
-              ? lockButton(context)
+          !user.isLogedin || user.credit! <= 0
+              ? lockButton(context, user)
               : (!property.onInitPage && pages.currentPage!.onGenerating)
                   ? generatingAnimation(context)
                   : sendButton(context),
@@ -188,10 +188,15 @@ class _ChatInputFieldState extends State<ChatInputField> {
         ));
   }
 
-  Widget lockButton(BuildContext context) {
+  Widget lockButton(BuildContext context, User user) {
+    var _tooltip;
+    if (!user.isLogedin)
+      _tooltip = "请登录";
+    else
+      _tooltip = "余额不足,请充值";
     return IconButton(
       icon: const Icon(Icons.lock_person_outlined),
-      tooltip: "请登录",
+      tooltip: _tooltip,
       color: Colors.grey,
       onPressed: null,
     );

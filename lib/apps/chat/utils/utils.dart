@@ -12,6 +12,7 @@ import 'package:fetch_client/fetch_client.dart';
 
 import '../models/pages.dart';
 import '../models/message.dart';
+import '../models/user.dart';
 import '../utils/constants.dart';
 import '../utils/global.dart';
 
@@ -169,6 +170,13 @@ class ChatGen {
     }
   }
 
+  void updateCredit(User user) async {
+    var url = userUrl + "/${user.id}" + "/info";
+    var response = await dio.post(url);
+    if (response.data["result"] == "success")
+      user.credit = response.data["credit"];
+  }
+
   Future<void> uploadImage(pages, pid, msg_id, filename, imgData) async {
     try {
       var resp = await Client().putObject(imgData, "chat/image/" + filename);
@@ -253,6 +261,7 @@ class ChatGen {
             await titleGenerate(pages, handlePageID);
           }
           saveChats(user, pages, handlePageID);
+          updateCredit(user);
         });
       }
     } catch (e) {

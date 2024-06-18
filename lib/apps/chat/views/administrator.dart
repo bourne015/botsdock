@@ -394,6 +394,7 @@ class AdministratorState extends State<Administrator> {
         "email": user.email,
         "phone": user.phone,
         "avatar": avatarNum.toString(),
+        "credit": 0.2,
         "pwd": _pwdcontroller.text,
       };
       response = await dio.post(userUrl, data: userdata);
