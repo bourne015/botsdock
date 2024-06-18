@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import '../models/user.dart';
 import '../utils/utils.dart';
@@ -70,7 +71,12 @@ class _UserInfoTabState extends State<UserInfo> {
     return Column(
       children: [
         Container(
-          margin: EdgeInsets.only(top: 50, left: 10, bottom: 50),
+          margin: EdgeInsets.all(20),
+          //padding: EdgeInsets.symmetric(horizontal: 10),
+          //color: Colors.amber,
+          decoration: BoxDecoration(
+              //color: Colors.amber[50],
+              borderRadius: const BorderRadius.all(Radius.circular(15))),
           child: Image.asset(
             width: 300,
             height: 300,
