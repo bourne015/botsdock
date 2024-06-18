@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_markdown_latex/flutter_markdown_latex.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -175,10 +176,14 @@ class MessageBoxState extends State<MessageBox> {
       onTapLink: (text, href, title) => launchUrl(Uri.parse(href!)),
       onSelectionChanged: (text, selection, cause) {},
       extensionSet: md.ExtensionSet(
-        md.ExtensionSet.gitHubFlavored.blockSyntaxes,
+        [
+          ...md.ExtensionSet.gitHubFlavored.blockSyntaxes,
+          ...[LatexBlockSyntax()],
+        ],
         <md.InlineSyntax>[
           md.EmojiSyntax(),
-          ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes
+          ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes,
+          ...[LatexInlineSyntax()],
         ],
       ),
       styleSheetTheme: MarkdownStyleSheetBaseTheme.platform,
@@ -194,6 +199,11 @@ class MessageBoxState extends State<MessageBox> {
       ),
       builders: {
         'code': CodeBlockBuilder(context, Highlighter()),
+        'latex': LatexElementBuilder(
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.w100,
+            ),
+            textScaleFactor: 1.2),
       },
     );
   }
