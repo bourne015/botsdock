@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
+import '../models/chat.dart';
 import '../utils/constants.dart';
 import '../utils/utils.dart';
 import '../models/pages.dart';
@@ -81,61 +82,41 @@ class ChatDrawerState extends State<ChatDrawer> {
   Widget chatPageTabList(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
     Property property = Provider.of<Property>(context);
-    final Set<String> groupedTitles = {};
-    var today = DateTime.now();
+    Map<String, List> _groupedPages = {};
+    pages.groupByDate(_groupedPages);
+    List<String> dateKeys = _groupedPages.keys.toList();
     return Expanded(
       child: ListView.builder(
-        shrinkWrap: false,
-        itemCount: pages.pagesLen,
-        itemBuilder: (context, index) {
-          var page = pages.getNthPage(index);
-          var chat_day =
-              DateTime.fromMillisecondsSinceEpoch(page.updated_at * 1000);
-          int dayDiff = today.difference(chat_day).inDays.abs();
-          String groupTitle = _getGroupTitle(dayDiff);
-          bool isGrouped = groupedTitles.contains(groupTitle);
-          if (!isGrouped) groupedTitles.add(groupTitle);
-
-          return Container(
-              margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-              child: Column(children: [
-                if (!isGrouped) ChatPageTabDate(context, groupTitle),
-                ChatPageTab(
-                    context: context,
-                    pages: pages,
-                    index: index,
-                    property: property)
-              ]));
-        },
-      ),
-    );
-  }
-
-  String _getGroupTitle(int dayDiff) {
-    if (dayDiff == 0) {
-      return "今天";
-    } else if (dayDiff == 1) {
-      return "昨天";
-    } else if (dayDiff >= 2 && dayDiff <= 7) {
-      return "三天前";
-    } else {
-      return "一周前";
-    }
-  }
-
-  Widget ChatPageTabDate(BuildContext context, String groupTitle) {
-    return ListTile(
-      dense: true,
-      enabled: false,
-      contentPadding: EdgeInsets.only(left: 10, top: 15),
-      title: RichText(
-        text: TextSpan(
-            text: groupTitle,
-            style: TextStyle(
-              fontSize: 15,
-              color: Color.fromARGB(255, 163, 162, 162),
-            )),
-      ),
+          shrinkWrap: false,
+          itemCount: dateKeys.length,
+          itemBuilder: (context, index) {
+            return Container(
+                margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                child: Theme(
+                    data: Theme.of(context)
+                        .copyWith(dividerColor: Colors.transparent),
+                    child: ExpansionTile(
+                        enabled: false,
+                        dense: true,
+                        initiallyExpanded: true,
+                        tilePadding: EdgeInsets.symmetric(horizontal: 10),
+                        trailing: Container(width: 0),
+                        title: RichText(
+                          text: TextSpan(
+                              text: dateKeys[index],
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Color.fromARGB(255, 163, 162, 162),
+                              )),
+                        ),
+                        children: _groupedPages[dateKeys[index]]!.map((page) {
+                          return ChatPageTab(
+                              context: context,
+                              pages: pages,
+                              page: page,
+                              property: property);
+                        }).toList())));
+          }),
     );
   }
 }
@@ -143,13 +124,13 @@ class ChatDrawerState extends State<ChatDrawer> {
 class ChatPageTab extends StatefulWidget {
   final BuildContext context;
   final Pages pages;
-  final int index;
+  final Chat page;
   final Property property;
 
   ChatPageTab(
       {required this.context,
       required this.pages,
-      required this.index,
+      required this.page,
       required this.property});
 
   @override
@@ -161,7 +142,6 @@ class _ChatPageTabState extends State<ChatPageTab> {
 
   @override
   Widget build(BuildContext context) {
-    final page = widget.pages.getNthPage(widget.index);
     return MouseRegion(
       onEnter: (event) {
         setState(() {
@@ -179,26 +159,27 @@ class _ChatPageTabState extends State<ChatPageTab> {
           borderRadius: BorderRadius.circular(10),
         ),
         selectedTileColor: AppColors.drawerTabSelected,
-        selected: widget.pages.currentPageID == page.id,
+        selected: widget.pages.currentPageID == widget.page.id,
         //leading: const Icon(Icons.chat_bubble_outline, size: 16),
         minLeadingWidth: 0,
         contentPadding: const EdgeInsets.fromLTRB(10, 0, 3, 0),
         title: RichText(
             text: TextSpan(
-              text: page.title,
-              style: TextStyle(fontSize: 15, color: AppColors.msgText),
+              text: widget.page.title,
+              style: TextStyle(fontSize: 14.5, color: AppColors.msgText),
             ),
             overflow: TextOverflow.ellipsis,
             maxLines: 1),
         onTap: () {
-          widget.pages.currentPageID = page.id!;
+          widget.pages.currentPageID = widget.page.id!;
           widget.property.onInitPage = false;
           if (!isDisplayDesktop(context)) Navigator.pop(context);
         },
         //always keep chat 0
         trailing: widget.pages.pagesLen > 1 &&
-                (widget.pages.currentPageID == page.id || isHovered)
-            ? delChattabButton(context, widget.pages, page.id!, widget.property)
+                (widget.pages.currentPageID == widget.page.id || isHovered)
+            ? delChattabButton(
+                context, widget.pages, widget.page.id!, widget.property)
             : null,
       ),
     );
