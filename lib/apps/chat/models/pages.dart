@@ -99,6 +99,30 @@ class Pages with ChangeNotifier {
     entries.sort((a, b) => b.value.updated_at.compareTo(a.value.updated_at));
     _pagesID = entries.map((e) => e.key).toList();
   }
+
+  void groupByDate(groupedPages) {
+    var today = DateTime.now();
+    int dayDiff = 0;
+
+    for (int pid in _pagesID) {
+      var pData = "";
+      var _page = getPage(pid);
+      var _chat_day =
+          DateTime.fromMillisecondsSinceEpoch(_page.updated_at * 1000);
+      dayDiff = today.difference(_chat_day).inDays.abs();
+      if (dayDiff == 0)
+        pData = "今天";
+      else if (dayDiff == 1)
+        pData = "昨天";
+      else if (dayDiff >= 2 && dayDiff <= 7)
+        pData = "三天前";
+      else
+        pData = "一周前";
+
+      if (groupedPages[pData] == null) groupedPages[pData] = [];
+      groupedPages[pData].add(_page);
+    }
+  }
 }
 
 class Property with ChangeNotifier {
