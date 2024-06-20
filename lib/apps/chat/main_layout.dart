@@ -68,6 +68,7 @@ class MainLayoutState extends State<MainLayout> {
             },
         child: IconButton(
             iconSize: 18,
+            visualDensity: VisualDensity.compact,
             icon: Icon(property.isDrawerOpen
                 ? _drawerButton
                 : Icons.chevron_right_rounded),

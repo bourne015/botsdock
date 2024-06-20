@@ -29,6 +29,7 @@ dependencies:
   flutter_oss_aliyun: ^6.4.2
   fetch_client: ^1.1.2
   flutter_markdown_latex: ^0.3.3
+  cupertino_icons: ^1.0.8
 
 flutter:
   generate: true # Enables generation of localized strings from arb files
