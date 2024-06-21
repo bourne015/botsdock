@@ -34,10 +34,10 @@ dependencies:
 flutter:
   generate: true # Enables generation of localized strings from arb files
   uses-material-design: true
-  fonts:
-    - family: notosans
-      fonts:
-        - asset: assets/fonts/google_fonts/NotoSans-Regular.ttf
+  # fonts:
+  #   - family: notosans
+  #     fonts:
+  #       - asset: assets/fonts/google_fonts/NotoSans-Regular.ttf
     # - family: notosanssc
     #   fonts:
     #     - asset: assets/fonts/google_fonts/NotoSansSC.otf
