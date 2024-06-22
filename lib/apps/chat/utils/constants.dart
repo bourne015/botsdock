@@ -53,9 +53,11 @@ class ClaudeModel {
   static const String haiku = "claude-3-haiku-20240307";
   static const String sonnet = "claude-3-sonnet-20240229";
   static const String opus = "claude-3-opus-20240229";
+  static const String sonnet_35 = "claude-3-5-sonnet-20240620";
 }
 
 const DefaultModelVersion = GPTModel.gptv4o;
+const DefaultClaudeModel = ClaudeModel.sonnet_35;
 
 enum MsgType { text, image, file }
 
@@ -99,4 +101,4 @@ A Demo for ChatGPT.
 Please refresh the page if reached max tokens or don't need chat context
 """;
 
-const String appVersion = "0.3.1";
+const String appVersion = "0.3.3";

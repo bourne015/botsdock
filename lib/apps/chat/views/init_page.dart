@@ -24,9 +24,9 @@ class InitPage extends StatefulWidget {
 
 class InitPageState extends State<InitPage> {
   List<String> gptSub = <String>['3.5', '4.0', '4o', 'DALL'];
-  List<String> claudeSub = <String>['Haiku', 'Sonnet', 'Opus'];
+  List<String> claudeSub = <String>['Haiku', 'Sonnet', 'Opus', "Sonnet_3.5"];
   String gptDropdownValue = '4o';
-  String claudeDropdownValue = 'Haiku';
+  String claudeDropdownValue = 'Sonnet_3.5';
   String? selected;
   final ChatGen chats = ChatGen();
   final dio = Dio();
@@ -66,6 +66,10 @@ class InitPageState extends State<InitPage> {
       case ClaudeModel.opus:
         selected = 'Claude';
         claudeDropdownValue = claudeSub[2];
+        break;
+      case ClaudeModel.sonnet_35:
+        selected = 'Claude';
+        claudeDropdownValue = claudeSub[3];
         break;
       default:
         break;
@@ -210,9 +214,9 @@ class InitPageState extends State<InitPage> {
         // Callback that sets the selected segmented control.
         onValueChanged: (String? value) {
           if (value == 'ChatGPT') {
-            property.initModelVersion = GPTModel.gptv4o;
+            property.initModelVersion = DefaultModelVersion;
           } else {
-            property.initModelVersion = ClaudeModel.haiku;
+            property.initModelVersion = DefaultClaudeModel;
           }
           selected = value;
         },
@@ -339,6 +343,8 @@ class InitPageState extends State<InitPage> {
           property.initModelVersion = ClaudeModel.sonnet;
         } else if (value == claudeSub[2]) {
           property.initModelVersion = ClaudeModel.opus;
+        } else if (value == claudeSub[3]) {
+          property.initModelVersion = ClaudeModel.sonnet_35;
         }
         claudeDropdownValue = value;
       },
@@ -374,6 +380,17 @@ class InitPageState extends State<InitPage> {
             title: Text("Claude3 - Opus"),
             subtitle: Text(
               'Most powerful model for highly complex tasks',
+              style: TextStyle(color: AppColors.subTitle),
+            ),
+          ),
+        ),
+        const PopupMenuItem<String>(
+          value: "Sonnet_3.5",
+          child: ListTile(
+            leading: CircleAvatar(child: Text('S')),
+            title: Text("Claude3 - Sonnet_3.5"),
+            subtitle: Text(
+              '	Most intelligent model',
               style: TextStyle(color: AppColors.subTitle),
             ),
           ),
