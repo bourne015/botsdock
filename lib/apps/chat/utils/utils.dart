@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:fetch_client/fetch_client.dart';
 
+import '../models/chat.dart';
 import '../models/pages.dart';
 import '../models/message.dart';
 import '../models/user.dart';
@@ -268,5 +269,23 @@ class ChatGen {
       debugPrint("gen error: $e");
       pages.getPage(handlePageID).onGenerating = false;
     }
+  }
+
+  void newBot(Pages pages, Property property, User user, name, prompt) {
+    int handlePageID = pages.addPage(Chat(title: name), sort: true);
+    property.onInitPage = false;
+    pages.currentPageID = handlePageID;
+    pages.setPageTitle(handlePageID, name + " - $handlePageID");
+    pages.currentPage?.modelVersion = property.initModelVersion;
+
+    Message msgQ = Message(
+        id: 0,
+        pageID: handlePageID,
+        role: MessageRole.system,
+        type: MsgType.text,
+        content: prompt,
+        timestamp: DateTime.now().millisecondsSinceEpoch);
+    pages.addMessage(handlePageID, msgQ);
+    submitText(pages, property, handlePageID, user);
   }
 }
