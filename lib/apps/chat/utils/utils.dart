@@ -212,7 +212,7 @@ class ChatGen {
             timestamp: mt);
         pages.addMessage(handlePageID, msgA);
         if (response.statusCode == 200 &&
-            pages.getPage(handlePageID).title == "Chat $handlePageID") {
+            pages.getPage(handlePageID).title == "Chat 0") {
           await titleGenerate(pages, handlePageID);
         }
         String oss_name = "ai${user.id}_${handlePageID}_${mt}.png";
