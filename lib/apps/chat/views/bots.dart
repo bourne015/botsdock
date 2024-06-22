@@ -5,14 +5,22 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 import 'package:gallery/apps/chat/models/user.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 import "../utils/constants.dart";
 import '../utils/utils.dart';
 
 class Bots extends StatefulWidget {
   final bots;
+  final pages;
   final user;
-  const Bots({super.key, required this.bots, required this.user});
+  final property;
+  const Bots(
+      {super.key,
+      required this.bots,
+      required this.pages,
+      required this.user,
+      required this.property});
 
   @override
   State<Bots> createState() => BotsState();
@@ -20,6 +28,7 @@ class Bots extends StatefulWidget {
 
 class BotsState extends State<Bots> {
   final dio = Dio();
+  final ChatGen chats = ChatGen();
   var user_likes = [];
 
   @override
@@ -193,6 +202,8 @@ class BotsState extends State<Bots> {
             subtitle: BotTabSubtitle(context, widget.user, bot),
             onTap: () {
               Navigator.pop(context);
+              chats.newBot(widget.pages, widget.property, widget.user,
+                  bot["name"], bot["prompts"]);
             },
             trailing: BotTabtrailing(context, bot)));
   }
@@ -234,6 +245,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   String? _fileName;
   List<int>? _fileBytes;
   String? _logoURL;
+  double temperature = 1;
+  GlobalKey _createBotformKey = GlobalKey<FormState>();
 
   @override
   String get restorationId => 'switch_demo';
@@ -308,7 +321,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   Widget build(BuildContext context) {
     return Dialog(
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 100),
+        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         //margin: EdgeInsets.symmetric(vertical: 20, horizontal: 100),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -317,77 +330,131 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
             Text('个性化配置智能体',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
             SizedBox(height: 45),
-            GestureDetector(
-                onTap: () async {
-                  _pickLogo(context);
-                },
-                child: _displayLogo(context)),
-            Text('Logo'),
+            chooseLogo(context), //_displayLogo(context)
+
+            // Text('Logo'),
             SizedBox(height: 25),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Align(
-                        alignment: Alignment.topLeft,
-                        child: Text('名称',
-                            style: TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.bold))),
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        hintText: '输入智能体名字',
-                        border: OutlineInputBorder(),
-                      ),
+            Form(
+                key: _createBotformKey,
+                child: Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Align(
+                            alignment: Alignment.topLeft,
+                            child: Text('名称', style: TextStyle(fontSize: 15))),
+                        Container(
+                            margin: EdgeInsets.fromLTRB(0, 10, 0, 30),
+                            child: TextFormField(
+                                controller: _nameController,
+                                decoration: InputDecoration(
+                                  hintText: '输入智能体名字',
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (v) {
+                                  return v == null || v.trim().isNotEmpty
+                                      ? null
+                                      : "名称不能为空";
+                                })),
+                        Align(
+                            alignment: Alignment.topLeft,
+                            child: Text('简介', style: TextStyle(fontSize: 15))),
+                        Container(
+                            margin: EdgeInsets.fromLTRB(0, 10, 0, 30),
+                            child: TextFormField(
+                              controller: _introController,
+                              decoration: InputDecoration(
+                                hintText: '用一句话介绍该智能体',
+                                border: OutlineInputBorder(),
+                              ),
+                            )),
+                        Align(
+                            alignment: Alignment.topLeft,
+                            child:
+                                Text('配置信息', style: TextStyle(fontSize: 15))),
+                        Container(
+                            margin: EdgeInsets.fromLTRB(0, 10, 0, 30),
+                            child: TextFormField(
+                              controller: _configInfoController,
+                              decoration: InputDecoration(
+                                hintText: '输入prompt',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (v) {
+                                return v == null || v.trim().isNotEmpty
+                                    ? null
+                                    : "prompt不能为空";
+                              },
+                              maxLines: 5,
+                            )),
+                        Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text("Temperature",
+                                        style: TextStyle(fontSize: 15)),
+                                  ]),
+                              Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Text(temperature.toStringAsFixed(1),
+                                      style: TextStyle(fontSize: 15))),
+                              Container(
+                                  margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                  child: Column(children: [
+                                    Slider(
+                                      min: 0,
+                                      max: 2,
+                                      value: temperature,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          temperature = value;
+                                        });
+                                      },
+                                    ),
+                                    Container(
+                                        margin:
+                                            EdgeInsets.fromLTRB(25, 0, 25, 10),
+                                        child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text("稳定",
+                                                  style:
+                                                      TextStyle(fontSize: 14)),
+                                              Text("中立",
+                                                  style:
+                                                      TextStyle(fontSize: 14)),
+                                              Text("随机",
+                                                  style:
+                                                      TextStyle(fontSize: 14)),
+                                            ]))
+                                  ])),
+                            ]),
+                        Align(
+                            alignment: Alignment.topLeft,
+                            child: Row(children: [
+                              Text('是否共享其他人使用?',
+                                  style: TextStyle(fontSize: 15)),
+                              Container(
+                                  margin: EdgeInsets.only(left: 30),
+                                  child: Switch(
+                                    value: switchValueA.value,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        switchValueA.value = value;
+                                      });
+                                    },
+                                  )),
+                            ])),
+                      ],
                     ),
-                    SizedBox(height: 25),
-                    Align(
-                        alignment: Alignment.topLeft,
-                        child: Text('简介',
-                            style: TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.bold))),
-                    TextFormField(
-                      controller: _introController,
-                      decoration: InputDecoration(
-                        hintText: '用一句话介绍该智能体',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    SizedBox(height: 25),
-                    Align(
-                        alignment: Alignment.topLeft,
-                        child: Text('配置信息',
-                            style: TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.bold))),
-                    TextFormField(
-                      controller: _configInfoController,
-                      decoration: InputDecoration(
-                        hintText: '输入prompt',
-                        border: OutlineInputBorder(),
-                      ),
-                      maxLines: 5,
-                    ),
-                    SizedBox(height: 25),
-                    Align(
-                        alignment: Alignment.topLeft,
-                        child: Row(children: [
-                          Text('是否共享其他人使用?',
-                              style: TextStyle(
-                                  fontSize: 17, fontWeight: FontWeight.bold)),
-                          Switch(
-                            value: switchValueA.value,
-                            onChanged: (value) {
-                              setState(() {
-                                switchValueA.value = value;
-                              });
-                            },
-                          ),
-                        ])),
-                  ],
-                ),
-              ),
-            ),
+                  ),
+                )),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
@@ -398,6 +465,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                 TextButton(
                   child: Text('保存'),
                   onPressed: () async {
+                    if (!(_createBotformKey.currentState as FormState)
+                        .validate()) {
+                      return;
+                    }
                     await uploadLogo();
                     var _botsURL = botURL;
                     if (widget.bot != null)
@@ -442,4 +513,146 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       ),
     );
   }
+
+  Widget chooseLogo(BuildContext context) {
+    return InkWell(
+        onTap: () {
+          showCustomBottomSheet(context);
+        }, // Handle your callback.
+        hoverColor: Colors.grey.withOpacity(0.3),
+        splashColor: Colors.brown.withOpacity(0.5),
+        child: Ink(
+          height: 80,
+          width: 80,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: _fileBytes != null
+                  ? MemoryImage(Uint8List.fromList(_fileBytes!))
+                  : AssetImage('assets/images/bot/bot4.png') as ImageProvider,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ));
+  }
+
+  Widget localImages(BuildContext context) {
+    return ListBody(
+      children: [
+        GridView.builder(
+          shrinkWrap: true,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 6,
+            childAspectRatio: 1,
+          ),
+          itemCount: BotImages.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Container(
+                margin: EdgeInsets.all(5),
+                child: InkWell(
+                    onTap: () async {
+                      final ByteData data = await rootBundle
+                          .load('assets/images/bot/bot${index + 1}.png');
+                      setState(() {
+                        _fileBytes = data.buffer.asUint8List();
+                        _fileName = 'bot${index + 1}.png';
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    hoverColor: Colors.grey.withOpacity(0.3),
+                    splashColor: Colors.brown.withOpacity(0.5),
+                    child: Ink(
+                      height: 80,
+                      width: 80,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage(
+                              'assets/images/bot/bot${index + 1}.png'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )));
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget localImages1(BuildContext context) {
+    return GridView.count(
+      shrinkWrap: true,
+      crossAxisCount: 6,
+      crossAxisSpacing: 4.0,
+      mainAxisSpacing: 4.0,
+      children: List.generate(12, (index) {
+        return InkWell(
+            onTap: () {
+              print("tap $index");
+            }, // Handle your callback.
+            hoverColor: Colors.grey.withOpacity(0.3),
+            splashColor: Colors.brown.withOpacity(0.5),
+            child: Ink(
+              height: 80,
+              width: 80,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/bot/bot${index + 1}.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ));
+      }),
+    );
+  }
+
+  void showCustomBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      elevation: 5,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(15))),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.upload),
+                title: Text('上传本地图片'),
+                onTap: () {
+                  _pickLogo(context);
+                  Navigator.pop(context);
+                },
+              ),
+              Divider(),
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('选择图片'),
+                ),
+              ),
+              localImages(context),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  List<String> BotImages = [
+    'assets/images/bot/bot1.png',
+    'assets/images/bot/bot2.png',
+    'assets/images/bot/bot3.png',
+    'assets/images/bot/bot4.png',
+    'assets/images/bot/bot5.png',
+    'assets/images/bot/bot6.png',
+    'assets/images/bot/bot7.png',
+    'assets/images/bot/bot8.png',
+    'assets/images/bot/bot9.png',
+    'assets/images/bot/bot10.png',
+    'assets/images/bot/bot11.png',
+    'assets/images/bot/bot12.png',
+  ];
 }

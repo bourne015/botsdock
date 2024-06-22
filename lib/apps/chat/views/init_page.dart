@@ -35,6 +35,7 @@ class InitPageState extends State<InitPage> {
   Widget build(BuildContext context) {
     Property property = Provider.of<Property>(context);
     User user = Provider.of<User>(context, listen: false);
+    Pages pages = Provider.of<Pages>(context, listen: false);
     switch (property.initModelVersion) {
       case GPTModel.gptv35:
         selected = 'ChatGPT';
@@ -136,8 +137,11 @@ class InitPageState extends State<InitPage> {
                         Response bots = await dio.post(botsURL);
                         showDialog(
                           context: context,
-                          builder: (context) =>
-                              Bots(user: user, bots: bots.data["bots"]),
+                          builder: (context) => Bots(
+                              pages: pages,
+                              user: user,
+                              property: property,
+                              bots: bots.data["bots"]),
                         );
                       }
                     },
@@ -162,7 +166,7 @@ class InitPageState extends State<InitPage> {
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
           onTap: () {
-            newBot(pages, property, user, name, prompt);
+            chats.newBot(pages, property, user, name, prompt);
           },
           child: Ink(
               width: 75,
@@ -181,24 +185,6 @@ class InitPageState extends State<InitPage> {
                         color: Colors.white,
                       )))),
         ));
-  }
-
-  void newBot(Pages pages, Property property, User user, name, prompt) {
-    int handlePageID = pages.addPage(Chat(title: name), sort: true);
-    property.onInitPage = false;
-    pages.currentPageID = handlePageID;
-    pages.setPageTitle(handlePageID, name + " - $handlePageID");
-    pages.currentPage?.modelVersion = property.initModelVersion;
-
-    Message msgQ = Message(
-        id: 0,
-        pageID: handlePageID,
-        role: MessageRole.system,
-        type: MsgType.text,
-        content: prompt,
-        timestamp: DateTime.now().millisecondsSinceEpoch);
-    pages.addMessage(handlePageID, msgQ);
-    chats.submitText(pages, property, handlePageID, user);
   }
 
   Widget modelSelectButton(BuildContext context) {
