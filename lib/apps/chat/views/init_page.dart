@@ -1,17 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:gallery/apps/chat/utils/prompts.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../models/pages.dart';
-import '../models/chat.dart';
-import '../models/message.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
-import '../utils/prompts.dart';
 import './input_field.dart';
 import '../utils/utils.dart';
-import '../views/bots.dart';
 
 class InitPage extends StatefulWidget {
   const InitPage({
@@ -34,8 +31,6 @@ class InitPageState extends State<InitPage> {
   @override
   Widget build(BuildContext context) {
     Property property = Provider.of<Property>(context);
-    User user = Provider.of<User>(context, listen: false);
-    Pages pages = Provider.of<Pages>(context, listen: false);
     switch (property.initModelVersion) {
       case GPTModel.gptv35:
         selected = 'ChatGPT';
@@ -76,81 +71,64 @@ class InitPageState extends State<InitPage> {
         break;
     }
 
-    return Column(children: <Widget>[
-      Row(children: [
-        const Spacer(),
-        modelSelectButton(context),
-        const Spacer(),
-      ]),
-      Row(children: [
-        const Spacer(),
-        Padding(
-          padding: const EdgeInsets.only(top: 50.0),
-          child: Text(
-            "ChatGPT",
-            style: TextStyle(
-                color: AppColors.initPageBackgroundText,
-                fontSize: 35.0,
-                fontWeight: FontWeight.bold),
-          ),
-        ),
-        const Spacer(),
-      ]),
-      Expanded(
-        child: Container(),
-      ),
-      Expanded(
-          child: Container(
-        alignment: Alignment.bottomCenter,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          //crossAxisCount: 1,
-          // mainAxisSpacing: 3,
-          // crossAxisSpacing: 3,
-          //shrinkWrap: true,
-          //padding: const EdgeInsets.only(left: 70, bottom: 20),
-          //childAspectRatio: 1,
-          //scrollDirection: Axis.horizontal,
-          children: [
-            botCard(context, "宠物猫", "assets/images/avatar/cat.png", Prompt.cat),
-            botCard(
-                context, "占卜师", "assets/images/avatar/augur.png", Prompt.augur),
-            botCard(context, "程序员", "assets/images/avatar/hacker.png",
-                Prompt.program),
-            //botCard(context, "旅行规划", "", ""),
-            SizedBox(
-                width: 75,
-                height: 75,
-                child: ElevatedButton(
-                    style: ButtonStyle(
-                      foregroundColor: WidgetStateProperty.all(Colors.black),
-                      elevation: WidgetStateProperty.all(5.0),
-                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      )),
-                      padding: WidgetStateProperty.all(EdgeInsets.all(5)),
-                    ),
-                    onPressed: () async {
-                      if (user.isLogedin) {
-                        var botsURL = botURL + "/bots";
-                        Response bots = await dio.post(botsURL);
-                        showDialog(
-                          context: context,
-                          builder: (context) => Bots(
-                              pages: pages,
-                              user: user,
-                              property: property,
-                              bots: bots.data["bots"]),
-                        );
-                      }
-                    },
-                    child: Text("更多...")))
-          ],
-        ),
-      )),
-      const ChatInputField(),
-    ]);
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+      return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            modelSelectButton(context),
+            Align(
+                alignment: Alignment.center,
+                child: Text(
+                  "ChatGPT",
+                  style: TextStyle(
+                      color: AppColors.initPageBackgroundText,
+                      fontSize: 35.0,
+                      fontWeight: FontWeight.bold),
+                )),
+            if (constraints.maxHeight > 350)
+              Align(
+                  alignment: Alignment.center,
+                  child: Wrap(
+                    alignment: WrapAlignment.center,
+                    children: [
+                      // botCard(context, "宠物猫", "assets/images/avatar/cat.png", Prompt.cat),
+                      if (isDisplayDesktop(context) ||
+                          constraints.maxHeight > 700)
+                        CustomCard(
+                          icon: Icons.pets,
+                          color: const Color.fromARGB(255, 227, 84, 132),
+                          title: "用厨房的食材制作食谱",
+                          prompt: Prompt.chef,
+                        ),
+                      if (isDisplayDesktop(context) ||
+                          constraints.maxHeight > 700)
+                        CustomCard(
+                          icon: Icons.translate_outlined,
+                          color: const Color.fromARGB(255, 104, 197, 107),
+                          title: "帮我进行汉英互译",
+                          prompt: Prompt.translator,
+                        ),
+                      CustomCard(
+                        icon: Icons.computer_sharp,
+                        color: const Color.fromARGB(255, 241, 227, 104),
+                        title: "精通计算机知识的程序员",
+                        prompt: Prompt.programer,
+                      ),
+                      CustomCard(
+                        icon: Icons.more_outlined,
+                        color: Color.fromARGB(255, 119, 181, 232),
+                        title: "五一去成都旅游的攻略",
+                        prompt: Prompt.tguide,
+                      ),
+                    ],
+                  )),
+            Align(
+                alignment: Alignment.bottomCenter,
+                child: const ChatInputField()),
+          ]);
+    });
   }
 
   Widget botCard(
@@ -383,5 +361,76 @@ class InitPageState extends State<InitPage> {
         ),
       ],
     );
+  }
+}
+
+class CustomCard extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String prompt;
+  final ChatGen chats = ChatGen();
+
+  CustomCard(
+      {required this.icon,
+      required this.color,
+      required this.title,
+      required this.prompt});
+
+  @override
+  Widget build(BuildContext context) {
+    User user = Provider.of<User>(context, listen: false);
+    Pages pages = Provider.of<Pages>(context, listen: false);
+    Property property = Provider.of<Property>(context, listen: false);
+    return Container(
+        margin: EdgeInsets.symmetric(horizontal: 10),
+        child: Card(
+            shape: OutlineInputBorder(
+              borderSide: BorderSide(
+                  style: BorderStyle.solid,
+                  width: 0.7,
+                  color: Color.fromARGB(255, 206, 204, 204)),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            elevation: 1,
+            child: Material(
+              child: Ink(
+                decoration: BoxDecoration(
+                    color: AppColors.chatPageBackground,
+                    borderRadius: const BorderRadius.all(Radius.circular(15))),
+                child: InkWell(
+                    borderRadius: const BorderRadius.all(Radius.circular(15)),
+                    hoverColor:
+                        Color.fromARGB(255, 230, 227, 227).withOpacity(0.3),
+                    onTap: () {
+                      if (user.isLogedin)
+                        chats.newTextChat(pages, property, user, prompt);
+                    },
+                    child: Container(
+                        width: 150,
+                        height: 100,
+                        padding: EdgeInsets.all(10.0),
+                        decoration: BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(15))),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Align(
+                                alignment: Alignment.topLeft,
+                                child: Icon(
+                                  icon,
+                                  size: 20.0,
+                                  color: color,
+                                )),
+                            SizedBox(height: 8),
+                            Align(
+                                alignment: Alignment.topLeft,
+                                child:
+                                    Text(title, style: TextStyle(fontSize: 15)))
+                          ],
+                        ))),
+              ),
+            )));
   }
 }

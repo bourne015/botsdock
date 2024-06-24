@@ -10,6 +10,7 @@ import '../models/pages.dart';
 import '../models/user.dart';
 import 'administrator.dart';
 import '../utils/global.dart';
+import '../views/bots.dart';
 
 class ChatDrawer extends StatefulWidget {
   final double drawersize;
@@ -21,6 +22,7 @@ class ChatDrawer extends StatefulWidget {
 
 class ChatDrawerState extends State<ChatDrawer> {
   bool isHovered = false;
+  final dio = Dio();
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +37,7 @@ class ChatDrawerState extends State<ChatDrawer> {
       child: Column(
         children: [
           newchatButton(context),
+          botsCentre(context),
           chatPageTabList(context),
           Divider(
               height: 10,
@@ -51,32 +54,66 @@ class ChatDrawerState extends State<ChatDrawer> {
     );
   }
 
+  Widget botsCentre(BuildContext context) {
+    Property property = Provider.of<Property>(context, listen: false);
+    User user = Provider.of<User>(context, listen: false);
+    Pages pages = Provider.of<Pages>(context, listen: false);
+    return Container(
+        margin: EdgeInsets.fromLTRB(10, 0, 10, 5),
+        decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(15))),
+        child: ListTile(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          leading: Icon(
+            Icons.view_compact_sharp,
+            color: const Color.fromARGB(255, 78, 164, 235),
+          ),
+          title: Text("探索GPT"),
+          onTap: () async {
+            var botsURL = botURL + "/bots";
+            Response bots = await dio.post(botsURL);
+            showDialog(
+              context: context,
+              builder: (context) => Bots(
+                  pages: pages,
+                  user: user,
+                  property: property,
+                  bots: bots.data["bots"]),
+            );
+          },
+        ));
+  }
+
   Widget newchatButton(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
     Property property = Provider.of<Property>(context);
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-      Expanded(
-          flex: 4,
-          child: Container(
-              margin: const EdgeInsets.fromLTRB(10, 15, 10, 10),
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  property.onInitPage = true;
-                  pages.currentPageID = -1;
-                  if (!isDisplayDesktop(context)) Navigator.pop(context);
-                },
-                icon: const Icon(Icons.add),
-                label: const Text('New Chat'),
-                style: ButtonStyle(
-                  minimumSize:
-                      WidgetStateProperty.all(const Size(double.infinity, 52)),
-                  padding: WidgetStateProperty.all(EdgeInsets.zero),
-                  //padding: EdgeInsets.symmetric(horizontal: 20.0),
-                  shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10))),
-                ),
-              ))),
-    ]);
+    return Container(
+      decoration: BoxDecoration(
+        border:
+            Border.all(color: Color.fromARGB(255, 162, 158, 158), width: 0.5),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      margin: const EdgeInsets.fromLTRB(10, 15, 10, 10),
+      child: ListTile(
+        onTap: () {
+          property.onInitPage = true;
+          pages.currentPageID = -1;
+          if (!isDisplayDesktop(context)) Navigator.pop(context);
+        },
+        leading: const Icon(Icons.add),
+        title: const Text('New Chat'),
+        // style: ButtonStyle(
+        //   minimumSize:
+        //       WidgetStateProperty.all(const Size(double.infinity, 52)),
+        //   padding: WidgetStateProperty.all(EdgeInsets.zero),
+        //   //padding: EdgeInsets.symmetric(horizontal: 20.0),
+        //   shape: WidgetStateProperty.all(RoundedRectangleBorder(
+        //       borderRadius: BorderRadius.circular(10))),
+        // ),
+      ),
+    );
   }
 
   Widget chatPageTabList(BuildContext context) {
