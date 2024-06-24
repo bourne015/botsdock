@@ -16,22 +16,6 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
   <link rel="icon" type="image/png" href="favicon.png" sizes="32x32" />
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400" rel="stylesheet" media="all">
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans:700" rel="stylesheet" media="all">
-
-
-  <!-- Renderer specifier -->
-  <script>
-    let searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.has('renderer')) {
-      window.flutterWebRenderer = searchParams.get('renderer');
-      console.log(searchParams.get('renderer') + ' renderer requested in the URL');
-    }
-    // The value below is injected by flutter build, do not touch.
-    // var serviceWorkerVersion1 = null;
-  </script>
-
 </head>
 
 <body>

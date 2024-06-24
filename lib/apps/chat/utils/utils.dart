@@ -288,4 +288,21 @@ class ChatGen {
     pages.addMessage(handlePageID, msgQ);
     submitText(pages, property, handlePageID, user);
   }
+
+  void newTextChat(Pages pages, Property property, User user, String prompt) {
+    int handlePageID = pages.addPage(Chat(title: "Chat 0"), sort: true);
+    property.onInitPage = false;
+    pages.currentPageID = handlePageID;
+    pages.currentPage?.modelVersion = property.initModelVersion;
+
+    Message msgQ = Message(
+        id: 0,
+        pageID: handlePageID,
+        role: MessageRole.user,
+        type: MsgType.text,
+        content: prompt,
+        timestamp: DateTime.now().millisecondsSinceEpoch);
+    pages.addMessage(handlePageID, msgQ);
+    submitText(pages, property, handlePageID, user);
+  }
 }
