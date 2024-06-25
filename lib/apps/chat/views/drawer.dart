@@ -72,6 +72,7 @@ class ChatDrawerState extends State<ChatDrawer> {
           ),
           title: Text("探索GPT"),
           onTap: () async {
+            if (!isDisplayDesktop(context)) Navigator.pop(context);
             var botsURL = botURL + "/bots";
             Response bots = await dio.post(botsURL);
             showDialog(
