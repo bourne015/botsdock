@@ -87,7 +87,7 @@ class InitPageState extends State<InitPage> {
                       fontSize: 35.0,
                       fontWeight: FontWeight.bold),
                 )),
-            if (constraints.maxHeight > 350)
+            if (isDisplayDesktop(context) && constraints.maxHeight > 350)
               Align(
                   alignment: Alignment.center,
                   child: Wrap(
