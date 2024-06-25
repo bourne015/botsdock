@@ -37,14 +37,16 @@ class BotsState extends State<Bots> {
         appBar: AppBar(
           title: Text('智能体中心',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          backgroundColor: AppColors.chatPageBackground,
         ),
+        backgroundColor: AppColors.chatPageBackground,
         body: BotsPage(context));
   }
 
   Widget BotsPage(BuildContext context) {
     //User user = Provider.of<User>(context, listen: false);
     return Container(
-        margin: EdgeInsets.symmetric(horizontal: 15, vertical: 30),
+        margin: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -53,7 +55,7 @@ class BotsState extends State<Bots> {
                 textAlign: TextAlign.left, style: TextStyle(fontSize: 18.5)),
             SizedBox(height: 20),
             Container(
-                padding: EdgeInsets.only(left: 25),
+                padding: EdgeInsets.only(left: 30),
                 child: OutlinedButton.icon(
                     onPressed: () {
                       showDialog(
@@ -86,16 +88,17 @@ class BotsState extends State<Bots> {
   //       builder: (context) => CreateBot(user: user, bot: bot));
   // }
 
-  Widget BotTabEdit(BuildContext context, user, bot) {
+  Widget BotTabEdit(BuildContext context, bot) {
     return PopupMenuButton<String>(
       initialValue: "edit",
       icon: Icon(Icons.edit_note_rounded),
       onSelected: (String value) {
         if (value == "edit") {
           showDialog(
-              context: context,
-              builder: (context) =>
-                  CreateBot(user: user, bots: widget.bots, bot: bot)).then((_) {
+                  context: context,
+                  builder: (context) =>
+                      CreateBot(user: widget.user, bots: widget.bots, bot: bot))
+              .then((_) {
             setState(() {});
           });
         } else if (value == "delete") {
@@ -118,27 +121,6 @@ class BotsState extends State<Bots> {
             )),
       ],
     );
-  }
-
-  Widget BotTabSubtitle(BuildContext context, user, bot) {
-    return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          RichText(
-              text: TextSpan(
-                  text: bot["description"],
-                  style: TextStyle(fontSize: 13.5, color: AppColors.msgText)),
-              maxLines: 2),
-          RichText(
-              text: TextSpan(
-                text: '作者: ${bot["author_name"]}',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              maxLines: 1),
-          if (widget.user.id == bot["author_id"]) BotTabEdit(context, user, bot)
-          //IconButton(icon: Icon(Icons.edit_note_rounded), onPressed: () {}),
-        ]);
   }
 
   Widget BotTabtrailing(BuildContext context, bot) {
@@ -166,58 +148,106 @@ class BotsState extends State<Bots> {
     ]);
   }
 
+  Widget buildListItem({
+    required int rank,
+    required var bot,
+    required onTab,
+  }) {
+    String image = bot["avatar"];
+    String title = bot["name"];
+    String description = bot["description"];
+    String creator = bot["author_name"];
+    return Card(
+        color: Color.fromARGB(255, 244, 244, 244),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        //elevation: 1,
+        child: InkWell(
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
+          hoverColor: Color.fromARGB(255, 230, 227, 227).withOpacity(0.3),
+          onTap: onTab,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Row(
+              //crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Image.network(
+                  image,
+                  width: 60,
+                  height: 60,
+                ),
+                SizedBox(width: 30),
+                Expanded(
+                    child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    //SizedBox(height: 5),
+                    Text(
+                      description,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontSize: 14, overflow: TextOverflow.ellipsis),
+                    ),
+                    SizedBox(height: 10),
+                    Expanded(
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                          Text(
+                            '创建者： $creator',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                          if (widget.user.name == bot["author_name"])
+                            Expanded(
+                                child: Container(
+                              alignment: Alignment.centerRight,
+                              child: BotTabEdit(context, bot),
+                            )),
+                        ])),
+                  ],
+                )),
+                //SizedBox(width: 10),
+              ],
+            ),
+          ),
+        ));
+  }
+
   Widget BotTab(BuildContext context, index) {
     var bot = widget.bots[index];
-    return Container(
-        //color: Colors.grey[300],
-        decoration: BoxDecoration(
-            //color: AppColors.inputBoxBackground,
-            color: Colors.grey.withAlpha(50),
-            borderRadius: const BorderRadius.all(Radius.circular(15))),
-        child: ListTile(
-            dense: false,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
-            ),
-            selectedTileColor: AppColors.drawerTabSelected,
-            selected: false, //pages.currentPageID == bot.id,
-            //leading: const Icon(Icons.chat_bubble_outline, size: 16),
-            //minLeadingWidth: 0,
-            //minVerticalPadding: 30,
-            isThreeLine: true,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-            leading: Container(
-              child: Image.network(
-                bot["avatar"],
-                fit: BoxFit.cover,
-              ),
-            ),
-            title: RichText(
-                text: TextSpan(
-                  text: bot["name"],
-                  style: TextStyle(fontSize: 18.5, color: AppColors.msgText),
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1),
-            subtitle: BotTabSubtitle(context, widget.user, bot),
-            onTap: () {
-              Navigator.pop(context);
-              chats.newBot(widget.pages, widget.property, widget.user,
-                  bot["name"], bot["prompts"]);
-            },
-            trailing: BotTabtrailing(context, bot)));
+    return buildListItem(
+        rank: index,
+        bot: bot,
+        onTab: () {
+          if (widget.user.isLogedin) {
+            Navigator.pop(context);
+            chats.newBot(widget.pages, widget.property, widget.user,
+                bot["name"], bot["prompts"]);
+          }
+        });
   }
 
   Widget BotsList(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final int crossAxisCount = (width ~/ 300).clamp(1, 3);
+    final double childAspectRatio = (width / crossAxisCount) / 200.0;
     return Expanded(
         child: GridView.builder(
       key: UniqueKey(),
       padding: EdgeInsets.all(25),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        mainAxisSpacing: 10.0, //行距
-        crossAxisSpacing: 10.0, //列距
-        childAspectRatio: isDisplayDesktop(context) ? 3 : 3,
-        crossAxisCount: isDisplayDesktop(context) ? 3 : 1,
+        mainAxisSpacing: 10.0,
+        crossAxisSpacing: 10.0,
+        childAspectRatio: childAspectRatio,
+        crossAxisCount: crossAxisCount,
       ),
       itemCount: widget.bots.length,
       itemBuilder: (BuildContext context, int index) => BotTab(context, index),
