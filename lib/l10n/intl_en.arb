@@ -29,8 +29,40 @@
       }
     }
   },
+  "chatGPT35Desc": "A fast, inexpensive model for simple tasks",
+  "@chatGPT35Desc": {
+    "description": "chatGPT35Desc"
+  },
+  "chatGPT40Desc": "solve difficult problems with greater accuracy",
+  "@chatGPT40Desc": {
+    "description": "chatGPT40Desc"
+  },
+  "chatGPT4oDesc": "The fastest and most affordable flagship model",
+  "@chatGPT4oDesc": {
+    "description": "chatGPT4oDesc"
+  },
+  "dallEDesc": "A model that can generate images given a natural language prompt",
+  "@dallEDesc": {
+    "description": "dallEDesc"
+  },
+  "claude3HaikuDesc": "Fastest and most compact model for near-instant responsiveness",
+  "@claude3HaikuDesc": {
+    "description": "claude3HaikuDesc"
+  },
+  "claude3SonnetDesc": "Balance of intelligence and speed",
+  "@claude3SonnetDesc": {
+    "description": "claude3SonnetDesc"
+  },
+  "claude3OpusDesc": "Most powerful model for highly complex tasks",
+  "@claude3OpusDesc": {
+    "description": "claude3OpusDesc"
+  },
+  "claude35SonnetDesc": "Most intelligent model",
+  "@claude35SonnetDesc": {
+    "description": "claude35SonnetDesc"
+  },
   "botsCentre": "Explore GPT",
   "@botsCentre": {
-    "description": "探索GPT"
+    "description": "botsCentre"
   }
 }
