@@ -159,10 +159,10 @@ class BotsState extends State<Bots> {
     String creator = bot["author_name"];
     return Card(
         color: Color.fromARGB(255, 244, 244, 244),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         //elevation: 1,
         child: InkWell(
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
+          borderRadius: const BorderRadius.all(Radius.circular(15)),
           hoverColor: Color.fromARGB(255, 230, 227, 227).withOpacity(0.3),
           onTap: onTab,
           child: Padding(
