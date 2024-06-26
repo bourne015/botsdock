@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
+import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import '../models/chat.dart';
 import '../utils/constants.dart';
@@ -70,7 +71,7 @@ class ChatDrawerState extends State<ChatDrawer> {
             Icons.view_compact_sharp,
             color: const Color.fromARGB(255, 78, 164, 235),
           ),
-          title: Text("探索GPT"),
+          title: Text(GalleryLocalizations.of(context)!.botsCentre),
           onTap: () async {
             if (!isDisplayDesktop(context)) Navigator.pop(context);
             var botsURL = botURL + "/bots";

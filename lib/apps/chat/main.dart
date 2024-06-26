@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import './models/pages.dart';
 import './models/user.dart';
@@ -57,6 +58,10 @@ class _AppState extends State<ChatApp> {
           routes: {
             ChatApp.homeRoute: (context) => const MainLayout(),
           },
+          localizationsDelegates: GalleryLocalizations.localizationsDelegates,
+          supportedLocales: [
+            Locale('zh'),
+          ],
         ));
   }
 }
