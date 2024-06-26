@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gallery/apps/chat/utils/prompts.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import '../models/pages.dart';
 import '../models/user.dart';
@@ -239,49 +240,49 @@ class InitPageState extends State<InitPage> {
       },
       position: PopupMenuPosition.over,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: "3.5",
           child: ListTile(
             leading: CircleAvatar(child: Text('3.5')),
             title: Text("ChatGPT 3.5"),
             subtitle: Text(
-              'understand and generate natural language or code',
-              style: TextStyle(color: AppColors.subTitle),
+              GalleryLocalizations.of(context)!.chatGPT35Desc,
+              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
             ),
             //trailing: Icon(Icons.favorite_rounded),
           ),
         ),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: "4.0",
           child: ListTile(
             leading: CircleAvatar(child: Text('4.0')),
             title: Text("ChatGPT 4.0"),
             subtitle: Text(
-              'solve difficult problems with greater accuracy',
-              style: TextStyle(color: AppColors.subTitle),
+              GalleryLocalizations.of(context)!.chatGPT40Desc,
+              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
             ),
             //trailing: Icon(Icons.favorite_rounded),
           ),
         ),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: "4o",
           child: ListTile(
             leading: CircleAvatar(child: Text('4o')),
             title: Text("ChatGPT 4o"),
             subtitle: Text(
-              'the latest GPT-4',
-              style: TextStyle(color: AppColors.subTitle),
+              GalleryLocalizations.of(context)!.chatGPT4oDesc,
+              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
             ),
           ),
         ),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: "DALL",
           child: ListTile(
             leading: CircleAvatar(child: Text('D')),
             title: Text("DALL·E 3"),
             subtitle: Text(
-              'A model that can generate and edit images given a natural language prompt',
-              style: TextStyle(color: AppColors.subTitle),
+              GalleryLocalizations.of(context)!.dallEDesc,
+              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
             ),
           ),
         ),
@@ -314,48 +315,48 @@ class InitPageState extends State<InitPage> {
       },
       position: PopupMenuPosition.over,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: "Haiku",
           child: ListTile(
             leading: CircleAvatar(child: Text('H')),
             title: Text("Claude3 - Haiku"),
             subtitle: Text(
-              'Fastest and most compact model for near-instant responsiveness',
-              style: TextStyle(color: AppColors.subTitle),
+              GalleryLocalizations.of(context)!.claude3HaikuDesc,
+              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
             ),
             //trailing: Icon(Icons.favorite_rounded),
           ),
         ),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: "Sonnet",
           child: ListTile(
             leading: CircleAvatar(child: Text('S')),
             title: Text("Claude3 - Sonnet"),
             subtitle: Text(
-              'Ideal balance of intelligence and speed for enterprise workloads',
-              style: TextStyle(color: AppColors.subTitle),
+              GalleryLocalizations.of(context)!.claude3SonnetDesc,
+              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
             ),
           ),
         ),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: "Opus",
           child: ListTile(
             leading: CircleAvatar(child: Text('O')),
             title: Text("Claude3 - Opus"),
             subtitle: Text(
-              'Most powerful model for highly complex tasks',
-              style: TextStyle(color: AppColors.subTitle),
+              GalleryLocalizations.of(context)!.claude3OpusDesc,
+              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
             ),
           ),
         ),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: "Sonnet_3.5",
           child: ListTile(
             leading: CircleAvatar(child: Text('S')),
             title: Text("Claude3 - Sonnet_3.5"),
             subtitle: Text(
-              '	Most intelligent model',
-              style: TextStyle(color: AppColors.subTitle),
+              GalleryLocalizations.of(context)!.claude35SonnetDesc,
+              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
             ),
           ),
         ),
