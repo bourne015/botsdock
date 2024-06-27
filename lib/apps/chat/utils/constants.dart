@@ -97,8 +97,8 @@ const String imageUrl = "http://127.0.0.1:8001/v1/image";
 const String userUrl = "http://127.0.0.1:8001/v1/user";
 
 const String aboutText = """
-A Demo for ChatGPT.
-Please refresh the page if reached max tokens or don't need chat context
+基于GPT API和Cloude API封装.
+任何问题或建议请联系: phantasy018@gmail.com
 """;
 
 const String appVersion = "0.3.7";

@@ -105,7 +105,7 @@ class ChatDrawerState extends State<ChatDrawer> {
           if (!isDisplayDesktop(context)) Navigator.pop(context);
         },
         leading: const Icon(Icons.add),
-        title: const Text('New Chat'),
+        title: Text(GalleryLocalizations.of(context)!.newChat),
         // style: ButtonStyle(
         //   minimumSize:
         //       WidgetStateProperty.all(const Size(double.infinity, 52)),
