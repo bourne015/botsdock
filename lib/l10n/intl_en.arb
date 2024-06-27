@@ -61,8 +61,56 @@
   "@claude35SonnetDesc": {
     "description": "claude35SonnetDesc"
   },
-  "botsCentre": "Explore GPT",
+  "botsCentre": "Explore",
   "@botsCentre": {
     "description": "botsCentre"
+  },
+  "login": "Login",
+  "@Login": {
+    "description": "Login"
+  },
+  "custmizeGPT": "custmize GPT",
+  "@custmizeGPT": {
+    "description": "custmizeGPT"
+  },
+  "instructions": "Instructions",
+  "@instructions": {
+    "description": "Model instructions"
+  },
+  "about": "About",
+  "@about": {
+    "description": "About"
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout"
+  },
+  "adminstrator": "Adminstrator",
+  "@adminstrator": {
+    "description": "adminstrator"
+  },
+  "modelDescription": "Description",
+  "@modelDescription": {
+    "description": "Model Description"
+  },
+  "contextWindow" : "Context window",
+  "@contextWindow": {
+    "description": "Model Context window"
+  },
+  "cost" : "Cost",
+  "@cost": {
+    "description": "Model cost"
+  },
+  "inputFormat" : "Input Format",
+  "@inputFormat": {
+    "description": "Model input format"
+  },
+  "inputFormat1" : "Text",
+  "@inputFormat1": {
+    "description": "Text input format"
+  },
+  "inputFormat2" : "Text and Image",
+  "@inputFormat2": {
+    "description": "Text and Image format"
   }
 }
