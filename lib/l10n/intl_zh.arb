@@ -12,5 +12,17 @@
   "claude3SonnetDesc": "在智能与输出速度之间完美平衡",
   "claude3OpusDesc": "应对高度复杂任务的强大模型",
   "claude35SonnetDesc": "最具智慧的模型",
-  "botsCentre": "探索GPT"
+  "botsCentre": "探索GPT",
+  "login": "登录",
+  "custmizeGPT": "个性化GPT",
+  "instructions": "使用说明",
+  "about": "关于",
+  "logout": "登出",
+  "adminstrator": "管理",
+  "modelDescription": "描述",
+  "contextWindow": "上下文窗口",
+  "cost": "费用(输入/输出,每百万token)",
+  "inputFormat": "输入格式",
+  "inputFormat1": "文本",
+  "inputFormat2": "文本和图像"
 }

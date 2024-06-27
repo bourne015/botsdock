@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import '../utils/constants.dart';
 import '../utils/utils.dart';
@@ -62,7 +63,9 @@ class AdministratorState extends State<Administrator> {
           contentPadding: const EdgeInsets.symmetric(vertical: 1),
           title: RichText(
               text: TextSpan(
-            text: user.isLogedin ? user.name : 'Administrator',
+            text: user.isLogedin
+                ? user.name
+                : GalleryLocalizations.of(context)!.adminstrator,
             style: TextStyle(fontSize: 15, color: AppColors.msgText),
           )),
         ),
@@ -78,7 +81,10 @@ class AdministratorState extends State<Administrator> {
             case 'Customize ChatGPT':
               //NewBotDialog(context);
               break;
-            case 'Settings':
+            case 'Instructions':
+              InstructionsDialog(context);
+              break;
+            case 'About':
               aboutDialog(context);
               break;
             case 'Logout':
@@ -109,34 +115,52 @@ class AdministratorState extends State<Administrator> {
                       padding: EdgeInsets.fromLTRB(12, 0, 100, 0),
                       value: "Login",
                       child: ListTile(
-                        leading: Icon(Icons.login),
-                        title: Text("Login"),
+                        leading: Icon(size: 20, Icons.login),
+                        title: Text(GalleryLocalizations.of(context)!.login),
                       ),
                     ),
               PopupMenuDivider(),
               PopupMenuItem(
                 value: "Customize ChatGPT",
                 child: ListTile(
-                  leading: Icon(Icons.add_home_outlined),
-                  title: Text("Customize ChatGPT"),
+                  leading: Icon(size: 20, Icons.add_home_outlined),
+                  title: Text(GalleryLocalizations.of(context)!.custmizeGPT),
                 ),
               ),
               PopupMenuItem(
-                value: "Settings",
+                value: "Instructions",
                 child: ListTile(
-                  leading: Icon(Icons.settings_rounded),
-                  title: Text("Settings"),
+                  leading: Icon(size: 20, Icons.settings_rounded),
+                  title: Text(GalleryLocalizations.of(context)!.instructions),
+                ),
+              ),
+              PopupMenuItem(
+                value: "About",
+                child: ListTile(
+                  leading: Icon(size: 20, Icons.info),
+                  title: Text(GalleryLocalizations.of(context)!.about),
                 ),
               ),
               PopupMenuDivider(),
               PopupMenuItem(
                 value: "Logout",
                 child: ListTile(
-                  leading: Icon(Icons.logout),
-                  title: Text("Logout"),
+                  leading: Icon(size: 20, Icons.logout),
+                  title: Text(GalleryLocalizations.of(context)!.logout),
                 ),
               ),
             ]);
+  }
+
+  void InstructionsDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('模型介绍'),
+            content: modelINFO(context),
+          );
+        });
   }
 
   void userInfoDialog(BuildContext context, User user) {
@@ -461,5 +485,82 @@ class AdministratorState extends State<Administrator> {
         validator: (v) {
           return v == null || v.trim().isNotEmpty ? null : "$text不能为空";
         });
+  }
+
+  Widget modelINFO(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        columns: [
+          DataColumn(label: Text('')),
+          DataColumn(
+              label: Text(GalleryLocalizations.of(context)!.modelDescription)),
+          DataColumn(
+              label: Text(GalleryLocalizations.of(context)!.contextWindow)),
+          DataColumn(label: Text(GalleryLocalizations.of(context)!.cost)),
+          DataColumn(
+              label: Text(GalleryLocalizations.of(context)!.inputFormat)),
+        ],
+        rows: [
+          DataRow(cells: [
+            DataCell(Text('GPT-3.5')),
+            DataCell(Text(GalleryLocalizations.of(context)!.chatGPT35Desc)),
+            DataCell(Text('16,385 tokens')),
+            DataCell(Text('\$0.50 / M input tokens, \$1.50/M output tokens')),
+            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat1)),
+          ]),
+          DataRow(cells: [
+            DataCell(Text('GPT-4')),
+            DataCell(Text(GalleryLocalizations.of(context)!.chatGPT40Desc)),
+            DataCell(Text('128K tokens')),
+            DataCell(Text('\$10.00/M input tokens, \$30.00/M output tokens')),
+            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat2)),
+          ]),
+          DataRow(cells: [
+            DataCell(Text('GPT-4o')),
+            DataCell(Text(GalleryLocalizations.of(context)!.chatGPT4oDesc)),
+            DataCell(Text('128K tokens')),
+            DataCell(Text('\$5.00 / M input tokens, \$15.00/M output tokens')),
+            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat2)),
+          ]),
+          DataRow(cells: [
+            DataCell(Text('DALL·E')),
+            DataCell(Text(GalleryLocalizations.of(context)!.dallEDesc)),
+            DataCell(Text('-')),
+            DataCell(Text('\$0.040 / image')),
+            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat1)),
+          ]),
+          DataRow(cells: [
+            DataCell(Text('Claude 3 Haiku')),
+            DataCell(Text(GalleryLocalizations.of(context)!.claude3HaikuDesc)),
+            DataCell(Text('200K tokens')),
+            DataCell(Text('\$0.25/M input tokens, \$1.25/M output tokens')),
+            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat2)),
+          ]),
+          DataRow(cells: [
+            DataCell(Text('Claude 3 Sonnet')),
+            DataCell(Text(GalleryLocalizations.of(context)!.claude3SonnetDesc)),
+            DataCell(Text('200K tokens')),
+            DataCell(Text('\$3.00/M input tokens, \$15.00/M output tokens')),
+            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat2)),
+          ]),
+          DataRow(cells: [
+            DataCell(Text('Claude 3 Opus')),
+            DataCell(Text(GalleryLocalizations.of(context)!.claude3OpusDesc)),
+            DataCell(Text('200K tokens')),
+            DataCell(Text('\$15.00/M input tokens, \$75.00/M output tokens')),
+            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat2)),
+          ]),
+          DataRow(cells: [
+            DataCell(Text('Claude 3.5 Sonnet')),
+            DataCell(
+                Text(GalleryLocalizations.of(context)!.claude35SonnetDesc)),
+            DataCell(Text('200K tokens')),
+            DataCell(Text('\$3.00/M input tokens, \$15.00/M output tokens')),
+            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat2)),
+          ]),
+        ],
+      ),
+    );
   }
 }
