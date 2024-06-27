@@ -170,11 +170,13 @@ class BotsState extends State<Bots> {
             child: Row(
               //crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.network(
-                  image,
-                  width: 60,
-                  height: 60,
-                ),
+                ClipRRect(
+                    borderRadius: BorderRadius.circular(80),
+                    child: Image.network(
+                      image,
+                      width: 80,
+                      height: 80,
+                    )),
                 SizedBox(width: 30),
                 Expanded(
                     child: Column(
@@ -333,37 +335,36 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     }
   }
 
-  Widget _displayLogo(BuildContext context) {
-    if (_logoURL != null)
-      return Image.network(_logoURL!, height: 80, width: 80);
-    else if (_fileBytes == null)
-      return Image.asset(
-        'assets/images/avatar/0.png',
-        height: 80,
-        width: 80,
-      );
-    else
-      return Image.memory(Uint8List.fromList(_fileBytes!),
-          height: 80, width: 80, fit: BoxFit.cover);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        //margin: EdgeInsets.symmetric(vertical: 20, horizontal: 100),
-        child: Column(
+        child: Container(
+      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+      //margin: EdgeInsets.symmetric(vertical: 20, horizontal: 100),
+      decoration: BoxDecoration(
+          //color: AppColors.inputBoxBackground,
+          borderRadius: const BorderRadius.all(Radius.circular(15))),
+      child: Scaffold(
+        appBar: AppBar(
+          //shadowColor: Colors.red,
+          automaticallyImplyLeading: false,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          title: Text('个性化配置智能体',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        ),
+        body: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Text('个性化配置智能体',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-            SizedBox(height: 45),
-            chooseLogo(context), //_displayLogo(context)
+            // Text('个性化配置智能体',
+            //     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+            //SizedBox(height: 45),
+            // chooseLogo(context), //_displayLogo(context)
 
             // Text('Logo'),
-            SizedBox(height: 25),
+            //SizedBox(height: 25),
             Form(
                 key: _createBotformKey,
                 child: Expanded(
@@ -371,6 +372,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: chooseLogo(context),
+                        ),
                         Align(
                             alignment: Alignment.topLeft,
                             child: Text('名称', style: TextStyle(fontSize: 15))),
@@ -380,6 +385,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                                 controller: _nameController,
                                 decoration: InputDecoration(
                                   hintText: '输入智能体名字',
+                                  hintStyle: TextStyle(fontSize: 14),
                                   border: OutlineInputBorder(),
                                 ),
                                 validator: (v) {
@@ -396,6 +402,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                               controller: _introController,
                               decoration: InputDecoration(
                                 hintText: '用一句话介绍该智能体',
+                                hintStyle: TextStyle(fontSize: 14),
                                 border: OutlineInputBorder(),
                               ),
                             )),
@@ -409,6 +416,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                               controller: _configInfoController,
                               decoration: InputDecoration(
                                 hintText: '输入prompt',
+                                hintStyle: TextStyle(fontSize: 14),
                                 border: OutlineInputBorder(),
                               ),
                               validator: (v) {
@@ -541,28 +549,34 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
           ],
         ),
       ),
-    );
+    ));
+  }
+
+  Widget _displayLogo(BuildContext context) {
+    var sz = 100.0;
+    if (_fileBytes != null)
+      return Image.memory(Uint8List.fromList(_fileBytes!),
+          width: sz, height: sz, fit: BoxFit.cover);
+    else if (_logoURL != null)
+      return Image.network(_logoURL!, width: sz, height: sz, fit: BoxFit.cover);
+    else
+      return Image.asset('assets/images/bot/bot4.png',
+          width: sz, height: sz, fit: BoxFit.cover);
   }
 
   Widget chooseLogo(BuildContext context) {
-    return InkWell(
-        onTap: () {
-          showCustomBottomSheet(context);
-        }, // Handle your callback.
-        hoverColor: Colors.grey.withOpacity(0.3),
-        splashColor: Colors.brown.withOpacity(0.5),
+    return ClipRRect(
+        borderRadius: BorderRadius.circular(100),
         child: Ink(
-          height: 80,
-          width: 80,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: _fileBytes != null
-                  ? MemoryImage(Uint8List.fromList(_fileBytes!))
-                  : AssetImage('assets/images/bot/bot4.png') as ImageProvider,
-              fit: BoxFit.cover,
-            ),
-          ),
-        ));
+            child: InkWell(
+          onTap: () {
+            showCustomBottomSheet(context);
+          },
+          borderRadius: BorderRadius.circular(45.0),
+          hoverColor: Colors.red.withOpacity(0.3),
+          splashColor: Colors.red.withOpacity(0.5),
+          child: _displayLogo(context),
+        )));
   }
 
   Widget localImages(BuildContext context) {
