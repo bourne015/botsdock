@@ -91,7 +91,7 @@ class BotsState extends State<Bots> {
   Widget BotTabEdit(BuildContext context, bot) {
     return PopupMenuButton<String>(
       initialValue: "edit",
-      icon: Icon(Icons.edit_note_rounded),
+      icon: Icon(Icons.edit_note_rounded, size: 20),
       onSelected: (String value) {
         if (value == "edit") {
           showDialog(
@@ -201,18 +201,18 @@ class BotsState extends State<Bots> {
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                          Text(
+                          Expanded(
+                              child: Text(
                             '创建者： $creator',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
-                          if (widget.user.name == bot["author_name"])
-                            Expanded(
-                                child: Container(
+                          )),
+                          if (widget.user.id == bot["author_id"])
+                            Container(
                               alignment: Alignment.centerRight,
                               child: BotTabEdit(context, bot),
-                            )),
+                            ),
                         ])),
                   ],
                 )),
