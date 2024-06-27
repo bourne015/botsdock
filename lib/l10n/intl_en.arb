@@ -9,7 +9,11 @@
   },
   "settingsAttribution": "To the time to life",
   "@settingsAttribution": {
-    "description": "Title for attribution (TOASTER is a proper name and should remain in English)."
+    "description": "test"
+  },
+  "newChat": "New Chat",
+  "@newChat": {
+    "description": "new chat"
   },
   "githubRepo": "{repoName} GitHub repository",
   "@githubRepo": {
