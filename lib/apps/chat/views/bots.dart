@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 import 'package:gallery/apps/chat/models/user.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import "../utils/constants.dart";
 import '../utils/utils.dart';
@@ -35,8 +36,8 @@ class BotsState extends State<Bots> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('智能体中心',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          title: Text(GalleryLocalizations.of(context)!.botCentreTitle,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           backgroundColor: AppColors.chatPageBackground,
         ),
         backgroundColor: AppColors.chatPageBackground,
@@ -51,8 +52,8 @@ class BotsState extends State<Bots> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            Text('我的',
-                textAlign: TextAlign.left, style: TextStyle(fontSize: 18.5)),
+            Text(GalleryLocalizations.of(context)!.botCentreMe,
+                textAlign: TextAlign.left, style: TextStyle(fontSize: 18)),
             SizedBox(height: 20),
             Container(
                 padding: EdgeInsets.only(left: 30),
@@ -63,9 +64,11 @@ class BotsState extends State<Bots> {
                           builder: (context) => CreateBot(user: widget.user));
                     },
                     icon: Icon(Icons.add),
-                    label: Text("创建智能体"))),
+                    label: Text(
+                        GalleryLocalizations.of(context)!.botCentreCreate))),
             SizedBox(height: 30),
-            Text('探索更多', style: TextStyle(fontSize: 18.5)),
+            Text(GalleryLocalizations.of(context)!.exploreMore,
+                style: TextStyle(fontSize: 18)),
             BotsList(context),
           ],
         ));
@@ -90,8 +93,11 @@ class BotsState extends State<Bots> {
 
   Widget BotTabEdit(BuildContext context, bot) {
     return PopupMenuButton<String>(
-      initialValue: "edit",
+      //initialValue: "edit",
       icon: Icon(Icons.edit_note_rounded, size: 20),
+      color: AppColors.drawerBackground,
+      shadowColor: Colors.blue,
+      elevation: 3,
       onSelected: (String value) {
         if (value == "edit") {
           showDialog(
@@ -107,17 +113,19 @@ class BotsState extends State<Bots> {
       },
       //position: PopupMenuPosition.under,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
             value: "edit",
             child: ListTile(
+              dense: true,
               leading: Icon(Icons.edit_rounded, size: 14),
-              title: Text("edit"),
+              title: Text(GalleryLocalizations.of(context)!.botEdit),
             )),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
             value: "delete",
             child: ListTile(
+              dense: true,
               leading: Icon(Icons.delete, size: 14),
-              title: Text("delete"),
+              title: Text(GalleryLocalizations.of(context)!.botDelete),
             )),
       ],
     );
@@ -342,16 +350,18 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
       //margin: EdgeInsets.symmetric(vertical: 20, horizontal: 100),
       decoration: BoxDecoration(
-          //color: AppColors.inputBoxBackground,
+          color: AppColors.chatPageBackground,
           borderRadius: const BorderRadius.all(Radius.circular(15))),
       child: Scaffold(
+        backgroundColor: AppColors.chatPageBackground,
         appBar: AppBar(
           //shadowColor: Colors.red,
           automaticallyImplyLeading: false,
+          backgroundColor: AppColors.chatPageBackground,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          title: Text('个性化配置智能体',
+          title: Text(GalleryLocalizations.of(context)!.botCreateTitle,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         ),
         body: Column(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import './views/chat_page.dart';
 import './utils/utils.dart';
@@ -72,7 +73,9 @@ class MainLayoutState extends State<MainLayout> {
             icon: Icon(property.isDrawerOpen
                 ? _drawerButton
                 : Icons.chevron_right_rounded),
-            tooltip: property.isDrawerOpen ? "close sidebar" : "open sidebar",
+            tooltip: property.isDrawerOpen
+                ? GalleryLocalizations.of(context)!.closeDrawerTooltip
+                : GalleryLocalizations.of(context)!.openDrawerTooltip,
             onPressed: () {
               property.isDrawerOpen = !property.isDrawerOpen;
               _drawerWidth = property.isDrawerOpen ? drawerWidth : 0;

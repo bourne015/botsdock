@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const String appTitle = 'Chat Demo';
+const String appTitle = 'Chat Bot';
 
 class AppColors {
   static const appBarText = Colors.black;

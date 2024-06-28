@@ -48,6 +48,9 @@ class AdministratorState extends State<Administrator> {
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
     return PopupMenuButton<String>(
+        color: AppColors.drawerBackground,
+        shadowColor: Colors.blue,
+        elevation: 15,
         child: ListTile(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -99,7 +102,7 @@ class AdministratorState extends State<Administrator> {
         itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               user.isLogedin
                   ? PopupMenuItem(
-                      padding: EdgeInsets.fromLTRB(12, 0, 100, 0),
+                      padding: EdgeInsets.fromLTRB(20, 0, 80, 0),
                       value: "user",
                       child: ListTile(
                         leading: Image.asset(
@@ -112,7 +115,7 @@ class AdministratorState extends State<Administrator> {
                       ),
                     )
                   : PopupMenuItem(
-                      padding: EdgeInsets.fromLTRB(12, 0, 100, 0),
+                      padding: EdgeInsets.fromLTRB(20, 0, 80, 0),
                       value: "Login",
                       child: ListTile(
                         leading: Icon(size: 20, Icons.login),
@@ -121,6 +124,7 @@ class AdministratorState extends State<Administrator> {
                     ),
               PopupMenuDivider(),
               PopupMenuItem(
+                padding: EdgeInsets.fromLTRB(20, 0, 80, 0),
                 value: "Customize ChatGPT",
                 child: ListTile(
                   leading: Icon(size: 20, Icons.add_home_outlined),
@@ -128,6 +132,7 @@ class AdministratorState extends State<Administrator> {
                 ),
               ),
               PopupMenuItem(
+                padding: EdgeInsets.fromLTRB(20, 0, 80, 0),
                 value: "Instructions",
                 child: ListTile(
                   leading: Icon(size: 20, Icons.settings_rounded),
@@ -135,6 +140,7 @@ class AdministratorState extends State<Administrator> {
                 ),
               ),
               PopupMenuItem(
+                padding: EdgeInsets.fromLTRB(20, 0, 80, 0),
                 value: "About",
                 child: ListTile(
                   leading: Icon(size: 20, Icons.info),
@@ -143,6 +149,7 @@ class AdministratorState extends State<Administrator> {
               ),
               PopupMenuDivider(),
               PopupMenuItem(
+                padding: EdgeInsets.fromLTRB(20, 0, 80, 0),
                 value: "Logout",
                 child: ListTile(
                   leading: Icon(size: 20, Icons.logout),
