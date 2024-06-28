@@ -116,5 +116,45 @@
   "inputFormat2" : "Text and Image",
   "@inputFormat2": {
     "description": "Text and Image format"
+  },
+  "selectModelTooltip" : "select model",
+  "@selectModelTooltip": {
+    "description": "select model tooltip"
+  },
+  "openDrawerTooltip" : "open sidebar",
+  "@openDrawerTooltip": {
+    "description": "close sidebar tooltip"
+  },
+  "closeDrawerTooltip" : "close sidebar",
+  "@closeDrawerTooltip": {
+    "description": "open sidebar tooltip"
+  },
+  "botCentreTitle" : "Bot Centre",
+  "@botCentreTitle": {
+    "description": "bot centre title"
+  },
+  "botCentreMe" : "Me",
+  "@botCentreMe": {
+    "description": "bot centre me"
+  },
+  "botCentreCreate" : "create bot",
+  "@botCentreCreate": {
+    "description": "create bot"
+  },
+  "exploreMore" : "More",
+  "@exploreMore": {
+    "description": "bot centre explore more"
+  },
+  "botEdit" : "edit",
+  "@botEdit": {
+    "description": "botEdit"
+  },
+  "botDelete" : "delete",
+  "@botDelete": {
+    "description": "delete"
+  },
+  "botCreateTitle" : "customize bot",
+  "@botCreateTitle": {
+    "description": "bot Create Title"
   }
 }

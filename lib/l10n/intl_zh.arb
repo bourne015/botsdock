@@ -25,5 +25,15 @@
   "cost": "费用(输入/输出,每百万token)",
   "inputFormat": "输入格式",
   "inputFormat1": "文本",
-  "inputFormat2": "文本和图像"
+  "inputFormat2": "文本和图像",
+  "selectModelTooltip" : "选择模型",
+  "botCentreTitle" : "智能体中心",
+  "botCentreMe" : "我的",
+  "botCentreCreate" : "创建智能体",
+  "exploreMore" : "探索更多",
+  "openDrawerTooltip" : "展开",
+  "closeDrawerTooltip" : "收起",
+  "botEdit" : "编辑",
+  "botDelete" : "删除",
+  "botCreateTitle" : "个性化配置智能体"
 }

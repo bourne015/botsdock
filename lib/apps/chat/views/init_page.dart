@@ -82,7 +82,7 @@ class InitPageState extends State<InitPage> {
             Align(
                 alignment: Alignment.center,
                 child: Text(
-                  "ChatGPT",
+                  "Chat",
                   style: TextStyle(
                       color: AppColors.initPageBackgroundText,
                       fontSize: 35.0,
@@ -219,10 +219,14 @@ class InitPageState extends State<InitPage> {
     Property property = Provider.of<Property>(context);
     return PopupMenuButton<String>(
       initialValue: gptDropdownValue,
-      tooltip: "select model",
+      tooltip: GalleryLocalizations.of(context)!.selectModelTooltip,
       //icon: Icon(color: Colors.grey, size: 10, Icons.south),
+      color: AppColors.drawerBackground,
+      shadowColor: Colors.blue,
+      elevation: 2,
       icon: CircleAvatar(
           radius: 12,
+          backgroundColor: AppColors.modelSelectorBackground,
           child: Text(gptDropdownValue[0],
               style: const TextStyle(fontSize: 10.5, color: Colors.grey))),
       padding: const EdgeInsets.only(left: 2),
@@ -243,7 +247,7 @@ class InitPageState extends State<InitPage> {
         PopupMenuItem<String>(
           value: "3.5",
           child: ListTile(
-            leading: CircleAvatar(child: Text('3.5')),
+            leading: modelTabAvatar(context, "3.5"),
             title: Text("ChatGPT 3.5"),
             subtitle: Text(
               GalleryLocalizations.of(context)!.chatGPT35Desc,
@@ -255,7 +259,7 @@ class InitPageState extends State<InitPage> {
         PopupMenuItem<String>(
           value: "4.0",
           child: ListTile(
-            leading: CircleAvatar(child: Text('4.0')),
+            leading: modelTabAvatar(context, "4.0"),
             title: Text("ChatGPT 4.0"),
             subtitle: Text(
               GalleryLocalizations.of(context)!.chatGPT40Desc,
@@ -267,7 +271,7 @@ class InitPageState extends State<InitPage> {
         PopupMenuItem<String>(
           value: "4o",
           child: ListTile(
-            leading: CircleAvatar(child: Text('4o')),
+            leading: modelTabAvatar(context, "4o"),
             title: Text("ChatGPT 4o"),
             subtitle: Text(
               GalleryLocalizations.of(context)!.chatGPT4oDesc,
@@ -278,7 +282,7 @@ class InitPageState extends State<InitPage> {
         PopupMenuItem<String>(
           value: "DALL",
           child: ListTile(
-            leading: CircleAvatar(child: Text('D')),
+            leading: modelTabAvatar(context, "D"),
             title: Text("DALL·E 3"),
             subtitle: Text(
               GalleryLocalizations.of(context)!.dallEDesc,
@@ -290,14 +294,28 @@ class InitPageState extends State<InitPage> {
     );
   }
 
+  Widget modelTabAvatar(BuildContext context, String t) {
+    return CircleAvatar(
+      backgroundColor: AppColors.chatPageBackground,
+      child: Text(
+        t,
+        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue[300]),
+      ),
+    );
+  }
+
   Widget claudedropdownMenu(BuildContext context) {
     Property property = Provider.of<Property>(context);
     return PopupMenuButton<String>(
       initialValue: claudeDropdownValue,
-      tooltip: "select model",
+      tooltip: GalleryLocalizations.of(context)!.selectModelTooltip,
       //icon: Icon(color: Colors.grey, size: 10, Icons.south),
+      color: AppColors.drawerBackground,
+      shadowColor: Colors.blue,
+      elevation: 2,
       icon: CircleAvatar(
           radius: 12,
+          backgroundColor: AppColors.modelSelectorBackground,
           child: Text(claudeDropdownValue[0],
               style: const TextStyle(fontSize: 10.5, color: Colors.grey))),
       padding: const EdgeInsets.only(left: 2),
@@ -318,7 +336,7 @@ class InitPageState extends State<InitPage> {
         PopupMenuItem<String>(
           value: "Haiku",
           child: ListTile(
-            leading: CircleAvatar(child: Text('H')),
+            leading: modelTabAvatar(context, "H"),
             title: Text("Claude3 - Haiku"),
             subtitle: Text(
               GalleryLocalizations.of(context)!.claude3HaikuDesc,
@@ -330,7 +348,7 @@ class InitPageState extends State<InitPage> {
         PopupMenuItem<String>(
           value: "Sonnet",
           child: ListTile(
-            leading: CircleAvatar(child: Text('S')),
+            leading: modelTabAvatar(context, "S"),
             title: Text("Claude3 - Sonnet"),
             subtitle: Text(
               GalleryLocalizations.of(context)!.claude3SonnetDesc,
@@ -341,7 +359,7 @@ class InitPageState extends State<InitPage> {
         PopupMenuItem<String>(
           value: "Opus",
           child: ListTile(
-            leading: CircleAvatar(child: Text('O')),
+            leading: modelTabAvatar(context, "O"),
             title: Text("Claude3 - Opus"),
             subtitle: Text(
               GalleryLocalizations.of(context)!.claude3OpusDesc,
@@ -352,8 +370,8 @@ class InitPageState extends State<InitPage> {
         PopupMenuItem<String>(
           value: "Sonnet_3.5",
           child: ListTile(
-            leading: CircleAvatar(child: Text('S')),
-            title: Text("Claude3 - Sonnet_3.5"),
+            leading: modelTabAvatar(context, "S"),
+            title: Text("Claude3.5 - Sonnet"),
             subtitle: Text(
               GalleryLocalizations.of(context)!.claude35SonnetDesc,
               style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
