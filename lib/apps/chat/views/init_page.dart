@@ -244,52 +244,14 @@ class InitPageState extends State<InitPage> {
       },
       position: PopupMenuPosition.over,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        PopupMenuItem<String>(
-          value: "3.5",
-          child: ListTile(
-            leading: modelTabAvatar(context, "3.5"),
-            title: Text("ChatGPT 3.5"),
-            subtitle: Text(
-              GalleryLocalizations.of(context)!.chatGPT35Desc,
-              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
-            ),
-            //trailing: Icon(Icons.favorite_rounded),
-          ),
-        ),
-        PopupMenuItem<String>(
-          value: "4.0",
-          child: ListTile(
-            leading: modelTabAvatar(context, "4.0"),
-            title: Text("ChatGPT 4.0"),
-            subtitle: Text(
-              GalleryLocalizations.of(context)!.chatGPT40Desc,
-              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
-            ),
-            //trailing: Icon(Icons.favorite_rounded),
-          ),
-        ),
-        PopupMenuItem<String>(
-          value: "4o",
-          child: ListTile(
-            leading: modelTabAvatar(context, "4o"),
-            title: Text("ChatGPT 4o"),
-            subtitle: Text(
-              GalleryLocalizations.of(context)!.chatGPT4oDesc,
-              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
-            ),
-          ),
-        ),
-        PopupMenuItem<String>(
-          value: "DALL",
-          child: ListTile(
-            leading: modelTabAvatar(context, "D"),
-            title: Text("DALL·E 3"),
-            subtitle: Text(
-              GalleryLocalizations.of(context)!.dallEDesc,
-              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
-            ),
-          ),
-        ),
+        _buildPopupMenuItem(context, "3.5", "3.5", "ChatGPT 3.5",
+            GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
+        _buildPopupMenuItem(context, "4.0", "4.0", "ChatGPT 4.0",
+            GalleryLocalizations.of(context)?.chatGPT40Desc ?? ''),
+        _buildPopupMenuItem(context, "4o", "4o", "ChatGPT 4o",
+            GalleryLocalizations.of(context)?.chatGPT4oDesc ?? ''),
+        _buildPopupMenuItem(context, "DALL", "D", "DALL·E 3",
+            GalleryLocalizations.of(context)?.dallEDesc ?? ''),
       ],
     );
   }
@@ -333,52 +295,51 @@ class InitPageState extends State<InitPage> {
       },
       position: PopupMenuPosition.over,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        PopupMenuItem<String>(
-          value: "Haiku",
-          child: ListTile(
-            leading: modelTabAvatar(context, "H"),
-            title: Text("Claude3 - Haiku"),
-            subtitle: Text(
-              GalleryLocalizations.of(context)!.claude3HaikuDesc,
-              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
-            ),
-            //trailing: Icon(Icons.favorite_rounded),
-          ),
-        ),
-        PopupMenuItem<String>(
-          value: "Sonnet",
-          child: ListTile(
-            leading: modelTabAvatar(context, "S"),
-            title: Text("Claude3 - Sonnet"),
-            subtitle: Text(
-              GalleryLocalizations.of(context)!.claude3SonnetDesc,
-              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
-            ),
-          ),
-        ),
-        PopupMenuItem<String>(
-          value: "Opus",
-          child: ListTile(
-            leading: modelTabAvatar(context, "O"),
-            title: Text("Claude3 - Opus"),
-            subtitle: Text(
-              GalleryLocalizations.of(context)!.claude3OpusDesc,
-              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
-            ),
-          ),
-        ),
-        PopupMenuItem<String>(
-          value: "Sonnet_3.5",
-          child: ListTile(
-            leading: modelTabAvatar(context, "S"),
-            title: Text("Claude3.5 - Sonnet"),
-            subtitle: Text(
-              GalleryLocalizations.of(context)!.claude35SonnetDesc,
-              style: TextStyle(fontSize: 12.5, color: AppColors.subTitle),
-            ),
-          ),
-        ),
+        _buildPopupMenuItem(context, "Haiku", "H", "Claude3 - Haiku",
+            GalleryLocalizations.of(context)?.claude3HaikuDesc ?? ''),
+        _buildPopupMenuItem(context, "Sonnet", "S", "Claude3 - Sonnet",
+            GalleryLocalizations.of(context)?.claude3SonnetDesc ?? ''),
+        _buildPopupMenuItem(context, "Opus", "O", "Claude3 - Opus",
+            GalleryLocalizations.of(context)?.claude3OpusDesc ?? ''),
+        _buildPopupMenuItem(context, "Sonnet_3.5", "S", "Claude3.5 - Sonnet",
+            GalleryLocalizations.of(context)?.claude35SonnetDesc ?? ''),
       ],
+    );
+  }
+
+  PopupMenuItem<String> _buildPopupMenuItem(BuildContext context, String value,
+      String icon, String title, String description) {
+    return PopupMenuItem<String>(
+      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+      value: value,
+      child: Material(
+        //color: Colors.transparent,
+        color: AppColors.drawerBackground,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(15),
+            onTap: () {
+              Navigator.pop(context, value);
+            },
+            //onHover: (hovering) {},
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 5),
+              leading: modelTabAvatar(context, icon),
+              title: Text(title),
+              subtitle: Text(description,
+                  style: TextStyle(fontSize: 12.5, color: AppColors.subTitle)),
+              trailing:
+                  claudeDropdownValue == value || gptDropdownValue == value
+                      ? Icon(Icons.check, color: Colors.blue[300])
+                      : null,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

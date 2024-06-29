@@ -114,49 +114,54 @@ class AdministratorState extends State<Administrator> {
                         subtitle: user.email == null ? null : Text(user.email!),
                       ),
                     )
-                  : PopupMenuItem(
-                      padding: EdgeInsets.fromLTRB(20, 0, 80, 0),
-                      value: "Login",
-                      child: ListTile(
-                        leading: Icon(size: 20, Icons.login),
-                        title: Text(GalleryLocalizations.of(context)!.login),
-                      ),
-                    ),
+                  : _buildPopupMenuItem(context, "Login", Icons.login,
+                      GalleryLocalizations.of(context)!.login),
               PopupMenuDivider(),
-              PopupMenuItem(
-                padding: EdgeInsets.fromLTRB(20, 0, 80, 0),
-                value: "Customize ChatGPT",
-                child: ListTile(
-                  leading: Icon(size: 20, Icons.add_home_outlined),
-                  title: Text(GalleryLocalizations.of(context)!.custmizeGPT),
-                ),
-              ),
-              PopupMenuItem(
-                padding: EdgeInsets.fromLTRB(20, 0, 80, 0),
-                value: "Instructions",
-                child: ListTile(
-                  leading: Icon(size: 20, Icons.settings_rounded),
-                  title: Text(GalleryLocalizations.of(context)!.instructions),
-                ),
-              ),
-              PopupMenuItem(
-                padding: EdgeInsets.fromLTRB(20, 0, 80, 0),
-                value: "About",
-                child: ListTile(
-                  leading: Icon(size: 20, Icons.info),
-                  title: Text(GalleryLocalizations.of(context)!.about),
-                ),
-              ),
+              _buildPopupMenuItem(
+                  context,
+                  "Customize ChatGPT",
+                  Icons.add_home_outlined,
+                  GalleryLocalizations.of(context)!.custmizeGPT),
+              _buildPopupMenuItem(
+                  context,
+                  "Instructions",
+                  Icons.settings_rounded,
+                  GalleryLocalizations.of(context)!.instructions),
+              _buildPopupMenuItem(context, "About", Icons.info,
+                  GalleryLocalizations.of(context)!.about),
               PopupMenuDivider(),
-              PopupMenuItem(
-                padding: EdgeInsets.fromLTRB(20, 0, 80, 0),
-                value: "Logout",
-                child: ListTile(
-                  leading: Icon(size: 20, Icons.logout),
-                  title: Text(GalleryLocalizations.of(context)!.logout),
-                ),
-              ),
+              _buildPopupMenuItem(context, "Logout", Icons.logout,
+                  GalleryLocalizations.of(context)!.logout),
             ]);
+  }
+
+  PopupMenuItem<String> _buildPopupMenuItem(
+      BuildContext context, String value, IconData icon, String title) {
+    return PopupMenuItem<String>(
+      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+      value: value,
+      child: Material(
+        //color: Colors.transparent,
+        color: AppColors.drawerBackground,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(15),
+            onTap: () {
+              Navigator.pop(context, value);
+            },
+            //onHover: (hovering) {},
+            child: ListTile(
+                contentPadding: EdgeInsets.symmetric(horizontal: 5),
+                leading: Icon(size: 20, icon),
+                title: Text(title)),
+          ),
+        ),
+      ),
+    );
   }
 
   void InstructionsDialog(BuildContext context) {
