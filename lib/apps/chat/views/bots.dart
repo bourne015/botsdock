@@ -56,12 +56,14 @@ class BotsState extends State<Bots> {
                 textAlign: TextAlign.left, style: TextStyle(fontSize: 18)),
             SizedBox(height: 20),
             Container(
-                padding: EdgeInsets.only(left: 30),
+                padding:
+                    EdgeInsets.only(left: isDisplayDesktop(context) ? 50 : 20),
                 child: OutlinedButton.icon(
                     onPressed: () {
-                      showDialog(
-                          context: context,
-                          builder: (context) => CreateBot(user: widget.user));
+                      if (widget.user.isLogedin)
+                        showDialog(
+                            context: context,
+                            builder: (context) => CreateBot(user: widget.user));
                     },
                     icon: Icon(Icons.add),
                     label: Text(
@@ -120,6 +122,7 @@ class BotsState extends State<Bots> {
               leading: Icon(Icons.edit_rounded, size: 14),
               title: Text(GalleryLocalizations.of(context)!.botEdit),
             )),
+        PopupMenuDivider(height: 1.0),
         PopupMenuItem<String>(
             value: "delete",
             child: ListTile(
@@ -168,7 +171,7 @@ class BotsState extends State<Bots> {
     return Card(
         color: Color.fromARGB(255, 244, 244, 244),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        //elevation: 1,
+        elevation: 0,
         child: InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(15)),
           hoverColor: Color.fromARGB(255, 230, 227, 227).withOpacity(0.3),
@@ -249,13 +252,14 @@ class BotsState extends State<Bots> {
     final width = MediaQuery.of(context).size.width;
     final int crossAxisCount = (width ~/ 300).clamp(1, 3);
     final double childAspectRatio = (width / crossAxisCount) / 200.0;
+    final hpaddng = isDisplayDesktop(context) ? 50.0 : 20.0;
     return Expanded(
         child: GridView.builder(
       key: UniqueKey(),
-      padding: EdgeInsets.all(25),
+      padding: EdgeInsets.all(hpaddng),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        mainAxisSpacing: 10.0,
-        crossAxisSpacing: 10.0,
+        mainAxisSpacing: 15.0,
+        crossAxisSpacing: 25.0,
         childAspectRatio: childAspectRatio,
         crossAxisCount: crossAxisCount,
       ),
