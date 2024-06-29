@@ -76,6 +76,7 @@ class ChatDrawerState extends State<ChatDrawer> {
             var botsURL = botURL + "/bots";
             Response bots = await dio.post(botsURL);
             if (!isDisplayDesktop(context)) Navigator.pop(context);
+            // showSlideInDialog(
             showDialog(
               context: context,
               builder: (context) => Bots(
@@ -86,6 +87,34 @@ class ChatDrawerState extends State<ChatDrawer> {
             );
           },
         ));
+  }
+
+  void showSlideInDialog({
+    required BuildContext context,
+    required WidgetBuilder builder,
+  }) {
+    showGeneralDialog(
+      context: context,
+      pageBuilder: (context, anim1, anim2) {
+        return builder(context);
+      },
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black54,
+      transitionDuration: Duration(milliseconds: 200),
+      transitionBuilder: (context, anim1, anim2, child) {
+        final curvedAnim =
+            CurvedAnimation(parent: anim1, curve: Curves.easeInOut);
+
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: Offset(1, 0),
+            end: Offset(0, 0),
+          ).animate(curvedAnim),
+          child: child,
+        );
+      },
+    );
   }
 
   Widget newchatButton(BuildContext context) {
