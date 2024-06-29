@@ -7,6 +7,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_markdown_latex/flutter_markdown_latex.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:image_downloader_web/image_downloader_web.dart';
 
 import '../utils/constants.dart';
 import '../utils/markdown_extentions.dart';
@@ -279,14 +280,13 @@ class MessageBoxState extends State<MessageBox> {
                 });
         },
         onLongPressStart: (details) {
-          // if (imgData != null)
-          //   _showDownloadMenu(context, details.globalPosition, imgData);
+          if (widget.val["fileUrl"] != null || widget.val["fileBytes"] != null)
+            _showDownloadMenu(context, details.globalPosition);
         },
         child: loadImage(context, height: 250, width: 200));
   }
 
-/*
-  void _showDownloadMenu(BuildContext context, Offset position, imageUrl) {
+  void _showDownloadMenu(BuildContext context, Offset position) {
     final RenderBox? overlay =
         Overlay.of(context).context.findRenderObject() as RenderBox?;
     final RelativeRect positionRect = RelativeRect.fromLTRB(
@@ -315,20 +315,21 @@ class MessageBoxState extends State<MessageBox> {
           ),
         ),
       ],
-    ).then((selectedValue) {
+    ).then((selectedValue) async {
       if (selectedValue == 'download') {
-        _downloadImage(imageUrl);
+        if (widget.val["fileUrl"] != null) {
+          // var uri = Uri.parse(widget.val["fileUrl"]);
+          // String filenameExp = uri.pathSegments.last;
+          // String filename = filenameExp.split('=').first;
+          await WebImageDownloader.downloadImageFromWeb(
+            name: "ai",
+            widget.val["fileUrl"],
+          );
+        } else if (widget.val["fileBytes"] != null)
+          await WebImageDownloader.downloadImageFromUInt8List(
+            uInt8List: widget.val["fileBytes"],
+          );
       }
     });
   }
-
-  void _downloadImage(Uint8List imageData) {
-    String base64Data = base64Encode(imageData);
-    final String url = 'data:image/png;base64,$base64Data';
-    // create HTML的Anchor Element
-    final html.AnchorElement anchor = html.AnchorElement(href: url)
-      ..download = "ai"; // optional: download name
-    anchor.click();
-  }
-  */
 }

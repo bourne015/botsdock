@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart';
+import 'package:image_downloader_web/image_downloader_web.dart';
 
 import '../models/user.dart';
 import '../utils/utils.dart';
@@ -77,11 +78,15 @@ class _UserInfoTabState extends State<UserInfo> {
           decoration: BoxDecoration(
               //color: Colors.amber[50],
               borderRadius: const BorderRadius.all(Radius.circular(15))),
-          child: Image.asset(
-            width: 300,
-            height: 300,
-            'assets/images/chat/paycode.jpeg',
-          ),
+          child: GestureDetector(
+              onLongPressStart: (details) {
+                _showDownloadMenu(context, details.globalPosition);
+              },
+              child: Image.asset(
+                width: 300,
+                height: 300,
+                'assets/images/chat/paycode.jpeg',
+              )),
         ),
         Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
           ElevatedButton(
@@ -97,6 +102,51 @@ class _UserInfoTabState extends State<UserInfo> {
         ])
       ],
     );
+  }
+
+  void _showDownloadMenu(BuildContext context, Offset position) {
+    final RenderBox? overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox?;
+    final RelativeRect positionRect = RelativeRect.fromLTRB(
+      position.dx, // Left
+      position.dy, // Top
+      overlay!.size.width - position.dx, // Right
+      overlay.size.height - position.dy, // Bottom
+    );
+
+    showMenu(
+      context: context,
+      position: positionRect,
+      items: <PopupMenuEntry>[
+        const PopupMenuItem(
+          value: 'download',
+          child: ListTile(
+            leading: Icon(Icons.download),
+            title: Text("download"),
+          ),
+        ),
+      ],
+    ).then((selectedValue) async {
+      if (selectedValue == 'download') {
+        Uint8List imageData = await loadImageAsUInt8List(
+          'assets/images/chat/paycode.jpeg',
+        );
+        await WebImageDownloader.downloadImageFromUInt8List(
+          name: "paycode",
+          uInt8List: imageData,
+        );
+      }
+    });
+  }
+
+  Future<Uint8List> loadImageAsUInt8List(String path) async {
+    try {
+      final ByteData data = await rootBundle.load(path);
+      return data.buffer.asUint8List();
+    } catch (e) {
+      print("Failed to load image: $e");
+      return Uint8List(0); // return empty Uint8List to prevent error
+    }
   }
 
   Widget UserInfoPage(BuildContext context) {
