@@ -73,9 +73,9 @@ class ChatDrawerState extends State<ChatDrawer> {
           ),
           title: Text(GalleryLocalizations.of(context)!.botsCentre),
           onTap: () async {
-            if (!isDisplayDesktop(context)) Navigator.pop(context);
             var botsURL = botURL + "/bots";
             Response bots = await dio.post(botsURL);
+            if (!isDisplayDesktop(context)) Navigator.pop(context);
             showDialog(
               context: context,
               builder: (context) => Bots(
