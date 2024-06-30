@@ -37,19 +37,30 @@ class ChatDrawerState extends State<ChatDrawer> {
           : null,
       child: Column(
         children: [
-          newchatButton(context),
-          botsCentre(context),
+          Material(
+            color: AppColors.drawerBackground,
+            child: Column(children: [
+              newchatButton(context),
+              botsCentre(context),
+            ]),
+          ),
           chatPageTabList(context),
-          Divider(
-              height: 10,
-              thickness: 1,
-              indent: 10,
-              endIndent: 10,
-              color: AppColors.drawerDivider),
-          Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-              child: Administrator()),
-          const SizedBox(height: 10),
+          Material(
+            color: AppColors.drawerBackground,
+            child: Column(children: [
+              Divider(
+                  height: 10,
+                  thickness: 1,
+                  indent: 10,
+                  endIndent: 10,
+                  color: AppColors.drawerDivider),
+              Container(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                  child: Administrator()),
+              const SizedBox(height: 10),
+            ]),
+          ),
         ],
       ),
     );
@@ -135,14 +146,6 @@ class ChatDrawerState extends State<ChatDrawer> {
         },
         leading: const Icon(Icons.add),
         title: Text(GalleryLocalizations.of(context)!.newChat),
-        // style: ButtonStyle(
-        //   minimumSize:
-        //       WidgetStateProperty.all(const Size(double.infinity, 52)),
-        //   padding: WidgetStateProperty.all(EdgeInsets.zero),
-        //   //padding: EdgeInsets.symmetric(horizontal: 20.0),
-        //   shape: WidgetStateProperty.all(RoundedRectangleBorder(
-        //       borderRadius: BorderRadius.circular(10))),
-        // ),
       ),
     );
   }
