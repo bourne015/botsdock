@@ -101,4 +101,4 @@ const String aboutText = """
 任何问题或建议请联系: phantasy018@gmail.com
 """;
 
-const String appVersion = "0.3.7";
+const String appVersion = "0.3.8";
