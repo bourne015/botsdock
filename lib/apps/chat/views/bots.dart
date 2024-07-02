@@ -31,6 +31,22 @@ class BotsState extends State<Bots> {
   final dio = Dio();
   final ChatGen chats = ChatGen();
   var user_likes = [];
+  var botsPublicMe = [];
+
+  @override
+  void initState() {
+    super.initState();
+    for (var xbot in widget.bots)
+      if (xbot["author_id"] == widget.user.id || xbot["public"] == true) {
+        botsPublicMe.add(xbot);
+      }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    botsPublicMe.clear();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +251,7 @@ class BotsState extends State<Bots> {
   }
 
   Widget BotTab(BuildContext context, index) {
-    var bot = widget.bots[index];
+    var bot = botsPublicMe[index];
     return buildListItem(
         rank: index,
         bot: bot,
@@ -263,8 +279,10 @@ class BotsState extends State<Bots> {
         childAspectRatio: childAspectRatio,
         crossAxisCount: crossAxisCount,
       ),
-      itemCount: widget.bots.length,
-      itemBuilder: (BuildContext context, int index) => BotTab(context, index),
+      itemCount: botsPublicMe.length,
+      itemBuilder: (BuildContext context, int index) {
+        return BotTab(context, index);
+      },
     ));
   }
 }
@@ -307,7 +325,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       _nameController.text = widget.bot["name"];
       _introController.text = widget.bot["description"];
       _configInfoController.text = widget.bot["prompts"];
-      //switchValueA.value = widget.bot["public"];
+      switchValueA = RestorableBool(widget.bot["public"]);
     }
   }
 
