@@ -141,7 +141,6 @@ class AdministratorState extends State<Administrator> {
       padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       value: value,
       child: Material(
-        //color: Colors.transparent,
         color: AppColors.drawerBackground,
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 10),
