@@ -58,7 +58,7 @@ class GalleryApp extends StatelessWidget {
           final hasHinge = MediaQuery.of(context).hinge?.bounds != null;
           return MaterialApp(
             restorationScopeId: 'rootGallery',
-            title: 'AppGallery',
+            title: "AI启示录",
             debugShowCheckedModeBanner: false,
             themeMode: options.themeMode,
             theme: GalleryThemeData.lightThemeData.copyWith(
