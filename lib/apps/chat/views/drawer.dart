@@ -11,7 +11,7 @@ import '../models/pages.dart';
 import '../models/user.dart';
 import 'administrator.dart';
 import '../utils/global.dart';
-import '../views/bots.dart';
+import './bots_centre.dart';
 
 class ChatDrawer extends StatefulWidget {
   final double drawersize;
