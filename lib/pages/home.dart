@@ -139,44 +139,62 @@ class HomePage extends StatelessWidget {
     if (isDesktop) {
       // Desktop layout
       return Scaffold(
-        body: ListView(
-          // Makes integration tests possible.
-          key: const ValueKey('HomeListView'),
-          primary: true,
-          padding: const EdgeInsetsDirectional.only(
-            top: firstHeaderDesktopTopPadding,
-          ),
+        body: Column(
           children: [
-            _DesktopHomeItem(child: _GalleryHeader()),
-            _DesktopCarousel(
-              height: _carouselHeight(0.7, context),
-              children: carouselCards,
-            ),
-            const SizedBox(height: 81),
-            _DesktopHomeItem(
-                child: Row(children: [
-              Expanded(
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  alignment: WrapAlignment.end,
-                  children: [
-                    SettingsAttribution(),
-                  ],
-                ),
+            Flexible(
+                child: ListView(
+              // Makes integration tests possible.
+              key: const ValueKey('HomeListView'),
+              primary: true,
+              padding: const EdgeInsetsDirectional.only(
+                top: firstHeaderDesktopTopPadding,
               ),
-            ])),
-            const SizedBox(height: 109),
+              children: [
+                _DesktopHomeItem(child: _GalleryHeader()),
+                _DesktopCarousel(
+                  height: _carouselHeight(0.7, context),
+                  children: carouselCards,
+                ),
+                const SizedBox(height: 81),
+                _DesktopHomeItem(
+                    child: Row(children: [
+                  Expanded(
+                    child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      alignment: WrapAlignment.end,
+                      children: [
+                        SettingsAttribution(),
+                      ],
+                    ),
+                  ),
+                ])),
+                const SizedBox(height: 109),
+              ],
+            )),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Text("welcome"),
+            ),
+            const SizedBox(height: 15),
           ],
         ),
       );
     } else {
       // Mobile layout
       return Scaffold(
-        body: _AnimatedHomePage(
-          restorationId: 'animated_page',
-          isSplashPageAnimationFinished: true,
-          carouselCards: carouselCards,
-        ),
+        body: Column(children: [
+          Flexible(
+              child: _AnimatedHomePage(
+            restorationId: 'animated_page',
+            isSplashPageAnimationFinished: true,
+            carouselCards: carouselCards,
+          )),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Text("welcome"),
+          ),
+          const SizedBox(height: 5),
+        ]),
       );
     }
   }
