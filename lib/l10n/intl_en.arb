@@ -1,5 +1,9 @@
 {
-  "homeHeaderGallery": "APP",
+  "appTitle": "AI ASSISTANT",
+  "@appTitle": {
+    "description": "app title"
+  },
+  "homeHeaderGallery": "Asssistants",
   "@homeHeaderGallery": {
     "description": "Header title on home screen for Gallery section."
   },
