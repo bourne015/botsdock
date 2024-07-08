@@ -88,6 +88,10 @@ const supportedFiles = [
   ...supportedImageFiles,
   //...supportedTextFiles,
 ];
+const supportedFiles1 = [
+  ...supportedImageFiles,
+  ...supportedTextFiles,
+];
 
 const double drawerWidth = 260;
 
@@ -101,4 +105,26 @@ const String aboutText = """
 任何问题或建议请联系: phantasy018@gmail.com
 """;
 
-const String appVersion = "0.3.8";
+const String function_sample1 = """
+{
+  "name": "get_weather",
+  "description": "Determine weather in my location",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "location": {
+        "type": "string",
+        "description": "The city and state e.g. San Francisco, CA"
+      },
+      "unit": {
+        "type": "string",
+        "enum": ["c", "f"]
+      }
+    },
+    "required": [
+      "location"
+    ]
+  }
+}
+""";
+const String appVersion = "0.4.0";

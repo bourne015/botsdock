@@ -123,6 +123,20 @@ class Pages with ChangeNotifier {
       groupedPages[pData].add(_page);
     }
   }
+
+  /**
+   * search for target bot
+   */
+  int checkBot(int bot_id) {
+    for (var entry in _pages.entries) {
+      var _pid = entry.key;
+      var _chatpage = entry.value;
+      if (_chatpage.botID == bot_id) {
+        return _pid;
+      }
+    }
+    return -1;
+  }
 }
 
 class Property with ChangeNotifier {

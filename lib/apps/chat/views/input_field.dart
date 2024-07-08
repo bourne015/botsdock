@@ -331,6 +331,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
       debugPrint("_submitText error: $e");
       pages.getPage(handlePageID).onGenerating = false;
     }
-    chats.submitText(pages, property, handlePageID, user);
+    if (pages.getPage(handlePageID).assistantID != null)
+      chats.submitAssistant(pages, property, handlePageID, user);
+    else
+      chats.submitText(pages, property, handlePageID, user);
   }
 }

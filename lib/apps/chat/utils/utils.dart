@@ -189,6 +189,63 @@ class ChatGen {
     }
   }
 
+  void submitAssistant(
+      Pages pages, Property property, int handlePageID, user) async {
+    bool _isNewReply = true;
+    var assistant_id = pages.getPage(handlePageID).assistantID;
+    var thread_id = pages.getPage(handlePageID).threadID;
+    var _url =
+        "https://fantao.life:8001/v1/assistant/vs/${assistant_id}/threads/${thread_id}/messages";
+    try {
+      var chatData = {
+        "role": "user",
+        "content": pages.getPage(handlePageID).chatScheme.last["content"],
+      };
+      ////debugPrint("send question: ${chatData["question"]}");
+      final stream = chatServer.connect(
+        _url,
+        "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'text/event-stream'
+        },
+        body: jsonEncode(chatData),
+      );
+      pages.getPage(handlePageID).onGenerating = true;
+      stream.listen((data) {
+        if (_isNewReply) {
+          Message msgA = Message(
+              id: pages.getPage(handlePageID).messages.length,
+              pageID: handlePageID,
+              role: MessageRole.assistant,
+              type: MsgType.text,
+              content: data,
+              timestamp: DateTime.now().millisecondsSinceEpoch);
+          pages.addMessage(handlePageID, msgA);
+        } else {
+          pages.appendMessage(handlePageID, data);
+        }
+        pages.getPage(handlePageID).onGenerating = true;
+        _isNewReply = false;
+      }, onError: (e) {
+        debugPrint('SSE error: $e');
+        pages.getPage(handlePageID).onGenerating = false;
+      }, onDone: () async {
+        debugPrint('SSE complete');
+        pages.getPage(handlePageID).onGenerating = false;
+        // var pageTitle = pages.getPage(handlePageID).title;
+        // if (pageTitle.length >= 6 && pageTitle.substring(0, 6) == "Chat 0") {
+        //   await titleGenerate(pages, handlePageID);
+        // }
+        saveChats(user, pages, handlePageID);
+        updateCredit(user);
+      });
+    } catch (e) {
+      debugPrint("gen error: $e");
+      pages.getPage(handlePageID).onGenerating = false;
+    }
+  }
+
   void submitText(
       Pages pages, Property property, int handlePageID, user) async {
     bool _isNewReply = true;
@@ -275,7 +332,7 @@ class ChatGen {
     int handlePageID = pages.addPage(Chat(title: name), sort: true);
     property.onInitPage = false;
     pages.currentPageID = handlePageID;
-    pages.setPageTitle(handlePageID, name + " - $handlePageID");
+    pages.setPageTitle(handlePageID, name);
     pages.currentPage?.modelVersion = property.initModelVersion;
 
     Message msgQ = Message(
