@@ -7,6 +7,9 @@ import '../views/message_box.dart';
 class Chat {
   int? id = -1;
   int _dbID = -1;
+  int? _botID;
+  String? _assistantID;
+  String? _threadID;
   int updated_at = DateTime.now().millisecondsSinceEpoch ~/ 1000;
   List<Message> messages = [];
   List<Widget> messageBox = [];
@@ -36,6 +39,21 @@ class Chat {
   int get dbID => _dbID;
   set dbID(int v) {
     _dbID = v;
+  }
+
+  int? get botID => _botID;
+  set botID(int? v) {
+    _botID = v;
+  }
+
+  String? get assistantID => _assistantID;
+  set assistantID(String? v) {
+    _assistantID = v;
+  }
+
+  String? get threadID => _threadID;
+  set threadID(String? v) {
+    _threadID = v;
   }
 
   void addMessage(Message newMsg) {

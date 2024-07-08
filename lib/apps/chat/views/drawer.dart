@@ -5,6 +5,7 @@ import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import '../models/chat.dart';
+import '../utils/assistants_api.dart';
 import '../utils/constants.dart';
 import '../utils/utils.dart';
 import '../models/pages.dart';
@@ -197,6 +198,7 @@ class ChatPageTab extends StatefulWidget {
   final Pages pages;
   final Chat page;
   final Property property;
+  final assistant = AssistantsAPI();
 
   ChatPageTab(
       {required this.context,
@@ -210,6 +212,7 @@ class ChatPageTab extends StatefulWidget {
 
 class _ChatPageTabState extends State<ChatPageTab> {
   bool isHovered = false;
+  final assistant = AssistantsAPI();
 
   @override
   Widget build(BuildContext context) {
@@ -268,6 +271,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
         onPressed: () async {
           var did = pages.getPage(removeID).dbID;
           var msgs = pages.getPage(removeID).messages;
+          var tid = pages.getPage(removeID).threadID;
           pages.delPage(removeID);
           if (removeID == pages.currentPageID) {
             pages.currentPageID = -1;
@@ -285,6 +289,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
                 uri.path.startsWith('/') ? uri.path.substring(1) : uri.path;
             Client().deleteObject(path);
           }
+          if (tid != null) await assistant.deleteThread(tid);
         },
       ),
     ]);

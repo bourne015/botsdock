@@ -5,6 +5,7 @@ import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 import "../utils/constants.dart";
 import '../utils/utils.dart';
 import './new_bot.dart';
+import '../utils/assistants_api.dart';
 
 class Bots extends StatefulWidget {
   final bots;
@@ -27,6 +28,7 @@ class BotsState extends State<Bots> {
   final ChatGen chats = ChatGen();
   var user_likes = [];
   var botsPublicMe = [];
+  final assistant = AssistantsAPI();
 
   @override
   void initState() {
@@ -89,7 +91,11 @@ class BotsState extends State<Bots> {
 
   void deleteBot(bot) async {
     var _delBotURL = botURL + "/${bot["id"]}";
-    var resp = await Dio().delete(_delBotURL);
+    var assistant_id = "";
+    if (bot["file_search"] || bot["code_interpreter"] || bot["functions"])
+      assistant_id = bot["assistant_id"];
+    var resp = await Dio()
+        .delete(_delBotURL, queryParameters: {"assistant_id": assistant_id});
     if (resp.data["result"] == "success") {
       setState(() {
         //widget.bots
@@ -175,10 +181,10 @@ class BotsState extends State<Bots> {
     required var bot,
     required onTab,
   }) {
-    String image = bot["avatar"];
+    String? image = bot["avatar"];
     String title = bot["name"];
     String description = bot["description"];
-    String creator = bot["author_name"];
+    String? creator = bot["author_name"] ?? "anonymous";
     return Card(
         color: Color.fromARGB(255, 244, 244, 244),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -194,11 +200,13 @@ class BotsState extends State<Bots> {
               children: [
                 ClipRRect(
                     borderRadius: BorderRadius.circular(80),
-                    child: Image.network(
-                      image,
-                      width: 80,
-                      height: 80,
-                    )),
+                    child: image != null
+                        ? Image.network(
+                            image,
+                            width: 80,
+                            height: 80,
+                          )
+                        : Container(height: 80, width: 80)),
                 SizedBox(width: 30),
                 Expanded(
                     child: Column(
@@ -250,11 +258,24 @@ class BotsState extends State<Bots> {
     return buildListItem(
         rank: index,
         bot: bot,
-        onTab: () {
+        onTab: () async {
           if (widget.user.isLogedin) {
             Navigator.pop(context);
-            chats.newBot(widget.pages, widget.property, widget.user,
-                bot["name"], bot["prompts"]);
+            int _pid = widget.pages.checkBot(bot["id"]);
+            if (_pid >= 0) {
+              widget.pages.currentPageID = _pid;
+              widget.property.onInitPage = false;
+            } else if (bot["assistant_id"] != null) {
+              print("this is a assistant");
+              var thread_id = await assistant.createThread();
+              //TODO: save thread_id to bot in db
+              assistant.newassistant(
+                  widget.pages, widget.property, widget.user, bot, thread_id);
+            } else {
+              print("this is general bot");
+              chats.newBot(widget.pages, widget.property, widget.user,
+                  bot["name"], bot["prompts"]);
+            }
           }
         });
   }
