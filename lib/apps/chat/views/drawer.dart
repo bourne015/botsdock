@@ -216,6 +216,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
 
   @override
   Widget build(BuildContext context) {
+    var bot_id = widget.page.botID;
     return MouseRegion(
       onEnter: (event) {
         setState(() {
@@ -234,7 +235,12 @@ class _ChatPageTabState extends State<ChatPageTab> {
         ),
         selectedTileColor: AppColors.drawerTabSelected,
         selected: widget.pages.currentPageID == widget.page.id,
-        //leading: const Icon(Icons.chat_bubble_outline, size: 16),
+        leading: bot_id != null
+            ? Icon(
+                Icons.deblur,
+                size: 15,
+              )
+            : null,
         minLeadingWidth: 0,
         contentPadding: const EdgeInsets.fromLTRB(10, 0, 3, 0),
         title: RichText(
