@@ -25,6 +25,8 @@ class MessageBox extends StatefulWidget {
 
 class MessageBoxState extends State<MessageBox> {
   static bool _hasCopyIcon = false;
+  final ScrollController _attachmentscroll = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return widget.val['role'] != MessageRole.system
@@ -213,7 +215,10 @@ class MessageBoxState extends State<MessageBox> {
     if (widget.val["type"] == MsgType.image) {
       return contentImage(context);
     } else if (widget.val["type"] == MsgType.file) {
-      return contentFile(context, fileBytes);
+      //return contentFile(context, fileBytes);
+      return Container(
+          height: 80,
+          child: attachmentList(context, widget.val["attachments"]));
     }
     return Container();
   }
@@ -236,6 +241,45 @@ class MessageBoxState extends State<MessageBox> {
         onDeleted: null,
         onPressed: () {},
       ),
+    );
+  }
+
+  Widget attachedFileIcon(
+      BuildContext context, String attachedFileName, attachFile) {
+    return Container(
+      alignment: Alignment.topCenter,
+      decoration: BoxDecoration(
+          color: AppColors.inputBoxBackground,
+          borderRadius: const BorderRadius.all(Radius.circular(10))),
+      child: ListTile(
+        dense: true,
+        title: Text(attachedFileName, overflow: TextOverflow.ellipsis),
+        leading: Icon(Icons.description_outlined, color: Colors.pink[300]),
+      ),
+    );
+  }
+
+  Widget attachmentList(BuildContext context, attachments) {
+    final width = MediaQuery.of(context).size.width;
+    final int crossAxisCount = (width ~/ 300).clamp(1, 3);
+    final double childAspectRatio = (width / crossAxisCount) / 80.0;
+    final hpaddng = isDisplayDesktop(context) ? 15.0 : 15.0;
+    return GridView.builder(
+      key: UniqueKey(),
+      controller: _attachmentscroll,
+      shrinkWrap: true,
+      padding: EdgeInsets.symmetric(horizontal: hpaddng, vertical: 5),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        mainAxisSpacing: 10.0,
+        crossAxisSpacing: 20.0,
+        childAspectRatio: childAspectRatio,
+        crossAxisCount: crossAxisCount,
+      ),
+      itemCount: attachments.entries.length,
+      itemBuilder: (BuildContext context, int index) {
+        MapEntry entry = attachments.entries.elementAt(index);
+        return attachedFileIcon(context, entry.key, entry.value);
+      },
     );
   }
 

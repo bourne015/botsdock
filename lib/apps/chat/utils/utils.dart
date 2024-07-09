@@ -192,8 +192,8 @@ class ChatGen {
     }
   }
 
-  void submitAssistant(
-      Pages pages, Property property, int handlePageID, user) async {
+  void submitAssistant(Pages pages, Property property, int handlePageID, user,
+      attachments) async {
     bool _isNewReply = true;
     var assistant_id = pages.getPage(handlePageID).assistantID;
     var thread_id = pages.getPage(handlePageID).threadID;
@@ -203,6 +203,7 @@ class ChatGen {
       var chatData = {
         "role": "user",
         "content": pages.getPage(handlePageID).chatScheme.last["content"],
+        "attachments": attachments.values.toList()
       };
       ////debugPrint("send question: ${chatData["question"]}");
       final stream = chatServer.connect(

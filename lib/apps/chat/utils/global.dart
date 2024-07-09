@@ -84,6 +84,7 @@ class Global {
           fileName: m["fileName"],
           fileBytes: m["fileBytes"],
           fileUrl: m["fileUrl"],
+          attachments: m["attachments"],
           timestamp: m["timestamp"]);
       pages.addMessage(pid, msgQ);
     }

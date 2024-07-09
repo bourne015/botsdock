@@ -10,6 +10,7 @@ class Message {
   String? fileName;
   List<int>? fileBytes;
   String? fileUrl;
+  Map? attachments;
   final int? timestamp;
 
   Message({
@@ -21,6 +22,7 @@ class Message {
     this.fileName,
     this.fileBytes,
     this.fileUrl,
+    this.attachments,
     required this.timestamp,
   });
 
@@ -92,6 +94,7 @@ class Message {
       "fileName": fileName,
       "fileBytes": null,
       "fileUrl": fileUrl,
+      "attachments": attachments,
       "content": content,
       "timestamp": timestamp
     };
