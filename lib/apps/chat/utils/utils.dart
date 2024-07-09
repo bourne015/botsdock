@@ -153,6 +153,9 @@ class ChatGen {
         "title": pages.getPage(handlePageID).title,
         "contents": pages.getPage(handlePageID).dbScheme,
         "model": pages.getPage(handlePageID).modelVersion,
+        "assistant_id": pages.getPage(handlePageID).assistantID,
+        "thread_id": pages.getPage(handlePageID).threadID,
+        "bot_id": pages.getPage(handlePageID).botID,
       };
 
       Response cres = await dio.post(

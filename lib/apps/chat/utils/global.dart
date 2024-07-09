@@ -61,6 +61,9 @@ class Global {
     pages.getPage(pid).modelVersion = c["model"];
     pages.getPage(pid).dbID = c["id"];
     pages.getPage(pid).updated_at = c["updated_at"];
+    pages.getPage(pid).assistantID = c["assistant_id"];
+    pages.getPage(pid).threadID = c["thread_id"];
+    pages.getPage(pid).botID = c["bot_id"];
     var msgContent;
     for (var m in c["contents"]) {
       //print("load: $m");
