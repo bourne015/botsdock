@@ -68,29 +68,31 @@ const supportedImageFiles = [
   'gif',
 ];
 
-const supportedTextFiles = [
-  'txt',
-  'md',
-  'sh',
-  'bash',
-  'py',
-  'dart',
-  'java',
-  'cpp',
-  'hpp',
-  'c',
-  'h',
-  'html',
-  'css',
-  'json',
-];
 const supportedFiles = [
-  ...supportedImageFiles,
-  //...supportedTextFiles,
+  'c',
+  'cs',
+  'cpp',
+  'doc',
+  'docx',
+  'html',
+  'java',
+  'json',
+  'md',
+  'pdf',
+  'php',
+  'pptx',
+  'py',
+  'rb',
+  'tex',
+  'txt',
+  'css',
+  'js',
+  'sh'
 ];
+
 const supportedFiles1 = [
   ...supportedImageFiles,
-  ...supportedTextFiles,
+  ...supportedFiles,
 ];
 
 const double drawerWidth = 260;

@@ -67,7 +67,8 @@ class Chat {
           "content": newMsg.content,
           "fileName": newMsg.fileName,
           "fileBytes": newMsg.fileBytes,
-          "fileUrl": newMsg.fileUrl
+          "fileUrl": newMsg.fileUrl,
+          "attachments": newMsg.attachments
         }),
       );
       var trNewMsg = newMsg.toMap(modelVersion);
@@ -100,7 +101,8 @@ class Chat {
       "content": msg.content,
       "fileName": msg.fileName,
       "fileBytes": msg.fileBytes,
-      "fileUrl": msg.fileUrl
+      "fileUrl": msg.fileUrl,
+      "attachments": msg.attachments
     });
 
     // if (msg.role == MessageRole.user)
