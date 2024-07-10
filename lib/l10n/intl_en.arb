@@ -160,5 +160,29 @@
   "botCreateTitle" : "customize bot",
   "@botCreateTitle": {
     "description": "bot Create Title"
+  },
+  "fileSearch" : "File search",
+  "@fileSearch": {
+    "description": "file Search"
+  },
+  "codeInterpreter" : "Code interpreter",
+  "@codeInterpreter": {
+    "description": "code interpreter"
+  },
+  "functions" : "Functions",
+  "@functions": {
+    "description": "Functions"
+  },
+  "fileSearchTip" : "File search enables the assistant with knowledge from files that you or your users upload.\nOnce a file is uploaded, the assistant automatically decides when to retrieve content based on user requests.",
+  "@fileSearchtip": {
+    "description": "fileSearch tooltip"
+  },
+  "codeInterpreterTip" : "Code Interpreter enables the assistant to write and run code.\nThis tool can process files with diverse data and formatting, and generate files such as graphs.",
+  "@codeInterpreterTip": {
+    "description": "codeInterpreter tooltip"
+  },
+  "functionsTip" : "Function calling lets you describe custom functions of your app or external APIs to the assistant.\nThis allows the assistant to intelligently call those functions by outputting a JSON object containing relevant arguments.",
+  "@functionsTip": {
+    "description": "functionsTip tooltip"
   }
 }

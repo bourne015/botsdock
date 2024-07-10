@@ -457,12 +457,12 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
             margin: EdgeInsets.only(left: 10),
             child: Text(
                 textAlign: TextAlign.center,
-                'File search',
+                GalleryLocalizations.of(context)!.fileSearch,
                 style: TextStyle(fontSize: 15))),
         IconButton(
           onPressed: null,
           icon: Icon(Icons.info_outline, size: 15),
-          tooltip: "this is file search",
+          tooltip: GalleryLocalizations.of(context)!.fileSearchTip,
         )
       ]),
       FilledButton.tonalIcon(
@@ -610,12 +610,12 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
               margin: EdgeInsets.only(left: 10, right: 10),
               child: Text(
                   textAlign: TextAlign.center,
-                  'Code interpreter',
+                  GalleryLocalizations.of(context)!.codeInterpreter,
                   style: TextStyle(fontSize: 15))),
           IconButton(
             onPressed: null,
             icon: Icon(Icons.info_outline, size: 15),
-            tooltip: "test",
+            tooltip: GalleryLocalizations.of(context)!.codeInterpreterTip,
           )
         ],
       ),
@@ -629,7 +629,6 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   }
 
   Widget listCodeInterpreterFiles(BuildContext context) {
-    print("********we rebuild cp");
     return StatefulBuilder(builder: (context, setState) {
       return Column(
         children: codeInterpreterFilesID.entries.map((entry) {
@@ -792,7 +791,15 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Container(
           margin: EdgeInsets.only(right: 75),
-          child: Text('Functions', style: TextStyle(fontSize: 15))),
+          child: Row(children: [
+            Text(GalleryLocalizations.of(context)!.functions,
+                style: TextStyle(fontSize: 15)),
+            IconButton(
+              onPressed: null,
+              icon: Icon(Icons.info_outline, size: 15),
+              tooltip: GalleryLocalizations.of(context)!.functionsTip,
+            )
+          ])),
       FilledButton.tonalIcon(
           icon: Icon(Icons.add),
           onPressed: () {
