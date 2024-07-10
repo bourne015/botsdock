@@ -65,10 +65,8 @@ class Chat {
           "role": newMsg.role,
           "type": newMsg.type,
           "content": newMsg.content,
-          "fileName": newMsg.fileName,
-          "fileBytes": newMsg.fileBytes,
-          "fileUrl": newMsg.fileUrl,
-          "attachments": newMsg.attachments
+          "visionFiles": newMsg.visionFiles,
+          "attachments": newMsg.attachments,
         }),
       );
       var trNewMsg = newMsg.toMap(modelVersion);
@@ -91,22 +89,20 @@ class Chat {
     _dbScheme.last["content"] = messages[lastMsgID].content;
   }
 
-  void updateFileUrl(int msgId, String url) {
+  void updateFileUrl(int msgId, String filename, String url) {
     //int lastMsgID = messages.isNotEmpty ? messages.length - 1 : 0;
-    messages[msgId].fileUrl = url;
+    messages[msgId].visionFiles![filename]!.url = url;
     var msg = messages[msgId];
     messageBox[0] = MessageBox(val: {
       "role": msg.role,
       "type": msg.type,
       "content": msg.content,
-      "fileName": msg.fileName,
-      "fileBytes": msg.fileBytes,
-      "fileUrl": msg.fileUrl,
+      "visionFiles": msg.visionFiles,
       "attachments": msg.attachments
     });
 
     // if (msg.role == MessageRole.user)
     //   _chatScheme.last["content"][1]["image_url"]["url"] = url;
-    _dbScheme[msgId]["fileUrl"] = url;
+    _dbScheme[msgId]["visionFiles"][filename]["url"] = url;
   }
 }

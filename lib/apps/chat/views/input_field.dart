@@ -9,6 +9,7 @@ import 'package:file_picker/file_picker.dart';
 import '../models/pages.dart';
 import '../models/chat.dart';
 import '../models/message.dart';
+import '../models/data.dart';
 import '../utils/constants.dart';
 import '../utils/utils.dart';
 import '../utils/assistants_api.dart';
@@ -24,16 +25,14 @@ class _ChatInputFieldState extends State<ChatInputField> {
   final ChatGen chats = ChatGen();
   final _controller = TextEditingController();
   bool _hasInputContent = false;
-  String? _fileName;
   MsgType _type = MsgType.text;
-  List<int>? _fileBytes;
   final assistant = AssistantsAPI();
   final ScrollController _attachmentscroll = ScrollController();
-  //{"file_name":
-  //  {"file_id": file.id,
-  //   "tools": [{"type": "file_search"}]}
-  // }
+  final ScrollController _visionFilescroll = ScrollController();
+  //{file_name:{"file_id": "",
+  //   "tools": [{"type": "file_search"}]}}
   Map attachments = {};
+  Map<String, VisionFile> visionFiles = {};
 
   void dispose() {
     _attachmentscroll.dispose();
@@ -50,10 +49,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
       _modelV = property.initModelVersion;
     else
       _modelV = pages.currentPage?.modelVersion;
-    var _picButtonImg = Icons.image_rounded;
+    var _picButtonIcon = Icons.image_rounded;
     var _picButtonTip = "选择图片";
     if (!property.onInitPage && pages.currentPage!.assistantID != null) {
-      _picButtonImg = Icons.attachment;
+      _picButtonIcon = Icons.attachment;
       _picButtonTip = "选择文件";
     }
 
@@ -67,11 +66,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
       child: Row(
         children: [
           if (_modelV != GPTModel.gptv35 && _modelV != GPTModel.gptv40Dall)
-            pickButton(context, _picButtonTip, _picButtonImg)
+            pickButton(context, _picButtonTip, _picButtonIcon)
           else
-            const SizedBox(
-              width: 15,
-            ),
+            const SizedBox(width: 15),
           inputField(context),
           !user.isLogedin || user.credit! <= 0
               ? lockButton(context, user)
@@ -86,8 +83,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Widget inputField(BuildContext context) {
     return Expanded(
         child: Column(children: [
-      attathmentField(context),
-      const SizedBox(width: 8),
+      if (attachments.isNotEmpty)
+        Container(height: 70, child: attachmentsList(context)),
+      if (visionFiles.isNotEmpty)
+        Container(height: 70, child: visionFilesList(context)),
       textField(context),
     ]));
   }
@@ -120,35 +119,34 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
-  Widget attachedImageIcon(BuildContext context) {
+  Widget attachedImageIcon(BuildContext context, _name, _content) {
     return Container(
       decoration: BoxDecoration(
           //color: AppColors.inputBoxBackground,
           borderRadius: const BorderRadius.all(Radius.circular(15))),
-      margin: const EdgeInsets.all(5),
+      margin: const EdgeInsets.all(1),
       padding: const EdgeInsets.all(1),
       child: Row(
         children: [
-          Image.memory(Uint8List.fromList(_fileBytes!),
+          Image.memory(Uint8List.fromList(_content.bytes),
               height: 60, width: 60, fit: BoxFit.cover),
-          IconButton(
-            icon: const Icon(
-              Icons.close,
-              size: 12,
-            ),
-            onPressed: () {
-              setState(() {
-                _fileName = null;
-                _type = MsgType.text;
-              });
-            },
-          ),
+          Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                icon: const Icon(Icons.close, size: 12),
+                onPressed: () {
+                  setState(() {
+                    visionFiles.remove(_name); //TODO: delete in oss
+                    if (visionFiles.isEmpty) _type = MsgType.text;
+                  });
+                },
+              )),
         ],
       ),
     );
   }
 
-  Widget attachmentList(BuildContext context) {
+  Widget attachmentsList(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final int crossAxisCount = (width ~/ 300).clamp(1, 3);
     final double childAspectRatio = (width / crossAxisCount) / 80.0;
@@ -172,11 +170,28 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
-  Widget attathmentField(BuildContext context) {
-    if (_type == MsgType.text) return Container();
-    if (_type == MsgType.file)
-      return Container(height: 70, child: attachmentList(context));
-    return attachedImageIcon(context);
+  Widget visionFilesList(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final int crossAxisCount = (width ~/ 300).clamp(1, 6);
+    final double childAspectRatio = (width / crossAxisCount) / 110.0;
+    final hpaddng = isDisplayDesktop(context) ? 15.0 : 15.0;
+    return GridView.builder(
+      key: UniqueKey(),
+      controller: _visionFilescroll,
+      shrinkWrap: true,
+      padding: EdgeInsets.symmetric(horizontal: hpaddng, vertical: 5),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        mainAxisSpacing: 10.0,
+        crossAxisSpacing: 20.0,
+        childAspectRatio: childAspectRatio,
+        crossAxisCount: crossAxisCount,
+      ),
+      itemCount: visionFiles.entries.length,
+      itemBuilder: (BuildContext context, int index) {
+        MapEntry entry = visionFiles.entries.elementAt(index);
+        return attachedImageIcon(context, entry.key, entry.value);
+      },
+    );
   }
 
   Widget textField(BuildContext context) {
@@ -247,7 +262,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   bool isContentReady(Pages pages, Property property) {
     bool isReady = false;
-    if ((_fileName != null || _hasInputContent) &&
+    if ((visionFiles.isNotEmpty ||
+            attachments.isNotEmpty ||
+            _hasInputContent) &&
         (property.onInitPage ||
             (pages.currentPageID >= 0 && !pages.currentPage!.onGenerating)))
       isReady = true;
@@ -275,8 +292,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
               _submitText(pages, property, newPageId, _controller.text, user);
               _controller.clear();
               _hasInputContent = false;
-              //_fileName = null;
               attachments.clear();
+              visionFiles.clear();
               _type = MsgType.text;
             }
           : () {},
@@ -295,16 +312,20 @@ class _ChatInputFieldState extends State<ChatInputField> {
     }
     if (result != null) {
       final fileName = result.files.first.name;
-      setState(() {
-        attachments[fileName] = {};
-      });
+
       String fileType = fileName.split('.').last.toLowerCase();
       debugPrint('Selected file: $fileName, type: $fileType');
       if (supportedFiles.contains(fileType)) {
+        setState(() {
+          attachments[fileName] = {};
+        });
         _type = MsgType.file;
         _getTextFile(result);
       } else if (supportedImageFiles.contains(fileType)) {
         _type = MsgType.image;
+        setState(() {
+          visionFiles[fileName] = VisionFile(name: fileName);
+        });
         _getImage(result);
       } else {
         print("unknow");
@@ -328,35 +349,19 @@ class _ChatInputFieldState extends State<ChatInputField> {
     });
   }
 
-  Future<void> _getImage(imagefile) async {
+  Future<void> _getImage(selectedfile) async {
     setState(() {
-      _fileName = imagefile.files.first.name;
+      visionFiles[selectedfile.files.first.name]!.bytes =
+          selectedfile.files.first.bytes;
     });
-    _fileBytes = imagefile.files.first.bytes;
   }
 
-  Map deepCopy(Map original) {
-    Map copy = {};
-    original.forEach((key, value) {
-      if (value is Map)
-        copy[key] = deepCopy(value);
-      else if (value is List)
-        copy[key] = deepCopyList(value);
-      else
-        copy[key] = value;
-    });
-    return copy;
-  }
-
-  List deepCopyList(List original) {
-    List copy = [];
-    original.forEach((element) {
-      if (element is Map)
-        copy.add(deepCopy(element));
-      else if (element is List)
-        copy.add(deepCopyList(element));
-      else
-        copy.add(element);
+  Map<String, VisionFile> _deepcopy(Map? original) {
+    Map<String, VisionFile> copy = {};
+    if (original == null) return copy;
+    original.forEach((_filename, _content) {
+      copy[_filename] =
+          VisionFile(name: _filename, bytes: _content.bytes, url: _content.url);
     });
     return copy;
   }
@@ -366,21 +371,24 @@ class _ChatInputFieldState extends State<ChatInputField> {
     try {
       pages.getPage(handlePageID).onGenerating = true;
       var ts = DateTime.now().millisecondsSinceEpoch;
+      Map<String, VisionFile> _v = _deepcopy(visionFiles);
+      Map _a = _deepcopy(attachments);
       Message msgQ = Message(
           id: pages.getPage(handlePageID).messages.length,
           pageID: handlePageID,
           role: MessageRole.user,
           type: _type,
           content: text,
-          fileName: _fileName,
-          fileBytes: _fileBytes,
-          //fileUrl: ossUrl,
-          attachments: deepCopy(attachments),
+          visionFiles: _v,
+          attachments: _a,
           timestamp: ts);
       pages.addMessage(handlePageID, msgQ);
-      if (_type == MsgType.image && _fileBytes != null) {
-        String oss_name = "user${user.id}_${handlePageID}_${ts}" + _fileName!;
-        chats.uploadImage(pages, handlePageID, msgQ.id, oss_name, _fileBytes);
+      if (_v.isNotEmpty) {
+        visionFiles.forEach((_filename, _content) {
+          String oss_name = "user${user.id}_${handlePageID}_${ts}" + _filename;
+          chats.uploadImage(pages, handlePageID, msgQ.id, oss_name, _filename,
+              _content.bytes);
+        });
       }
     } catch (e) {
       debugPrint("_submitText error: $e");

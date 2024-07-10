@@ -79,8 +79,8 @@ class Pages with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateFileUrl(int pageID, int msgId, String url) {
-    _pages[pageID]?.updateFileUrl(msgId, url);
+  void updateFileUrl(int pageID, int msgId, String filename, String url) {
+    _pages[pageID]?.updateFileUrl(msgId, filename, url);
   }
 
   List<Message>? getMessages(int pageID) => _pages[pageID]?.messages;
