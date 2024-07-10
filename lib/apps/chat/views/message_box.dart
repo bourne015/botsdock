@@ -223,27 +223,6 @@ class MessageBoxState extends State<MessageBox> {
     return Container();
   }
 
-  Widget contentFile(BuildContext context, imageB64Url) {
-    return Container(
-      alignment: Alignment.topLeft,
-      decoration: BoxDecoration(
-          //color: AppColors.inputBoxBackground,
-          borderRadius: const BorderRadius.all(Radius.circular(15))),
-      margin: const EdgeInsets.all(5),
-      padding: const EdgeInsets.all(1),
-      child: InputChip(
-        side: BorderSide.none,
-        label: Text(widget.val["fileName"]!),
-        avatar: const Icon(
-          Icons.file_copy_outlined,
-          size: 16,
-        ),
-        onDeleted: null,
-        onPressed: () {},
-      ),
-    );
-  }
-
   Widget attachedFileIcon(
       BuildContext context, String attachedFileName, attachFile) {
     return Container(

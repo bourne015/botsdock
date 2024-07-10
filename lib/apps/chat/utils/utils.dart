@@ -205,7 +205,8 @@ class ChatGen {
       var chatData = {
         "role": "user",
         "content": pages.getPage(handlePageID).chatScheme.last["content"],
-        "attachments": attachments.values.toList()
+        "attachments":
+            attachments.values.map((attachment) => attachment.toJson()).toList()
       };
       ////debugPrint("send question: ${chatData["question"]}");
       final stream = chatServer.connect(
@@ -265,6 +266,7 @@ class ChatGen {
         pages.getPage(handlePageID).onGenerating = false;
 
         var mt = DateTime.now().millisecondsSinceEpoch;
+        String _aiImageName = "ai${user.id}_${handlePageID}_${mt}.png";
         Message msgA = Message(
             id: pages.getPage(handlePageID).messages.length,
             pageID: handlePageID,
@@ -272,7 +274,7 @@ class ChatGen {
             type: MsgType.image,
             //fileUrl: ossUrl,
             visionFiles: {
-              "ai_file": VisionFile(
+              _aiImageName: VisionFile(
                   name: "ai_file", bytes: base64Decode(response.data))
             },
             content: "",
@@ -282,9 +284,9 @@ class ChatGen {
             pages.getPage(handlePageID).title == "Chat 0") {
           await titleGenerate(pages, handlePageID);
         }
-        String oss_name = "ai${user.id}_${handlePageID}_${mt}.png";
-        await uploadImage(pages, handlePageID, msgA.id, oss_name, oss_name,
-            base64Decode(response.data));
+
+        await uploadImage(pages, handlePageID, msgA.id, _aiImageName,
+            _aiImageName, base64Decode(response.data));
         saveChats(user, pages, handlePageID);
       } else {
         var chatData = {

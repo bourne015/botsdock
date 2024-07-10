@@ -86,6 +86,13 @@ class Global {
           }));
         }
 
+        Map<String, Attachment> _afs = {};
+        if (m["attachments"] != null && m["attachments"].isNotEmpty) {
+          _afs = Map<String, Attachment>.fromEntries(
+              (m["attachments"] as Map<String, dynamic>).entries.map((entry) {
+            return MapEntry(entry.key, Attachment.fromJson(entry.value));
+          }));
+        }
         Message msgQ = Message(
             id: mid,
             pageID: pid,
@@ -93,7 +100,7 @@ class Global {
             type: MsgType.values[m["type"]],
             content: msgContent,
             visionFiles: _vfs,
-            attachments: m["attachments"],
+            attachments: _afs,
             timestamp: m["timestamp"]);
 
         pages.addMessage(pid, msgQ);
