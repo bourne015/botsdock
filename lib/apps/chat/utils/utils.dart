@@ -13,6 +13,7 @@ import 'package:fetch_client/fetch_client.dart';
 import '../models/chat.dart';
 import '../models/pages.dart';
 import '../models/message.dart';
+import '../models/data.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
 import '../utils/global.dart';
@@ -181,12 +182,13 @@ class ChatGen {
       user.credit = response.data["credit"];
   }
 
-  Future<void> uploadImage(pages, pid, msg_id, filename, imgData) async {
+  Future<void> uploadImage(
+      pages, pid, msg_id, oss_name, filename, imgData) async {
     try {
-      var resp = await Client().putObject(imgData, "chat/image/" + filename);
+      var resp = await Client().putObject(imgData, "chat/image/" + oss_name);
       String? ossUrl =
           (resp.statusCode == 200) ? resp.realUri.toString() : null;
-      if (ossUrl != null) pages.updateFileUrl(pid, msg_id, ossUrl);
+      if (ossUrl != null) pages.updateFileUrl(pid, msg_id, filename, ossUrl);
     } catch (e) {
       debugPrint("uploadImage to oss error: $e");
     }
@@ -269,7 +271,10 @@ class ChatGen {
             role: MessageRole.assistant,
             type: MsgType.image,
             //fileUrl: ossUrl,
-            fileBytes: base64Decode(response.data),
+            visionFiles: {
+              "ai_file": VisionFile(
+                  name: "ai_file", bytes: base64Decode(response.data))
+            },
             content: "",
             timestamp: mt);
         pages.addMessage(handlePageID, msgA);
@@ -278,7 +283,7 @@ class ChatGen {
           await titleGenerate(pages, handlePageID);
         }
         String oss_name = "ai${user.id}_${handlePageID}_${mt}.png";
-        await uploadImage(pages, handlePageID, msgA.id, oss_name,
+        await uploadImage(pages, handlePageID, msgA.id, oss_name, oss_name,
             base64Decode(response.data));
         saveChats(user, pages, handlePageID);
       } else {
@@ -366,4 +371,30 @@ class ChatGen {
     pages.addMessage(handlePageID, msgQ);
     submitText(pages, property, handlePageID, user);
   }
+}
+
+Map deepCopy(Map original) {
+  Map copy = {};
+  original.forEach((key, value) {
+    if (value is Map)
+      copy[key] = deepCopy(value);
+    else if (value is List)
+      copy[key] = deepCopyList(value);
+    else
+      copy[key] = value;
+  });
+  return copy;
+}
+
+List deepCopyList(List original) {
+  List copy = [];
+  original.forEach((element) {
+    if (element is Map)
+      copy.add(deepCopy(element));
+    else if (element is List)
+      copy.add(deepCopyList(element));
+    else
+      copy.add(element);
+  });
+  return copy;
 }

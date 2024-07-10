@@ -289,11 +289,13 @@ class _ChatPageTabState extends State<ChatPageTab> {
             Global.deleteChat(removeID, cres.data["updated_at"]);
           }
           for (var m in msgs) {
-            if (m.fileUrl == null) continue;
-            var uri = Uri.parse(m.fileUrl!);
-            var path =
-                uri.path.startsWith('/') ? uri.path.substring(1) : uri.path;
-            Client().deleteObject(path);
+            if (m.visionFiles == null || m.visionFiles!.isEmpty) continue;
+            m.visionFiles!.forEach((_filename, _content) {
+              var uri = Uri.parse(_content.url);
+              var path =
+                  uri.path.startsWith('/') ? uri.path.substring(1) : uri.path;
+              Client().deleteObject(path);
+            });
           }
           if (tid != null) await assistant.deleteThread(tid);
         },

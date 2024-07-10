@@ -26,6 +26,7 @@ class MessageBox extends StatefulWidget {
 class MessageBoxState extends State<MessageBox> {
   static bool _hasCopyIcon = false;
   final ScrollController _attachmentscroll = ScrollController();
+  final ScrollController _visionFilescroll = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +84,7 @@ class MessageBoxState extends State<MessageBox> {
           messageRoleName(context),
           //if (widget.val["type"] != MsgType.text)
           if (widget.val['role'] == MessageRole.user)
-            contentAttachment(context, widget.val["fileBytes"]),
+            contentAttachment(context),
           messageContent(context)
         ]),
       ),
@@ -105,11 +106,7 @@ class MessageBoxState extends State<MessageBox> {
   Widget messageContent(BuildContext context) {
     if (widget.val["type"] == MsgType.image &&
         widget.val['role'] == MessageRole.assistant) {
-      // String imgBase64Str = widget.val['fileBytes'];
-      // final Uint8List imgUint8List = base64Decode(imgBase64Str);
-      //String imageB64Url = "data:image/png;base64,$imgBase64Str";
-      //final Uint8List imgUint8List = widget.val['fileBytes'];
-      return contentImage(context);
+      return visionFilesList(context, widget.val["visionFiles"]);
     } else if (widget.val['role'] == MessageRole.user) {
       return SelectableText(
         widget.val['content'],
@@ -211,15 +208,18 @@ class MessageBoxState extends State<MessageBox> {
     );
   }
 
-  Widget contentAttachment(BuildContext context, fileBytes) {
-    if (widget.val["type"] == MsgType.image) {
-      return contentImage(context);
-    } else if (widget.val["type"] == MsgType.file) {
-      //return contentFile(context, fileBytes);
+  Widget contentAttachment(BuildContext context) {
+    if (widget.val["visionFiles"].isNotEmpty)
+      return Container(
+          height: 250,
+          child: visionFilesList(context, widget.val["visionFiles"]));
+    if (widget.val["attachments"].isNotEmpty)
       return Container(
           height: 80,
           child: attachmentList(context, widget.val["attachments"]));
-    }
+    // if (widget.val["type"] == MsgType.image) {
+    //   return contentImage(context);
+    // }
     return Container();
   }
 
@@ -283,10 +283,34 @@ class MessageBoxState extends State<MessageBox> {
     );
   }
 
-  Widget loadImage(BuildContext context, {height, width}) {
-    if (widget.val["fileUrl"] != null) {
+  Widget visionFilesList(BuildContext context, visionFiles) {
+    final width = MediaQuery.of(context).size.width;
+    final int crossAxisCount = (width ~/ 300).clamp(1, 3);
+    final double childAspectRatio = (width / crossAxisCount) / 400.0;
+    final hpaddng = isDisplayDesktop(context) ? 15.0 : 15.0;
+    return GridView.builder(
+      key: UniqueKey(),
+      controller: _visionFilescroll,
+      shrinkWrap: true,
+      padding: EdgeInsets.symmetric(horizontal: hpaddng, vertical: 5),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        mainAxisSpacing: 10.0,
+        crossAxisSpacing: 20.0,
+        childAspectRatio: childAspectRatio,
+        crossAxisCount: crossAxisCount,
+      ),
+      itemCount: visionFiles.entries.length,
+      itemBuilder: (BuildContext context, int index) {
+        MapEntry entry = visionFiles.entries.elementAt(index);
+        return contentImage(context, entry.key, entry.value);
+      },
+    );
+  }
+
+  Widget loadImage(BuildContext context, _filename, _content, {height, width}) {
+    if (_content.url.isNotEmpty) {
       return Image.network(
-        widget.val["fileUrl"],
+        _content.url,
         height: height,
         width: width,
         loadingBuilder: (context, child, loadingProgress) {
@@ -302,9 +326,9 @@ class MessageBoxState extends State<MessageBox> {
         },
         errorBuilder: (context, error, stackTrace) => Text('load image failed'),
       );
-    } else if (widget.val["fileBytes"] != null) {
+    } else if (_content.bytes.isNotEmpty) {
       return Image.memory(
-        widget.val["fileBytes"],
+        _content.bytes,
         height: height,
         width: width,
         errorBuilder: (context, error, stackTrace) => Text('load image failed'),
@@ -313,24 +337,25 @@ class MessageBoxState extends State<MessageBox> {
       return Text("load image failed");
   }
 
-  Widget contentImage(BuildContext context) {
+  Widget contentImage(BuildContext context, _filename, _content) {
     return GestureDetector(
         onTap: () {
-          if (widget.val["fileUrl"] != null || widget.val["fileBytes"] != null)
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return Dialog(child: loadImage(context));
-                });
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Dialog(child: loadImage(context, _filename, _content));
+              });
         },
         onLongPressStart: (details) {
-          if (widget.val["fileUrl"] != null || widget.val["fileBytes"] != null)
-            _showDownloadMenu(context, details.globalPosition);
+          _showDownloadMenu(
+              context, _filename, _content, details.globalPosition);
         },
-        child: loadImage(context, height: 250, width: 200));
+        child:
+            loadImage(context, _filename, _content, height: 250, width: 200));
   }
 
-  void _showDownloadMenu(BuildContext context, Offset position) {
+  void _showDownloadMenu(
+      BuildContext context, _filename, _content, Offset position) {
     final RenderBox? overlay =
         Overlay.of(context).context.findRenderObject() as RenderBox?;
     final RelativeRect positionRect = RelativeRect.fromLTRB(
@@ -361,17 +386,17 @@ class MessageBoxState extends State<MessageBox> {
       ],
     ).then((selectedValue) async {
       if (selectedValue == 'download') {
-        if (widget.val["fileUrl"] != null) {
+        if (_content.url.isNotEmpty) {
           // var uri = Uri.parse(widget.val["fileUrl"]);
           // String filenameExp = uri.pathSegments.last;
           // String filename = filenameExp.split('=').first;
           await WebImageDownloader.downloadImageFromWeb(
             name: "ai",
-            widget.val["fileUrl"],
+            _content.url,
           );
-        } else if (widget.val["fileBytes"] != null)
+        } else if (_content.bytes.isNotEmpty)
           await WebImageDownloader.downloadImageFromUInt8List(
-            uInt8List: widget.val["fileBytes"],
+            uInt8List: _content.bytes,
           );
       }
     });

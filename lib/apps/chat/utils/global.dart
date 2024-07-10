@@ -9,6 +9,7 @@ import '../models/chat.dart';
 import '../models/user.dart';
 import '../models/pages.dart';
 import '../models/message.dart';
+import '../models/data.dart';
 import '../utils/constants.dart';
 
 class Global {
@@ -57,36 +58,48 @@ class Global {
 
   static int restort_singel_page(User user, Pages pages, c) {
     var pid = c["page_id"];
-    pages.addPage(Chat(chatId: pid, title: c["title"]));
-    pages.getPage(pid).modelVersion = c["model"];
-    pages.getPage(pid).dbID = c["id"];
-    pages.getPage(pid).updated_at = c["updated_at"];
-    pages.getPage(pid).assistantID = c["assistant_id"];
-    pages.getPage(pid).threadID = c["thread_id"];
-    pages.getPage(pid).botID = c["bot_id"];
-    var msgContent;
-    for (var m in c["contents"]) {
-      //print("load: $m");
-      var smid = m["id"] ?? 0;
-      int mid = smid is String ? int.parse(smid) : smid;
-      if (MsgType.values[m["type"]] == MsgType.image &&
-          m["role"] == MessageRole.user &&
-          m["content"] is List) {
-        msgContent = jsonDecode(m["content"]);
-      } else
-        msgContent = m["content"];
-      Message msgQ = Message(
-          id: mid,
-          pageID: pid,
-          role: m["role"],
-          type: MsgType.values[m["type"]],
-          content: msgContent,
-          fileName: m["fileName"],
-          fileBytes: m["fileBytes"],
-          fileUrl: m["fileUrl"],
-          attachments: m["attachments"],
-          timestamp: m["timestamp"]);
-      pages.addMessage(pid, msgQ);
+    try {
+      pages.addPage(Chat(chatId: pid, title: c["title"]));
+      pages.getPage(pid).modelVersion = c["model"];
+      pages.getPage(pid).dbID = c["id"];
+      pages.getPage(pid).updated_at = c["updated_at"];
+      pages.getPage(pid).assistantID = c["assistant_id"];
+      pages.getPage(pid).threadID = c["thread_id"];
+      pages.getPage(pid).botID = c["bot_id"];
+      var msgContent;
+      for (var m in c["contents"]) {
+        //print("load: $m");
+        var smid = m["id"] ?? 0;
+        int mid = smid is String ? int.parse(smid) : smid;
+        if (MsgType.values[m["type"]] == MsgType.image &&
+            m["role"] == MessageRole.user &&
+            m["content"] is List) {
+          msgContent = jsonDecode(m["content"]);
+        } else
+          msgContent = m["content"];
+
+        Map<String, VisionFile> _vfs = {};
+        if (m["visionFiles"] != null && m["visionFiles"].isNotEmpty) {
+          _vfs = Map<String, VisionFile>.fromEntries(
+              (m["visionFiles"] as Map<String, dynamic>).entries.map((entry) {
+            return MapEntry(entry.key, VisionFile.fromJson(entry.value));
+          }));
+        }
+
+        Message msgQ = Message(
+            id: mid,
+            pageID: pid,
+            role: m["role"],
+            type: MsgType.values[m["type"]],
+            content: msgContent,
+            visionFiles: _vfs,
+            attachments: m["attachments"],
+            timestamp: m["timestamp"]);
+
+        pages.addMessage(pid, msgQ);
+      }
+    } catch (error) {
+      debugPrint("restort_singel_page error: ${error}");
     }
     return pid;
   }
