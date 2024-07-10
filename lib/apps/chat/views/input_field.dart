@@ -29,13 +29,13 @@ class _ChatInputFieldState extends State<ChatInputField> {
   final assistant = AssistantsAPI();
   final ScrollController _attachmentscroll = ScrollController();
   final ScrollController _visionFilescroll = ScrollController();
-  //{file_name:{"file_id": "",
-  //   "tools": [{"type": "file_search"}]}}
-  Map attachments = {};
+
+  Map<String, Attachment> attachments = {};
   Map<String, VisionFile> visionFiles = {};
 
   void dispose() {
     _attachmentscroll.dispose();
+    _visionFilescroll.dispose();
     super.dispose();
   }
 
@@ -92,7 +92,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   }
 
   Widget attachedFileIcon(
-      BuildContext context, String attachedFileName, attachFile) {
+      BuildContext context, String name, Attachment content) {
     return Container(
       alignment: Alignment.topCenter,
       decoration: BoxDecoration(
@@ -100,8 +100,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
           borderRadius: const BorderRadius.all(Radius.circular(10))),
       child: ListTile(
         dense: true,
-        title: Text(attachedFileName, overflow: TextOverflow.ellipsis),
-        leading: attachments[attachedFileName].isEmpty
+        title: Text(name, overflow: TextOverflow.ellipsis),
+        leading: content.file_id!.isEmpty
             ? CircularProgressIndicator()
             : Icon(Icons.description_outlined, color: Colors.pink[300]),
         trailing: IconButton(
@@ -109,8 +109,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
             icon: Icon(Icons.close, size: 18),
             onPressed: () {
               setState(() {
-                var _fileid = attachments[attachedFileName]["file_id"];
-                attachments.remove(attachedFileName);
+                var _fileid = content.file_id;
+                attachments.remove(name);
                 if (attachments.isEmpty) _type = MsgType.text;
                 assistant.filedelete(_fileid); //TODO: delete in backend
               });
@@ -317,7 +317,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       debugPrint('Selected file: $fileName, type: $fileType');
       if (supportedFiles.contains(fileType)) {
         setState(() {
-          attachments[fileName] = {};
+          attachments[fileName] = Attachment();
         });
         _type = MsgType.file;
         _getTextFile(result);
@@ -339,13 +339,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
     await assistant.uploadFile(selectedfile);
     String file_id = await assistant.fileUpload(selectedfile.files.first.name);
     setState(() {
-      attachments[selectedfile.files.first.name] = {
-        "file_id": file_id,
-        "tools": [
-          //TODO: add code_interpreters
-          {"type": "file_search"}
-        ]
-      };
+      attachments[selectedfile.files.first.name]!.file_id = file_id;
+      attachments[selectedfile.files.first.name]!.tools = [
+        {"type": "file_search"} //TODO: add code_interpreters
+      ];
     });
   }
 
@@ -356,7 +353,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     });
   }
 
-  Map<String, VisionFile> _deepcopy(Map? original) {
+  Map<String, VisionFile> copyVision(Map? original) {
     Map<String, VisionFile> copy = {};
     if (original == null) return copy;
     original.forEach((_filename, _content) {
@@ -366,24 +363,32 @@ class _ChatInputFieldState extends State<ChatInputField> {
     return copy;
   }
 
+  Map<String, Attachment> copyAttachment(Map? original) {
+    Map<String, Attachment> copy = {};
+    if (original == null) return copy;
+    original.forEach((_filename, _content) {
+      copy[_filename] = Attachment(
+          file_id: _content.file_id, tools: List.from(_content.tools));
+    });
+    return copy;
+  }
+
   void _submitText(Pages pages, Property property, int handlePageID,
       String text, User user) async {
     try {
       pages.getPage(handlePageID).onGenerating = true;
       var ts = DateTime.now().millisecondsSinceEpoch;
-      Map<String, VisionFile> _v = _deepcopy(visionFiles);
-      Map _a = _deepcopy(attachments);
       Message msgQ = Message(
           id: pages.getPage(handlePageID).messages.length,
           pageID: handlePageID,
           role: MessageRole.user,
           type: _type,
           content: text,
-          visionFiles: _v,
-          attachments: _a,
+          visionFiles: copyVision(visionFiles),
+          attachments: copyAttachment(attachments),
           timestamp: ts);
       pages.addMessage(handlePageID, msgQ);
-      if (_v.isNotEmpty) {
+      if (visionFiles.isNotEmpty) {
         visionFiles.forEach((_filename, _content) {
           String oss_name = "user${user.id}_${handlePageID}_${ts}" + _filename;
           chats.uploadImage(pages, handlePageID, msgQ.id, oss_name, _filename,

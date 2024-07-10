@@ -10,8 +10,8 @@ class Message {
   final String role;
   MsgType type;
   String content;
-  Map? attachments;
-  Map<String, VisionFile>? visionFiles = {};
+  Map<String, Attachment> attachments = {};
+  Map<String, VisionFile> visionFiles = {};
   final int? timestamp;
 
   Message({
@@ -20,8 +20,8 @@ class Message {
     required this.role,
     this.type = MsgType.text,
     required this.content,
-    this.attachments,
-    this.visionFiles,
+    this.attachments = const {},
+    this.visionFiles = const {},
     required this.timestamp,
   });
 
@@ -106,7 +106,8 @@ class Message {
         "role": role,
         "type": type.index,
         "visionFiles": copyWithoutFileBytes(visionFiles),
-        "attachments": attachments ?? {},
+        "attachments": attachments
+            .map((key, attachment) => MapEntry(key, attachment.toJson())),
         "content": content,
         "timestamp": timestamp
       };

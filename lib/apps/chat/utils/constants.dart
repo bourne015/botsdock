@@ -129,4 +129,4 @@ const String function_sample1 = """
   }
 }
 """;
-const String appVersion = "0.4.1";
+const String appVersion = "0.4.2";
