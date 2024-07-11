@@ -161,9 +161,21 @@
   "@botCreateTitle": {
     "description": "bot Create Title"
   },
+  "tools" : "Tools",
+  "@tools": {
+    "description": "tools"
+  },
   "fileSearch" : "File search",
   "@fileSearch": {
     "description": "file Search"
+  },
+  "fileSearchTitle" : "Attach files to file search",
+  "@fileSearchTitle": {
+    "description": "file Search dialog title"
+  },
+  "codeInterpreterTitle" : "Attach files to code interpreter",
+  "@codeInterpreterTitle": {
+    "description": "code interpreter dialog title"
   },
   "codeInterpreter" : "Code interpreter",
   "@codeInterpreter": {
@@ -184,5 +196,21 @@
   "functionsTip" : "Function calling lets you describe custom functions of your app or external APIs to the assistant.\nThis allows the assistant to intelligently call those functions by outputting a JSON object containing relevant arguments.",
   "@functionsTip": {
     "description": "functionsTip tooltip"
+  },
+  "functionsDialog": "Add function",
+  "@functionsDialog": {
+    "description": "functions Dialog title"
+  },
+  "functionsDialogTip": "The model will intelligently decide to call functions based on the input it receives from the user.",
+  "@functionsDialogTip": {
+    "description": "functions Dialog tip"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "save"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "cancel"
   }
 }

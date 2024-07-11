@@ -37,10 +37,17 @@
   "botEdit" : "编辑",
   "botDelete" : "删除",
   "botCreateTitle" : "个性化配置智能体",
+  "tools" : "工具",
   "fileSearch" : "文件检索",
   "codeInterpreter" : "代码解释器",
   "functions" : "函数调用",
+  "fileSearchTitle": "添加文件用于文件检索",
+  "codeInterpreterTitle" : "添加文件到代码解释器",
   "fileSearchTip" : "文件搜索使助手能够从您上传的文件中获得知识。\n上传文件后，助理会根据用户请求自动决定何时检索内容",
   "codeInterpreterTip" : "代码解释器使助手能够编写和运行代码。\n该工具可以处理具有不同数据和格式的文件，并生成图形等文件",
-  "functionsTip":"函数调用允许您向助手描述应用程序或外部API的自定义函数。\n助手将通过输出包含相关参数的JSON对象来智能地调用这些函数"
+  "functionsTip": "函数调用允许您向助手描述应用程序或外部API的自定义函数。\n助手将通过输出包含相关参数的JSON对象来智能地调用这些函数",
+  "functionsDialog": "添加函数",
+  "functionsDialogTip": "模型将根据从用户收到的输入智能地决定调用函数",
+  "save": "保存",
+  "cancel": "取消"
 }
