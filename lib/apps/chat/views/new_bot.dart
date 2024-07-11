@@ -215,29 +215,9 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                         fileSearch(context),
                         if (_vsCreating)
                           ListTile(
-                            dense: true,
-                            leading: CircularProgressIndicator(),
-                            title: Text("creating...",
-                                style: TextStyle(fontSize: 14)),
-                          )
+                              dense: true, leading: CircularProgressIndicator())
                         else if (_vectorStoreId.isNotEmpty)
-                          ListTile(
-                            dense: true,
-                            leading: Icon(
-                              Icons.storage,
-                              size: 18,
-                            ),
-                            title: Text(
-                              _vectorStoreId.keys.first,
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            onTap: () async {
-                              vectoreStoreFiles = await assistant
-                                  .getVectorStoreFiles(_vectorStoreId);
-                              //fileSearchFiles = vectoreStoreFiles;
-                              _vectorStoreTaped(context);
-                            },
-                          ),
+                          vectorstoreTab(context),
                         Divider(),
                         codeInterpreter(context),
                         if (codeInterpreterFilesID.isNotEmpty)
@@ -270,8 +250,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                       return;
                     }
                     await uploadLogo();
-
-                    var resp = await saveBot();
+                    // assistant will create in backend
+                    var resp = await saveToDB();
                     Navigator.of(context).pop();
                     if (resp == true)
                       notifyBox(
@@ -310,34 +290,41 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       };
       Response resp = await dio.post(_botsURL, data: botData);
       if (resp.statusCode == 200) {
-        if (widget.bot != null) {
-          int index =
-              widget.bots!.bots.indexWhere((_bot) => _bot.id == widget.bot!.id);
-          widget.bots!.bots[index] = Bot.fromJson(resp.data);
-        } else {
-          widget.bots!.addBot(Bot.fromJson(resp.data));
-        }
+        if (widget.bot != null)
+          widget.bots!.updateBot(resp.data, widget.bot!.id);
+        else
+          widget.bots!.addBot(resp.data);
         return true;
-      } else
-        return false;
+      }
     } catch (e) {
       debugPrint('saveToDB error: $e');
     }
     return false;
   }
 
-  Future<String?> createAssistant() async {
-    return "true";
+  Widget vectorstoreTab(BuildContext context) {
+    return ListTile(
+      dense: true,
+      leading: Icon(Icons.storage, size: 18),
+      title: Text(_vectorStoreId.keys.first, style: TextStyle(fontSize: 14)),
+      trailing: IconButton(
+        icon: Icon(Icons.delete_outline),
+        tooltip: "删除Vector Store",
+        onPressed: () async {
+          await assistant.vectorStoreDelete(_vectorStoreId.keys.first);
+          setState(() {
+            _vectorStoreId = {};
+          });
+        },
+      ),
+      onTap: () async {
+        _vectorStoreTaped();
+      },
+    );
   }
 
-  Future<bool> saveBot() async {
-    var newAssistantID = await createAssistant();
-    if (newAssistantID == null) return false;
-    var res = await saveToDB();
-    return res;
-  }
-
-  void _vectorStoreTaped(BuildContext context) async {
+  void _vectorStoreTaped() async {
+    vectoreStoreFiles = await assistant.getVectorStoreFiles(_vectorStoreId);
     String? action = await showDialog<String>(
         context: context,
         builder: (BuildContext context) {
@@ -459,9 +446,13 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       ]),
       FilledButton.tonalIcon(
           icon: Icon(Icons.add, size: 15),
-          onPressed: switchFileSearch.value ? uploadFileDialog : null,
+          onPressed: switchFileSearch.value ? uploadFileSearchDialod : null,
           label: Text("Files", style: TextStyle(fontSize: 14)))
     ]);
+  }
+
+  void uploadFileSearchDialod() {
+    _vectorStoreId.isEmpty ? uploadFileDialog() : _vectorStoreTaped();
   }
 
   void uploadFileDialog() {
@@ -553,23 +544,6 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
    * during the process
    */
   void _onAttachPressed() async {
-    // showDialog(
-    //   context: context,
-    //   barrierDismissible: false,
-    //   builder: (BuildContext context) {
-    //     return Dialog(
-    //       backgroundColor: Colors.transparent,
-    //       child: Column(
-    //         mainAxisSize: MainAxisSize.min,
-    //         children: [
-    //           CircularProgressIndicator(),
-    //           SizedBox(height: 16),
-    //           Text("Loading..."),
-    //         ],
-    //       ),
-    //     );
-    //   },
-    // );
     Navigator.of(context).pop();
     try {
       setState(() {
@@ -582,10 +556,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       });
       print("vs_id:$_vectorStoreId");
       fileSearchFiles.clear();
-    } finally {
-      // Navigator.of(context).pop();
-      //Navigator.of(context).pop();
-    }
+    } finally {}
     _isUploading = false;
   }
 
@@ -639,6 +610,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
             leading: Icon(Icons.file_present, size: 18),
             title: Text(entry.key),
             trailing: IconButton(
+              icon: Icon(Icons.delete_outline),
+              tooltip: "删除文件",
               onPressed: !_isUploading
                   ? () async {
                       var res = await assistant.filedelete(entry.value);
@@ -647,7 +620,6 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                       });
                     }
                   : null,
-              icon: Icon(Icons.delete_outline),
             ),
           );
         }).toList(),
@@ -670,9 +642,9 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                 children: [
                   DataTable(
                     columns: [
-                      DataColumn(label: Text("file")),
-                      DataColumn(label: Text("size")),
-                      DataColumn(label: Text("uploaded")),
+                      DataColumn(label: Text("FILE")),
+                      DataColumn(label: Text("SIZE")),
+                      DataColumn(label: Text("UPLOADED")),
                       DataColumn(label: Text("")),
                     ],
                     rows: codeInterpreterFiles.map((pfile) {
@@ -1038,33 +1010,6 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     );
   }
 
-  Widget localImages1(BuildContext context) {
-    return GridView.count(
-      shrinkWrap: true,
-      crossAxisCount: 6,
-      crossAxisSpacing: 4.0,
-      mainAxisSpacing: 4.0,
-      children: List.generate(12, (index) {
-        return InkWell(
-            onTap: () {
-              print("tap $index");
-            }, // Handle your callback.
-            hoverColor: Colors.grey.withOpacity(0.3),
-            splashColor: Colors.brown.withOpacity(0.5),
-            child: Ink(
-              height: 80,
-              width: 80,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/bot/bot${index + 1}.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ));
-      }),
-    );
-  }
-
   void showCustomBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -1101,19 +1046,4 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       },
     );
   }
-
-  List<String> BotImages = [
-    'assets/images/bot/bot1.png',
-    'assets/images/bot/bot2.png',
-    'assets/images/bot/bot3.png',
-    'assets/images/bot/bot4.png',
-    'assets/images/bot/bot5.png',
-    'assets/images/bot/bot6.png',
-    'assets/images/bot/bot7.png',
-    'assets/images/bot/bot8.png',
-    'assets/images/bot/bot9.png',
-    'assets/images/bot/bot10.png',
-    'assets/images/bot/bot11.png',
-    'assets/images/bot/bot12.png',
-  ];
 }

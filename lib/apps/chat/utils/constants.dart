@@ -129,4 +129,20 @@ const String function_sample1 = """
   }
 }
 """;
-const String appVersion = "0.4.4";
+
+List<String> BotImages = [
+  'assets/images/bot/bot1.png',
+  'assets/images/bot/bot2.png',
+  'assets/images/bot/bot3.png',
+  'assets/images/bot/bot4.png',
+  'assets/images/bot/bot5.png',
+  'assets/images/bot/bot6.png',
+  'assets/images/bot/bot7.png',
+  'assets/images/bot/bot8.png',
+  'assets/images/bot/bot9.png',
+  'assets/images/bot/bot10.png',
+  'assets/images/bot/bot11.png',
+  'assets/images/bot/bot12.png',
+];
+
+const String appVersion = "0.4.5";
