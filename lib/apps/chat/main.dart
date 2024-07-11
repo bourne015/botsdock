@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import './models/pages.dart';
 import './models/user.dart';
+import './models/bot.dart';
 import 'main_layout.dart';
 import 'routes.dart' as routes;
 import './utils/constants.dart';
@@ -26,6 +27,7 @@ class _AppState extends State<ChatApp> {
   User user = User();
   Pages pages = Pages();
   Property property = Property();
+  Bots bots = Bots();
 
   @override
   void initState() {
@@ -47,6 +49,7 @@ class _AppState extends State<ChatApp> {
           ChangeNotifierProvider(create: (context) => pages),
           ChangeNotifierProvider(create: (context) => property),
           ChangeNotifierProvider(create: (context) => user),
+          ChangeNotifierProvider(create: (context) => bots),
         ],
         child: MaterialApp(
           title: appTitle,

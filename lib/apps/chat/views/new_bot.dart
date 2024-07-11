@@ -10,14 +10,15 @@ import 'package:gallery/apps/chat/models/user.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
+import '../models/bot.dart';
 import "../utils/constants.dart";
 import '../utils/utils.dart';
 import '../utils/assistants_api.dart';
 
 class CreateBot extends StatefulWidget {
   final User user;
-  final bots;
-  final bot;
+  final Bots? bots;
+  final Bot? bot;
 
   CreateBot({required this.user, this.bots, this.bot});
 
@@ -65,26 +66,19 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   void initState() {
     super.initState();
     if (widget.bot != null) {
-      _logoURL = widget.bot["avatar"];
-      _nameController.text = widget.bot["name"];
-      _introController.text = widget.bot["description"];
-      _configInfoController.text = widget.bot["prompts"];
-      switchPublic = RestorableBool(widget.bot["public"]);
+      _logoURL = widget.bot!.avatar;
+      _nameController.text = widget.bot!.name;
+      _introController.text = widget.bot!.description ?? "";
+      _configInfoController.text = widget.bot!.prompts ?? "";
+      switchPublic = RestorableBool(widget.bot!.public ?? true);
       // TODO: add Model
-      if (widget.bot["code_interpreter"] != null) {}
-      if (widget.bot["file_search"] != null) {
-        switchFileSearch = RestorableBool(widget.bot["file_search"]);
-        _vectorStoreId = widget.bot["vector_store_ids"] ?? {};
-      }
-      if (widget.bot["code_interpreter"] != null) {
-        switchCodeInterpreter = RestorableBool(widget.bot["code_interpreter"]);
-        codeInterpreterFilesID = widget.bot["code_interpreter_files"] ?? {};
-      }
-      if (widget.bot["functions"] != null) {
-        functionsBody = widget.bot["functions"] ?? {};
-      }
-      if (widget.bot["temperature"] != null)
-        temperature = widget.bot["temperature"];
+      switchFileSearch = RestorableBool(widget.bot!.file_search ?? false);
+      _vectorStoreId = widget.bot!.vector_store_ids ?? {};
+      switchCodeInterpreter =
+          RestorableBool(widget.bot!.code_interpreter ?? false);
+      codeInterpreterFilesID = widget.bot!.code_interpreter_files ?? {};
+      functionsBody = widget.bot!.functions ?? {};
+      temperature = widget.bot!.temperature ?? 1.0;
     }
   }
 
@@ -289,45 +283,39 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
 
   Future<bool> saveToDB() async {
     var _botsURL = botURL;
-    if (widget.bot != null) _botsURL = botURL + "/${widget.bot["id"]}";
-    var botData = {
-      "name": _nameController.text,
-      "avatar": _logoURL,
-      "description": _introController.text,
-      "prompts": _configInfoController.text,
-      "author_id": widget.user.id,
-      "author_name": widget.user.name,
-      "public": switchPublic.value,
-      "file_search": switchFileSearch.value,
-      "code_interpreter": switchCodeInterpreter.value,
-      "vector_store_ids": _vectorStoreId,
-      "code_interpreter_files": codeInterpreterFilesID,
-      "functions": functionsBody,
-      "temperature": temperature,
-    };
-    Response resp = await dio.post(_botsURL, data: botData);
-    if (resp.data["result"] == 'success') {
-      if (widget.bots != null) {
-        int index =
-            widget.bots.indexWhere((_bot) => _bot['id'] == widget.bot['id']);
-        widget.bots[index]["name"] = botData["name"];
-        widget.bots[index]["avatar"] = botData["avatar"];
-        widget.bots[index]["description"] = botData["description"];
-        widget.bots[index]["prompts"] = botData["prompts"];
-        widget.bots[index]["author_id"] = botData["author_id"];
-        widget.bots[index]["author_name"] = botData["author_name"];
-        widget.bots[index]["public"] = botData["public"];
-        widget.bots[index]["file_search"] = botData["file_search"];
-        widget.bots[index]["code_interpreter"] = botData["code_interpreter"];
-        widget.bots[index]["vector_store_id"] = botData["vector_store_id"];
-        widget.bots[index]["code_interpreter_files"] =
-            botData["code_interpreter_files"];
-        widget.bots[index]["functions"] = botData["functions"];
-        widget.bots[index]["temperature"] = botData["temperature"];
-      }
-      return true;
-    } else
-      return false;
+    try {
+      if (widget.bot != null) _botsURL = botURL + "/${widget.bot!.id}";
+      var botData = {
+        "name": _nameController.text,
+        "avatar": _logoURL,
+        "description": _introController.text,
+        "prompts": _configInfoController.text,
+        "author_id": widget.user.id,
+        "author_name": widget.user.name,
+        "public": switchPublic.value,
+        "file_search": switchFileSearch.value,
+        "code_interpreter": switchCodeInterpreter.value,
+        "vector_store_ids": _vectorStoreId,
+        "code_interpreter_files": codeInterpreterFilesID,
+        "functions": functionsBody,
+        "temperature": temperature,
+      };
+      Response resp = await dio.post(_botsURL, data: botData);
+      if (resp.statusCode == 200) {
+        if (widget.bot != null) {
+          int index =
+              widget.bots!.bots.indexWhere((_bot) => _bot.id == widget.bot!.id);
+          widget.bots!.bots[index] = Bot.fromJson(resp.data);
+        } else {
+          widget.bots!.addBot(Bot.fromJson(resp.data));
+        }
+        return true;
+      } else
+        return false;
+    } catch (e) {
+      debugPrint('saveToDB error: $e');
+    }
+    return false;
   }
 
   Future<String?> createAssistant() async {
