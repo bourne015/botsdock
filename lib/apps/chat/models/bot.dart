@@ -17,9 +17,14 @@ class Bots with ChangeNotifier {
     }
   }
 
-  void addBot(Bot bot) {
-    _bots.add(bot);
+  void addBot(Map<String, dynamic> data) {
+    _bots.add(Bot.fromJson(data));
     notifyListeners();
+  }
+
+  void updateBot(Map<String, dynamic> data, id) {
+    int index = _bots.indexWhere((_bot) => _bot.id == id);
+    _bots[index] = Bot.fromJson(data);
   }
 
   void deleteBot(int id) {
