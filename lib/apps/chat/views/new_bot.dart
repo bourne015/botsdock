@@ -83,7 +83,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       if (widget.bot["functions"] != null) {
         functionsBody = widget.bot["functions"] ?? {};
       }
-      temperature = widget.bot["temperature"];
+      if (widget.bot["temperature"] != null)
+        temperature = widget.bot["temperature"];
     }
   }
 
