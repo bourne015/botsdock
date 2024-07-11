@@ -442,16 +442,19 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         ),
         Container(
             margin: EdgeInsets.only(left: 10),
-            child: Text(
-                textAlign: TextAlign.center,
-                GalleryLocalizations.of(context)!.fileSearch,
-                style: TextStyle(fontSize: 14))),
-        if (isDisplayDesktop(context))
-          IconButton(
-            onPressed: null,
-            icon: Icon(Icons.info_outline, size: 15),
-            tooltip: GalleryLocalizations.of(context)!.fileSearchTip,
-          )
+            child: Row(children: [
+              Text(
+                  textAlign: TextAlign.center,
+                  GalleryLocalizations.of(context)!.fileSearch,
+                  style: TextStyle(fontSize: 14)),
+              if (isDisplayDesktop(context))
+                IconButton(
+                  onPressed: null,
+                  visualDensity: VisualDensity.compact,
+                  icon: Icon(Icons.info_outline, size: 15),
+                  tooltip: GalleryLocalizations.of(context)!.fileSearchTip,
+                )
+            ]))
       ]),
       FilledButton.tonalIcon(
           icon: Icon(Icons.add, size: 15),
@@ -596,16 +599,20 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
           ),
           Container(
               margin: EdgeInsets.only(left: 10, right: 10),
-              child: Text(
-                  textAlign: TextAlign.center,
-                  GalleryLocalizations.of(context)!.codeInterpreter,
-                  style: TextStyle(fontSize: 14))),
-          if (isDisplayDesktop(context))
-            IconButton(
-              onPressed: null,
-              icon: Icon(Icons.info_outline, size: 15),
-              tooltip: GalleryLocalizations.of(context)!.codeInterpreterTip,
-            )
+              child: Row(children: [
+                Text(
+                    textAlign: TextAlign.center,
+                    GalleryLocalizations.of(context)!.codeInterpreter,
+                    style: TextStyle(fontSize: 14)),
+                if (isDisplayDesktop(context))
+                  IconButton(
+                    onPressed: null,
+                    visualDensity: VisualDensity.compact,
+                    icon: Icon(Icons.info_outline, size: 15),
+                    tooltip:
+                        GalleryLocalizations.of(context)!.codeInterpreterTip,
+                  )
+              ]))
         ],
       ),
       FilledButton.tonalIcon(
@@ -786,6 +793,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
             if (isDisplayDesktop(context))
               IconButton(
                 onPressed: null,
+                visualDensity: VisualDensity.compact,
                 icon: Icon(Icons.info_outline, size: 15),
                 tooltip: GalleryLocalizations.of(context)!.functionsTip,
               )
@@ -904,28 +912,31 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
 
   Widget temperatureSlide(BuildContext context) {
     return Container(
-        margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
-        child: Column(children: [
-          Slider(
-            min: 0,
-            max: 2,
-            value: temperature,
-            onChanged: (value) {
-              setState(() {
-                temperature = value;
-              });
-            },
-          ),
-          Container(
-              margin: EdgeInsets.fromLTRB(25, 0, 25, 10),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("稳定", style: TextStyle(fontSize: 14)),
-                    Text("中立", style: TextStyle(fontSize: 14)),
-                    Text("随机", style: TextStyle(fontSize: 14)),
-                  ]))
-        ]));
+        margin: EdgeInsets.fromLTRB(0, 0, 15, 10),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Slider(
+                min: 0,
+                max: 2,
+                value: temperature,
+                onChanged: (value) {
+                  setState(() {
+                    temperature = value;
+                  });
+                },
+              ),
+              Container(
+                  margin: EdgeInsets.fromLTRB(25, 0, 25, 10),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("稳定", style: TextStyle(fontSize: 12)),
+                        Text("中立", style: TextStyle(fontSize: 12)),
+                        Text("随机", style: TextStyle(fontSize: 12)),
+                      ]))
+            ]));
   }
 
   Widget publicTo(BuildContext context) {
@@ -941,7 +952,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       ),
       Container(
           margin: EdgeInsets.only(left: 10, right: 75),
-          child: Text('是否共享其他人使用?', style: TextStyle(fontSize: 15))),
+          child: Text('是否共享其他人使用?', style: TextStyle(fontSize: 14))),
     ]);
   }
 
