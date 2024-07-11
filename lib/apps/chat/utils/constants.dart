@@ -145,4 +145,4 @@ List<String> BotImages = [
   'assets/images/bot/bot12.png',
 ];
 
-const String appVersion = "0.4.5";
+const String appVersion = "0.4.6";

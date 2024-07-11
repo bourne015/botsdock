@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:fetch_client/fetch_client.dart';
 
+import '../models/bot.dart';
 import '../models/chat.dart';
 import '../models/pages.dart';
 import '../models/user.dart';
@@ -190,15 +191,16 @@ class AssistantsAPI {
   /**
    * newassistant()
    */
-  void newassistant(Pages pages, Property property, User user, bot, thread_id) {
-    int handlePageID = pages.addPage(Chat(title: bot["name"]), sort: true);
+  void newassistant(
+      Pages pages, Property property, User user, Bot bot, String thread_id) {
+    int handlePageID = pages.addPage(Chat(title: bot.name), sort: true);
     property.onInitPage = false;
     pages.currentPageID = handlePageID;
-    pages.setPageTitle(handlePageID, bot["name"]);
+    pages.setPageTitle(handlePageID, bot.name);
     pages.getPage(handlePageID).modelVersion = property.initModelVersion;
-    pages.getPage(handlePageID).assistantID = bot["assistant_id"];
+    pages.getPage(handlePageID).assistantID = bot.assistant_id;
     pages.getPage(handlePageID).threadID = thread_id;
-    pages.getPage(handlePageID).botID = bot["id"];
+    pages.getPage(handlePageID).botID = bot.id;
     print("test bot: $bot, thread:$thread_id");
   }
 
