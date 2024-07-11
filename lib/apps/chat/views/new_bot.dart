@@ -175,7 +175,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                                 decoration: InputDecoration(
                                   hintText: '输入智能体名字',
                                   hintStyle: TextStyle(fontSize: 14),
-                                  border: OutlineInputBorder(),
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10)),
                                 ),
                                 validator: (v) {
                                   return v == null || v.trim().isNotEmpty
@@ -190,7 +191,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                               decoration: InputDecoration(
                                 hintText: '用一句话介绍该智能体',
                                 hintStyle: TextStyle(fontSize: 14),
-                                border: OutlineInputBorder(),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10)),
                               ),
                             )),
                         Text('配置信息', style: TextStyle(fontSize: 15)),
@@ -201,7 +203,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                               decoration: InputDecoration(
                                 hintText: '输入prompt',
                                 hintStyle: TextStyle(fontSize: 14),
-                                border: OutlineInputBorder(),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15)),
                               ),
                               validator: (v) {
                                 return v == null || v.trim().isNotEmpty
@@ -211,7 +214,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                               maxLines: 5,
                             )),
                         Divider(),
-                        Text("Tools", style: TextStyle(fontSize: 15)),
+                        Text(GalleryLocalizations.of(context)!.tools,
+                            style: TextStyle(fontSize: 15)),
                         fileSearch(context),
                         if (_vectorStoreId.isNotEmpty)
                           ListTile(
@@ -252,11 +256,11 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 TextButton(
-                  child: Text('取消'),
+                  child: Text(GalleryLocalizations.of(context)!.cancel),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 TextButton(
-                  child: Text('保存'),
+                  child: Text(GalleryLocalizations.of(context)!.save),
                   onPressed: () async {
                     if (!(_createBotformKey.currentState as FormState)
                         .validate()) {
@@ -423,24 +427,6 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         });
   }
 
-  // void getVectorStoreFiles(BuildContext context) async {
-  //   try {
-  //     var url =
-  //         'https://fantao.life:8001/v1/assistant/${_vectorStoreId}/vs_files';
-  //     final response = await dio.post(url);
-  //     if (response.statusCode == 200) {
-  //       print("get files: ${response.data["files"]}");
-  //       setState(() {
-  //         vectoreStoreFiles = response.data["files"];
-  //       });
-  //     } else {
-  //       print("error: ${response.data["result"]}");
-  //     }
-  //   } catch (error) {
-  //     print("error: $error");
-  //   }
-  // }
-
   Widget fileSearch(BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Row(children: [
@@ -458,17 +444,18 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
             child: Text(
                 textAlign: TextAlign.center,
                 GalleryLocalizations.of(context)!.fileSearch,
-                style: TextStyle(fontSize: 15))),
-        IconButton(
-          onPressed: null,
-          icon: Icon(Icons.info_outline, size: 15),
-          tooltip: GalleryLocalizations.of(context)!.fileSearchTip,
-        )
+                style: TextStyle(fontSize: 14))),
+        if (isDisplayDesktop(context))
+          IconButton(
+            onPressed: null,
+            icon: Icon(Icons.info_outline, size: 15),
+            tooltip: GalleryLocalizations.of(context)!.fileSearchTip,
+          )
       ]),
       FilledButton.tonalIcon(
-          icon: Icon(Icons.add),
+          icon: Icon(Icons.add, size: 15),
           onPressed: switchFileSearch.value ? uploadFileDialog : null,
-          label: Text("Files"))
+          label: Text("Files", style: TextStyle(fontSize: 14)))
     ]);
   }
 
@@ -479,17 +466,17 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
               backgroundColor: AppColors.chatPageBackground,
-              title: Text("Attach files to file search",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              title: Text(GalleryLocalizations.of(context)!.fileSearchTitle),
               titlePadding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
               content: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   DataTable(
+                    showBottomBorder: true,
                     columns: [
-                      DataColumn(label: Text("file")),
-                      DataColumn(label: Text("size")),
-                      DataColumn(label: Text("uploaded")),
+                      DataColumn(label: Text("FILE")),
+                      DataColumn(label: Text("SIZE")),
+                      DataColumn(label: Text("UPLOADED")),
                       DataColumn(label: Text("")),
                     ],
                     rows: fileSearchFiles.map((pfile) {
@@ -521,7 +508,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                   ),
                   SizedBox(height: 20),
                   FilledButton.tonalIcon(
-                      icon: Icon(Icons.add),
+                      icon: Icon(Icons.add, size: 15),
                       onPressed: () async {
                         var result = await _pickFile(context);
                         setState(() {
@@ -544,11 +531,11 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                       fileSearchFiles.clear();
                       _isUploading = false;
                     },
-                    label: Text("Cancel")),
+                    label: Text(GalleryLocalizations.of(context)!.cancel)),
                 FilledButton.tonalIcon(
                     //icon: Icon(Icons.add),
                     onPressed: _onAttachPressed,
-                    label: Text("Attach"))
+                    label: Text(GalleryLocalizations.of(context)!.save))
               ],
             );
           });
@@ -611,20 +598,21 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
               child: Text(
                   textAlign: TextAlign.center,
                   GalleryLocalizations.of(context)!.codeInterpreter,
-                  style: TextStyle(fontSize: 15))),
-          IconButton(
-            onPressed: null,
-            icon: Icon(Icons.info_outline, size: 15),
-            tooltip: GalleryLocalizations.of(context)!.codeInterpreterTip,
-          )
+                  style: TextStyle(fontSize: 14))),
+          if (isDisplayDesktop(context))
+            IconButton(
+              onPressed: null,
+              icon: Icon(Icons.info_outline, size: 15),
+              tooltip: GalleryLocalizations.of(context)!.codeInterpreterTip,
+            )
         ],
       ),
       FilledButton.tonalIcon(
-          icon: Icon(Icons.add),
+          icon: Icon(Icons.add, size: 15),
           onPressed: switchCodeInterpreter.value
               ? uploadCodeInterpreterFileDialog
               : null,
-          label: Text("Files"))
+          label: Text("Files", style: TextStyle(fontSize: 14)))
     ]);
   }
 
@@ -661,8 +649,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
               backgroundColor: AppColors.chatPageBackground,
-              title: Text("Attach files to file search",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              title:
+                  Text(GalleryLocalizations.of(context)!.codeInterpreterTitle),
               titlePadding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
               content: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -746,7 +734,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                         },
                       );
                     },
-                    label: Text("Cancel")),
+                    label: Text(GalleryLocalizations.of(context)!.cancel)),
                 FilledButton.tonalIcon(
                     //icon: Icon(Icons.add),
                     onPressed: () {
@@ -755,7 +743,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                       Navigator.of(context).pop();
                       _clearUserSelectCPFiles();
                     },
-                    label: Text("OK"))
+                    label: Text(GalleryLocalizations.of(context)!.save))
               ],
             );
           });
@@ -793,19 +781,20 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
           margin: EdgeInsets.only(right: 75),
           child: Row(children: [
             Text(GalleryLocalizations.of(context)!.functions,
-                style: TextStyle(fontSize: 15)),
-            IconButton(
-              onPressed: null,
-              icon: Icon(Icons.info_outline, size: 15),
-              tooltip: GalleryLocalizations.of(context)!.functionsTip,
-            )
+                style: TextStyle(fontSize: 14)),
+            if (isDisplayDesktop(context))
+              IconButton(
+                onPressed: null,
+                icon: Icon(Icons.info_outline, size: 15),
+                tooltip: GalleryLocalizations.of(context)!.functionsTip,
+              )
           ])),
       FilledButton.tonalIcon(
-          icon: Icon(Icons.add),
+          icon: Icon(Icons.add, size: 15),
           onPressed: () {
             editFunction(context);
           },
-          label: Text("Functions"))
+          label: Text("Functions", style: TextStyle(fontSize: 14)))
     ]);
   }
 
@@ -813,16 +802,17 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     showDialog(
         context: context,
         builder: (BuildContext context) => AlertDialog(
-              title: Text("Add function"),
+              title: Text(GalleryLocalizations.of(context)!.functionsDialog),
+              backgroundColor: AppColors.chatPageBackground,
               content: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(
-                      "The model will intelligently decide to call functions based on the input it receives from the user. Learn more."),
-                  Divider(),
+                  Text(GalleryLocalizations.of(context)!.functionsDialogTip),
+                  Divider(height: 40),
                   Expanded(
                       child: Container(
-                          margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                          //margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
                           child: Form(
                               key: _functionformKey,
                               child: TextFormField(
@@ -830,7 +820,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                                 decoration: InputDecoration(
                                   hintText: function_sample1,
                                   hintStyle: TextStyle(fontSize: 14),
-                                  border: OutlineInputBorder(),
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15)),
                                 ),
                                 validator: (v) {
                                   if ((v!.trim().isNotEmpty) &&
@@ -843,14 +834,14 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: const Text('Cancel'),
+                  child: Text(GalleryLocalizations.of(context)!.cancel),
                   onPressed: () {
                     _functionController.clear();
                     Navigator.of(context).pop();
                   },
                 ),
                 TextButton(
-                  child: const Text('Save'),
+                  child: Text(GalleryLocalizations.of(context)!.save),
                   onPressed: () {
                     if (!(_functionformKey.currentState as FormState)
                         .validate()) {
