@@ -40,6 +40,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   //key: fileName, value: fildID
   Map codeInterpreterFilesID = {};
   bool _isUploading = false;
+  bool _vsCreating = false;
   //key: vectorStoreId, value: vectorStore name
   Map _vectorStoreId = {};
   RestorableBool switchPublic = RestorableBool(true);
@@ -212,7 +213,14 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                         Text(GalleryLocalizations.of(context)!.tools,
                             style: TextStyle(fontSize: 15)),
                         fileSearch(context),
-                        if (_vectorStoreId.isNotEmpty)
+                        if (_vsCreating)
+                          ListTile(
+                            dense: true,
+                            leading: CircularProgressIndicator(),
+                            title: Text("creating...",
+                                style: TextStyle(fontSize: 14)),
+                          )
+                        else if (_vectorStoreId.isNotEmpty)
                           ListTile(
                             dense: true,
                             leading: Icon(
@@ -330,12 +338,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   }
 
   void _vectorStoreTaped(BuildContext context) async {
-    showDialog(
+    String? action = await showDialog<String>(
         context: context,
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
-            //if (vectoreStoreFiles.isEmpty) getVectorStoreFiles();
-
             return AlertDialog(
               backgroundColor: AppColors.chatPageBackground,
               title: Text("Vector Store: ${_vectorStoreId.keys.first}",
@@ -346,8 +352,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                 children: [
                   DataTable(
                       columns: [
-                        DataColumn(label: Text("file")),
-                        DataColumn(label: Text("uploaded")),
+                        DataColumn(label: Text("FILE")),
+                        DataColumn(label: Text("UPLOADED")),
                         DataColumn(label: Text("")),
                       ],
                       rows: vectoreStoreFiles.map((vfile) {
@@ -401,19 +407,26 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                       await assistant
                           .vectorStoreDelete(_vectorStoreId.keys.first);
                       _vectorStoreId = {};
-                      Navigator.of(context).pop();
+                      Navigator.of(context).pop("delete");
                     },
                     label: Text("delete")),
                 FilledButton.tonalIcon(
                     //icon: Icon(Icons.add),
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      Navigator.of(context).pop("close");
                     },
                     label: Text("Close"))
               ],
             );
           });
         });
+    if (action != null && action == "delete") {
+      _updateVs();
+    }
+  }
+
+  void _updateVs() {
+    setState(() {});
   }
 
   Widget fileSearch(BuildContext context) {
@@ -540,34 +553,38 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
    * during the process
    */
   void _onAttachPressed() async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text("Loading..."),
-            ],
-          ),
-        );
-      },
-    );
-
+    // showDialog(
+    //   context: context,
+    //   barrierDismissible: false,
+    //   builder: (BuildContext context) {
+    //     return Dialog(
+    //       backgroundColor: Colors.transparent,
+    //       child: Column(
+    //         mainAxisSize: MainAxisSize.min,
+    //         children: [
+    //           CircularProgressIndicator(),
+    //           SizedBox(height: 16),
+    //           Text("Loading..."),
+    //         ],
+    //       ),
+    //     );
+    //   },
+    // );
+    Navigator.of(context).pop();
     try {
+      setState(() {
+        _vsCreating = true;
+      });
       var vid = await assistant.createVectorStore(fileSearchFiles);
       setState(() {
         _vectorStoreId[vid] = "vs name";
+        _vsCreating = false;
       });
       print("vs_id:$_vectorStoreId");
       fileSearchFiles.clear();
     } finally {
-      Navigator.of(context).pop();
-      Navigator.of(context).pop();
+      // Navigator.of(context).pop();
+      //Navigator.of(context).pop();
     }
     _isUploading = false;
   }
