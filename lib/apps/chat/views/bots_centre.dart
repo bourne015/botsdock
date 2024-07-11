@@ -277,9 +277,10 @@ class BotsState extends State<BotsCentre> {
               pages.currentPageID = _pid;
               property.onInitPage = false;
             } else if (bot.assistant_id != null) {
-              var thread_id = await assistant.createThread();
+              String? thread_id = await assistant.createThread();
               //TODO: save thread_id to bot in db
-              assistant.newassistant(pages, property, user, bot, thread_id);
+              if (thread_id != null)
+                assistant.newassistant(pages, property, user, bot, thread_id);
             } else {
               chats.newBot(pages, property, user, bot.name, bot.prompts);
             }
