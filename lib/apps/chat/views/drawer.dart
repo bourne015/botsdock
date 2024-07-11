@@ -13,6 +13,7 @@ import '../models/user.dart';
 import 'administrator.dart';
 import '../utils/global.dart';
 import './bots_centre.dart';
+import '../models/bot.dart';
 
 class ChatDrawer extends StatefulWidget {
   final double drawersize;
@@ -68,9 +69,6 @@ class ChatDrawerState extends State<ChatDrawer> {
   }
 
   Widget botsCentre(BuildContext context) {
-    Property property = Provider.of<Property>(context, listen: false);
-    User user = Provider.of<User>(context, listen: false);
-    Pages pages = Provider.of<Pages>(context, listen: false);
     return Container(
         margin: EdgeInsets.fromLTRB(10, 0, 10, 5),
         decoration: BoxDecoration(
@@ -85,17 +83,11 @@ class ChatDrawerState extends State<ChatDrawer> {
           ),
           title: Text(GalleryLocalizations.of(context)!.botsCentre),
           onTap: () async {
-            var botsURL = botURL + "/bots";
-            Response bots = await dio.post(botsURL);
             if (!isDisplayDesktop(context)) Navigator.pop(context);
-            // showSlideInDialog(
-            showDialog(
-              context: context,
-              builder: (context) => Bots(
-                  pages: pages,
-                  user: user,
-                  property: property,
-                  bots: bots.data["bots"]),
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => BotsCentre(),
+              ),
             );
           },
         ));

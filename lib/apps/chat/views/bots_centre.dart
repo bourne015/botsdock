@@ -1,29 +1,27 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
+import 'package:provider/provider.dart';
 
+import '../models/bot.dart';
+
+import '../models/pages.dart';
+import '../models/user.dart';
 import "../utils/constants.dart";
 import '../utils/utils.dart';
 import './new_bot.dart';
 import '../utils/assistants_api.dart';
 
-class Bots extends StatefulWidget {
-  final bots;
-  final pages;
-  final user;
-  final property;
-  const Bots(
-      {super.key,
-      required this.bots,
-      required this.pages,
-      required this.user,
-      required this.property});
+class BotsCentre extends StatefulWidget {
+  const BotsCentre({
+    super.key,
+  });
 
   @override
-  State<Bots> createState() => BotsState();
+  State<BotsCentre> createState() => BotsState();
 }
 
-class BotsState extends State<Bots> {
+class BotsState extends State<BotsCentre> {
   final dio = Dio();
   final ChatGen chats = ChatGen();
   var user_likes = [];
@@ -33,16 +31,11 @@ class BotsState extends State<Bots> {
   @override
   void initState() {
     super.initState();
-    for (var xbot in widget.bots)
-      if (xbot["author_id"] == widget.user.id || xbot["public"] == true) {
-        botsPublicMe.add(xbot);
-      }
   }
 
   @override
   void dispose() {
     super.dispose();
-    botsPublicMe.clear();
   }
 
   @override
@@ -58,7 +51,7 @@ class BotsState extends State<Bots> {
   }
 
   Widget BotsPage(BuildContext context) {
-    //User user = Provider.of<User>(context, listen: false);
+    User user = Provider.of<User>(context, listen: false);
     return Container(
         margin: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
         child: Column(
@@ -73,10 +66,13 @@ class BotsState extends State<Bots> {
                     EdgeInsets.only(left: isDisplayDesktop(context) ? 50 : 20),
                 child: OutlinedButton.icon(
                     onPressed: () {
-                      if (widget.user.isLogedin)
+                      if (user.isLogedin) {
+                        Bots bots = Provider.of<Bots>(context, listen: false);
                         showDialog(
                             context: context,
-                            builder: (context) => CreateBot(user: widget.user));
+                            builder: (BuildContext context) =>
+                                CreateBot(user: user, bots: bots));
+                      }
                     },
                     icon: Icon(Icons.add),
                     label: Text(
@@ -84,33 +80,40 @@ class BotsState extends State<Bots> {
             SizedBox(height: 30),
             Text(GalleryLocalizations.of(context)!.exploreMore,
                 style: TextStyle(fontSize: 18)),
-            BotsList(context),
+            FutureBuilder(
+                future: Provider.of<Bots>(context, listen: false).fetchBots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Failed to load bots'));
+                  } else {
+                    return Consumer<Bots>(builder: (context, bots, child) {
+                      return BotsList(context, bots);
+                    });
+                  }
+                })
           ],
         ));
   }
 
-  void deleteBot(bot) async {
-    var _delBotURL = botURL + "/${bot["id"]}";
-    var assistant_id = "";
-    if (bot["file_search"] || bot["code_interpreter"] || bot["functions"])
-      assistant_id = bot["assistant_id"];
+  void deleteBot(Bots bots, Bot bot) async {
+    var _delBotURL = botURL + "/${bot.id}";
+    var assistant_id;
+    if (bot.assistant_id != null) assistant_id = bot.assistant_id!;
     var resp = await Dio()
         .delete(_delBotURL, queryParameters: {"assistant_id": assistant_id});
     if (resp.data["result"] == "success") {
-      setState(() {
-        //widget.bots
-        widget.bots.removeWhere((element) => element['id'] == bot["id"]);
-      });
+      //setState(() {
+      //widget.bots
+      bots.deleteBot(bot.id);
+      //});
     }
   }
 
-  // Widget editBot(context, user, bot) {
-  //   return showDialog(
-  //       context: context,
-  //       builder: (context) => CreateBot(user: user, bot: bot));
-  // }
-
   Widget BotTabEdit(BuildContext context, bot) {
+    User user = Provider.of<User>(context, listen: false);
+    Bots bots = Provider.of<Bots>(context, listen: false);
     return PopupMenuButton<String>(
       //initialValue: "edit",
       icon: Icon(Icons.edit_note_rounded, size: 20),
@@ -120,14 +123,13 @@ class BotsState extends State<Bots> {
       onSelected: (String value) {
         if (value == "edit") {
           showDialog(
-                  context: context,
-                  builder: (context) =>
-                      CreateBot(user: widget.user, bots: widget.bots, bot: bot))
-              .then((_) {
+              context: context,
+              builder: (BuildContext context) =>
+                  CreateBot(user: user, bots: bots, bot: bot)).then((_) {
             setState(() {});
           });
         } else if (value == "delete") {
-          deleteBot(bot);
+          deleteBot(bots, bot);
         }
       },
       //position: PopupMenuPosition.under,
@@ -176,15 +178,16 @@ class BotsState extends State<Bots> {
     ]);
   }
 
-  Widget buildListItem({
+  Widget buildTab({
     required int rank,
-    required var bot,
+    required Bot bot,
     required onTab,
   }) {
-    String? image = bot["avatar"];
-    String title = bot["name"];
-    String description = bot["description"];
-    String? creator = bot["author_name"] ?? "anonymous";
+    String? image = bot.avatar;
+    String title = bot.name;
+    String description = bot.description ?? "";
+    String? creator = bot.author_name ?? "anonymous";
+    User user = Provider.of<User>(context, listen: false);
     return Card(
         color: Color.fromARGB(255, 244, 244, 244),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -238,7 +241,7 @@ class BotsState extends State<Bots> {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(fontSize: 12, color: Colors.grey),
                           )),
-                          if (widget.user.id == bot["author_id"])
+                          if (user.id == bot.author_id)
                             Container(
                               alignment: Alignment.centerRight,
                               child: BotTabEdit(context, bot),
@@ -253,34 +256,33 @@ class BotsState extends State<Bots> {
         ));
   }
 
-  Widget BotTab(BuildContext context, index) {
-    var bot = botsPublicMe[index];
-    return buildListItem(
+  Widget BotTab(BuildContext context, Bots bots, int index) {
+    Property property = Provider.of<Property>(context, listen: false);
+    User user = Provider.of<User>(context, listen: false);
+    Pages pages = Provider.of<Pages>(context, listen: false);
+    Bot bot = bots.bots[index];
+    return buildTab(
         rank: index,
         bot: bot,
         onTab: () async {
-          if (widget.user.isLogedin) {
+          if (user.isLogedin) {
             Navigator.pop(context);
-            int _pid = widget.pages.checkBot(bot["id"]);
+            int _pid = pages.checkBot(bot.id);
             if (_pid >= 0) {
-              widget.pages.currentPageID = _pid;
-              widget.property.onInitPage = false;
-            } else if (bot["assistant_id"] != null) {
-              print("this is a assistant");
+              pages.currentPageID = _pid;
+              property.onInitPage = false;
+            } else if (bot.assistant_id != null) {
               var thread_id = await assistant.createThread();
               //TODO: save thread_id to bot in db
-              assistant.newassistant(
-                  widget.pages, widget.property, widget.user, bot, thread_id);
+              assistant.newassistant(pages, property, user, bot, thread_id);
             } else {
-              print("this is general bot");
-              chats.newBot(widget.pages, widget.property, widget.user,
-                  bot["name"], bot["prompts"]);
+              chats.newBot(pages, property, user, bot.name, bot.prompts);
             }
           }
         });
   }
 
-  Widget BotsList(BuildContext context) {
+  Widget BotsList(BuildContext context, Bots bots) {
     final width = MediaQuery.of(context).size.width;
     final int crossAxisCount = (width ~/ 300).clamp(1, 3);
     final double childAspectRatio = (width / crossAxisCount) / 200.0;
@@ -295,9 +297,9 @@ class BotsState extends State<Bots> {
         childAspectRatio: childAspectRatio,
         crossAxisCount: crossAxisCount,
       ),
-      itemCount: botsPublicMe.length,
+      itemCount: bots.bots.length,
       itemBuilder: (BuildContext context, int index) {
-        return BotTab(context, index);
+        return BotTab(context, bots, index);
       },
     ));
   }
