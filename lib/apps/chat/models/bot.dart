@@ -1,20 +1,39 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
+import '../utils/global.dart';
+
 class Bots with ChangeNotifier {
   List<Bot> _bots = [];
   List<Bot> get bots => _bots;
   final dio = Dio();
 
   Future<void> fetchBots() async {
+    final responseSh = await dio.get('https://fantao.life:8001/v1/shares');
+    if (Global.botsCheck(responseSh.data["bot_updated"])) {
+      if (_bots.isEmpty) {
+        debugPrint("restore from local");
+        restoreBots(bots);
+      }
+      if (_bots.isNotEmpty) {
+        debugPrint("no need restore data");
+        return;
+      }
+    }
+    debugPrint("need update from db");
     final response = await dio.post('https://fantao.life:8001/v1/bot/bots');
     if (response.statusCode == 200) {
-      List<dynamic> data = response.data;
+      List<dynamic> data = response.data["bots"];
       _bots = data.map((item) => Bot.fromJson(item)).toList();
       notifyListeners();
+      cacheBots(response.data["date"]);
     } else {
       throw Exception('Failed to load bots');
     }
+  }
+
+  void sortBots() {
+    _bots.sort((a, b) => a.id.compareTo(b.id));
   }
 
   void addBot(Map<String, dynamic> data) {
@@ -30,6 +49,14 @@ class Bots with ChangeNotifier {
   void deleteBot(int id) {
     _bots.removeWhere((element) => element.id == id);
     notifyListeners();
+  }
+
+  void cacheBots(update_date) {
+    Global.saveBots(_bots, update_date);
+  }
+
+  void restoreBots(bots) {
+    Global.restoreBots(bots);
   }
 }
 
@@ -99,5 +126,29 @@ class Bot {
       created_at: json['created_at'],
       updated_at: json['updated_at'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id,
+      "name": name,
+      "avatar": avatar,
+      "description": description,
+      "assistant_id": assistant_id,
+      "prompts": prompts,
+      "author_id": author_id,
+      "author_name": author_name,
+      "model": model,
+      "public": public,
+      "file_search": file_search,
+      "code_interpreter": code_interpreter,
+      "vector_store_ids": vector_store_ids,
+      "code_interpreter_files": code_interpreter_files,
+      "functions": functions,
+      "temperature": temperature,
+      "likes": likes,
+      "created_at": created_at,
+      "updated_at": updated_at,
+    };
   }
 }

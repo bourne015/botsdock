@@ -27,10 +27,12 @@ class BotsState extends State<BotsCentre> {
   var user_likes = [];
   var botsPublicMe = [];
   final assistant = AssistantsAPI();
+  late Future<void> _fetchBotsFuture;
 
   @override
   void initState() {
     super.initState();
+    _fetchBotsFuture = Provider.of<Bots>(context, listen: false).fetchBots();
   }
 
   @override
@@ -51,7 +53,6 @@ class BotsState extends State<BotsCentre> {
   }
 
   Widget BotsPage(BuildContext context) {
-    User user = Provider.of<User>(context, listen: false);
     return Container(
         margin: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
         child: Column(
@@ -61,27 +62,12 @@ class BotsState extends State<BotsCentre> {
             Text(GalleryLocalizations.of(context)!.botCentreMe,
                 textAlign: TextAlign.left, style: TextStyle(fontSize: 18)),
             SizedBox(height: 20),
-            Container(
-                padding:
-                    EdgeInsets.only(left: isDisplayDesktop(context) ? 50 : 20),
-                child: OutlinedButton.icon(
-                    onPressed: () {
-                      if (user.isLogedin) {
-                        Bots bots = Provider.of<Bots>(context, listen: false);
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) =>
-                                CreateBot(user: user, bots: bots));
-                      }
-                    },
-                    icon: Icon(Icons.add),
-                    label: Text(
-                        GalleryLocalizations.of(context)!.botCentreCreate))),
+            createBotButton(context),
             SizedBox(height: 30),
             Text(GalleryLocalizations.of(context)!.exploreMore,
                 style: TextStyle(fontSize: 18)),
             FutureBuilder(
-                future: Provider.of<Bots>(context, listen: false).fetchBots(),
+                future: _fetchBotsFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Expanded(
@@ -91,7 +77,12 @@ class BotsState extends State<BotsCentre> {
                           child: CircularProgressIndicator()),
                     );
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Failed to load bots'));
+                    return Expanded(
+                      child: Container(
+                          height: 40,
+                          alignment: Alignment.center,
+                          child: Center(child: Text('Failed to load bots'))),
+                    );
                   } else {
                     return Consumer<Bots>(builder: (context, bots, child) {
                       return BotsList(context, bots);
@@ -100,6 +91,24 @@ class BotsState extends State<BotsCentre> {
                 })
           ],
         ));
+  }
+
+  Widget createBotButton(BuildContext context) {
+    User user = Provider.of<User>(context, listen: false);
+    return Container(
+        padding: EdgeInsets.only(left: isDisplayDesktop(context) ? 50 : 20),
+        child: OutlinedButton.icon(
+            onPressed: () {
+              if (user.isLogedin) {
+                Bots bots = Provider.of<Bots>(context, listen: false);
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) =>
+                        CreateBot(user: user, bots: bots));
+              }
+            },
+            icon: Icon(Icons.add),
+            label: Text(GalleryLocalizations.of(context)!.botCentreCreate)));
   }
 
   void deleteBot(Bots bots, Bot bot) async {
@@ -294,6 +303,7 @@ class BotsState extends State<BotsCentre> {
     final int crossAxisCount = (width ~/ 300).clamp(1, 3);
     final double childAspectRatio = (width / crossAxisCount) / 200.0;
     final hpaddng = isDisplayDesktop(context) ? 50.0 : 20.0;
+    bots.sortBots();
     return Expanded(
         child: GridView.builder(
       key: UniqueKey(),
