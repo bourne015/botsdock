@@ -746,10 +746,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     if (kIsWeb) {
       debugPrint('web platform');
       result = await FilePickerWeb.platform
-          .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles1);
+          .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles);
     } else {
       result = await FilePicker.platform
-          .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles1);
+          .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles);
     }
     if (result != null) {
       final fileName = result.files.first.name;

@@ -51,6 +51,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
       _modelV = pages.currentPage?.modelVersion;
     var _picButtonIcon = Icons.image_rounded;
     var _picButtonTip = "选择图片";
+    if (property.onInitPage && _modelV.startsWith("gpt")) {
+      _picButtonIcon = Icons.attachment;
+      _picButtonTip = "选择文件";
+    }
     if (!property.onInitPage && pages.currentPage!.assistantID != null) {
       _picButtonIcon = Icons.attachment;
       _picButtonTip = "选择文件";
@@ -65,7 +69,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       padding: const EdgeInsets.fromLTRB(1, 4, 1, 4),
       child: Row(
         children: [
-          if (_modelV != GPTModel.gptv35 && _modelV != GPTModel.gptv40Dall)
+          if (_modelV != GPTModel.gptv40Dall)
             pickButton(context, _picButtonTip, _picButtonIcon)
           else
             const SizedBox(width: 15),
@@ -279,13 +283,22 @@ class _ChatInputFieldState extends State<ChatInputField> {
       icon: const Icon(Icons.send),
       color: isContentReady(pages, property) ? Colors.blue : Colors.grey,
       onPressed: isContentReady(pages, property)
-          ? () {
-              int newPageId;
+          ? () async {
+              int newPageId = -1;
               if (property.onInitPage) {
-                newPageId = pages.addPage(Chat(title: "Chat 0"), sort: true);
-                property.onInitPage = false;
-                pages.currentPageID = newPageId;
-                pages.currentPage?.modelVersion = property.initModelVersion;
+                String? thread_id = null;
+                if (attachments.isNotEmpty)
+                  thread_id = await assistant.createThread();
+                if (thread_id != null) {
+                  newPageId = assistant.newassistant(
+                      pages, property, user, thread_id,
+                      ass_id: chatAssistantID);
+                } else {
+                  newPageId = pages.addPage(Chat(title: "Chat 0"), sort: true);
+                  property.onInitPage = false;
+                  pages.currentPageID = newPageId;
+                  pages.currentPage?.modelVersion = property.initModelVersion;
+                }
               } else {
                 newPageId = pages.currentPageID;
               }
@@ -302,13 +315,27 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   Future<void> _pickFile() async {
     var result;
+    var _supported;
+    Pages pages = Provider.of<Pages>(context, listen: false);
+    Property property = Provider.of<Property>(context, listen: false);
+    var _modelV;
+    if (property.onInitPage)
+      _modelV = property.initModelVersion;
+    else
+      _modelV = pages.currentPage?.modelVersion;
+    if (_modelV.startsWith("gpt-4"))
+      _supported = supportedFilesAll;
+    else if (_modelV.startsWith("gpt-3"))
+      _supported = supportedFiles;
+    else
+      _supported = supportedImages;
     if (kIsWeb) {
       debugPrint('web platform');
       result = await FilePickerWeb.platform
-          .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles1);
+          .pickFiles(type: FileType.custom, allowedExtensions: _supported);
     } else {
       result = await FilePicker.platform
-          .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles1);
+          .pickFiles(type: FileType.custom, allowedExtensions: _supported);
     }
     if (result != null) {
       final fileName = result.files.first.name;
@@ -321,7 +348,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
         });
         _type = MsgType.file;
         _getTextFile(result);
-      } else if (supportedImageFiles.contains(fileType)) {
+      } else if (supportedImages.contains(fileType)) {
         _type = MsgType.image;
         setState(() {
           visionFiles[fileName] = VisionFile(name: fileName);
