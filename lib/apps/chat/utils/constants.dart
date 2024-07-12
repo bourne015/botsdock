@@ -147,4 +147,4 @@ List<String> BotImages = [
 
 const String chatAssistantID = "asst_jyeohJN5sfUlrqdMm8pwGN2a";
 
-const String appVersion = "0.4.7";
+const String appVersion = "0.4.8";

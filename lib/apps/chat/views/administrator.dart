@@ -47,6 +47,8 @@ class AdministratorState extends State<Administrator> {
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
+    Pages pages = Provider.of<Pages>(context, listen: false);
+    Property property = Provider.of<Property>(context, listen: false);
     return PopupMenuButton<String>(
         color: AppColors.drawerBackground,
         shadowColor: Colors.blue,
@@ -91,7 +93,9 @@ class AdministratorState extends State<Administrator> {
               aboutDialog(context);
               break;
             case 'Logout':
-              user.isLogedin = false;
+              user.reset();
+              property.reset();
+              pages.reset();
               Global.reset();
               _pwdcontroller.clear();
               break;

@@ -137,6 +137,12 @@ class Pages with ChangeNotifier {
     }
     return -1;
   }
+
+  void reset() {
+    _pages.clear();
+    _pagesID.clear();
+    currentPageID = -1;
+  }
 }
 
 class Property with ChangeNotifier {
@@ -168,5 +174,12 @@ class Property with ChangeNotifier {
   set onInitPage(bool val) {
     _onInitPage = val;
     notifyListeners();
+  }
+
+  void reset() {
+    _initModelVersion = DefaultModelVersion;
+    _isDrawerOpen = true;
+    _onInitPage = true;
+    _isLoading = true;
   }
 }
