@@ -405,22 +405,29 @@ class _ChatInputFieldState extends State<ChatInputField> {
     try {
       pages.getPage(handlePageID).onGenerating = true;
       var ts = DateTime.now().millisecondsSinceEpoch;
+      Map<String, VisionFile> _vf = copyVision(visionFiles);
       Message msgQ = Message(
           id: pages.getPage(handlePageID).messages.length,
           pageID: handlePageID,
           role: MessageRole.user,
           type: _type,
           content: text,
-          visionFiles: copyVision(visionFiles),
+          visionFiles: _vf,
           attachments: copyAttachment(attachments),
           timestamp: ts);
       pages.addMessage(handlePageID, msgQ);
       if (visionFiles.isNotEmpty) {
-        visionFiles.forEach((_filename, _content) {
+        //visionFiles.forEach((_filename, _content) async {
+        for (var entry in _vf.entries) {
+          var _filename = entry.key;
+          var _content = entry.value;
           String oss_name = "user${user.id}_${handlePageID}_${ts}" + _filename;
-          chats.uploadImage(pages, handlePageID, msgQ.id, oss_name, _filename,
-              _content.bytes);
-        });
+          String? ossURL = await chats.uploadImage(pages, handlePageID, msgQ.id,
+              oss_name, _filename, _content.bytes);
+          if (ossURL != null) _content.url = ossURL;
+        }
+
+        pages.getPage(handlePageID).updateMsg(msgQ.id, vfiles: _vf);
       }
     } catch (e) {
       debugPrint("_submitText error: $e");
