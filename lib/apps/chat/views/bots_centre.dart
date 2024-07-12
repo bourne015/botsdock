@@ -280,7 +280,8 @@ class BotsState extends State<BotsCentre> {
               String? thread_id = await assistant.createThread();
               //TODO: save thread_id to bot in db
               if (thread_id != null)
-                assistant.newassistant(pages, property, user, bot, thread_id);
+                assistant.newassistant(pages, property, user, thread_id,
+                    bot: bot);
             } else {
               chats.newBot(pages, property, user, bot.name, bot.prompts);
             }

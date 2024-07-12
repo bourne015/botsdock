@@ -61,7 +61,7 @@ const DefaultClaudeModel = ClaudeModel.sonnet_35;
 
 enum MsgType { text, image, file }
 
-const supportedImageFiles = [
+const supportedImages = [
   'png',
   'jpg',
   'jpeg',
@@ -90,8 +90,8 @@ const supportedFiles = [
   'sh'
 ];
 
-const supportedFiles1 = [
-  ...supportedImageFiles,
+const supportedFilesAll = [
+  ...supportedImages,
   ...supportedFiles,
 ];
 
@@ -145,4 +145,6 @@ List<String> BotImages = [
   'assets/images/bot/bot12.png',
 ];
 
-const String appVersion = "0.4.6";
+const String chatAssistantID = "asst_jyeohJN5sfUlrqdMm8pwGN2a";
+
+const String appVersion = "0.4.7";
