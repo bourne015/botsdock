@@ -59,4 +59,8 @@ class User with ChangeNotifier {
   set credit(double? recharge) {
     _credit = recharge;
   }
+
+  void reset() {
+    _isLogedin = false;
+  }
 }
