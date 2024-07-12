@@ -66,6 +66,7 @@ const supportedImages = [
   'jpg',
   'jpeg',
   'gif',
+  'webp',
 ];
 
 const supportedFiles = [
@@ -147,4 +148,4 @@ List<String> BotImages = [
 
 const String chatAssistantID = "asst_jyeohJN5sfUlrqdMm8pwGN2a";
 
-const String appVersion = "0.4.8";
+const String appVersion = "0.4.9";

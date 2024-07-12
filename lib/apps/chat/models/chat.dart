@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gallery/apps/chat/models/data.dart';
 
 import 'message.dart';
 import '../views/message_box.dart';
@@ -89,20 +90,20 @@ class Chat {
     _dbScheme.last["content"] = messages[lastMsgID].content;
   }
 
-  void updateFileUrl(int msgId, String filename, String url) {
-    //int lastMsgID = messages.isNotEmpty ? messages.length - 1 : 0;
-    messages[msgId].visionFiles![filename]!.url = url;
-    var msg = messages[msgId];
-    messageBox[0] = MessageBox(val: {
-      "role": msg.role,
-      "type": msg.type,
-      "content": msg.content,
-      "visionFiles": msg.visionFiles,
-      "attachments": msg.attachments
-    });
-
-    // if (msg.role == MessageRole.user)
-    //   _chatScheme.last["content"][1]["image_url"]["url"] = url;
-    _dbScheme[msgId]["visionFiles"][filename]["url"] = url;
+  void updateMsg(int msgId, {Map<String, VisionFile>? vfiles}) {
+    if (vfiles != null) {
+      messages[msgId].visionFiles = vfiles;
+      var trNewMsg = messages[msgId].toMap(modelVersion);
+      _chatScheme[msgId] = trNewMsg["chat_scheme"];
+      _dbScheme[msgId] = trNewMsg["db_scheme"];
+      var msg = messages[msgId];
+      messageBox[0] = MessageBox(val: {
+        "role": msg.role,
+        "type": msg.type,
+        "content": msg.content,
+        "visionFiles": msg.visionFiles,
+        "attachments": msg.attachments
+      });
+    }
   }
 }

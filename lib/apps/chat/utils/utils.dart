@@ -182,16 +182,17 @@ class ChatGen {
       user.credit = response.data["credit"];
   }
 
-  Future<void> uploadImage(
+  Future<String?> uploadImage(
       pages, pid, msg_id, oss_name, filename, imgData) async {
+    String? ossUrl;
     try {
       var resp = await Client().putObject(imgData, "chat/image/" + oss_name);
-      String? ossUrl =
-          (resp.statusCode == 200) ? resp.realUri.toString() : null;
-      if (ossUrl != null) pages.updateFileUrl(pid, msg_id, filename, ossUrl);
+      ossUrl = (resp.statusCode == 200) ? resp.realUri.toString() : null;
+      //if (ossUrl != null) pages.updateFileUrl(pid, msg_id, filename, ossUrl);
     } catch (e) {
       debugPrint("uploadImage to oss error: $e");
     }
+    return ossUrl;
   }
 
   void submitAssistant(Pages pages, Property property, int handlePageID, user,

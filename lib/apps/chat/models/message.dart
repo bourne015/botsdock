@@ -28,10 +28,10 @@ class Message {
   List claudeImgMsg() {
     List claudeContent = [];
 
-    if (visionFiles != null && visionFiles!.isNotEmpty) {
-      visionFiles!.forEach((_filename, _content) {
-        String fileType = _filename!.split('.').last.toLowerCase();
-        String fileBase64 = base64Encode(_content.bytes!);
+    if (visionFiles.isNotEmpty) {
+      visionFiles.forEach((_filename, _content) {
+        String fileType = _filename.split('.').last.toLowerCase();
+        String fileBase64 = base64Encode(_content.bytes);
         var claude_img_title = {"type": "text", "text": "Image:"};
         var claude_img = {
           'type': 'image',
@@ -52,14 +52,14 @@ class Message {
   List gptImgMsg() {
     List gptContent = [];
 
-    if (visionFiles != null && visionFiles!.isNotEmpty) {
-      visionFiles!.forEach((_filename, _content) {
+    if (visionFiles.isNotEmpty) {
+      visionFiles.forEach((_filename, _content) {
         var _imgData = "";
-        if (_content.url!.isNotEmpty)
-          _imgData = _content.url!;
-        else if (_content.bytes!.isNotEmpty) {
-          String fileType = _filename!.split('.').last.toLowerCase();
-          String fileBase64 = base64Encode(_content.bytes!);
+        if (_content.url.isNotEmpty)
+          _imgData = _content.url;
+        else if (_content.bytes.isNotEmpty) {
+          String fileType = _filename.split('.').last.toLowerCase();
+          String fileBase64 = base64Encode(_content.bytes);
           _imgData = "data:image/$fileType;base64,$fileBase64";
         }
         var _gpt_img = {
