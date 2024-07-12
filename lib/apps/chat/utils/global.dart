@@ -5,6 +5,7 @@ import 'dart:convert';
 
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
+import '../models/bot.dart';
 import '../models/chat.dart';
 import '../models/user.dart';
 import '../models/pages.dart';
@@ -157,6 +158,31 @@ class Global {
   static deleteChat(page_id, updated_at) {
     _prefs.remove("chat_$page_id");
     if (updated_at != 0) _prefs.setInt("updated_at", updated_at);
+  }
+
+  static saveBots(List<Bot> bots, updated_at) {
+    for (Bot bot in bots) {
+      var jsBot = jsonEncode(bot.toJson());
+      _prefs.setString("ai_bots_${bot.id}", jsBot);
+    }
+    if (updated_at != 0) _prefs.setInt("bots_updated_at", updated_at);
+  }
+
+  static bool botsCheck(int updated) {
+    return updated == _prefs.getInt("bots_updated_at");
+  }
+
+  static restoreBots(bots) {
+    final keys = _prefs.getKeys().where((key) => key.startsWith('ai_bots_'));
+    for (var key in keys) {
+      String? jsonBot = _prefs.getString(key);
+      if (jsonBot != null) {
+        final bot = Bot.fromJson(jsonDecode(jsonBot));
+        //print("bot: ${bot.name}");
+        // Bots.addBot(jsonDecode(jsonBot));
+        bots.add(bot);
+      }
+    }
   }
 
   static reset() {
