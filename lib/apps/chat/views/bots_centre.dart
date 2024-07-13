@@ -292,7 +292,7 @@ class BotsState extends State<BotsCentre> {
                 assistant.newassistant(pages, property, user, thread_id,
                     bot: bot);
             } else {
-              chats.newBot(pages, property, user, bot.name, bot.prompts);
+              chats.newBot(pages, property, user, bot.name, bot.instructions);
             }
           }
         });

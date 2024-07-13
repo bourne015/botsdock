@@ -9,7 +9,7 @@ class Bots with ChangeNotifier {
   final dio = Dio();
 
   Future<void> fetchBots() async {
-    final responseSh = await dio.get('https://fantao.life:8001/v1/shares');
+    final responseSh = await dio.get('https://phantasys.life:8001/v1/shares');
     if (Global.botsCheck(responseSh.data["bot_updated"])) {
       if (_bots.isEmpty) {
         debugPrint("restore from local");
@@ -21,7 +21,7 @@ class Bots with ChangeNotifier {
       }
     }
     debugPrint("need update from db");
-    final response = await dio.post('https://fantao.life:8001/v1/bot/bots');
+    final response = await dio.post('https://phantasys.life:8001/v1/bot/bots');
     if (response.statusCode == 200) {
       List<dynamic> data = response.data["bots"];
       _bots = data.map((item) => Bot.fromJson(item)).toList();
@@ -67,7 +67,7 @@ class Bot {
   String? description;
 
   String? assistant_id;
-  String? prompts;
+  String? instructions;
   int? author_id;
   String? author_name;
   String? model;
@@ -88,7 +88,7 @@ class Bot {
     this.avatar,
     this.assistant_id,
     this.description,
-    this.prompts,
+    this.instructions,
     this.author_id,
     this.author_name,
     this.model,
@@ -111,7 +111,7 @@ class Bot {
       avatar: json['avatar'],
       description: json['description'],
       assistant_id: json['assistant_id'],
-      prompts: json['prompts'],
+      instructions: json['instructions'],
       author_id: json['author_id'],
       author_name: json['author_name'],
       model: json['model'],
@@ -135,7 +135,7 @@ class Bot {
       "avatar": avatar,
       "description": description,
       "assistant_id": assistant_id,
-      "prompts": prompts,
+      "instructions": instructions,
       "author_id": author_id,
       "author_name": author_name,
       "model": model,
