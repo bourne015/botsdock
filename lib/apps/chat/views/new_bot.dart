@@ -39,6 +39,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   //code interpreter files in openai
   //key: fileName, value: fildID
   Map codeInterpreterFilesID = {};
+  String? _assistant_id;
   bool _isUploading = false;
   bool _vsCreating = false;
   //key: vectorStoreId, value: vectorStore name
@@ -68,9 +69,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     super.initState();
     if (widget.bot != null) {
       _logoURL = widget.bot!.avatar;
+      _assistant_id = widget.bot!.assistant_id;
       _nameController.text = widget.bot!.name;
       _introController.text = widget.bot!.description ?? "";
-      _configInfoController.text = widget.bot!.prompts ?? "";
+      _configInfoController.text = widget.bot!.instructions ?? "";
       switchPublic = RestorableBool(widget.bot!.public ?? true);
       // TODO: add Model
       switchFileSearch = RestorableBool(widget.bot!.file_search ?? false);
@@ -274,10 +276,12 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     try {
       if (widget.bot != null) _botsURL = botURL + "/${widget.bot!.id}";
       var botData = {
+        "model": GPTModel.gptv40, //TODO: fix
         "name": _nameController.text,
+        "assistant_id": _assistant_id,
         "avatar": _logoURL,
         "description": _introController.text,
-        "prompts": _configInfoController.text,
+        "instructions": _configInfoController.text,
         "author_id": widget.user.id,
         "author_name": widget.user.name,
         "public": switchPublic.value,
