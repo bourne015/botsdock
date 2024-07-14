@@ -23,7 +23,7 @@ class AssistantsAPI {
       var file = selectedFile!.files.first;
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('https://fantao.life:8001/v1/files'),
+        Uri.parse('https://phantasys.life:8001/v1/files'),
       );
       // request.files.add(
       //     await http.MultipartFile.fromPath('file', selectedFile!.files.first));
@@ -43,7 +43,7 @@ class AssistantsAPI {
    * create openai vector store with files
    */
   Future<String> createVectorStore(selectedFile) async {
-    var url = 'https://fantao.life:8001/v1/assistant/vs';
+    var url = 'https://phantasys.life:8001/v1/assistant/vs';
     try {
       var files = selectedFile.map((pfile) {
         return pfile.files.first.name;
@@ -61,7 +61,7 @@ class AssistantsAPI {
    * upload file to openai.
    */
   Future<String> fileUpload(fileName) async {
-    var url = 'https://fantao.life:8001/v1/assistant/files';
+    var url = 'https://phantasys.life:8001/v1/assistant/files';
 
     var vs_data = {
       'file_name': fileName,
@@ -79,7 +79,7 @@ class AssistantsAPI {
    * delete file in openai.
    */
   Future<bool> filedelete(fileID) async {
-    var url = 'https://fantao.life:8001/v1/assistant/files/${fileID}';
+    var url = 'https://phantasys.life:8001/v1/assistant/files/${fileID}';
     try {
       final response = await dio.delete(url);
       if (response.statusCode == 200) return true;
@@ -93,7 +93,7 @@ class AssistantsAPI {
      * Create a vector store file by attaching a it to a vector store.
      */
   Future<Map> vectorStoreFile(vid, fileName) async {
-    var url = 'https://fantao.life:8001/v1/assistant/vs/${vid}/files';
+    var url = 'https://phantasys.life:8001/v1/assistant/vs/${vid}/files';
     var vs_data = {
       //'vector_store_id': vid,
       'file_name': fileName,
@@ -111,7 +111,8 @@ class AssistantsAPI {
  * delete file in vector store
  */
   Future<bool> vectorStoreFileDelete(vid, fileID) async {
-    var url = 'https://fantao.life:8001/v1/assistant/vs/${vid}/files/${fileID}';
+    var url =
+        'https://phantasys.life:8001/v1/assistant/vs/${vid}/files/${fileID}';
 
     try {
       final response = await dio.delete(url);
@@ -126,7 +127,7 @@ class AssistantsAPI {
  * delete vector store
  */
   Future<bool> vectorStoreDelete(vid) async {
-    var url = 'https://fantao.life:8001/v1/assistant/vs/${vid}';
+    var url = 'https://phantasys.life:8001/v1/assistant/vs/${vid}';
 
     try {
       final response = await dio.delete(url);
@@ -143,7 +144,7 @@ class AssistantsAPI {
   Future<List> getVectorStoreFiles(vectorStoreId) async {
     try {
       var vid = vectorStoreId.keys.first;
-      var url = 'https://fantao.life:8001/v1/assistant/vs/${vid}/files';
+      var url = 'https://phantasys.life:8001/v1/assistant/vs/${vid}/files';
       final response = await dio.get(url);
       if (response.statusCode == 200) {
         print("get files: ${response.data["files"]}");
@@ -164,7 +165,7 @@ class AssistantsAPI {
    *  create a thread
    */
   Future<String?> createThread() async {
-    var url = 'https://fantao.life:8001/v1/assistant/threads';
+    var url = 'https://phantasys.life:8001/v1/assistant/threads';
     try {
       final response = await dio.post(url);
       if (response.statusCode == 200) return response.data["id"];
@@ -178,7 +179,7 @@ class AssistantsAPI {
    *  delete a thread
    */
   Future<bool> deleteThread(String thread_id) async {
-    var url = 'https://fantao.life:8001/v1/assistant/threads/${thread_id}';
+    var url = 'https://phantasys.life:8001/v1/assistant/threads/${thread_id}';
     try {
       final response = await dio.delete(url);
       if (response.statusCode == 200) return true;
