@@ -14,6 +14,7 @@ import '../models/chat.dart';
 import '../models/pages.dart';
 import '../models/message.dart';
 import '../models/data.dart';
+import '../models/schema/schema.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
 import '../utils/global.dart';
@@ -49,6 +50,158 @@ bool isDisplayFoldable(BuildContext context) {
     // 判断是否为垂直铰链
     return hinge.bounds.size.aspectRatio < 1;
   }
+}
+
+Future<http.StreamedResponse> makeRequestStream(
+  String url,
+  String method,
+  Map<String, String>? headers,
+  String? body,
+) async {
+  var response;
+  var request = http.Request(method, Uri.parse(url));
+  if (headers != null) request.headers.addAll(headers);
+  if (body != null) request.body = body;
+  try {
+    var client;
+    if (kIsWeb)
+      client = FetchClient(mode: RequestMode.cors);
+    else
+      client = http.Client();
+    response = await client.send(request);
+  } catch (e) {
+    print("error: ${e}");
+  }
+  return response;
+}
+
+class _PairwiseTransformer
+    extends StreamTransformerBase<String, (String, String)> {
+  @override
+  Stream<(String, String)> bind(final Stream<String> stream) {
+    late StreamController<(String, String)> controller;
+    late StreamSubscription<String> subscription;
+    late String event;
+
+    controller = StreamController<(String, String)>(
+      onListen: () {
+        subscription = stream.listen(
+          (final String data) {
+            if (data.isNotEmpty) {
+              final parsedData = json.decode(data);
+              final event = parsedData['event'] as String;
+              final dataStr = json.encode(parsedData['data']);
+              controller.add((event, dataStr));
+            }
+          },
+          onError: controller.addError,
+          onDone: controller.close,
+          cancelOnError: true,
+        );
+      },
+      onPause: ([final resumeSignal]) => subscription.pause(resumeSignal),
+      onResume: () => subscription.resume(),
+      onCancel: () async => subscription.cancel(),
+    );
+
+    return controller.stream;
+  }
+}
+
+class _OpenAIAssistantStreamTransformer
+    extends StreamTransformerBase<List<int>, AssistantStreamEvent> {
+  const _OpenAIAssistantStreamTransformer();
+
+  @override
+  Stream<AssistantStreamEvent> bind(final Stream<List<int>> stream) {
+    return stream
+        .transform(utf8.decoder)
+        .transform(const LineSplitter())
+        .transform(_DataPreprocessorTransformer())
+        .transform(_PairwiseTransformer())
+        .map((final item) {
+      final (event, data) = item;
+      //print("event:${event}");
+
+      Map<String, dynamic> getEventDataMap({final bool decode = true}) => {
+            'event': event,
+            'data': decode ? json.decode(data) : data,
+          };
+
+      switch (event) {
+        case 'thread.created':
+          return ThreadStreamEvent.fromJson(getEventDataMap());
+        case 'thread.run.created':
+        case 'thread.run.queued':
+        case 'thread.run.in_progress':
+        case 'thread.run.requires_action':
+        case 'thread.run.completed':
+        case 'thread.run.failed':
+        case 'thread.run.cancelling':
+        case 'thread.run.cancelled':
+        case 'thread.run.expired':
+          return RunStreamEvent.fromJson(getEventDataMap());
+        case 'thread.run.step.created':
+        case 'thread.run.step.in_progress':
+        case 'thread.run.step.completed':
+        case 'thread.run.step.failed':
+        case 'thread.run.step.cancelled':
+        case 'thread.run.step.expired':
+          return RunStepStreamEvent.fromJson(getEventDataMap());
+        case 'thread.run.step.delta':
+          return RunStepStreamDeltaEvent.fromJson(getEventDataMap());
+        case 'thread.message.created':
+        case 'thread.message.in_progress':
+        case 'thread.message.completed':
+        case 'thread.message.incomplete':
+          return MessageStreamEvent.fromJson(getEventDataMap());
+        case 'thread.message.delta':
+          return MessageStreamDeltaEvent.fromJson(getEventDataMap());
+        case 'error':
+          return ErrorEvent.fromJson(getEventDataMap());
+        case 'done':
+          return DoneEvent.fromJson(getEventDataMap(decode: false));
+        default:
+          throw Exception('Unknown event: $event');
+      }
+    });
+  }
+}
+
+class _DataPreprocessorTransformer
+    extends StreamTransformerBase<String, String> {
+  @override
+  Stream<String> bind(final Stream<String> stream) {
+    return stream.map((String data) {
+      if (data.isNotEmpty) {
+        var newData = 'data: ';
+        newData = data.substring(5).replaceFirst(' ', '');
+        data = data.length > 0 ? data : '\n';
+        return newData;
+      }
+      return data;
+    });
+  }
+}
+
+Stream<AssistantStreamEvent> connectAssistant(
+  String url,
+  String method, {
+  Map<String, String>? headers,
+  String? body,
+}) async* {
+  var request = http.Request(method, Uri.parse(url));
+  if (headers != null) request.headers.addAll(headers);
+  if (body != null) request.body = body;
+
+  var client;
+  if (kIsWeb)
+    client = FetchClient(mode: RequestMode.cors);
+  else
+    client = http.Client();
+  var response = await client.send(request);
+  var stream = response.stream;
+  yield* stream.transform(const _OpenAIAssistantStreamTransformer());
 }
 
 class ChatSSE {
@@ -197,11 +350,10 @@ class ChatGen {
 
   void submitAssistant(Pages pages, Property property, int handlePageID, user,
       attachments) async {
-    bool _isNewReply = true;
     var assistant_id = pages.getPage(handlePageID).assistantID;
     var thread_id = pages.getPage(handlePageID).threadID;
     var _url =
-        "https://fantao.life:8001/v1/assistant/vs/${assistant_id}/threads/${thread_id}/messages";
+        "https://phantasys.life:8001/v1/assistant/vs/${assistant_id}/threads/${thread_id}/messages";
     try {
       var chatData = {
         "role": "user",
@@ -210,7 +362,7 @@ class ChatGen {
             attachments.values.map((attachment) => attachment.toJson()).toList()
       };
       ////debugPrint("send question: ${chatData["question"]}");
-      final stream = chatServer.connect(
+      final stream = connectAssistant(
         _url,
         "POST",
         headers: {
@@ -220,26 +372,81 @@ class ChatGen {
         body: jsonEncode(chatData),
       );
       pages.getPage(handlePageID).onGenerating = true;
-      stream.listen((data) {
-        if (_isNewReply) {
-          Message msgA = Message(
+      Message? msgA;
+      stream.listen((event) {
+        String? _text;
+        Map<String, Attachment> attachments = {};
+        Map<String, VisionFile> visionFiles = {};
+        if (event is MessageStreamEvent &&
+            event.event == EventType.threadMessageCreated) {
+          msgA = Message(
               id: pages.getPage(handlePageID).messages.length,
               pageID: handlePageID,
-              role: MessageRole.assistant,
+              role: MessageTRole.assistant,
               type: MsgType.text,
-              content: data,
+              content: "",
+              visionFiles: copyVision(visionFiles),
+              attachments: copyAttachment(attachments),
               timestamp: DateTime.now().millisecondsSinceEpoch);
-          pages.addMessage(handlePageID, msgA);
-        } else {
-          pages.appendMessage(handlePageID, data);
+          pages.addMessage(handlePageID, msgA!);
         }
+        event.when(threadStreamEvent: (final event, final data) {
+          print("test0: $event, data:$data");
+        }, runStreamEvent: (final event, final data) {
+          print("test1: $event, data:$data");
+        }, runStepStreamEvent: (final event, final data) {
+          print("test2: $event, data:$data");
+        }, runStepStreamDeltaEvent: (final event, final data) {
+          print("test3: $event, data:$data");
+        }, messageStreamEvent: (final event, final data) {
+          print("test4: $event, data:$data");
+        }, messageStreamDeltaEvent: (final event, final data) {
+          print("test5t: data-delta-content: ${data.delta.content}");
+          //data.delta.content?.map((final _content) {
+          //print("test5.1: ${_content}");
+          if (data.delta.content != null)
+            data.delta.content![0].whenOrNull(
+                imageFile: (index, type, imageFileObj) {
+              var _image_fild_id = imageFileObj!.fileId;
+              attachments["${_image_fild_id}"] =
+                  Attachment(file_id: _image_fild_id);
+            }, text: (index, type, textObj) {
+              _text = textObj!.value;
+              if (textObj.annotations != null &&
+                  textObj.annotations!.isNotEmpty)
+                textObj.annotations!.forEach((annotation) {
+                  annotation.whenOrNull(fileCitation: (index, type, text,
+                      file_citation, start_index, end_index) {
+                    var file_name = text!.split('/').last;
+                    attachments[file_name] =
+                        Attachment(file_id: file_citation!.fileId);
+                  }, filePath:
+                      (index, type, text, file_path, start_index, end_index) {
+                    var file_name = text!.split('/').last;
+                    attachments[file_name] =
+                        Attachment(file_id: file_path!.fileId);
+                  });
+                });
+            });
+          //});
+        }, errorEvent: (final event, final data) {
+          print("test6: $event, data:$data");
+        }, doneEvent: (final event, final data) {
+          print("test7: $event, data:$data");
+        });
+        print("mmmmmmm:${_text}, ${visionFiles}, ${attachments}");
+
+        pages.appendMessage(handlePageID,
+            msg: _text,
+            visionFiles: copyVision(visionFiles),
+            attachments: copyAttachment(attachments));
         pages.getPage(handlePageID).onGenerating = true;
-        _isNewReply = false;
       }, onError: (e) {
         debugPrint('SSE error: $e');
         pages.getPage(handlePageID).onGenerating = false;
       }, onDone: () async {
         debugPrint('SSE complete');
+        if (msgA != null) pages.getPage(handlePageID).updateScheme(msgA!.id);
         pages.getPage(handlePageID).onGenerating = false;
         var pageTitle = pages.getPage(handlePageID).title;
         if (pageTitle.length >= 6 && pageTitle.startsWith("Chat 0")) {
@@ -271,7 +478,7 @@ class ChatGen {
         Message msgA = Message(
             id: pages.getPage(handlePageID).messages.length,
             pageID: handlePageID,
-            role: MessageRole.assistant,
+            role: MessageTRole.assistant,
             type: MsgType.image,
             //fileUrl: ossUrl,
             visionFiles: {
@@ -310,13 +517,13 @@ class ChatGen {
             Message msgA = Message(
                 id: pages.getPage(handlePageID).messages.length,
                 pageID: handlePageID,
-                role: MessageRole.assistant,
+                role: MessageTRole.assistant,
                 type: MsgType.text,
                 content: data,
                 timestamp: DateTime.now().millisecondsSinceEpoch);
             pages.addMessage(handlePageID, msgA);
           } else {
-            pages.appendMessage(handlePageID, data);
+            pages.appendMessage(handlePageID, msg: data);
           }
           pages.getPage(handlePageID).onGenerating = true;
           _isNewReply = false;
@@ -350,7 +557,7 @@ class ChatGen {
     Message msgQ = Message(
         id: 0,
         pageID: handlePageID,
-        role: MessageRole.system,
+        role: MessageTRole.system,
         type: MsgType.text,
         content: prompt,
         timestamp: DateTime.now().millisecondsSinceEpoch);
@@ -367,7 +574,7 @@ class ChatGen {
     Message msgQ = Message(
         id: 0,
         pageID: handlePageID,
-        role: MessageRole.user,
+        role: MessageTRole.user,
         type: MsgType.text,
         content: prompt,
         timestamp: DateTime.now().millisecondsSinceEpoch);
@@ -376,28 +583,22 @@ class ChatGen {
   }
 }
 
-Map deepCopy(Map original) {
-  Map copy = {};
-  original.forEach((key, value) {
-    if (value is Map)
-      copy[key] = deepCopy(value);
-    else if (value is List)
-      copy[key] = deepCopyList(value);
-    else
-      copy[key] = value;
+Map<String, VisionFile> copyVision(Map? original) {
+  Map<String, VisionFile> copy = {};
+  if (original == null) return copy;
+  original.forEach((_filename, _content) {
+    copy[_filename] =
+        VisionFile(name: _filename, bytes: _content.bytes, url: _content.url);
   });
   return copy;
 }
 
-List deepCopyList(List original) {
-  List copy = [];
-  original.forEach((element) {
-    if (element is Map)
-      copy.add(deepCopy(element));
-    else if (element is List)
-      copy.add(deepCopyList(element));
-    else
-      copy.add(element);
+Map<String, Attachment> copyAttachment(Map? original) {
+  Map<String, Attachment> copy = {};
+  if (original == null) return copy;
+  original.forEach((_filename, _content) {
+    copy[_filename] =
+        Attachment(file_id: _content.file_id, tools: List.from(_content.tools));
   });
   return copy;
 }

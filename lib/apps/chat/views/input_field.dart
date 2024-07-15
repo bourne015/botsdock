@@ -380,26 +380,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
     });
   }
 
-  Map<String, VisionFile> copyVision(Map? original) {
-    Map<String, VisionFile> copy = {};
-    if (original == null) return copy;
-    original.forEach((_filename, _content) {
-      copy[_filename] =
-          VisionFile(name: _filename, bytes: _content.bytes, url: _content.url);
-    });
-    return copy;
-  }
-
-  Map<String, Attachment> copyAttachment(Map? original) {
-    Map<String, Attachment> copy = {};
-    if (original == null) return copy;
-    original.forEach((_filename, _content) {
-      copy[_filename] = Attachment(
-          file_id: _content.file_id, tools: List.from(_content.tools));
-    });
-    return copy;
-  }
-
   void _submitText(Pages pages, Property property, int handlePageID,
       String text, User user) async {
     try {
@@ -409,7 +389,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       Message msgQ = Message(
           id: pages.getPage(handlePageID).messages.length,
           pageID: handlePageID,
-          role: MessageRole.user,
+          role: MessageTRole.user,
           type: _type,
           content: text,
           visionFiles: _vf,

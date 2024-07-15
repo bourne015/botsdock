@@ -35,7 +35,7 @@ class AppSize {
   static const double generatingAnimation = 30.0;
 }
 
-class MessageRole {
+class MessageTRole {
   static const String system = "system";
   static const String user = "user";
   static const String assistant = "assistant";
@@ -148,4 +148,4 @@ List<String> BotImages = [
 
 const String chatAssistantID = "asst_jyeohJN5sfUlrqdMm8pwGN2a";
 
-const String appVersion = "0.5.0";
+const String appVersion = "0.5.1";
