@@ -390,51 +390,43 @@ class ChatGen {
               timestamp: DateTime.now().millisecondsSinceEpoch);
           pages.addMessage(handlePageID, msgA!);
         }
-        event.when(threadStreamEvent: (final event, final data) {
-          print("test0: $event, data:$data");
-        }, runStreamEvent: (final event, final data) {
-          print("test1: $event, data:$data");
-        }, runStepStreamEvent: (final event, final data) {
-          print("test2: $event, data:$data");
-        }, runStepStreamDeltaEvent: (final event, final data) {
-          print("test3: $event, data:$data");
-        }, messageStreamEvent: (final event, final data) {
-          print("test4: $event, data:$data");
-        }, messageStreamDeltaEvent: (final event, final data) {
-          print("test5t: data-delta-content: ${data.delta.content}");
-          //data.delta.content?.map((final _content) {
-          //print("test5.1: ${_content}");
-          if (data.delta.content != null)
-            data.delta.content![0].whenOrNull(
-                imageFile: (index, type, imageFileObj) {
-              var _image_fild_id = imageFileObj!.fileId;
-              attachments["${_image_fild_id}"] =
-                  Attachment(file_id: _image_fild_id);
-            }, text: (index, type, textObj) {
-              _text = textObj!.value;
-              if (textObj.annotations != null &&
-                  textObj.annotations!.isNotEmpty)
-                textObj.annotations!.forEach((annotation) {
-                  annotation.whenOrNull(fileCitation: (index, type, text,
-                      file_citation, start_index, end_index) {
-                    var file_name = text!.split('/').last;
-                    attachments[file_name] =
-                        Attachment(file_id: file_citation!.fileId);
-                  }, filePath:
-                      (index, type, text, file_path, start_index, end_index) {
-                    var file_name = text!.split('/').last;
-                    attachments[file_name] =
-                        Attachment(file_id: file_path!.fileId);
-                  });
+        event.when(
+            threadStreamEvent: (final event, final data) {},
+            runStreamEvent: (final event, final data) {},
+            runStepStreamEvent: (final event, final data) {},
+            runStepStreamDeltaEvent: (final event, final data) {},
+            messageStreamEvent: (final event, final data) {},
+            messageStreamDeltaEvent: (final event, final data) {
+              //data.delta.content?.map((final _content) {
+              //print("test5.1: ${_content}");
+              if (data.delta.content != null)
+                data.delta.content![0].whenOrNull(
+                    imageFile: (index, type, imageFileObj) {
+                  var _image_fild_id = imageFileObj!.fileId;
+                  attachments["${_image_fild_id}"] =
+                      Attachment(file_id: _image_fild_id);
+                }, text: (index, type, textObj) {
+                  _text = textObj!.value;
+                  if (textObj.annotations != null &&
+                      textObj.annotations!.isNotEmpty)
+                    textObj.annotations!.forEach((annotation) {
+                      annotation.whenOrNull(fileCitation: (index, type, text,
+                          file_citation, start_index, end_index) {
+                        var file_name = text!.split('/').last;
+                        attachments[file_name] =
+                            Attachment(file_id: file_citation!.fileId);
+                      }, filePath: (index, type, text, file_path, start_index,
+                          end_index) {
+                        var file_name = text!.split('/').last;
+                        attachments[file_name] =
+                            Attachment(file_id: file_path!.fileId);
+                      });
+                    });
                 });
-            });
-          //});
-        }, errorEvent: (final event, final data) {
-          print("test6: $event, data:$data");
-        }, doneEvent: (final event, final data) {
-          print("test7: $event, data:$data");
-        });
-        print("mmmmmmm:${_text}, ${visionFiles}, ${attachments}");
+              //});
+            },
+            errorEvent: (final event, final data) {},
+            doneEvent: (final event, final data) {});
 
         pages.appendMessage(handlePageID,
             msg: _text,
