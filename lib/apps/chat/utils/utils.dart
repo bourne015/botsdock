@@ -87,11 +87,15 @@ class _PairwiseTransformer
       onListen: () {
         subscription = stream.listen(
           (final String data) {
-            if (data.isNotEmpty) {
-              final parsedData = json.decode(data);
-              final event = parsedData['event'] as String;
-              final dataStr = json.encode(parsedData['data']);
-              controller.add((event, dataStr));
+            try {
+              if (data.isNotEmpty) {
+                final parsedData = json.decode(data);
+                final event = parsedData['event'] as String;
+                final dataStr = json.encode(parsedData['data']);
+                controller.add((event, dataStr));
+              }
+            } catch (e) {
+              print("_PairwiseTransformer error: ${e}");
             }
           },
           onError: controller.addError,
