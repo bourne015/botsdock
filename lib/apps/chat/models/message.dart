@@ -111,7 +111,7 @@ class Message {
         "content": content,
         "timestamp": timestamp
       };
-      if (type == MsgType.image && role == MessageRole.user) {
+      if (type == MsgType.image && role == MessageTRole.user) {
         if (modelVersion.substring(0, 6) == "claude")
           input_msg["content"] = claudeImgMsg();
         else

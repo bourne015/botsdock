@@ -5,19 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_markdown_latex/flutter_markdown_latex.dart';
+import 'package:gallery/apps/chat/models/data.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:image_downloader_web/image_downloader_web.dart';
 
+import '../models/message.dart';
 import '../utils/constants.dart';
 import '../utils/markdown_extentions.dart';
 import '../utils/syntax_hightlighter.dart';
 import '../utils/utils.dart';
 
 class MessageBox extends StatefulWidget {
-  final Map val;
+  final Message msg;
 
-  MessageBox({super.key, required this.val});
+  const MessageBox({Key? key, required this.msg}) : super(key: key);
 
   @override
   State createState() => MessageBoxState();
@@ -30,7 +32,7 @@ class MessageBoxState extends State<MessageBox> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.val['role'] != MessageRole.system
+    return widget.msg.role != MessageTRole.system
         ? Container(
             padding: isDisplayDesktop(context)
                 ? EdgeInsets.only(left: 80, right: 120)
@@ -49,11 +51,11 @@ class MessageBoxState extends State<MessageBox> {
   }
 
   Widget roleIcon(BuildContext context) {
-    var icon = widget.val['role'] == MessageRole.user
+    var icon = widget.msg.role == MessageTRole.user
         ? Icons.person
         : Icons.perm_identity;
     var color =
-        widget.val['role'] == MessageRole.user ? Colors.blue : Colors.green;
+        widget.msg.role == MessageTRole.user ? Colors.blue : Colors.green;
 
     return Icon(
       icon,
@@ -64,14 +66,14 @@ class MessageBoxState extends State<MessageBox> {
 
   Widget message(BuildContext context) {
     double bottom_v = 0;
-    if (widget.val['role'] == MessageRole.user) bottom_v = 30.0;
+    if (widget.msg.role == MessageTRole.user) bottom_v = 30.0;
     return Flexible(
       child: Container(
         margin: EdgeInsets.only(bottom: bottom_v),
         padding:
             EdgeInsets.only(top: 1.0, bottom: 1.0, right: 10.0, left: 10.0),
         decoration: BoxDecoration(
-            color: widget.val['role'] == MessageRole.user
+            color: widget.msg.role == MessageTRole.user
                 ? AppColors.userMsgBox
                 : AppColors.aiMsgBox,
             borderRadius: const BorderRadius.only(
@@ -83,8 +85,8 @@ class MessageBoxState extends State<MessageBox> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           messageRoleName(context),
           //if (widget.val["type"] != MsgType.text)
-          if (widget.val['role'] == MessageRole.user)
-            contentAttachment(context),
+          //if (widget.msg.role == MessageTRole.user)
+          contentAttachment(context),
           messageContent(context)
         ]),
       ),
@@ -92,7 +94,7 @@ class MessageBoxState extends State<MessageBox> {
   }
 
   Widget messageRoleName(BuildContext context) {
-    var name = widget.val['role'] == MessageRole.user ? "You" : "Assistant";
+    var name = widget.msg.role == MessageTRole.user ? "You" : "Assistant";
 
     return Container(
         padding: const EdgeInsets.only(bottom: 10),
@@ -104,12 +106,12 @@ class MessageBoxState extends State<MessageBox> {
   }
 
   Widget messageContent(BuildContext context) {
-    if (widget.val["type"] == MsgType.image &&
-        widget.val['role'] == MessageRole.assistant) {
-      return visionFilesList(context, widget.val["visionFiles"]);
-    } else if (widget.val['role'] == MessageRole.user) {
+    if (widget.msg.type == MsgType.image &&
+        widget.msg.role == MessageTRole.assistant) {
+      return visionFilesList(context, widget.msg.visionFiles);
+    } else if (widget.msg.role == MessageTRole.user) {
       return SelectableText(
-        widget.val['content'],
+        widget.msg.content,
         //overflow: TextOverflow.ellipsis,
         //showCursor: false,
         maxLines: null,
@@ -129,7 +131,7 @@ class MessageBoxState extends State<MessageBox> {
         child: IconButton(
           tooltip: "Copy",
           onPressed: () {
-            Clipboard.setData(ClipboardData(text: widget.val['content']))
+            Clipboard.setData(ClipboardData(text: widget.msg.content))
                 .then((value) => ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         duration: Duration(milliseconds: 200),
@@ -169,7 +171,7 @@ class MessageBoxState extends State<MessageBox> {
 
   Widget contentMarkdown(BuildContext context) {
     return MarkdownBody(
-      data: widget.val['content'], //markdownTest,
+      data: widget.msg.content, //markdownTest,
       selectable: true,
       syntaxHighlighter: Highlighter(),
       //extensionSet: MarkdownExtensionSet.githubFlavored.value,
@@ -209,14 +211,12 @@ class MessageBoxState extends State<MessageBox> {
   }
 
   Widget contentAttachment(BuildContext context) {
-    if (widget.val["visionFiles"].isNotEmpty)
+    if (widget.msg.visionFiles.isNotEmpty)
       return Container(
-          height: 250,
-          child: visionFilesList(context, widget.val["visionFiles"]));
-    if (widget.val["attachments"].isNotEmpty)
+          height: 250, child: visionFilesList(context, widget.msg.visionFiles));
+    if (widget.msg.attachments.isNotEmpty)
       return Container(
-          height: 80,
-          child: attachmentList(context, widget.val["attachments"]));
+          height: 80, child: attachmentList(context, widget.msg.attachments));
     // if (widget.val["type"] == MsgType.image) {
     //   return contentImage(context);
     // }
@@ -224,7 +224,7 @@ class MessageBoxState extends State<MessageBox> {
   }
 
   Widget attachedFileIcon(
-      BuildContext context, String attachedFileName, attachFile) {
+      BuildContext context, String attachedFileName, Attachment attachFile) {
     return Container(
       alignment: Alignment.topCenter,
       decoration: BoxDecoration(
@@ -234,6 +234,11 @@ class MessageBoxState extends State<MessageBox> {
         dense: true,
         title: Text(attachedFileName, overflow: TextOverflow.ellipsis),
         leading: Icon(Icons.description_outlined, color: Colors.pink[300]),
+        onTap: widget.msg.role == MessageTRole.assistant
+            ? () {
+                print("tap:${attachFile.file_id}");
+              }
+            : null,
       ),
     );
   }

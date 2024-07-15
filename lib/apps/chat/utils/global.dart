@@ -73,7 +73,7 @@ class Global {
         var smid = m["id"] ?? 0;
         int mid = smid is String ? int.parse(smid) : smid;
         if (MsgType.values[m["type"]] == MsgType.image &&
-            m["role"] == MessageRole.user &&
+            m["role"] == MessageTRole.user &&
             m["content"] is List) {
           msgContent = jsonDecode(m["content"]);
         } else

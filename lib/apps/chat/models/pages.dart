@@ -74,8 +74,9 @@ class Pages with ChangeNotifier {
     notifyListeners();
   }
 
-  void appendMessage(int pageID, String newMsg) {
-    _pages[pageID]?.appendMessage(newMsg);
+  void appendMessage(int pageID, {String? msg, visionFiles, attachments}) {
+    _pages[pageID]?.appendMessage(
+        msg: msg, visionFiles: visionFiles, attachments: attachments);
     notifyListeners();
   }
 

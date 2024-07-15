@@ -60,16 +60,7 @@ class Chat {
   void addMessage(Message newMsg) {
     try {
       messages.add(newMsg);
-      messageBox.insert(
-        0,
-        MessageBox(val: {
-          "role": newMsg.role,
-          "type": newMsg.type,
-          "content": newMsg.content,
-          "visionFiles": newMsg.visionFiles,
-          "attachments": newMsg.attachments,
-        }),
-      );
+      messageBox.insert(0, MessageBox(msg: newMsg));
       var trNewMsg = newMsg.toMap(modelVersion);
       _chatScheme.add(trNewMsg["chat_scheme"]);
       _dbScheme.add(trNewMsg["db_scheme"]);
@@ -78,14 +69,27 @@ class Chat {
     }
   }
 
-  void appendMessage(String newMsg) {
+  void appendMessage(
+      {String? msg,
+      Map<String, VisionFile>? visionFiles,
+      Map<String, Attachment>? attachments}) {
     int lastMsgID = messages.isNotEmpty ? messages.length - 1 : 0;
-    messages[lastMsgID].content += newMsg;
-    messageBox[0] = MessageBox(val: {
-      "role": messages[lastMsgID].role,
-      "content": messages[lastMsgID].content
-    });
+    if (msg != null) messages[lastMsgID].content += msg;
+    // messageBox[0] = MessageBox(val: {
+    //   "role": messages[lastMsgID].role,
+    //   "content": messages[lastMsgID].content
+    // });
 
+    if (visionFiles != null && visionFiles.isNotEmpty)
+      visionFiles.forEach((String name, VisionFile content) {
+        messages[lastMsgID].visionFiles[name] = VisionFile(
+            name: content.name, url: content.url, bytes: content.bytes);
+      });
+    if (attachments != null)
+      attachments.forEach((String name, Attachment content) {
+        messages[lastMsgID].attachments[name] =
+            Attachment(file_id: content.file_id, tools: content.tools);
+      });
     _chatScheme.last["content"] = messages[lastMsgID].content;
     _dbScheme.last["content"] = messages[lastMsgID].content;
   }
@@ -96,14 +100,20 @@ class Chat {
       var trNewMsg = messages[msgId].toMap(modelVersion);
       _chatScheme[msgId] = trNewMsg["chat_scheme"];
       _dbScheme[msgId] = trNewMsg["db_scheme"];
-      var msg = messages[msgId];
-      messageBox[0] = MessageBox(val: {
-        "role": msg.role,
-        "type": msg.type,
-        "content": msg.content,
-        "visionFiles": msg.visionFiles,
-        "attachments": msg.attachments
-      });
+      // var msg = messages[msgId];
+      // messageBox[0] = MessageBox(val: {
+      //   "role": msg.role,
+      //   "type": msg.type,
+      //   "content": msg.content,
+      //   "visionFiles": msg.visionFiles,
+      //   "attachments": msg.attachments
+      // });
     }
+  }
+
+  void updateScheme(int msgId) {
+    var trNewMsg = messages[msgId].toMap(modelVersion);
+    _chatScheme[msgId] = trNewMsg["chat_scheme"];
+    _dbScheme[msgId] = trNewMsg["db_scheme"];
   }
 }
