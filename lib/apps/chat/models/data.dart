@@ -42,6 +42,7 @@ class Attachment {
     return {
       'file_id': file_id,
       'tools': [
+        {"type": "code_interpreter"},
         {"type": "file_search"}
       ]
     };
