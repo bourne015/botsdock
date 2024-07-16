@@ -4,6 +4,7 @@ import 'package:markdown/markdown.dart' as md;
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import '../utils/syntax_hightlighter.dart';
+import 'custom_widget.dart';
 import 'constants.dart';
 
 // ignore_for_file: public_member_api_docs
@@ -109,12 +110,7 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
                 const Icon(color: AppColors.msgCodeTitle, size: 18, Icons.copy),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: element.textContent))
-                  .then((value) => ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          duration: Duration(milliseconds: 200),
-                          content: Text('Copied'),
-                        ),
-                      ));
+                  .then((value) => showMessage(context, 'Copied'));
             },
           ),
         ],

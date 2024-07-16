@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:image_downloader_web/image_downloader_web.dart';
 
 import '../models/user.dart';
+import '../utils/custom_widget.dart';
 import '../utils/utils.dart';
 import '../utils/constants.dart';
 import '../utils/global.dart';
