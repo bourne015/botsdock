@@ -334,7 +334,7 @@ class ChatGen {
     var assistant_id = pages.getPage(handlePageID).assistantID;
     var thread_id = pages.getPage(handlePageID).threadID;
     var _url =
-        "https://phantasys.life:8001/v1/assistant/vs/${assistant_id}/threads/${thread_id}/messages";
+        "${baseurl}/v1/assistant/vs/${assistant_id}/threads/${thread_id}/messages";
     try {
       var chatData = {
         "role": "user",

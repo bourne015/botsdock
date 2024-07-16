@@ -126,10 +126,12 @@ const supportedFilesAll = [
 
 const double drawerWidth = 260;
 
-const String sseChatUrl = "http://127.0.0.1:8001/v1/stream/chat";
-const String chatUrl = "http://127.0.0.1:8001/v1/chat";
-const String imageUrl = "http://127.0.0.1:8001/v1/image";
-const String userUrl = "http://127.0.0.1:8001/v1/user";
+const String baseurl = "https://phantasys.life:8001";
+const String sseChatUrl = "${baseurl}/v1/stream/chat";
+const String chatUrl = "${baseurl}/v1/chat";
+const String imageUrl = "${baseurl}/v1/image";
+const String userUrl = "${baseurl}/v1/user";
+const String botURL = "${baseurl}/v1/bot";
 
 const String aboutText = """
 基于GPT API和Cloude API封装.

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
+import '../utils/constants.dart';
 import '../utils/global.dart';
 
 class Bots with ChangeNotifier {
@@ -9,7 +10,7 @@ class Bots with ChangeNotifier {
   final dio = Dio();
 
   Future<void> fetchBots() async {
-    final responseSh = await dio.get('https://phantasys.life:8001/v1/shares');
+    final responseSh = await dio.get('${baseurl}/v1/shares');
     if (Global.botsCheck(responseSh.data["bot_updated"])) {
       if (_bots.isEmpty) {
         debugPrint("restore from local");
@@ -21,7 +22,7 @@ class Bots with ChangeNotifier {
       }
     }
     debugPrint("need update from db");
-    final response = await dio.post('https://phantasys.life:8001/v1/bot/bots');
+    final response = await dio.post('${baseurl}/v1/bot/bots');
     if (response.statusCode == 200) {
       List<dynamic> data = response.data["bots"];
       _bots = data.map((item) => Bot.fromJson(item)).toList();
