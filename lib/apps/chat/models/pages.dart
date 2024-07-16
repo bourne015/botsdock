@@ -135,6 +135,11 @@ class Pages with ChangeNotifier {
     return -1;
   }
 
+  void setGeneratingState(int pid, bool state) {
+    _pages[pid]!.onGenerating = state;
+    notifyListeners();
+  }
+
   void reset() {
     _pages.clear();
     _pagesID.clear();

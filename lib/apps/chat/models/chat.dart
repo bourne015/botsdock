@@ -20,7 +20,7 @@ class Chat {
   String title;
   String _modelVersion = '';
   int tokenSpent = 0;
-  bool onGenerating = false;
+  bool _onGenerating = false;
 
   Chat({
     int? chatId,
@@ -55,6 +55,11 @@ class Chat {
   String? get threadID => _threadID;
   set threadID(String? v) {
     _threadID = v;
+  }
+
+  bool get onGenerating => _onGenerating;
+  set onGenerating(bool v) {
+    _onGenerating = v;
   }
 
   void addMessage(Message newMsg) {
