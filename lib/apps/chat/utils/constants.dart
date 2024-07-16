@@ -90,10 +90,38 @@ const supportedFiles = [
   'js',
   'sh'
 ];
+const supportedFiles_cp = [
+  'c',
+  'cs',
+  'cpp',
+  'doc',
+  'docx',
+  'html',
+  'java',
+  'json',
+  'md',
+  'pdf',
+  'php',
+  'pptx',
+  'py',
+  'rb',
+  'tex',
+  'txt',
+  'css',
+  'js',
+  'sh',
+  'ts',
+  'csv',
+  'tar',
+  'xlsx',
+  'xml',
+  'zip'
+];
 
 const supportedFilesAll = [
   ...supportedImages,
   ...supportedFiles,
+  ...supportedFiles_cp
 ];
 
 const double drawerWidth = 260;
@@ -148,4 +176,4 @@ List<String> BotImages = [
 
 const String chatAssistantID = "asst_jyeohJN5sfUlrqdMm8pwGN2a";
 
-const String appVersion = "0.5.3";
+const String appVersion = "0.5.4";

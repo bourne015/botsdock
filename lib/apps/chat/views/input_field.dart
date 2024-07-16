@@ -342,7 +342,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
       String fileType = fileName.split('.').last.toLowerCase();
       debugPrint('Selected file: $fileName, type: $fileType');
-      if (supportedFiles.contains(fileType)) {
+      if (supportedFiles.contains(fileType) ||
+          supportedFiles_cp.contains(fileType)) {
         setState(() {
           attachments[fileName] = Attachment();
         });
