@@ -32,15 +32,18 @@ class VisionFile {
 class Attachment {
   String? file_id; //openai file_id
   List<Map<String, String>>? tools;
+  bool? downloading;
 
   Attachment({
     this.file_id = "",
     this.tools = const [],
+    this.downloading = false,
   });
 
   Map<String, dynamic> toJson() {
     return {
       'file_id': file_id,
+      'downloading': downloading,
       'tools': [
         {"type": "code_interpreter"},
         {"type": "file_search"}

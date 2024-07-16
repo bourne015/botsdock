@@ -12,9 +12,11 @@ import 'package:image_downloader_web/image_downloader_web.dart';
 
 import '../models/message.dart';
 import '../utils/constants.dart';
+import '../utils/custom_widget.dart';
 import '../utils/markdown_extentions.dart';
 import '../utils/syntax_hightlighter.dart';
 import '../utils/utils.dart';
+import '../utils/assistants_api.dart';
 
 class MessageBox extends StatefulWidget {
   final Message msg;
@@ -29,6 +31,7 @@ class MessageBoxState extends State<MessageBox> {
   static bool _hasCopyIcon = false;
   final ScrollController _attachmentscroll = ScrollController();
   final ScrollController _visionFilescroll = ScrollController();
+  final assistant = AssistantsAPI();
 
   @override
   Widget build(BuildContext context) {
@@ -223,6 +226,20 @@ class MessageBoxState extends State<MessageBox> {
     return Container();
   }
 
+  Future<void> handleDownload(
+      String attachedFileName, Attachment attachFile) async {
+    setState(() {
+      attachFile.downloading = true;
+    });
+    var res =
+        await assistant.downloadFile(attachFile.file_id!, attachedFileName);
+    setState(() {
+      attachFile.downloading = false;
+    });
+
+    showMessage(context, res);
+  }
+
   Widget attachedFileIcon(
       BuildContext context, String attachedFileName, Attachment attachFile) {
     return Container(
@@ -234,11 +251,12 @@ class MessageBoxState extends State<MessageBox> {
         dense: true,
         title: Text(attachedFileName, overflow: TextOverflow.ellipsis),
         leading: Icon(Icons.description_outlined, color: Colors.pink[300]),
-        onTap: widget.msg.role == MessageTRole.assistant
-            ? () {
-                print("tap:${attachFile.file_id}");
-              }
-            : null,
+        onTap: () {
+          handleDownload(attachedFileName, attachFile);
+        },
+        trailing: (attachFile.downloading!
+            ? CircularProgressIndicator()
+            : Icon(Icons.download_for_offline_outlined)),
       ),
     );
   }
