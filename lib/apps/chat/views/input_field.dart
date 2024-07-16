@@ -384,7 +384,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   void _submitText(Pages pages, Property property, int handlePageID,
       String text, User user) async {
     try {
-      pages.getPage(handlePageID).onGenerating = true;
+      pages.setGeneratingState(handlePageID, true);
       var ts = DateTime.now().millisecondsSinceEpoch;
       Map<String, VisionFile> _vf = copyVision(visionFiles);
       Message msgQ = Message(
@@ -412,7 +412,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       }
     } catch (e) {
       debugPrint("_submitText error: $e");
-      pages.getPage(handlePageID).onGenerating = false;
+      pages.setGeneratingState(handlePageID, false);
     }
     if (pages.getPage(handlePageID).assistantID != null)
       chats.submitAssistant(pages, property, handlePageID, user, attachments);

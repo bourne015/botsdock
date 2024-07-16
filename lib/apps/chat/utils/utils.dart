@@ -352,7 +352,7 @@ class ChatGen {
         },
         body: jsonEncode(chatData),
       );
-      pages.getPage(handlePageID).onGenerating = true;
+      pages.setGeneratingState(handlePageID, true);
       Message? msgA;
       stream.listen((event) {
         String? _text;
@@ -425,14 +425,14 @@ class ChatGen {
             msg: _text,
             visionFiles: copyVision(visionFiles),
             attachments: copyAttachment(attachments));
-        pages.getPage(handlePageID).onGenerating = true;
+        //pages.setGeneratingState(handlePageID, true);
       }, onError: (e) {
         debugPrint('SSE error: $e');
-        pages.getPage(handlePageID).onGenerating = false;
+        pages.setGeneratingState(handlePageID, false);
       }, onDone: () async {
+        pages.setGeneratingState(handlePageID, false);
         debugPrint('SSE complete');
         if (msgA != null) pages.getPage(handlePageID).updateScheme(msgA!.id);
-        pages.getPage(handlePageID).onGenerating = false;
         var pageTitle = pages.getPage(handlePageID).title;
         if (pageTitle.length >= 6 && pageTitle.startsWith("Chat 0")) {
           await titleGenerate(pages, handlePageID);
@@ -442,7 +442,7 @@ class ChatGen {
       });
     } catch (e) {
       debugPrint("gen error: $e");
-      pages.getPage(handlePageID).onGenerating = false;
+      pages.setGeneratingState(handlePageID, false);
     }
   }
 
