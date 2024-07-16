@@ -251,29 +251,6 @@ class ChatSSE {
   }
 }
 
-void notifyBox({context, var title, var content}) {
-  showDialog(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-            title: Text(title),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: <Widget>[
-                  Text(content),
-                ],
-              ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ));
-}
-
 class ChatGen {
   final dio = Dio();
   final ChatSSE chatServer = ChatSSE();
@@ -397,8 +374,20 @@ class ChatGen {
         event.when(
             threadStreamEvent: (final event, final data) {},
             runStreamEvent: (final event, final data) {},
-            runStepStreamEvent: (final event, final data) {},
-            runStepStreamDeltaEvent: (final event, final data) {},
+            runStepStreamEvent: (final event, final data) {
+              if (data.usage != null) {
+                print("promptTokens: ${data.usage!.promptTokens}");
+                print("completionTokens: ${data.usage!.completionTokens}");
+                print("totalTokens: ${data.usage!.totalTokens}");
+              }
+            },
+            runStepStreamDeltaEvent: (final event, final data) {
+              data.delta.stepDetails!.whenOrNull(
+                toolCalls: (type, toolCalls) {
+                  print("$type, $toolCalls");
+                },
+              );
+            },
             messageStreamEvent: (final event, final data) {},
             messageStreamDeltaEvent: (final event, final data) {
               //data.delta.content?.map((final _content) {
