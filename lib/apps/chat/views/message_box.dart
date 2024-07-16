@@ -135,12 +135,7 @@ class MessageBoxState extends State<MessageBox> {
           tooltip: "Copy",
           onPressed: () {
             Clipboard.setData(ClipboardData(text: widget.msg.content))
-                .then((value) => ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        duration: Duration(milliseconds: 200),
-                        content: Text('Copied'),
-                      ),
-                    ));
+                .then((value) => showMessage(context, "Copied"));
           },
           icon: const Icon(
             Icons.copy,
