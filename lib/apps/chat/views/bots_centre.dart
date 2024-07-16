@@ -103,6 +103,7 @@ class BotsState extends State<BotsCentre> {
                 Bots bots = Provider.of<Bots>(context, listen: false);
                 showDialog(
                     context: context,
+                    barrierDismissible: false,
                     builder: (BuildContext context) =>
                         CreateBot(user: user, bots: bots));
               }
@@ -138,6 +139,7 @@ class BotsState extends State<BotsCentre> {
         if (value == "edit") {
           showDialog(
               context: context,
+              barrierDismissible: false,
               builder: (BuildContext context) =>
                   CreateBot(user: user, bots: bots, bot: bot)).then((_) {
             setState(() {});

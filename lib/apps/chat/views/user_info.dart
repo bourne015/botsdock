@@ -274,6 +274,7 @@ class _UserInfoTabState extends State<UserInfo> {
           onPressed: () {
             showDialog(
               context: context,
+              barrierDismissible: false,
               builder: (BuildContext context) => editPwd(context),
             );
           },
