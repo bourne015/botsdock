@@ -265,12 +265,16 @@ class ChatGen {
         //in case no input
         return;
       }
+      // to save token
+      q = q.length > 1000 ? q.substring(0, 1000) : q;
       var chatData1 = {
         "model": ClaudeModel.haiku,
         "question": "为这段话写一个5个字左右的标题:$q"
       };
       final response = await dio.post(chatUrl, data: chatData1);
       var title = response.data;
+      // in case title too long
+      title = title.length > 20 ? title.substring(0, 20) : title;
       pages.setPageTitle(handlePageID, title);
     } catch (e) {
       debugPrint("titleGenerate error: $e");
