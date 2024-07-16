@@ -148,7 +148,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
             borderRadius: BorderRadius.circular(10),
           ),
           title: Text(GalleryLocalizations.of(context)!.botCreateTitle,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.5)),
         ),
         body: Column(
           mainAxisSize: MainAxisSize.min,
@@ -332,6 +332,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     vectoreStoreFiles = await assistant.getVectorStoreFiles(_vectorStoreId);
     String? action = await showDialog<String>(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
@@ -463,6 +464,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   void uploadFileDialog() {
     showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
@@ -635,6 +637,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   void uploadCodeInterpreterFileDialog() {
     showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
@@ -792,6 +795,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   void editFunction(context) {
     showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) => AlertDialog(
               title: Text(GalleryLocalizations.of(context)!.functionsDialog),
               backgroundColor: AppColors.chatPageBackground,

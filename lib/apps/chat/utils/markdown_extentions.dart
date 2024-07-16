@@ -92,10 +92,13 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
   }
 
   Widget codeTitleBar(BuildContext context, language, element) {
+    const borderV = Radius.circular(7);
     return Container(
-      color: AppColors.msgCodeTitleBG,
       height: 32,
       padding: const EdgeInsets.only(left: 15, top: 1, bottom: 1),
+      decoration: BoxDecoration(
+          color: AppColors.msgCodeTitleBG,
+          borderRadius: BorderRadius.only(topLeft: borderV, topRight: borderV)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -120,9 +123,13 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
 
   Widget codeContent(
       BuildContext context, element, preferredStyle, highlighter) {
+    const borderV = Radius.circular(7);
     return Container(
-      color: AppColors.msgCodeBG,
       padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+          color: AppColors.msgCodeBG,
+          borderRadius:
+              BorderRadius.only(bottomLeft: borderV, bottomRight: borderV)),
       child: SelectableText.rich(
         highlighter.format(element.textContent),
         //style: preferredStyle,

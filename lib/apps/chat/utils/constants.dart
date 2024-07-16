@@ -135,7 +135,7 @@ const String botURL = "${baseurl}/v1/bot";
 
 const String aboutText = """
 基于GPT API和Cloude API封装.
-任何问题或建议请联系: phantasy018@gmail.com
+Contact: phantasy018@gmail.com
 """;
 
 const String function_sample1 = """
