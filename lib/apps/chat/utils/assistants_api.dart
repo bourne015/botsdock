@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:fetch_client/fetch_client.dart';
+import 'package:file_saver/file_saver.dart';
 
 import '../models/bot.dart';
 import '../models/chat.dart';
@@ -37,6 +38,35 @@ class AssistantsAPI {
     } catch (error) {
       debugPrint('uploadFile to backend error: $error');
     }
+  }
+
+/**
+   * download file from backend
+   */
+  Future<String> downloadFile(String file_id, String? file_name) async {
+    Response response;
+    try {
+      var url = "https://phantasys.life:8001/v1/assistant/files/${file_id}";
+      var _param = {"file_name": file_name};
+      response = await dio.get(
+        url,
+        queryParameters: _param,
+        options: Options(
+          responseType: ResponseType.bytes,
+        ),
+      );
+      if (response.statusCode == 200) {
+        final Uint8List bytes = Uint8List.fromList(response.data);
+        await FileSaver.instance
+            .saveFile(name: file_name ?? file_id, bytes: bytes);
+        return "success";
+      } else {
+        print('Failed to download file: ${response}');
+      }
+    } catch (error) {
+      debugPrint('downloadFile from backend error: $error');
+    }
+    return "failed";
   }
 
   /**
