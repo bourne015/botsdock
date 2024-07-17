@@ -8,6 +8,7 @@ import '../models/bot.dart';
 import '../models/pages.dart';
 import '../models/user.dart';
 import "../utils/constants.dart";
+import '../utils/custom_widget.dart';
 import '../utils/utils.dart';
 import './new_bot.dart';
 import '../utils/assistants_api.dart';
@@ -106,6 +107,8 @@ class BotsState extends State<BotsCentre> {
                     barrierDismissible: false,
                     builder: (BuildContext context) =>
                         CreateBot(user: user, bots: bots));
+              } else {
+                showMessage(context, "请登录");
               }
             },
             icon: Icon(Icons.add),
@@ -296,6 +299,8 @@ class BotsState extends State<BotsCentre> {
             } else {
               chats.newBot(pages, property, user, bot.name, bot.instructions);
             }
+          } else {
+            showMessage(context, "请登录");
           }
         });
   }

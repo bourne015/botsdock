@@ -8,6 +8,7 @@ import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 import '../models/pages.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
+import '../utils/custom_widget.dart';
 import './input_field.dart';
 import '../utils/utils.dart';
 
@@ -385,6 +386,8 @@ class CustomCard extends StatelessWidget {
                     onTap: () {
                       if (user.isLogedin)
                         chats.newTextChat(pages, property, user, prompt);
+                      else
+                        showMessage(context, "请登录");
                     },
                     child: Container(
                         width: 150,
