@@ -47,6 +47,13 @@ class GPTModel {
   static const String gptv4o = "gpt-4o";
   static const String gptv40Vision = "gpt-4-vision-preview";
   static const String gptv40Dall = "dall-e-3";
+  Map<String, String> toJson() {
+    return {
+      'gptv35': gptv35,
+      'gptv40': gptv40,
+      'gptv4o': gptv4o,
+    };
+  }
 }
 
 class ClaudeModel {
@@ -54,10 +61,23 @@ class ClaudeModel {
   static const String sonnet = "claude-3-sonnet-20240229";
   static const String opus = "claude-3-opus-20240229";
   static const String sonnet_35 = "claude-3-5-sonnet-20240620";
+
+  Map<String, String> toJson() {
+    return {
+      'haiku': haiku,
+      'sonnet': sonnet,
+      'opus': opus,
+      "sonnet_35": sonnet_35,
+    };
+  }
 }
 
 const DefaultModelVersion = GPTModel.gptv4o;
 const DefaultClaudeModel = ClaudeModel.sonnet_35;
+List<String> textmodels = [
+  ...GPTModel().toJson().values.toList(),
+  ...ClaudeModel().toJson().values.toList(),
+];
 
 enum MsgType { text, image, file }
 

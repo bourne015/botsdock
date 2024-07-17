@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gallery/data/adaptive.dart';
 
+import 'constants.dart';
+
 void notifyBox({context, var title, var content}) {
   showDialog(
       context: context,
@@ -80,7 +82,7 @@ Widget botTextFormField(
     int? maxLines,
     String? Function(String?)? validator}) {
   return Container(
-    margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
+    margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
     child: TextFormField(
         controller: ctr,
         maxLines: maxLines,
@@ -93,5 +95,33 @@ Widget botTextFormField(
         validator: (v) {
           return v == null || v.trim().isNotEmpty ? null : "不能为空";
         }),
+  );
+}
+
+PopupMenuItem<String> buildPopupMenuItem(BuildContext context,
+    {String? value, IconData? icon, String? title}) {
+  return PopupMenuItem<String>(
+    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+    value: value,
+    child: Material(
+      color: AppColors.drawerBackground,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(15),
+          onTap: () {
+            Navigator.pop(context, value);
+          },
+          //onHover: (hovering) {},
+          child: ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 5),
+              leading: icon != null ? Icon(size: 20, icon) : null,
+              title: Text(title ?? "")),
+        ),
+      ),
+    ),
   );
 }
