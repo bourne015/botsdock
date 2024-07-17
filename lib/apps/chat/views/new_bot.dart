@@ -54,6 +54,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   List<int>? _fileBytes;
   String? _logoURL;
   double temperature = 1;
+  String _model = DefaultModelVersion;
   GlobalKey _createBotformKey = GlobalKey<FormState>();
 
   @override
@@ -184,23 +185,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                           ctr: _configInfoController,
                           maxLines: 5,
                         ),
-                        Divider(),
-                        Text(GalleryLocalizations.of(context)!.tools,
-                            style: TextStyle(fontSize: 15)),
-                        fileSearch(context),
-                        if (_vsCreating)
-                          ListTile(
-                              dense: true, leading: CircularProgressIndicator())
-                        else if (_vectorStoreId.isNotEmpty)
-                          vectorstoreTab(context),
-                        Divider(),
-                        codeInterpreter(context),
-                        if (codeInterpreterFilesID.isNotEmpty)
-                          listCodeInterpreterFiles(context),
-                        Divider(),
-                        functions(context),
-                        listFunctions(context),
-                        Divider(),
+                        SizedBox(height: 20),
+                        Text('模型', style: TextStyle(fontSize: 15)),
+                        modelSelecter(context),
+                        if (_model.startsWith("gpt")) assistantTools(context),
                         Text("Temperature  ${temperature.toStringAsFixed(1)}",
                             style: TextStyle(fontSize: 15)),
                         temperatureSlide(context),
@@ -248,7 +236,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     try {
       if (widget.bot != null) _botsURL = botURL + "/${widget.bot!.id}";
       var botData = {
-        "model": GPTModel.gptv40, //TODO: fix
+        "model": _model,
         "name": _nameController.text,
         "assistant_id": _assistant_id,
         "avatar": _logoURL,
@@ -276,6 +264,57 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       debugPrint('saveToDB error: $e');
     }
     return false;
+  }
+
+  Widget modelSelecter(BuildContext context) {
+    return Container(
+        margin: EdgeInsets.fromLTRB(0, 10, 0, 20),
+        decoration: BoxDecoration(
+            color: AppColors.inputBoxBackground,
+            borderRadius: const BorderRadius.all(Radius.circular(15))),
+        child: ListTile(
+            title: Text(_model),
+            trailing: PopupMenuButton<String>(
+              initialValue: _model,
+              icon: const Icon(Icons.keyboard_arrow_down_rounded),
+              iconSize: 24,
+              elevation: 15,
+              shadowColor: Colors.blue,
+              onSelected: (String newValue) {
+                setState(() {
+                  _model = newValue;
+                });
+              },
+              itemBuilder: (BuildContext context) => textmodels
+                  .map((v) => buildPopupMenuItem(context,
+                      value: v, icon: Icons.abc, title: v))
+                  .toList(),
+            )));
+  }
+
+  Widget assistantTools(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(GalleryLocalizations.of(context)!.tools,
+            style: TextStyle(fontSize: 15)),
+        SizedBox(height: 10),
+        fileSearch(context),
+        if (_vsCreating)
+          ListTile(dense: true, leading: CircularProgressIndicator())
+        else if (_vectorStoreId.isNotEmpty)
+          vectorstoreTab(context),
+        Divider(),
+        codeInterpreter(context),
+        if (codeInterpreterFilesID.isNotEmpty)
+          listCodeInterpreterFiles(context),
+        Divider(),
+        functions(context),
+        listFunctions(context),
+        Divider(),
+      ],
+    );
   }
 
   Widget vectorstoreTab(BuildContext context) {
