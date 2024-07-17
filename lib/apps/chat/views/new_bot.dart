@@ -167,51 +167,23 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                           child: chooseLogo(context),
                         ),
                         Text('名称', style: TextStyle(fontSize: 15)),
-                        Container(
-                            margin: EdgeInsets.fromLTRB(0, 10, 0, 30),
-                            child: TextFormField(
-                                controller: _nameController,
-                                decoration: InputDecoration(
-                                  hintText: '输入智能体名字',
-                                  hintStyle: TextStyle(fontSize: 14),
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10)),
-                                ),
-                                validator: (v) {
-                                  return v == null || v.trim().isNotEmpty
-                                      ? null
-                                      : "名称不能为空";
-                                })),
+                        botTextFormField(
+                          hintText: '输入智能体名字',
+                          maxLength: 50,
+                          ctr: _nameController,
+                        ),
                         Text('简介', style: TextStyle(fontSize: 15)),
-                        Container(
-                            margin: EdgeInsets.fromLTRB(0, 10, 0, 30),
-                            child: TextFormField(
-                              controller: _introController,
-                              decoration: InputDecoration(
-                                hintText: '用一句话介绍该智能体',
-                                hintStyle: TextStyle(fontSize: 14),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                              ),
-                            )),
+                        botTextFormField(
+                          hintText: '用一句话介绍该智能体',
+                          maxLength: 200,
+                          ctr: _introController,
+                        ),
                         Text('配置信息', style: TextStyle(fontSize: 15)),
-                        Container(
-                            margin: EdgeInsets.fromLTRB(0, 10, 0, 30),
-                            child: TextFormField(
-                              controller: _configInfoController,
-                              decoration: InputDecoration(
-                                hintText: '输入prompt',
-                                hintStyle: TextStyle(fontSize: 14),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15)),
-                              ),
-                              validator: (v) {
-                                return v == null || v.trim().isNotEmpty
-                                    ? null
-                                    : "prompt不能为空";
-                              },
-                              maxLines: 5,
-                            )),
+                        botTextFormField(
+                          hintText: '输入prompt',
+                          ctr: _configInfoController,
+                          maxLines: 5,
+                        ),
                         Divider(),
                         Text(GalleryLocalizations.of(context)!.tools,
                             style: TextStyle(fontSize: 15)),
@@ -247,22 +219,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                 ),
                 TextButton(
                   child: Text(GalleryLocalizations.of(context)!.save),
-                  onPressed: () async {
-                    if (!(_createBotformKey.currentState as FormState)
-                        .validate()) {
-                      return;
-                    }
-                    await uploadLogo();
-                    // assistant will create in backend
-                    var resp = await saveToDB();
-                    Navigator.of(context).pop();
-                    if (resp == true)
-                      notifyBox(
-                          context: context, title: "success", content: "操作成功");
-                    else
-                      notifyBox(
-                          context: context, title: "warning", content: "操作失败");
-                  },
+                  onPressed: saveBot,
                 ),
               ],
             ),
@@ -270,6 +227,20 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         ),
       ),
     ));
+  }
+
+  void saveBot() async {
+    if (!(_createBotformKey.currentState as FormState).validate()) {
+      return;
+    }
+    await uploadLogo();
+    // assistant will create in backend
+    var resp = await saveToDB();
+    Navigator.of(context).pop();
+    if (resp == true)
+      notifyBox(context: context, title: "success", content: "操作成功");
+    else
+      notifyBox(context: context, title: "warning", content: "操作失败");
   }
 
   Future<bool> saveToDB() async {
