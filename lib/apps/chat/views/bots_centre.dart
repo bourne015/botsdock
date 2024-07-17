@@ -298,7 +298,10 @@ class BotsState extends State<BotsCentre> {
                     bot: bot);
             } else {
               chats.newBot(pages, property, user,
-                  name: bot.name, prompt: bot.instructions, model: bot.model);
+                  botID: bot.id,
+                  name: bot.name,
+                  prompt: bot.instructions,
+                  model: bot.model);
             }
           } else {
             showMessage(context, "请登录");
