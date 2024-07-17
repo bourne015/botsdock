@@ -229,7 +229,10 @@ class AssistantsAPI {
     property.onInitPage = false;
     pages.currentPageID = handlePageID;
     //pages.setPageTitle(handlePageID, bot.name);
-    pages.getPage(handlePageID).modelVersion = property.initModelVersion;
+    pages.getPage(handlePageID).modelVersion =
+        (bot != null && bot.model != null)
+            ? bot.model
+            : property.initModelVersion;
     pages.getPage(handlePageID).assistantID =
         (bot != null ? bot.assistant_id : ass_id);
     pages.getPage(handlePageID).threadID = thread_id;
