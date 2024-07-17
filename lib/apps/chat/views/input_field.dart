@@ -2,6 +2,7 @@ import 'package:file_picker/_internal/file_picker_web.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery/apps/chat/models/user.dart';
+import 'package:gallery/apps/chat/utils/custom_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:file_picker/file_picker.dart';
@@ -340,6 +341,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
     if (result != null) {
       final fileName = result.files.first.name;
 
+      if (result.files.first.size / (1024 * 1024) > maxFileMBSize) {
+        showMessage(context, "文件大小超过限制:${maxFileMBSize}MB");
+        return;
+      }
       String fileType = fileName.split('.').last.toLowerCase();
       debugPrint('Selected file: $fileName, type: $fileType');
       if (supportedFiles.contains(fileType) ||
