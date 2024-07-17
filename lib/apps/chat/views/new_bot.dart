@@ -138,7 +138,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         });
       }
     } catch (e) {
-      print("_pickLogo error:$e");
+      debugPrint("_pickLogo error:$e");
     }
   }
 
@@ -813,23 +813,27 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
 
   Future _pickFile(context) async {
     var result;
-    if (kIsWeb) {
-      debugPrint('web platform');
-      result = await FilePickerWeb.platform
-          .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles);
-    } else {
-      result = await FilePicker.platform
-          .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles);
-    }
-    if (result != null) {
-      if (result.files.first.size / (1024 * 1024) > maxFileMBSize) {
-        showMessage(context, "文件大小超过限制:${maxFileMBSize}MB");
-        return;
+    try {
+      if (kIsWeb) {
+        debugPrint('web platform');
+        result = await FilePickerWeb.platform.pickFiles(
+            type: FileType.custom, allowedExtensions: supportedFiles);
+      } else {
+        result = await FilePicker.platform.pickFiles(
+            type: FileType.custom, allowedExtensions: supportedFiles);
       }
-      final fileName = result.files.first.name;
-      debugPrint('Selected file: $fileName');
-      String fileType = fileName.split('.').last.toLowerCase();
-      debugPrint('Selected file type: $fileType');
+      if (result != null) {
+        if (result.files.first.size / (1024 * 1024) > maxFileMBSize) {
+          _showMessage("文件大小超过限制: ${maxFileMBSize}MB");
+          return;
+        }
+        final fileName = result.files.first.name;
+        debugPrint('Selected file: $fileName');
+        String fileType = fileName.split('.').last.toLowerCase();
+        debugPrint('Selected file type: $fileType');
+      }
+    } catch (e) {
+      debugPrint("_pickFile error: $e");
     }
     return result;
   }
