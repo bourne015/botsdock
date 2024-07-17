@@ -64,10 +64,34 @@ Widget logTextFormField(
           hintText: hintText),
       obscureText: obscure ?? false,
       maxLines: 1,
-      maxLength: maxLength ?? null,
+      maxLength: maxLength,
       textInputAction: TextInputAction.newline,
       controller: ctr,
       validator: (v) {
         return v == null || v.trim().isNotEmpty ? null : "$hintText不能为空";
       });
+}
+
+Widget botTextFormField(
+    {BuildContext? context,
+    String? hintText,
+    TextEditingController? ctr,
+    int? maxLength,
+    int? maxLines,
+    String? Function(String?)? validator}) {
+  return Container(
+    margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
+    child: TextFormField(
+        controller: ctr,
+        maxLines: maxLines,
+        maxLength: maxLength,
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(fontSize: 14),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+        validator: (v) {
+          return v == null || v.trim().isNotEmpty ? null : "不能为空";
+        }),
+  );
 }
