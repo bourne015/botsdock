@@ -278,6 +278,7 @@ class AdministratorState extends State<Administrator> {
           fontWeight: FontWeight.bold,
         ),
       ),
+      scrollable: true,
       content: loginDialogContent(context),
       actions: loginDialogActions(context, user, pages, property),
     );
@@ -340,20 +341,32 @@ class AdministratorState extends State<Administrator> {
   Widget loginDialogContent(BuildContext context) {
     return Container(
       width: 400,
-      height: 180,
-      //padding: EdgeInsets.all(20),
-      //margin: EdgeInsets.symmetric(horizontal: 50, vertical: 25),
-      child: Scrollable(viewportBuilder: (context, position) {
-        return Form(
-            key: _signInformKey,
-            child: Column(
-              //mainAxisSize: MainAxisSize.min,
-              children: [
-                logTextFormField(context, "邮箱", _emailcontroller, false),
-                logTextFormField(context, "密码", _pwdcontroller, true),
-              ],
-            ));
-      }),
+      height: 200,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _signInformKey,
+          child: Column(
+            //mainAxisSize: MainAxisSize.min,
+            children: [
+              logTextFormField(
+                  context: context,
+                  hintText: "邮箱",
+                  ctr: _emailcontroller,
+                  obscure: false,
+                  maxLength: 45,
+                  icon: Icons.email_outlined),
+              logTextFormField(
+                  context: context,
+                  hintText: "密码",
+                  ctr: _pwdcontroller,
+                  obscure: true,
+                  icon: Icons.lock_outline,
+                  maxLength: 190),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -367,8 +380,8 @@ class AdministratorState extends State<Administrator> {
 
   Widget buildsignUpDialog(BuildContext context, User user) {
     return AlertDialog(
-      titlePadding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
-      contentPadding: EdgeInsets.fromLTRB(50, 5, 300, 5),
+      // titlePadding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
+      // contentPadding: EdgeInsets.fromLTRB(50, 0, 50, 0),
       title: Text(
         textAlign: TextAlign.center,
         '注册',
@@ -377,6 +390,7 @@ class AdministratorState extends State<Administrator> {
           fontWeight: FontWeight.bold,
         ),
       ),
+      scrollable: true,
       content: sigupDialogContent(context),
       actions: signupDialogActions(context, user),
     );
@@ -411,18 +425,49 @@ class AdministratorState extends State<Administrator> {
   }
 
   Widget sigupDialogContent(BuildContext context) {
-    return SingleChildScrollView(
+    return Container(
+      width: 400,
+      height: 350,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Form(
-            key: _signUpformKey,
-            child: Column(
-              //mainAxisSize: MainAxisSize.min,
-              children: [
-                logTextFormField(context, "邮箱", _emailcontroller, false),
-                logTextFormField(context, "昵称", _namecontroller, false),
-                logTextFormField(context, "密码", _pwdcontroller, true),
-                logTextFormField(context, "确认密码", _pwdconfirmcontroller, true),
-              ],
-            )));
+          key: _signUpformKey,
+          child: Column(
+            //mainAxisSize: MainAxisSize.min,
+            children: [
+              logTextFormField(
+                  context: context,
+                  hintText: "邮箱",
+                  ctr: _emailcontroller,
+                  maxLength: 45,
+                  icon: Icons.mail_outline,
+                  obscure: false),
+              logTextFormField(
+                  context: context,
+                  hintText: "昵称",
+                  ctr: _namecontroller,
+                  maxLength: 45,
+                  icon: Icons.person_outline,
+                  obscure: false),
+              logTextFormField(
+                  context: context,
+                  hintText: "密码",
+                  ctr: _pwdcontroller,
+                  icon: Icons.lock_outline,
+                  maxLength: 190,
+                  obscure: true),
+              logTextFormField(
+                  context: context,
+                  hintText: "确认密码",
+                  ctr: _pwdconfirmcontroller,
+                  icon: Icons.lock,
+                  maxLength: 190,
+                  obscure: true),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<String?> checkSingUp(User user) async {
@@ -483,24 +528,6 @@ class AdministratorState extends State<Administrator> {
       return e.toString();
     }
     return response.data["result"];
-  }
-
-  Widget logTextFormField(
-      BuildContext context, String text, var ctr, bool obscure) {
-    return TextFormField(
-        decoration: InputDecoration(
-            //filled: true,
-            //fillColor: AppColors.inputBoxBackground,
-            labelText: text,
-            border: InputBorder.none,
-            hintText: text),
-        obscureText: obscure,
-        maxLines: 1,
-        textInputAction: TextInputAction.newline,
-        controller: ctr,
-        validator: (v) {
-          return v == null || v.trim().isNotEmpty ? null : "$text不能为空";
-        });
   }
 
   Widget modelINFO(BuildContext context) {
