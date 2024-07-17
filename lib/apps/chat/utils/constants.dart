@@ -197,5 +197,6 @@ List<String> BotImages = [
 ];
 
 const String chatAssistantID = "asst_jyeohJN5sfUlrqdMm8pwGN2a";
+const int maxFileMBSize = 200;
 
 const String appVersion = "0.5.6";

@@ -110,6 +110,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
           .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles);
     }
     if (result != null) {
+      if (result.files.first.size / (1024 * 1024) > maxFileMBSize) {
+        showMessage(context, "文件大小超过限制:${maxFileMBSize}MB");
+        return;
+      }
       setState(() {
         _fileBytes = result.files.first.bytes;
         _fileName = result.files.first.name;
@@ -770,6 +774,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
           .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles);
     }
     if (result != null) {
+      if (result.files.first.size / (1024 * 1024) > maxFileMBSize) {
+        showMessage(context, "文件大小超过限制:${maxFileMBSize}MB");
+        return;
+      }
       final fileName = result.files.first.name;
       debugPrint('Selected file: $fileName');
       String fileType = fileName.split('.').last.toLowerCase();
