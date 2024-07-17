@@ -84,6 +84,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       codeInterpreterFilesID = widget.bot!.code_interpreter_files ?? {};
       functionsBody = widget.bot!.functions ?? {};
       temperature = widget.bot!.temperature ?? 1.0;
+      _model = widget.bot!.model ?? DefaultModelVersion;
     }
   }
 

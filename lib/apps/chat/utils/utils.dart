@@ -536,19 +536,20 @@ class ChatGen {
     }
   }
 
-  void newBot(Pages pages, Property property, User user, name, prompt) {
+  void newBot(Pages pages, Property property, User user,
+      {String? name, String? prompt, String? model}) {
     int handlePageID = pages.addPage(Chat(title: name), sort: true);
     property.onInitPage = false;
     pages.currentPageID = handlePageID;
-    pages.setPageTitle(handlePageID, name);
-    pages.currentPage?.modelVersion = property.initModelVersion;
+    pages.setPageTitle(handlePageID, name ?? "Chat 0");
+    pages.currentPage?.modelVersion = model ?? property.initModelVersion;
 
     Message msgQ = Message(
         id: 0,
         pageID: handlePageID,
         role: MessageTRole.system,
         type: MsgType.text,
-        content: prompt,
+        content: prompt ?? "",
         timestamp: DateTime.now().millisecondsSinceEpoch);
     pages.addMessage(handlePageID, msgQ);
     submitText(pages, property, handlePageID, user);

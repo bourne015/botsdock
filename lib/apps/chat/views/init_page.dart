@@ -146,7 +146,7 @@ class InitPageState extends State<InitPage> {
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
           onTap: () {
-            chats.newBot(pages, property, user, name, prompt);
+            chats.newBot(pages, property, user, name: name, prompt: prompt);
           },
           child: Ink(
               width: 75,
