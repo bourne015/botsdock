@@ -42,6 +42,26 @@ void showMessage(BuildContext context, String msg) {
   );
 }
 
+void showMaterialBanner(BuildContext context, String message) {
+  final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
+
+  if (scaffoldMessenger != null) {
+    scaffoldMessenger.showMaterialBanner(
+      MaterialBanner(
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              scaffoldMessenger.hideCurrentMaterialBanner();
+            },
+            child: Text('关闭'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 Widget logTextFormField(
     {BuildContext? context,
     String? hintText,
@@ -123,5 +143,83 @@ PopupMenuItem<String> buildPopupMenuItem(BuildContext context,
         ),
       ),
     ),
+  );
+}
+
+Widget localImages(
+    BuildContext context, List images, void Function(int) onClickImage) {
+  return ListBody(
+    children: [
+      GridView.builder(
+        shrinkWrap: true,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 6,
+          childAspectRatio: 1,
+        ),
+        itemCount: images.length, //BotImages.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Container(
+              margin: EdgeInsets.all(5),
+              child: InkWell(
+                  onTap: () async {
+                    onClickImage(index);
+                    Navigator.of(context).pop();
+                  },
+                  hoverColor: Colors.grey.withOpacity(0.3),
+                  splashColor: Colors.brown.withOpacity(0.5),
+                  child: Ink(
+                    height: 80,
+                    width: 80,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(images[index]),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  )));
+        },
+      ),
+    ],
+  );
+}
+
+void showCustomBottomSheet(BuildContext context,
+    {List? images,
+    void Function(BuildContext)? pickFile,
+    void Function(int)? onClickImage}) {
+  showModalBottomSheet(
+    context: context,
+    elevation: 5,
+    isScrollControlled: true,
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(15))),
+    builder: (BuildContext context) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            if (pickFile != null)
+              ListTile(
+                leading: Icon(Icons.upload),
+                title: Text('上传本地图片'),
+                onTap: () {
+                  Navigator.pop(context);
+                  pickFile(context);
+                },
+              ),
+            Divider(),
+            Padding(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text('选择图片'),
+              ),
+            ),
+            localImages(context, images ?? [], onClickImage ?? (v) {}),
+          ],
+        ),
+      );
+    },
   );
 }

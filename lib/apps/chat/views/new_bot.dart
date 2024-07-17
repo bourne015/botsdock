@@ -100,25 +100,45 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     super.dispose();
   }
 
-  Future<void> _pickLogo(context) async {
+  void _showMessage(String msg) {
+    var _marginL = 50.0;
+    if (isDisplayDesktop(context)) _marginL = 20;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: Duration(milliseconds: 900),
+        content: Text(msg, textAlign: TextAlign.center),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10.0))),
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.only(left: _marginL, right: 50),
+      ),
+    );
+  }
+
+  Future<void> _pickLogo(BuildContext context) async {
     var result;
-    if (kIsWeb) {
-      debugPrint('web platform');
-      result = await FilePickerWeb.platform
-          .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles);
-    } else {
-      result = await FilePicker.platform
-          .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles);
-    }
-    if (result != null) {
-      if (result.files.first.size / (1024 * 1024) > maxFileMBSize) {
-        showMessage(context, "文件大小超过限制:${maxFileMBSize}MB");
-        return;
+    try {
+      if (kIsWeb) {
+        debugPrint('web platform');
+        result = await FilePickerWeb.platform.pickFiles(
+            type: FileType.custom, allowedExtensions: supportedImages);
+      } else {
+        result = await FilePicker.platform.pickFiles(
+            type: FileType.custom, allowedExtensions: supportedImages);
       }
-      setState(() {
-        _fileBytes = result.files.first.bytes;
-        _fileName = result.files.first.name;
-      });
+
+      if (result != null) {
+        if (result.files.first.size / (1024 * 1024) > maxAvatarSize) {
+          _showMessage("文件大小超过限制: ${maxAvatarSize}MB");
+          return;
+        }
+        setState(() {
+          _fileBytes = result.files.first.bytes;
+          _fileName = result.files.first.name;
+        });
+      }
+    } catch (e) {
+      print("_pickLogo error:$e");
     }
   }
 
@@ -132,6 +152,33 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       );
       _logoURL = (resp.statusCode == 200) ? resp.realUri.toString() : null;
     }
+  }
+
+  Widget chooseLogo(BuildContext context) {
+    return ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: Ink(
+            child: InkWell(
+          onTap: () {
+            showCustomBottomSheet(context,
+                images: BotImages,
+                pickFile: _pickLogo,
+                onClickImage: onClickImage);
+          },
+          borderRadius: BorderRadius.circular(45.0),
+          hoverColor: Colors.red.withOpacity(0.3),
+          splashColor: Colors.red.withOpacity(0.5),
+          child: _displayLogo(context),
+        )));
+  }
+
+  void onClickImage(int index) async {
+    final ByteData data =
+        await rootBundle.load('assets/images/bot/bot${index + 1}.png');
+    setState(() {
+      _fileBytes = data.buffer.asUint8List();
+      _fileName = 'bot${index + 1}.png';
+    });
   }
 
   @override
@@ -979,99 +1026,5 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       return Image.asset('assets/images/bot/bot4.png',
           width: sz, height: sz, fit: BoxFit.cover);
     }
-  }
-
-  Widget chooseLogo(BuildContext context) {
-    return ClipRRect(
-        borderRadius: BorderRadius.circular(100),
-        child: Ink(
-            child: InkWell(
-          onTap: () {
-            showCustomBottomSheet(context);
-          },
-          borderRadius: BorderRadius.circular(45.0),
-          hoverColor: Colors.red.withOpacity(0.3),
-          splashColor: Colors.red.withOpacity(0.5),
-          child: _displayLogo(context),
-        )));
-  }
-
-  Widget localImages(BuildContext context) {
-    return ListBody(
-      children: [
-        GridView.builder(
-          shrinkWrap: true,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 6,
-            childAspectRatio: 1,
-          ),
-          itemCount: BotImages.length,
-          itemBuilder: (BuildContext context, int index) {
-            return Container(
-                margin: EdgeInsets.all(5),
-                child: InkWell(
-                    onTap: () async {
-                      final ByteData data = await rootBundle
-                          .load('assets/images/bot/bot${index + 1}.png');
-                      setState(() {
-                        _fileBytes = data.buffer.asUint8List();
-                        _fileName = 'bot${index + 1}.png';
-                      });
-                      Navigator.of(context).pop();
-                    },
-                    hoverColor: Colors.grey.withOpacity(0.3),
-                    splashColor: Colors.brown.withOpacity(0.5),
-                    child: Ink(
-                      height: 80,
-                      width: 80,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage(
-                              'assets/images/bot/bot${index + 1}.png'),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    )));
-          },
-        ),
-      ],
-    );
-  }
-
-  void showCustomBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      elevation: 5,
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(15))),
-      builder: (BuildContext context) {
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.upload),
-                title: Text('上传本地图片'),
-                onTap: () {
-                  _pickLogo(context);
-                  Navigator.pop(context);
-                },
-              ),
-              Divider(),
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('选择图片'),
-                ),
-              ),
-              localImages(context),
-            ],
-          ),
-        );
-      },
-    );
   }
 }

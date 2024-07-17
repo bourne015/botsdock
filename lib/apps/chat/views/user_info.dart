@@ -157,7 +157,10 @@ class _UserInfoTabState extends State<UserInfo> {
         SizedBox(height: 40),
         GestureDetector(
           onTap: () {
-            showImagePicker(context, editUser);
+            showCustomBottomSheet(context,
+                images: avatarImages,
+                pickFile: _pickLocalImage,
+                onClickImage: onClickImage);
           },
           child: CircleAvatar(
             radius: 50,
@@ -262,14 +265,6 @@ class _UserInfoTabState extends State<UserInfo> {
             context, "余额", widget.user.credit?.toStringAsFixed(1) ?? '0', null,
             obscure: false, autofocus: false, readOnly: true),
         SizedBox(height: 60),
-        // InputChip(
-        //   //avatar: Text("密码"),
-        //   autofocus: true,
-        //   //selected: true,
-        //   isEnabled: false,
-        //   label: Text("保存"),
-        //   deleteIcon: Icon(Icons.edit, size: 14),
-        // ),
         ElevatedButton(
           onPressed: () {
             showDialog(
@@ -399,87 +394,24 @@ class _UserInfoTabState extends State<UserInfo> {
         ]));
   }
 
-  ////
-  void showImagePicker(BuildContext context, editUser) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Image.asset(
-            width: 200,
-            height: 200,
-            'assets/images/avatar/${widget.user.avatar}.png',
-          ),
-          content: Container(
-              width: 500,
-              child: SingleChildScrollView(
-                child: ListBody(
-                  children: [
-                    GridView.builder(
-                      shrinkWrap: true,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 6,
-                        childAspectRatio: 1,
-                      ),
-                      itemCount: avatarImages.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return GestureDetector(
-                          onTap: () async {
-                            // 选择新的头像
-                            var userdata = {"avatar": (index + 1).toString()};
-                            var response =
-                                await dio.post(editUser, data: userdata);
-                            selectAvatar((index + 1).toString());
-                            Navigator.of(context).pop();
-                            if (response.data["result"] == 'success') {
-                              setState(() {
-                                widget.user.avatar = userdata['avatar'];
-                                Global.saveProfile(widget.user);
-                              });
-                            }
-                          },
-                          child: Image.asset(avatarImages[index]),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              )),
-        );
-      },
-    );
+  Future<void> _pickLocalImage(BuildContext context) async {
+    showMaterialBanner(context, "暂不支持本地图片");
   }
 
-  void selectAvatar(String avatarUrl) {
-    setState(() {
-      widget.user.avatar = avatarUrl;
-    });
-  }
+  void onClickImage(int index) async {
+    var editUser = userUrl + "/" + "${widget.user.id}";
+    var userdata = {"avatar": (index + 1).toString()};
+    var response = await dio.post(editUser, data: userdata);
+    //selectAvatar((index + 1).toString());
 
-  List<String> avatarImages = [
-    'assets/images/avatar/1.png',
-    'assets/images/avatar/2.png',
-    'assets/images/avatar/3.png',
-    'assets/images/avatar/4.png',
-    'assets/images/avatar/5.png',
-    'assets/images/avatar/6.png',
-    'assets/images/avatar/7.png',
-    'assets/images/avatar/8.png',
-    'assets/images/avatar/9.png',
-    'assets/images/avatar/10.png',
-    'assets/images/avatar/11.png',
-    'assets/images/avatar/12.png',
-    'assets/images/avatar/13.png',
-    'assets/images/avatar/14.png',
-    'assets/images/avatar/15.png',
-  ];
-}
-
-class BlankPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Blank Page'),
-    );
+    //Navigator.of(context).pop();
+    if (response.data["result"] == 'success') {
+      setState(() {
+        widget.user.avatar = userdata['avatar'];
+        Global.saveProfile(widget.user);
+      });
+    } else {
+      showMessage(context, "failed");
+    }
   }
 }

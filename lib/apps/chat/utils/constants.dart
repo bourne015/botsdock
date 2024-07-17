@@ -181,6 +181,24 @@ const String function_sample1 = """
 }
 """;
 
+List<String> avatarImages = [
+  'assets/images/avatar/1.png',
+  'assets/images/avatar/2.png',
+  'assets/images/avatar/3.png',
+  'assets/images/avatar/4.png',
+  'assets/images/avatar/5.png',
+  'assets/images/avatar/6.png',
+  'assets/images/avatar/7.png',
+  'assets/images/avatar/8.png',
+  'assets/images/avatar/9.png',
+  'assets/images/avatar/10.png',
+  'assets/images/avatar/11.png',
+  'assets/images/avatar/12.png',
+  'assets/images/avatar/13.png',
+  'assets/images/avatar/14.png',
+  'assets/images/avatar/15.png',
+];
+
 List<String> BotImages = [
   'assets/images/bot/bot1.png',
   'assets/images/bot/bot2.png',
@@ -198,5 +216,6 @@ List<String> BotImages = [
 
 const String chatAssistantID = "asst_jyeohJN5sfUlrqdMm8pwGN2a";
 const int maxFileMBSize = 200;
+const int maxAvatarSize = 5;
 
 const String appVersion = "0.5.7";
