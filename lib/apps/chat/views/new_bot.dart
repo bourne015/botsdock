@@ -53,6 +53,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   String? _fileName;
   List<int>? _fileBytes;
   String? _logoURL;
+  String? _localAvatar;
   double temperature = 1;
   String _model = DefaultModelVersion;
   GlobalKey _createBotformKey = GlobalKey<FormState>();
@@ -70,7 +71,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   void initState() {
     super.initState();
     if (widget.bot != null) {
-      _logoURL = widget.bot!.avatar;
+      if (widget.bot!.avatar!.startsWith("http"))
+        _logoURL = widget.bot!.avatar;
+      else
+        _localAvatar = widget.bot!.avatar;
       _assistant_id = widget.bot!.assistant_id;
       _nameController.text = widget.bot!.name;
       _introController.text = widget.bot!.description ?? "";
@@ -135,6 +139,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         setState(() {
           _fileBytes = result.files.first.bytes;
           _fileName = result.files.first.name;
+          _localAvatar = null;
         });
       }
     } catch (e) {
@@ -155,8 +160,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   }
 
   Widget chooseLogo(BuildContext context) {
-    return ClipRRect(
-        borderRadius: BorderRadius.circular(100),
+    if (_logoURL == null && _fileBytes == null)
+      return CircleAvatar(
+        radius: 50,
+        backgroundImage: AssetImage(_localAvatar ?? defaultBotAvatar),
         child: Ink(
             child: InkWell(
           onTap: () {
@@ -168,16 +175,36 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
           borderRadius: BorderRadius.circular(45.0),
           hoverColor: Colors.red.withOpacity(0.3),
           splashColor: Colors.red.withOpacity(0.5),
-          child: _displayLogo(context),
-        )));
+          //child: _displayLogo(context),
+        )),
+      );
+    else
+      return ClipRRect(
+          borderRadius: BorderRadius.circular(100),
+          child: Ink(
+              child: InkWell(
+            onTap: () {
+              showCustomBottomSheet(context,
+                  images: BotImages,
+                  pickFile: _pickLogo,
+                  onClickImage: onClickImage);
+            },
+            borderRadius: BorderRadius.circular(45.0),
+            hoverColor: Colors.red.withOpacity(0.3),
+            splashColor: Colors.red.withOpacity(0.5),
+            child: _displayLogo(context),
+          )));
   }
 
   void onClickImage(int index) async {
-    final ByteData data =
-        await rootBundle.load('assets/images/bot/bot${index + 1}.png');
+    // final ByteData data =
+    //     await rootBundle.load('assets/images/bot/bot${index + 1}.png');
     setState(() {
-      _fileBytes = data.buffer.asUint8List();
-      _fileName = 'bot${index + 1}.png';
+      // _fileBytes = data.buffer.asUint8List();
+      // _fileName = 'bot${index + 1}.png';
+      _fileBytes = null;
+      _fileName = null;
+      _localAvatar = BotImages[index];
     });
   }
 
@@ -291,7 +318,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         "model": _model,
         "name": _nameController.text,
         "assistant_id": _assistant_id,
-        "avatar": _logoURL,
+        "avatar": _localAvatar ?? _logoURL,
         "description": _introController.text,
         "instructions": _configInfoController.text,
         "author_id": widget.user.id,
@@ -1012,12 +1039,6 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     ]);
   }
 
-  void loadDefaultImage() async {
-    final ByteData data = await rootBundle.load('assets/images/bot/bot4.png');
-    _fileBytes = data.buffer.asUint8List();
-    _fileName = 'bot4.png';
-  }
-
   Widget _displayLogo(BuildContext context) {
     var sz = 100.0;
     if (_fileBytes != null)
@@ -1026,9 +1047,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     else if (_logoURL != null)
       return Image.network(_logoURL!, width: sz, height: sz, fit: BoxFit.cover);
     else {
-      loadDefaultImage();
-      return Image.asset('assets/images/bot/bot4.png',
-          width: sz, height: sz, fit: BoxFit.cover);
+      return Container(height: sz, width: sz);
     }
   }
 }

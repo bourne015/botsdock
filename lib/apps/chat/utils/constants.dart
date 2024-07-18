@@ -218,6 +218,8 @@ List<String> BotImages = [
   'assets/images/bot/bot16.png',
 ];
 
+String defaultBotAvatar = BotImages[3];
+
 const String chatAssistantID = "asst_jyeohJN5sfUlrqdMm8pwGN2a";
 const int maxFileMBSize = 200;
 const int maxAvatarSize = 5;
