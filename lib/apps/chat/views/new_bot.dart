@@ -204,6 +204,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       // _fileName = 'bot${index + 1}.png';
       _fileBytes = null;
       _fileName = null;
+      _logoURL = null;
       _localAvatar = BotImages[index];
     });
   }
