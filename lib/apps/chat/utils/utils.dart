@@ -348,7 +348,7 @@ class ChatGen {
       };
       ////debugPrint("send question: ${chatData["question"]}");
       final stream = connectAssistant(
-        _url,
+        "${_url}?user_id=${user.id}",
         "POST",
         headers: {
           'Content-Type': 'application/json',
@@ -459,7 +459,8 @@ class ChatGen {
         String q = pages.getMessages(handlePageID)!.last.content;
         var chatData1 = {"model": GPTModel.gptv40Dall, "question": q};
         pages.getPage(handlePageID).onGenerating = true;
-        final response = await dio.post(imageUrl, data: chatData1);
+        final response =
+            await dio.post("${imageUrl}?user_id=${user.id}", data: chatData1);
         pages.getPage(handlePageID).onGenerating = false;
 
         var mt = DateTime.now().millisecondsSinceEpoch;
@@ -494,7 +495,7 @@ class ChatGen {
         };
         ////debugPrint("send question: ${chatData["question"]}");
         final stream = chatServer.connect(
-          sseChatUrl,
+          "${sseChatUrl}?user_id=${user.id}",
           "POST",
           headers: {
             'Content-Type': 'application/json',
