@@ -220,26 +220,27 @@ class BotsState extends State<BotsCentre> {
             child: Row(
               //crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                    borderRadius: BorderRadius.circular(80),
-                    child: image != null
-                        ? Image.network(
-                            image,
-                            width: 80,
-                            height: 80,
-                          )
-                        : Container(height: 80, width: 80)),
+                image!.startsWith("http")
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(80),
+                        child: Image.network(
+                          image,
+                          width: 80,
+                          height: 80,
+                        ))
+                    : CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage(image),
+                      ),
                 SizedBox(width: 30),
                 Expanded(
                     child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
+                    Text(title,
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
                     //SizedBox(height: 5),
                     Text(
                       description,
