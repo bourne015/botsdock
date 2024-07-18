@@ -482,8 +482,10 @@ class ChatGen {
           await titleGenerate(pages, handlePageID);
         }
 
-        await uploadImage(pages, handlePageID, msgA.id, _aiImageName,
-            _aiImageName, base64Decode(response.data));
+        String? ossURL = await uploadImage(pages, handlePageID, msgA.id,
+            _aiImageName, _aiImageName, base64Decode(response.data));
+        if (ossURL != null) msgA.visionFiles[_aiImageName]!.url = ossURL;
+        pages.getPage(handlePageID).updateScheme(msgA.id);
         saveChats(user, pages, handlePageID);
       } else {
         var chatData = {
