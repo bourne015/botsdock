@@ -3,7 +3,7 @@
   "@appTitle": {
     "description": "app title"
   },
-  "homeHeaderGallery": "Asssistants",
+  "homeHeaderGallery": "Assistants",
   "@homeHeaderGallery": {
     "description": "Header title on home screen for Gallery section."
   },
