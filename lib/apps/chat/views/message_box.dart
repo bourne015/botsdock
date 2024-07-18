@@ -74,9 +74,10 @@ class MessageBoxState extends State<MessageBox> {
   }
 
   Widget assistantAvatar(BuildContext context) {
+    User user = Provider.of<User>(context);
     return CircleAvatar(
       radius: 16,
-      backgroundImage: AssetImage('assets/images/bot/bot7.png'),
+      backgroundImage: AssetImage(user.avatar_bot ?? defaultUserBotAvatar),
     );
   }
 

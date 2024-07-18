@@ -8,6 +8,7 @@ class User with ChangeNotifier {
   String? _email;
   String? _phone;
   String? _avatar;
+  String? _avatar_bot;
   double? _credit;
   bool _signUP = true;
   int _updated_at = 0;
@@ -38,8 +39,14 @@ class User with ChangeNotifier {
   }
 
   String? get avatar => _avatar;
-  set avatar(String? avatarNum) {
-    _avatar = avatarNum;
+  set avatar(String? newavatar) {
+    _avatar = newavatar;
+    notifyListeners();
+  }
+
+  String? get avatar_bot => _avatar_bot;
+  set avatar_bot(String? newavatar) {
+    _avatar_bot = newavatar;
     notifyListeners();
   }
 

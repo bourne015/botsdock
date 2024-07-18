@@ -33,6 +33,7 @@ class Global {
           user.name = response.data["name"];
           user.phone = response.data["phone"];
           user.avatar = response.data["avatar"];
+          user.avatar_bot = response.data["avatar_bot"];
           user.credit = response.data["credit"];
           user.updated_at = response.data["updated_at"];
           user.isLogedin = true;
@@ -44,6 +45,7 @@ class Global {
           user.name = _prefs.getString("name");
           user.phone = _prefs.getString("phone");
           user.avatar = _prefs.getString("avatar");
+          user.avatar_bot = _prefs.getString("avatar_bot");
           user.credit = _prefs.getDouble("credit");
           user.isLogedin = true;
           user.updated_at = _prefs.getInt("updated_at");
@@ -145,6 +147,8 @@ class Global {
     if (user.name != null) _prefs.setString("name", user.name);
     if (user.phone != null) _prefs.setString("phone", user.phone);
     if (user.avatar != null) _prefs.setString("avatar", user.avatar);
+    if (user.avatar_bot != null)
+      _prefs.setString("avatar_bot", user.avatar_bot);
     if (user.credit != null) _prefs.setDouble("credit", user.credit);
     if (user.isLogedin != null) _prefs.setBool("isLogedin", user.isLogedin);
     if (user.updated_at != null) _prefs.setInt("updated_at", user.updated_at);

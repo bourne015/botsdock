@@ -219,9 +219,10 @@ List<String> BotImages = [
 ];
 
 String defaultBotAvatar = BotImages[3];
+String defaultUserBotAvatar = BotImages[6];
 
 const String chatAssistantID = "asst_jyeohJN5sfUlrqdMm8pwGN2a";
 const int maxFileMBSize = 200;
 const int maxAvatarSize = 5;
 
-const String appVersion = "0.5.9";
+const String appVersion = "0.6.0";

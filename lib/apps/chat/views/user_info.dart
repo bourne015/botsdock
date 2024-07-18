@@ -37,19 +37,21 @@ class _UserInfoTabState extends State<UserInfo> {
     //User user = Provider.of<User>(context, listen: false);
     //Pages pages = Provider.of<Pages>(context);
     return Dialog(
-        child: Container(
-      width: 380,
-      //     child: IntrinsicWidth(
-      child: DefaultTabController(
-        initialIndex: 0,
-        length: 2,
-        child: userPannel(context),
-      ),
-    ));
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(15))),
+        child: ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: Container(
+              width: 400,
+              child: DefaultTabController(
+                initialIndex: 0,
+                length: 2,
+                child: userPannel(context),
+              ),
+            )));
   }
 
   Widget userPannel(BuildContext context) {
-    //User user = Provider.of<User>(context, listen: false);
     String title = widget.user.name ?? "user";
     return Scaffold(
         appBar: AppBar(
@@ -63,8 +65,8 @@ class _UserInfoTabState extends State<UserInfo> {
         ),
         body: TabBarView(
           children: <Widget>[
-            UserInfoPage(context),
-            UserCharge(context),
+            SingleChildScrollView(child: UserInfoPage(context, title)),
+            SingleChildScrollView(child: UserCharge(context)),
           ],
         ));
   }
@@ -150,23 +152,43 @@ class _UserInfoTabState extends State<UserInfo> {
     }
   }
 
-  Widget UserInfoPage(BuildContext context) {
+  Widget UserInfoPage(BuildContext context, String title) {
     var editUser = userUrl + "/" + "${widget.user.id}";
     return Column(
       children: [
         SizedBox(height: 40),
-        GestureDetector(
-          onTap: () {
-            showCustomBottomSheet(context,
-                images: avatarImages,
-                pickFile: _pickLocalImage,
-                onClickImage: onClickImage);
-          },
-          child: CircleAvatar(
-            radius: 50,
-            backgroundImage: AssetImage(widget.user.avatar!),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          GestureDetector(
+            onTap: () {
+              showCustomBottomSheet(context,
+                  images: avatarImages,
+                  pickFile: _pickLocalImage,
+                  onClickImage: onClickImage);
+            },
+            child: Column(children: [
+              CircleAvatar(
+                radius: 50,
+                backgroundImage: AssetImage(widget.user.avatar!),
+              ),
+              Text(title)
+            ]),
           ),
-        ),
+          GestureDetector(
+              onTap: () {
+                showCustomBottomSheet(context,
+                    images: BotImages,
+                    pickFile: _pickLocalImage,
+                    onClickImage: onClickBotAvatar);
+              },
+              child: Column(children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundImage: AssetImage(
+                      widget.user.avatar_bot ?? defaultUserBotAvatar),
+                ),
+                Text("AI")
+              ]))
+        ]),
         SizedBox(height: 60),
         //Text(widget.user.name ?? '', style: TextStyle(fontSize: 20)),
         // userInfoFormField(context, "昵称", widget.user.name ?? '',
@@ -407,6 +429,21 @@ class _UserInfoTabState extends State<UserInfo> {
     if (response.data["result"] == 'success') {
       setState(() {
         widget.user.avatar = userdata['avatar'];
+        Global.saveProfile(widget.user);
+      });
+    } else {
+      showMessage(context, "failed");
+    }
+  }
+
+  void onClickBotAvatar(int index) async {
+    var editUser = userUrl + "/" + "${widget.user.id}";
+    var userdata = {"avatar_bot": BotImages[index]};
+    var response = await dio.post(editUser, data: userdata);
+
+    if (response.data["result"] == 'success') {
+      setState(() {
+        widget.user.avatar_bot = userdata['avatar_bot'];
         Global.saveProfile(widget.user);
       });
     } else {

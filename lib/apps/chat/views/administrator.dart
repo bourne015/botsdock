@@ -182,9 +182,8 @@ class AdministratorState extends State<Administrator> {
   void userInfoDialog(BuildContext context, User user) {
     showDialog(
       context: context,
-      builder: (context) => UserInfo(
-        user: user,
-      ),
+      barrierDismissible: false,
+      builder: (context) => UserInfo(user: user),
     );
   }
 
@@ -479,6 +478,7 @@ class AdministratorState extends State<Administrator> {
         "email": user.email,
         "phone": user.phone,
         "avatar": avatarImages[avatarNum],
+        "avatar_bot": defaultUserBotAvatar,
         "credit": 0.2,
         "pwd": _pwdcontroller.text,
       };
@@ -487,6 +487,7 @@ class AdministratorState extends State<Administrator> {
         user.signUP = true;
         user.id = response.data["id"];
         user.avatar = avatarImages[avatarNum];
+        user.avatar_bot = defaultUserBotAvatar;
       } else {
         user.signUP = false;
       }
@@ -517,6 +518,7 @@ class AdministratorState extends State<Administrator> {
         user.email = response.data["email"];
         user.phone = response.data["phone"];
         user.avatar = response.data["avatar"];
+        user.avatar_bot = response.data["avatar_bot"];
         user.credit = response.data["credit"];
         user.updated_at = response.data["updated_at"];
         user.isLogedin = true;
