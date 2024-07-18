@@ -7,10 +7,12 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_markdown_latex/flutter_markdown_latex.dart';
 import 'package:gallery/apps/chat/models/data.dart';
 import 'package:markdown/markdown.dart' as md;
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:image_downloader_web/image_downloader_web.dart';
 
 import '../models/message.dart';
+import '../models/user.dart';
 import '../utils/constants.dart';
 import '../utils/custom_widget.dart';
 import '../utils/markdown_extentions.dart';
@@ -54,42 +56,60 @@ class MessageBoxState extends State<MessageBox> {
   }
 
   Widget roleIcon(BuildContext context) {
-    var icon = widget.msg.role == MessageTRole.user
-        ? Icons.person
-        : Icons.perm_identity;
-    var color =
-        widget.msg.role == MessageTRole.user ? Colors.blue : Colors.green;
+    if (widget.msg.role == MessageTRole.assistant)
+      return assistantAvatar(context);
+    else
+      return userAvatar(context);
+    // var icon = widget.msg.role == MessageTRole.user
+    //     ? Icons.person
+    //     : Icons.perm_identity;
+    // var color =
+    //     widget.msg.role == MessageTRole.user ? Colors.blue : Colors.green;
 
-    return Icon(
-      icon,
-      size: 32,
-      color: color,
+    // return Icon(
+    //   icon,
+    //   size: 32,
+    //   color: color,
+    // );
+  }
+
+  Widget assistantAvatar(BuildContext context) {
+    return CircleAvatar(
+      radius: 16,
+      backgroundImage: AssetImage('assets/images/bot/bot7.png'),
+    );
+  }
+
+  Widget userAvatar(BuildContext context) {
+    User user = Provider.of<User>(context);
+    return CircleAvatar(
+      radius: 16,
+      backgroundImage: AssetImage(user.avatar!),
     );
   }
 
   Widget message(BuildContext context) {
     double bottom_v = 0;
-    if (widget.msg.role == MessageTRole.user) bottom_v = 30.0;
+    if (widget.msg.role == MessageTRole.user) bottom_v = 20.0;
     return Flexible(
       child: Container(
-        margin: EdgeInsets.only(bottom: bottom_v),
-        padding:
-            EdgeInsets.only(top: 1.0, bottom: 1.0, right: 10.0, left: 10.0),
+        margin: EdgeInsets.only(left: 8, bottom: bottom_v),
+        padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
             color: widget.msg.role == MessageTRole.user
                 ? AppColors.userMsgBox
                 : AppColors.aiMsgBox,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(6),
-              topRight: Radius.circular(6),
-              bottomLeft: Radius.circular(6),
-              bottomRight: Radius.circular(6),
-            )),
+            borderRadius: const BorderRadius.all(Radius.circular(10))),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          messageRoleName(context),
-          //if (widget.val["type"] != MsgType.text)
-          //if (widget.msg.role == MessageTRole.user)
-          contentAttachment(context),
+          // messageRoleName(context),
+          if (widget.msg.visionFiles.isNotEmpty)
+            Container(
+                height: 250,
+                child: visionFilesList(context, widget.msg.visionFiles)),
+          if (widget.msg.attachments.isNotEmpty)
+            Container(
+                height: 80,
+                child: attachmentList(context, widget.msg.attachments)),
           messageContent(context)
         ]),
       ),
@@ -109,10 +129,7 @@ class MessageBoxState extends State<MessageBox> {
   }
 
   Widget messageContent(BuildContext context) {
-    if (widget.msg.type == MsgType.image &&
-        widget.msg.role == MessageTRole.assistant) {
-      return visionFilesList(context, widget.msg.visionFiles);
-    } else if (widget.msg.role == MessageTRole.user) {
+    if (widget.msg.role == MessageTRole.user) {
       return SelectableText(
         widget.msg.content,
         //overflow: TextOverflow.ellipsis,
@@ -121,7 +138,21 @@ class MessageBoxState extends State<MessageBox> {
         style: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
       );
     } else {
-      return wrapContentbyCopy(context);
+      return MouseRegion(
+          onEnter: (_) => _setHovering(true),
+          onExit: (_) => _setHovering(false),
+          child: Container(
+            padding: const EdgeInsets.all(0),
+            margin: const EdgeInsets.all(0),
+            //color: Colors.grey[200],
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  contentMarkdown(context),
+                  visibilityCopyButton(context)
+                ]),
+          ));
     }
   }
 
@@ -148,23 +179,6 @@ class MessageBoxState extends State<MessageBox> {
     setState(() {
       _hasCopyIcon = hovering;
     });
-  }
-
-  Widget wrapContentbyCopy(BuildContext context) {
-    return MouseRegion(
-        onEnter: (_) => _setHovering(true),
-        onExit: (_) => _setHovering(false),
-        child: Container(
-            padding: const EdgeInsets.all(0),
-            margin: const EdgeInsets.all(0),
-            //color: Colors.grey[200],
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  contentMarkdown(context),
-                  visibilityCopyButton(context)
-                ])));
   }
 
   Widget contentMarkdown(BuildContext context) {
@@ -206,19 +220,6 @@ class MessageBoxState extends State<MessageBox> {
             textScaleFactor: 1.2),
       },
     );
-  }
-
-  Widget contentAttachment(BuildContext context) {
-    if (widget.msg.visionFiles.isNotEmpty)
-      return Container(
-          height: 250, child: visionFilesList(context, widget.msg.visionFiles));
-    if (widget.msg.attachments.isNotEmpty)
-      return Container(
-          height: 80, child: attachmentList(context, widget.msg.attachments));
-    // if (widget.val["type"] == MsgType.image) {
-    //   return contentImage(context);
-    // }
-    return Container();
   }
 
   Future<void> handleDownload(

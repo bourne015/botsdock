@@ -58,7 +58,6 @@ flutter:
     - assets/images/chatgpt_red.png
     - assets/images/chat/chat_card.png
     - assets/images/chat/chat_card_dark.png
-    - assets/images/avatar/0.png
     - assets/images/avatar/1.png
     - assets/images/avatar/2.png
     - assets/images/avatar/3.png
@@ -91,3 +90,7 @@ flutter:
     - assets/images/bot/bot10.png
     - assets/images/bot/bot11.png
     - assets/images/bot/bot12.png
+    - assets/images/bot/bot13.png
+    - assets/images/bot/bot14.png
+    - assets/images/bot/bot15.png
+    - assets/images/bot/bot16.png

@@ -20,7 +20,7 @@ class AppColors {
   static final chatPageBackground = Colors.grey[50];
   static final inputBoxBackground = Colors.grey[200];
   static final inputTextField = Colors.blue[50];
-  static final userMsgBox = chatPageBackground;
+  static final userMsgBox = Colors.grey[300]; //chatPageBackground;
   static final aiMsgBox = chatPageBackground;
   static const msgText = Color.fromARGB(255, 60, 58, 58);
 
@@ -212,6 +212,10 @@ List<String> BotImages = [
   'assets/images/bot/bot10.png',
   'assets/images/bot/bot11.png',
   'assets/images/bot/bot12.png',
+  'assets/images/bot/bot13.png',
+  'assets/images/bot/bot14.png',
+  'assets/images/bot/bot15.png',
+  'assets/images/bot/bot16.png',
 ];
 
 const String chatAssistantID = "asst_jyeohJN5sfUlrqdMm8pwGN2a";
