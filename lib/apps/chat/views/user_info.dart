@@ -164,8 +164,7 @@ class _UserInfoTabState extends State<UserInfo> {
           },
           child: CircleAvatar(
             radius: 50,
-            backgroundImage:
-                AssetImage('assets/images/avatar/${widget.user.avatar}.png'),
+            backgroundImage: AssetImage(widget.user.avatar!),
           ),
         ),
         SizedBox(height: 60),
@@ -400,7 +399,7 @@ class _UserInfoTabState extends State<UserInfo> {
 
   void onClickImage(int index) async {
     var editUser = userUrl + "/" + "${widget.user.id}";
-    var userdata = {"avatar": (index + 1).toString()};
+    var userdata = {"avatar": avatarImages[index]};
     var response = await dio.post(editUser, data: userdata);
     //selectAvatar((index + 1).toString());
 

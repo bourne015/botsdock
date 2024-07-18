@@ -60,7 +60,7 @@ class AdministratorState extends State<Administrator> {
           ),
           leading: user.isLogedin
               ? Image.asset(
-                  'assets/images/avatar/${user.avatar}.png',
+                  user.avatar!,
                   height: 24,
                   width: 24,
                 )
@@ -111,7 +111,7 @@ class AdministratorState extends State<Administrator> {
                       value: "user",
                       child: ListTile(
                         leading: Image.asset(
-                          'assets/images/avatar/${user.avatar}.png',
+                          user.avatar!,
                           height: 24,
                           width: 24,
                         ),
@@ -478,7 +478,7 @@ class AdministratorState extends State<Administrator> {
         "name": user.name,
         "email": user.email,
         "phone": user.phone,
-        "avatar": avatarNum.toString(),
+        "avatar": avatarImages[avatarNum],
         "credit": 0.2,
         "pwd": _pwdcontroller.text,
       };
@@ -486,7 +486,7 @@ class AdministratorState extends State<Administrator> {
       if (response.data["result"] == 'success') {
         user.signUP = true;
         user.id = response.data["id"];
-        user.avatar = avatarNum.toString();
+        user.avatar = avatarImages[avatarNum];
       } else {
         user.signUP = false;
       }
