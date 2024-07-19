@@ -282,11 +282,8 @@ class _ChatPageTabState extends State<ChatPageTab> {
           }
           for (var m in msgs) {
             if (m.visionFiles == null || m.visionFiles!.isEmpty) continue;
-            m.visionFiles!.forEach((_filename, _content) {
-              var uri = Uri.parse(_content.url);
-              var path =
-                  uri.path.startsWith('/') ? uri.path.substring(1) : uri.path;
-              Client().deleteObject(path);
+            m.visionFiles!.forEach((_filename, _content) async {
+              if (_content.url != null) deleteOSSObj(_content.url);
             });
           }
           if (tid != null) await assistant.deleteThread(tid);

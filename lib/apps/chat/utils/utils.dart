@@ -596,3 +596,15 @@ Map<String, Attachment> copyAttachment(Map? original) {
   });
   return copy;
 }
+
+Future<void> deleteOSSObj(String url) async {
+  try {
+    var path = Uri.parse(url).path;
+    if (path.contains('%')) path = Uri.decodeFull(path);
+
+    path = path.startsWith('/') ? path.substring(1) : path;
+    if (await Client().doesObjectExist(path)) await Client().deleteObject(path);
+  } catch (e) {
+    debugPrint("deleteOSSObj error: $e");
+  }
+}

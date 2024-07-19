@@ -147,7 +147,7 @@ PopupMenuItem<String> buildPopupMenuItem(BuildContext context,
 }
 
 Widget localImages(
-    BuildContext context, List images, void Function(int) onClickImage) {
+    BuildContext context, List images, void Function(String) onClickImage) {
   return ListBody(
     children: [
       GridView.builder(
@@ -162,7 +162,7 @@ Widget localImages(
               margin: EdgeInsets.all(5),
               child: InkWell(
                   onTap: () async {
-                    onClickImage(index);
+                    onClickImage(images[index]);
                     Navigator.of(context).pop();
                   },
                   hoverColor: Colors.grey.withOpacity(0.3),
@@ -186,7 +186,7 @@ Widget localImages(
 void showCustomBottomSheet(BuildContext context,
     {List? images,
     void Function(BuildContext)? pickFile,
-    void Function(int)? onClickImage}) {
+    void Function(String)? onClickImage}) {
   showModalBottomSheet(
     context: context,
     elevation: 5,
@@ -222,4 +222,19 @@ void showCustomBottomSheet(BuildContext context,
       );
     },
   );
+}
+
+Widget image_show(String img_path, double radius) {
+  return img_path.startsWith("http")
+      ? ClipRRect(
+          borderRadius: BorderRadius.circular(80),
+          child: Image.network(
+            img_path,
+            width: radius * 2,
+            height: radius * 2,
+          ))
+      : CircleAvatar(
+          radius: radius,
+          backgroundImage: AssetImage(img_path),
+        );
 }

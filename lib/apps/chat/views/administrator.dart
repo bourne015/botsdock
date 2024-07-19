@@ -59,11 +59,7 @@ class AdministratorState extends State<Administrator> {
             borderRadius: BorderRadius.circular(10),
           ),
           leading: user.isLogedin
-              ? Image.asset(
-                  user.avatar!,
-                  height: 24,
-                  width: 24,
-                )
+              ? image_show(user.avatar!, 15)
               : Icon(Icons.account_circle),
           minLeadingWidth: 0,
           contentPadding: const EdgeInsets.symmetric(vertical: 1),
@@ -110,11 +106,7 @@ class AdministratorState extends State<Administrator> {
                       padding: EdgeInsets.fromLTRB(20, 0, 80, 0),
                       value: "user",
                       child: ListTile(
-                        leading: Image.asset(
-                          user.avatar!,
-                          height: 24,
-                          width: 24,
-                        ),
+                        leading: image_show(user.avatar!, 25),
                         title: user.name == null ? null : Text(user.name!),
                         subtitle: user.email == null ? null : Text(user.email!),
                       ),

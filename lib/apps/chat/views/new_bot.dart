@@ -149,6 +149,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
 
   Future<void> uploadLogo() async {
     if (_fileBytes != null) {
+      String? _preLogo = _logoURL;
+
       var mt = DateTime.now().millisecondsSinceEpoch;
       String oss_name = "bot${widget.user.id}_${mt}" + _fileName!;
       var resp = await Client().putObject(
@@ -156,6 +158,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         "chat/avatar/" + oss_name,
       );
       _logoURL = (resp.statusCode == 200) ? resp.realUri.toString() : null;
+      if (_preLogo != null) deleteOSSObj(_preLogo);
     }
   }
 
@@ -196,7 +199,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
           )));
   }
 
-  void onClickImage(int index) async {
+  void onClickImage(String imagePath) async {
     // final ByteData data =
     //     await rootBundle.load('assets/images/bot/bot${index + 1}.png');
     setState(() {
@@ -205,7 +208,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       _fileBytes = null;
       _fileName = null;
       _logoURL = null;
-      _localAvatar = BotImages[index];
+      _localAvatar = imagePath;
     });
   }
 
@@ -223,7 +226,9 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         backgroundColor: AppColors.chatPageBackground,
         appBar: AppBar(
           //shadowColor: Colors.red,
+          centerTitle: true,
           automaticallyImplyLeading: false,
+          forceMaterialTransparency: true,
           backgroundColor: AppColors.chatPageBackground,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -303,11 +308,15 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     }
     await uploadLogo();
     // assistant will create in backend
+    String? _preAvatar;
+    if (widget.bot != null) _preAvatar = widget.bot!.avatar;
     var resp = await saveToDB();
     Navigator.of(context).pop();
-    if (resp == true)
+    if (resp == true) {
       notifyBox(context: context, title: "success", content: "操作成功");
-    else
+      if (_preAvatar != null && _preAvatar.startsWith("http"))
+        deleteOSSObj(_preAvatar);
+    } else
       notifyBox(context: context, title: "warning", content: "操作失败");
   }
 

@@ -56,10 +56,11 @@ class MessageBoxState extends State<MessageBox> {
   }
 
   Widget roleIcon(BuildContext context) {
+    User user = Provider.of<User>(context);
     if (widget.msg.role == MessageTRole.assistant)
-      return assistantAvatar(context);
+      return image_show(user.avatar_bot ?? defaultUserBotAvatar, 16);
     else
-      return userAvatar(context);
+      return image_show(user.avatar!, 16);
     // var icon = widget.msg.role == MessageTRole.user
     //     ? Icons.person
     //     : Icons.perm_identity;
@@ -71,22 +72,6 @@ class MessageBoxState extends State<MessageBox> {
     //   size: 32,
     //   color: color,
     // );
-  }
-
-  Widget assistantAvatar(BuildContext context) {
-    User user = Provider.of<User>(context);
-    return CircleAvatar(
-      radius: 16,
-      backgroundImage: AssetImage(user.avatar_bot ?? defaultUserBotAvatar),
-    );
-  }
-
-  Widget userAvatar(BuildContext context) {
-    User user = Provider.of<User>(context);
-    return CircleAvatar(
-      radius: 16,
-      backgroundImage: AssetImage(user.avatar!),
-    );
   }
 
   Widget message(BuildContext context) {

@@ -1,7 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:file_picker/_internal/file_picker_web.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:image_downloader_web/image_downloader_web.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
 import '../models/user.dart';
 import '../utils/custom_widget.dart';
@@ -31,6 +36,10 @@ class _UserInfoTabState extends State<UserInfo> {
   //bool _editAvatar = false;
   GlobalKey _editPwdformKey = GlobalKey<FormState>();
   final dio = Dio();
+  List<int>? _userAvatarBytes;
+  List<int>? _botAvatarBytes;
+  String? _userAvatarUrl;
+  String? _botAvatarUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -147,9 +156,38 @@ class _UserInfoTabState extends State<UserInfo> {
       final ByteData data = await rootBundle.load(path);
       return data.buffer.asUint8List();
     } catch (e) {
-      print("Failed to load image: $e");
+      debugPrint("Failed to load image: $e");
       return Uint8List(0); // return empty Uint8List to prevent error
     }
+  }
+
+  Widget _userAvatar(BuildContext context) {
+    var sz = 100.0;
+
+    if (_userAvatarBytes == null && _userAvatarUrl == null)
+      return image_show(widget.user.avatar!, 50);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(sz),
+      child: (_userAvatarUrl != null
+          ? Image.network(_userAvatarUrl!,
+              width: sz, height: sz, fit: BoxFit.cover)
+          : Image.memory(Uint8List.fromList(_userAvatarBytes!),
+              width: sz, height: sz, fit: BoxFit.cover)),
+    );
+  }
+
+  Widget _botAvatar(BuildContext context) {
+    var sz = 100.0;
+    if (_botAvatarBytes == null && _botAvatarUrl == null)
+      return image_show(widget.user.avatar_bot ?? defaultUserBotAvatar, 50);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(sz),
+      child: (_botAvatarUrl != null
+          ? Image.network(_botAvatarUrl!,
+              width: sz, height: sz, fit: BoxFit.cover)
+          : Image.memory(Uint8List.fromList(_botAvatarBytes!),
+              width: sz, height: sz, fit: BoxFit.cover)),
+    );
   }
 
   Widget UserInfoPage(BuildContext context, String title) {
@@ -162,31 +200,24 @@ class _UserInfoTabState extends State<UserInfo> {
             onTap: () {
               showCustomBottomSheet(context,
                   images: avatarImages,
-                  pickFile: _pickLocalImage,
+                  pickFile: _pickUserLocalImage,
                   onClickImage: onClickImage);
             },
             child: Column(children: [
-              CircleAvatar(
-                radius: 50,
-                backgroundImage: AssetImage(widget.user.avatar!),
-              ),
-              Text(title)
+              _userAvatar(context),
+              Text(title),
             ]),
           ),
           GestureDetector(
               onTap: () {
                 showCustomBottomSheet(context,
                     images: BotImages,
-                    pickFile: _pickLocalImage,
+                    pickFile: _pickBotLocalImage,
                     onClickImage: onClickBotAvatar);
               },
               child: Column(children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: AssetImage(
-                      widget.user.avatar_bot ?? defaultUserBotAvatar),
-                ),
-                Text("AI")
+                _botAvatar(context),
+                Text("AI"),
               ]))
         ]),
         SizedBox(height: 60),
@@ -415,18 +446,137 @@ class _UserInfoTabState extends State<UserInfo> {
         ]));
   }
 
-  Future<void> _pickLocalImage(BuildContext context) async {
-    showMaterialBanner(context, "暂不支持本地图片");
+  void _showMessage(String msg) {
+    var _marginL = 50.0;
+    if (isDisplayDesktop(context)) _marginL = 20;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: Duration(milliseconds: 900),
+        content: Text(msg, textAlign: TextAlign.center),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10.0))),
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.only(left: _marginL, right: 50),
+      ),
+    );
   }
 
-  void onClickImage(int index) async {
+  Future<void> uploadUserAvatar(String file_name) async {
+    try {
+      if (_userAvatarBytes != null) {
+        var resp = await Client()
+            .putObject(_userAvatarBytes!, "chat/avatar/" + file_name);
+
+        var _imgurl = (resp.statusCode == 200) ? resp.realUri.toString() : null;
+        if (_imgurl == null) return;
+
+        _userAvatarUrl = _imgurl;
+      }
+
+      onClickImage(_userAvatarUrl!);
+    } catch (e) {
+      debugPrint("uploadImage error: $e");
+    }
+  }
+
+  Future<void> uploadBotAvatar(String file_name) async {
+    try {
+      if (_botAvatarBytes != null) {
+        var resp = await Client()
+            .putObject(_botAvatarBytes!, "chat/avatar/" + file_name);
+
+        var _imgurl = (resp.statusCode == 200) ? resp.realUri.toString() : null;
+        if (_imgurl == null) return;
+        _botAvatarUrl = _imgurl;
+
+        onClickBotAvatar(_botAvatarUrl!);
+      }
+    } catch (e) {
+      debugPrint("uploadImage error: $e");
+    }
+  }
+
+  Future<void> _pickUserLocalImage(BuildContext context) async {
+    var result;
+    try {
+      if (kIsWeb) {
+        debugPrint('web platform');
+        result = await FilePickerWeb.platform.pickFiles(
+            type: FileType.custom, allowedExtensions: supportedImages);
+      } else {
+        result = await FilePicker.platform.pickFiles(
+            type: FileType.custom, allowedExtensions: supportedImages);
+      }
+
+      if (result != null) {
+        if (result.files.first.size / (1024 * 1024) > maxAvatarSize) {
+          _showMessage("文件大小超过限制: ${maxAvatarSize}MB");
+          return;
+        }
+        _userAvatarBytes = await FlutterImageCompress.compressWithList(
+          result.files.first.bytes,
+          minHeight: 200,
+          minWidth: 200,
+          quality: 90,
+          format: CompressFormat.png,
+        );
+
+        String _file_name = result.files.first.name;
+        var mt = DateTime.now().millisecondsSinceEpoch;
+        String oss_name = "user${widget.user.id}_${mt}" + _file_name;
+        await uploadUserAvatar(oss_name);
+      }
+    } catch (e) {
+      debugPrint("_pickUserLocalImage error:$e");
+    }
+  }
+
+  Future<void> _pickBotLocalImage(BuildContext context) async {
+    var result;
+    try {
+      if (kIsWeb) {
+        debugPrint('web platform');
+        result = await FilePickerWeb.platform.pickFiles(
+            type: FileType.custom, allowedExtensions: supportedImages);
+      } else {
+        result = await FilePicker.platform.pickFiles(
+            type: FileType.custom, allowedExtensions: supportedImages);
+      }
+
+      if (result != null) {
+        if (result.files.first.size / (1024 * 1024) > maxAvatarSize) {
+          _showMessage("文件大小超过限制: ${maxAvatarSize}MB");
+          return;
+        }
+        _botAvatarBytes = await FlutterImageCompress.compressWithList(
+          result.files.first.bytes,
+          minHeight: 200,
+          minWidth: 200,
+          quality: 90,
+          format: CompressFormat.png,
+        );
+
+        String _file_name = result.files.first.name;
+        var mt = DateTime.now().millisecondsSinceEpoch;
+        String oss_name = "userbot${widget.user.id}_${mt}" + _file_name;
+        uploadBotAvatar(oss_name);
+      }
+    } catch (e) {
+      debugPrint("_pickUserLocalImage error:$e");
+    }
+  }
+
+  void onClickImage(String imagePath) async {
+    var oldAvatar = widget.user.avatar;
     var editUser = userUrl + "/" + "${widget.user.id}";
-    var userdata = {"avatar": avatarImages[index]};
+    var userdata = {"avatar": imagePath};
     var response = await dio.post(editUser, data: userdata);
     //selectAvatar((index + 1).toString());
 
     //Navigator.of(context).pop();
     if (response.data["result"] == 'success') {
+      if (oldAvatar != null && oldAvatar.startsWith("http"))
+        deleteOSSObj(oldAvatar);
       setState(() {
         widget.user.avatar = userdata['avatar'];
         Global.saveProfile(widget.user);
@@ -436,12 +586,15 @@ class _UserInfoTabState extends State<UserInfo> {
     }
   }
 
-  void onClickBotAvatar(int index) async {
+  void onClickBotAvatar(String imagePath) async {
+    var oldAvatar = widget.user.avatar_bot;
     var editUser = userUrl + "/" + "${widget.user.id}";
-    var userdata = {"avatar_bot": BotImages[index]};
+    var userdata = {"avatar_bot": imagePath};
     var response = await dio.post(editUser, data: userdata);
 
     if (response.data["result"] == 'success') {
+      if (oldAvatar != null && oldAvatar.startsWith("http"))
+        deleteOSSObj(oldAvatar);
       setState(() {
         widget.user.avatar_bot = userdata['avatar_bot'];
         Global.saveProfile(widget.user);
