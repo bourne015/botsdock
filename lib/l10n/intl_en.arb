@@ -49,6 +49,10 @@
   "@chatGPT4oDesc": {
     "description": "chatGPT4oDesc"
   },
+  "chatGPT4oMiniDesc": "affordable and intelligent small model for fast, lightweight tasks",
+  "@chatGPT4oMiniDesc": {
+    "description": "chatGPT4oMiniDesc"
+  },
   "dallEDesc": "A model that can generate images given a natural language prompt",
   "@dallEDesc": {
     "description": "dallEDesc"

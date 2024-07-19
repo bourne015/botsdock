@@ -22,9 +22,14 @@ class InitPage extends StatefulWidget {
 }
 
 class InitPageState extends State<InitPage> {
-  List<String> gptSub = <String>['3.5', '4.0', '4o', 'DALL'];
-  List<String> claudeSub = <String>['Haiku', 'Sonnet', 'Opus', "Sonnet_3.5"];
-  String gptDropdownValue = '4o';
+  // List<String> gptSub = <String>['3.5', '4.0', '4o', 'DALL'];
+  // List<String> claudeSub = <String>['Haiku', 'Sonnet', 'Opus', "Sonnet_3.5"];
+  List<String> gptSub = [
+    ...GPTModel().toJson().keys.toList(),
+    GPTModel.gptv40Dall
+  ];
+  List<String> claudeSub = ClaudeModel().toJson().keys.toList();
+  String gptDropdownValue = 'gptv4o_mini';
   String claudeDropdownValue = 'Sonnet_3.5';
   String? selected;
   final ChatGen chats = ChatGen();
@@ -49,9 +54,12 @@ class InitPageState extends State<InitPage> {
       case GPTModel.gptv4o:
         selected = 'ChatGPT';
         gptDropdownValue = gptSub[2];
-      case GPTModel.gptv40Dall:
+      case GPTModel.gptv4omini:
         selected = 'ChatGPT';
         gptDropdownValue = gptSub[3];
+      case GPTModel.gptv40Dall:
+        selected = 'ChatGPT';
+        gptDropdownValue = gptSub[4];
         break;
       case ClaudeModel.haiku:
         selected = 'Claude';
@@ -228,7 +236,8 @@ class InitPageState extends State<InitPage> {
       icon: CircleAvatar(
           radius: 12,
           backgroundColor: AppColors.modelSelectorBackground,
-          child: Text(gptDropdownValue[0],
+          child: Text(
+              gptDropdownValue == gptSub[3] ? "4m" : gptDropdownValue[0],
               style: const TextStyle(fontSize: 10.5, color: Colors.grey))),
       padding: const EdgeInsets.only(left: 2),
       onSelected: (String value) {
@@ -239,19 +248,23 @@ class InitPageState extends State<InitPage> {
         } else if (value == gptSub[2]) {
           property.initModelVersion = GPTModel.gptv4o;
         } else if (value == gptSub[3]) {
+          property.initModelVersion = GPTModel.gptv4omini;
+        } else if (value == gptSub[4]) {
           property.initModelVersion = GPTModel.gptv40Dall;
         }
         gptDropdownValue = value;
       },
       position: PopupMenuPosition.over,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        _buildPopupMenuItem(context, "3.5", "3.5", "ChatGPT 3.5",
+        _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
             GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
-        _buildPopupMenuItem(context, "4.0", "4.0", "ChatGPT 4.0",
+        _buildPopupMenuItem(context, gptSub[1], "4.0", "ChatGPT 4.0",
             GalleryLocalizations.of(context)?.chatGPT40Desc ?? ''),
-        _buildPopupMenuItem(context, "4o", "4o", "ChatGPT 4o",
+        _buildPopupMenuItem(context, gptSub[2], "4o", "ChatGPT 4o",
             GalleryLocalizations.of(context)?.chatGPT4oDesc ?? ''),
-        _buildPopupMenuItem(context, "DALL", "D", "DALL·E 3",
+        _buildPopupMenuItem(context, gptSub[3], "mini", "ChatGPT 4o mini",
+            GalleryLocalizations.of(context)?.chatGPT4oMiniDesc ?? ''),
+        _buildPopupMenuItem(context, gptSub[2], "D", "DALL·E 3",
             GalleryLocalizations.of(context)?.dallEDesc ?? ''),
       ],
     );
@@ -296,13 +309,13 @@ class InitPageState extends State<InitPage> {
       },
       position: PopupMenuPosition.over,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        _buildPopupMenuItem(context, "Haiku", "H", "Claude3 - Haiku",
+        _buildPopupMenuItem(context, claudeSub[0], "H", "Claude3 - Haiku",
             GalleryLocalizations.of(context)?.claude3HaikuDesc ?? ''),
-        _buildPopupMenuItem(context, "Sonnet", "S", "Claude3 - Sonnet",
+        _buildPopupMenuItem(context, claudeSub[1], "S", "Claude3 - Sonnet",
             GalleryLocalizations.of(context)?.claude3SonnetDesc ?? ''),
-        _buildPopupMenuItem(context, "Opus", "O", "Claude3 - Opus",
+        _buildPopupMenuItem(context, claudeSub[2], "O", "Claude3 - Opus",
             GalleryLocalizations.of(context)?.claude3OpusDesc ?? ''),
-        _buildPopupMenuItem(context, "Sonnet_3.5", "S", "Claude3.5 - Sonnet",
+        _buildPopupMenuItem(context, claudeSub[3], "S", "Claude3.5 - Sonnet",
             GalleryLocalizations.of(context)?.claude35SonnetDesc ?? ''),
       ],
     );

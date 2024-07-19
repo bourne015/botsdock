@@ -45,13 +45,16 @@ class GPTModel {
   static const String gptv35 = "gpt-3.5-turbo-1106";
   static const String gptv40 = "gpt-4-turbo";
   static const String gptv4o = "gpt-4o";
+  static const String gptv4omini = "gpt-4o-mini";
   static const String gptv40Vision = "gpt-4-vision-preview";
   static const String gptv40Dall = "dall-e-3";
+
   Map<String, String> toJson() {
     return {
-      'gptv35': gptv35,
-      'gptv40': gptv40,
-      'gptv4o': gptv4o,
+      '35': gptv35,
+      '40': gptv40,
+      '4o': gptv4o,
+      '4o_mini': gptv4omini,
     };
   }
 }
@@ -72,7 +75,7 @@ class ClaudeModel {
   }
 }
 
-const DefaultModelVersion = GPTModel.gptv4o;
+const DefaultModelVersion = GPTModel.gptv4omini;
 const DefaultClaudeModel = ClaudeModel.sonnet_35;
 List<String> textmodels = [
   ...GPTModel().toJson().values.toList(),
