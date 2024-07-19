@@ -169,10 +169,38 @@ class _UserInfoTabState extends State<UserInfo> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(sz),
       child: (_userAvatarUrl != null
-          ? Image.network(_userAvatarUrl!,
-              width: sz, height: sz, fit: BoxFit.cover)
-          : Image.memory(Uint8List.fromList(_userAvatarBytes!),
-              width: sz, height: sz, fit: BoxFit.cover)),
+          ? Image.network(
+              _userAvatarUrl!,
+              width: sz,
+              height: sz,
+              fit: BoxFit.cover,
+              errorBuilder: (BuildContext context, Object exception,
+                  StackTrace? stackTrace) {
+                return Container(
+                  width: sz,
+                  height: sz,
+                  decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(80)),
+                );
+              },
+            )
+          : Image.memory(
+              Uint8List.fromList(_userAvatarBytes!),
+              width: sz,
+              height: sz,
+              fit: BoxFit.cover,
+              errorBuilder: (BuildContext context, Object exception,
+                  StackTrace? stackTrace) {
+                return Container(
+                  width: sz,
+                  height: sz,
+                  decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(80)),
+                );
+              },
+            )),
     );
   }
 
@@ -183,10 +211,38 @@ class _UserInfoTabState extends State<UserInfo> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(sz),
       child: (_botAvatarUrl != null
-          ? Image.network(_botAvatarUrl!,
-              width: sz, height: sz, fit: BoxFit.cover)
-          : Image.memory(Uint8List.fromList(_botAvatarBytes!),
-              width: sz, height: sz, fit: BoxFit.cover)),
+          ? Image.network(
+              _botAvatarUrl!,
+              width: sz,
+              height: sz,
+              fit: BoxFit.cover,
+              errorBuilder: (BuildContext context, Object exception,
+                  StackTrace? stackTrace) {
+                return Container(
+                  width: sz,
+                  height: sz,
+                  decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(80)),
+                );
+              },
+            )
+          : Image.memory(
+              Uint8List.fromList(_botAvatarBytes!),
+              width: sz,
+              height: sz,
+              fit: BoxFit.cover,
+              errorBuilder: (BuildContext context, Object exception,
+                  StackTrace? stackTrace) {
+                return Container(
+                  width: sz,
+                  height: sz,
+                  decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(80)),
+                );
+              },
+            )),
     );
   }
 

@@ -1055,7 +1055,21 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       return Image.memory(Uint8List.fromList(_fileBytes!),
           width: sz, height: sz, fit: BoxFit.cover);
     else if (_logoURL != null)
-      return Image.network(_logoURL!, width: sz, height: sz, fit: BoxFit.cover);
+      return Image.network(
+        _logoURL!,
+        width: sz,
+        height: sz,
+        fit: BoxFit.cover,
+        errorBuilder:
+            (BuildContext context, Object exception, StackTrace? stackTrace) {
+          return Container(
+            width: sz,
+            height: sz,
+            decoration: BoxDecoration(
+                color: Colors.grey, borderRadius: BorderRadius.circular(80)),
+          );
+        },
+      );
     else {
       return Container(height: sz, width: sz);
     }

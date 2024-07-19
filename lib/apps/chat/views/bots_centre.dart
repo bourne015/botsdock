@@ -220,18 +220,7 @@ class BotsState extends State<BotsCentre> {
             child: Row(
               //crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                image!.startsWith("http")
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(80),
-                        child: Image.network(
-                          image,
-                          width: 80,
-                          height: 80,
-                        ))
-                    : CircleAvatar(
-                        radius: 40,
-                        backgroundImage: AssetImage(image),
-                      ),
+                image_show(image!, 40),
                 SizedBox(width: 30),
                 Expanded(
                     child: Column(
