@@ -62,14 +62,6 @@ class Pages with ChangeNotifier {
 
   Chat getPage(int pageID) => _pages[pageID]!;
 
-  Chat getNthPage(int n) {
-    if (n >= _pagesID.length) {
-      debugPrint("out of range");
-      return _pages[_pagesID[0]]!;
-    }
-    return _pages[_pagesID[n]]!;
-  }
-
   void setPageTitle(int pageID, String title) {
     _pages[pageID]?.title = title;
     notifyListeners();
@@ -108,22 +100,22 @@ class Pages with ChangeNotifier {
     int dayDiff = 0;
 
     for (int pid in _pagesID) {
-      var pData = "";
+      var _date = "";
       var _page = getPage(pid);
       var _chat_day =
           DateTime.fromMillisecondsSinceEpoch(_page.updated_at * 1000);
       dayDiff = today.difference(_chat_day).inDays.abs();
       if (dayDiff == 0)
-        pData = "今天";
+        _date = "今天";
       else if (dayDiff == 1)
-        pData = "昨天";
+        _date = "昨天";
       else if (dayDiff >= 2 && dayDiff <= 7)
-        pData = "三天前";
+        _date = "三天前";
       else
-        pData = "一周前";
+        _date = "一周前";
 
-      if (!groupedPages.containsKey(pData)) groupedPages[pData] = [];
-      groupedPages[pData].add(_page);
+      if (!groupedPages.containsKey(_date)) groupedPages[_date] = [];
+      groupedPages[_date].add(_page);
     }
   }
 
@@ -162,7 +154,8 @@ class Pages with ChangeNotifier {
   }
 
   int restore_single_page(c) {
-    final pid = c["page_id"];
+    //use db index is to prevent pid duplication
+    final pid = c["id"];
     //try {
     addPage(Chat(chatId: pid, title: c["title"]));
     _pages[pid]!.modelVersion = c["model"];

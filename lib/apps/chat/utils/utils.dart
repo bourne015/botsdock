@@ -306,9 +306,10 @@ class ChatGen {
         pages.getPage(handlePageID).updated_at = cres.data["updated_at"];
 
         chatData["id"] = cres.data["id"];
+        chatData["dbID"] = cres.data["id"];
         chatData["updated_at"] = cres.data["updated_at"];
         Global.saveChats(
-            chatData["page_id"], jsonEncode(chatData), cres.data["updated_at"]);
+            chatData["id"], jsonEncode(chatData), cres.data["updated_at"]);
       }
     }
   }
