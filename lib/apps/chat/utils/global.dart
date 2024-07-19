@@ -6,11 +6,6 @@ import 'dart:convert';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
 import '../models/bot.dart';
-import '../models/chat.dart';
-import '../models/user.dart';
-import '../models/pages.dart';
-import '../models/message.dart';
-import '../models/data.dart';
 import '../utils/constants.dart';
 
 class Global {
@@ -35,10 +30,12 @@ class Global {
           user.avatar = response.data["avatar"];
           user.avatar_bot = response.data["avatar_bot"];
           user.credit = response.data["credit"];
+          print("kkkkkkkkkkkk1: ${response.data["updated_at"]}");
           user.updated_at = response.data["updated_at"];
+          print("kkkkkkkkkkkk2: ${response.data["updated_at"]}");
           user.isLogedin = true;
           Global.saveProfile(user);
-          get_db_chats(user, pages);
+          await pages.fetch_pages(user.id);
         } else {
           user.id = _prefs.getInt("id");
           user.email = _prefs.getString("email");
@@ -48,10 +45,12 @@ class Global {
           user.avatar_bot = _prefs.getString("avatar_bot");
           user.credit = _prefs.getDouble("credit");
           user.isLogedin = true;
+          print("kkkkkkkkkkkk3: ${_prefs.getInt("updated_at")}");
           user.updated_at = _prefs.getInt("updated_at");
+          print("kkkkkkkkkkkk4: ${_prefs.getInt("updated_at")}");
           get_local_chats(user, pages);
+          pages.sortPages();
         }
-        pages.sortPages();
       }
     } catch (e) {
       debugPrint("init error, reset:${e}");
@@ -59,85 +58,11 @@ class Global {
     }
   }
 
-  static int restort_singel_page(User user, Pages pages, c) {
-    var pid = c["page_id"];
-    try {
-      pages.addPage(Chat(chatId: pid, title: c["title"]));
-      pages.getPage(pid).modelVersion = c["model"];
-      pages.getPage(pid).dbID = c["id"];
-      pages.getPage(pid).updated_at = c["updated_at"];
-      pages.getPage(pid).assistantID = c["assistant_id"];
-      pages.getPage(pid).threadID = c["thread_id"];
-      pages.getPage(pid).botID = c["bot_id"];
-      var msgContent;
-      for (var m in c["contents"]) {
-        //print("load: $m");
-        var smid = m["id"] ?? 0;
-        int mid = smid is String ? int.parse(smid) : smid;
-        if (MsgType.values[m["type"]] == MsgType.image &&
-            m["role"] == MessageTRole.user &&
-            m["content"] is List) {
-          msgContent = jsonDecode(m["content"]);
-        } else
-          msgContent = m["content"];
-
-        Map<String, VisionFile> _vfs = {};
-        if (m["visionFiles"] != null && m["visionFiles"].isNotEmpty) {
-          _vfs = Map<String, VisionFile>.fromEntries(
-              (m["visionFiles"] as Map<String, dynamic>).entries.map((entry) {
-            return MapEntry(entry.key, VisionFile.fromJson(entry.value));
-          }));
-        }
-
-        Map<String, Attachment> _afs = {};
-        if (m["attachments"] != null && m["attachments"].isNotEmpty) {
-          _afs = Map<String, Attachment>.fromEntries(
-              (m["attachments"] as Map<String, dynamic>).entries.map((entry) {
-            return MapEntry(entry.key, Attachment.fromJson(entry.value));
-          }));
-        }
-        Message msgQ = Message(
-            id: mid,
-            pageID: pid,
-            role: m["role"],
-            type: MsgType.values[m["type"]],
-            content: msgContent,
-            visionFiles: _vfs,
-            attachments: _afs,
-            timestamp: m["timestamp"]);
-
-        pages.addMessage(pid, msgQ);
-      }
-    } catch (error) {
-      debugPrint("restort_singel_page error: ${error}");
-    }
-    return pid;
-  }
-
   void get_local_chats(user, pages) {
     final keys = _prefs.getKeys().where((key) => key.startsWith('chat_'));
     for (var key in keys) {
       final jsonChat = _prefs.getString(key);
-      if (jsonChat != null) {
-        final c = jsonDecode(jsonChat);
-        restort_singel_page(user, pages, c);
-      }
-    }
-  }
-
-  void get_db_chats(user, pages) async {
-    var chatdbUrl = userUrl + "/" + "${user.id}" + "/chats";
-    Response cres = await dio.post(
-      chatdbUrl,
-    );
-    if (cres.data["result"] == "success") {
-      for (var c in cres.data["chats"]) {
-        //user dbID to recovery pageID,
-        //incase no user log, c["contents"][0]["pageID"] == currentPageID
-        var pid = restort_singel_page(user, pages, c);
-        Global.saveChats(user, pid, jsonEncode(c), 0);
-        //pid += 1;
-      }
+      if (jsonChat != null) pages.restore_single_page(jsonDecode(jsonChat));
     }
   }
 
@@ -154,7 +79,7 @@ class Global {
     if (user.updated_at != null) _prefs.setInt("updated_at", user.updated_at);
   }
 
-  static saveChats(user, page_id, cdata, updated_at) {
+  static saveChats(page_id, cdata, updated_at) {
     _prefs.setString("chat_$page_id", cdata);
     if (updated_at != 0) _prefs.setInt("updated_at", updated_at);
   }

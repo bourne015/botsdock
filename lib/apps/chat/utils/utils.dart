@@ -307,8 +307,8 @@ class ChatGen {
 
         chatData["id"] = cres.data["id"];
         chatData["updated_at"] = cres.data["updated_at"];
-        Global.saveChats(user, chatData["page_id"], jsonEncode(chatData),
-            cres.data["updated_at"]);
+        Global.saveChats(
+            chatData["page_id"], jsonEncode(chatData), cres.data["updated_at"]);
       }
     }
   }

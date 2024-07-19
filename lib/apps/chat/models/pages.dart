@@ -1,6 +1,11 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 
+import '../utils/global.dart';
 import 'chat.dart';
+import 'data.dart';
 import 'message.dart';
 import '../utils/constants.dart';
 
@@ -9,6 +14,7 @@ class Pages with ChangeNotifier {
   final Map<int, Chat> _pages = {};
   List<int> _pagesID = [];
   int _currentPageID = -1;
+  var dio = Dio();
 
   set currentPageID(int cid) {
     _currentPageID = cid;
@@ -116,7 +122,7 @@ class Pages with ChangeNotifier {
       else
         pData = "一周前";
 
-      if (groupedPages[pData] == null) groupedPages[pData] = [];
+      if (!groupedPages.containsKey(pData)) groupedPages[pData] = [];
       groupedPages[pData].add(_page);
     }
   }
@@ -138,6 +144,75 @@ class Pages with ChangeNotifier {
   void setGeneratingState(int pid, bool state) {
     _pages[pid]!.onGenerating = state;
     notifyListeners();
+  }
+
+  Future<void> fetch_pages(user_id) async {
+    var chatdbUrl = userUrl + "/" + "${user_id}" + "/chats";
+    Response cres = await dio.post(chatdbUrl);
+    if (cres.data["result"] == "success") {
+      for (var c in cres.data["chats"]) {
+        //user dbID to recovery pageID,
+        //incase no user log, c["contents"][0]["pageID"] == currentPageID
+        var pid = restore_single_page(c);
+        Global.saveChats(pid, jsonEncode(c), 0);
+        //pid += 1;
+      }
+      // sortPages();
+    }
+  }
+
+  int restore_single_page(c) {
+    final pid = c["page_id"];
+    //try {
+    addPage(Chat(chatId: pid, title: c["title"]));
+    _pages[pid]!.modelVersion = c["model"];
+    _pages[pid]!.dbID = c["id"];
+    _pages[pid]!.updated_at = c["updated_at"];
+    _pages[pid]!.assistantID = c["assistant_id"];
+    _pages[pid]!.threadID = c["thread_id"];
+    _pages[pid]!.botID = c["bot_id"];
+    var msgContent;
+    for (var m in c["contents"]) {
+      //print("load: $m");
+      var smid = m["id"] ?? 0;
+      int mid = smid is String ? int.parse(smid) : smid;
+      if (MsgType.values[m["type"]] == MsgType.image &&
+          m["role"] == MessageTRole.user &&
+          m["content"] is List) {
+        msgContent = jsonDecode(m["content"]);
+      } else
+        msgContent = m["content"];
+
+      Map<String, VisionFile> _vfs = {};
+      if (m["visionFiles"] != null && m["visionFiles"].isNotEmpty) {
+        _vfs = Map<String, VisionFile>.fromEntries(
+            (m["visionFiles"] as Map<String, dynamic>).entries.map((entry) {
+          return MapEntry(entry.key, VisionFile.fromJson(entry.value));
+        }));
+      }
+
+      Map<String, Attachment> _afs = {};
+      if (m["attachments"] != null && m["attachments"].isNotEmpty) {
+        _afs = Map<String, Attachment>.fromEntries(
+            (m["attachments"] as Map<String, dynamic>).entries.map((entry) {
+          return MapEntry(entry.key, Attachment.fromJson(entry.value));
+        }));
+      }
+      Message msgQ = Message(
+          id: mid,
+          pageID: pid,
+          role: m["role"],
+          type: MsgType.values[m["type"]],
+          content: msgContent,
+          visionFiles: _vfs,
+          attachments: _afs,
+          timestamp: m["timestamp"]);
+      addMessage(pid, msgQ);
+    }
+    // } catch (error) {
+    //   debugPrint("restore_single_page error: ${error}");
+    // }
+    return pid;
   }
 
   void reset() {

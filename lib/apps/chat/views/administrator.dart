@@ -291,22 +291,7 @@ class AdministratorState extends State<Administrator> {
               var res = await checkLogin(user);
               if (user.isLogedin) {
                 ////fetch chat data from db
-                var chatdbUrl = userUrl + "/" + "${user.id}" + "/chats";
-                Response cres = await dio.post(
-                  chatdbUrl,
-                );
-                if (cres.data["result"] == "success") {
-                  for (var c in cres.data["chats"]) {
-                    //user dbID to recovery pageID,
-                    //incase no user log, c["contents"][0]["pageID"] == currentPageID
-                    var pid = c["page_id"]; //c["contents"][0]["pageID"];
-                    //print("cccc: ${c["title"]}, $pid");
-                    property.initModelVersion = DefaultModelVersion;
-                    Global.restort_singel_page(user, pages, c);
-                    Global.saveChats(user, pid, jsonEncode(c), 0);
-                  }
-                  pages.sortPages();
-                }
+                await pages.fetch_pages(user.id);
                 Navigator.of(context).pop();
                 Global.saveProfile(user);
               } else
