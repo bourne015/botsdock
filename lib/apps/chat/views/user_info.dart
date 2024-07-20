@@ -261,7 +261,8 @@ class _UserInfoTabState extends State<UserInfo> {
             },
             child: Column(children: [
               _userAvatar(context),
-              Text(title),
+              Text(title.length > 10 ? "${title.substring(0, 18)}..." : title,
+                  overflow: TextOverflow.ellipsis),
             ]),
           ),
           GestureDetector(
@@ -273,7 +274,7 @@ class _UserInfoTabState extends State<UserInfo> {
               },
               child: Column(children: [
                 _botAvatar(context),
-                Text("AI"),
+                Text("AI", overflow: TextOverflow.ellipsis),
               ]))
         ]),
         SizedBox(height: 60),
