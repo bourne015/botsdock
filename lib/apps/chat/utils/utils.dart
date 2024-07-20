@@ -268,8 +268,8 @@ class ChatGen {
       // to save token
       q = q.length > 1000 ? q.substring(0, 1000) : q;
       var chatData1 = {
-        "model": ClaudeModel.haiku,
-        "question": "为这段话写一个5个字左右的标题:$q"
+        "model": ModelForTitleGen,
+        "question": "为下面段话写一个5个字左右的标题,只需给出最终的标题内容,不要输出其他信息:$q"
       };
       final response = await dio.post(chatUrl, data: chatData1);
       var title = response.data;

@@ -22,15 +22,13 @@ class InitPage extends StatefulWidget {
 }
 
 class InitPageState extends State<InitPage> {
-  // List<String> gptSub = <String>['3.5', '4.0', '4o', 'DALL'];
-  // List<String> claudeSub = <String>['Haiku', 'Sonnet', 'Opus', "Sonnet_3.5"];
   List<String> gptSub = [
     ...GPTModel().toJson().keys.toList(),
     GPTModel.gptv40Dall
   ];
   List<String> claudeSub = ClaudeModel().toJson().keys.toList();
-  String gptDropdownValue = 'gptv4o_mini';
-  String claudeDropdownValue = 'Sonnet_3.5';
+  String gptDropdownValue = DefaultModelVersion;
+  String claudeDropdownValue = DefaultClaudeModel;
   String? selected;
   final ChatGen chats = ChatGen();
   final dio = Dio();
@@ -38,47 +36,12 @@ class InitPageState extends State<InitPage> {
   @override
   Widget build(BuildContext context) {
     Property property = Provider.of<Property>(context);
-    switch (property.initModelVersion) {
-      case GPTModel.gptv35:
-        selected = 'ChatGPT';
-        gptDropdownValue = gptSub[0];
-        break;
-      case GPTModel.gptv40:
-        selected = 'ChatGPT';
-        gptDropdownValue = gptSub[1];
-        break;
-      // case GPTModel.gptv40Vision:
-      //   selected = 'ChatGPT';
-      //   gptDropdownValue = gptSub[2];
-      //   break;
-      case GPTModel.gptv4o:
-        selected = 'ChatGPT';
-        gptDropdownValue = gptSub[2];
-      case GPTModel.gptv4omini:
-        selected = 'ChatGPT';
-        gptDropdownValue = gptSub[3];
-      case GPTModel.gptv40Dall:
-        selected = 'ChatGPT';
-        gptDropdownValue = gptSub[4];
-        break;
-      case ClaudeModel.haiku:
-        selected = 'Claude';
-        claudeDropdownValue = claudeSub[0];
-        break;
-      case ClaudeModel.sonnet:
-        selected = 'Claude';
-        claudeDropdownValue = claudeSub[1];
-        break;
-      case ClaudeModel.opus:
-        selected = 'Claude';
-        claudeDropdownValue = claudeSub[2];
-        break;
-      case ClaudeModel.sonnet_35:
-        selected = 'Claude';
-        claudeDropdownValue = claudeSub[3];
-        break;
-      default:
-        break;
+    if (gptSub.contains(property.initModelVersion)) {
+      selected = 'ChatGPT';
+      gptDropdownValue = property.initModelVersion;
+    } else if (claudeSub.contains(property.initModelVersion)) {
+      selected = 'Claude';
+      claudeDropdownValue = property.initModelVersion;
     }
 
     return LayoutBuilder(
@@ -236,22 +199,11 @@ class InitPageState extends State<InitPage> {
       icon: CircleAvatar(
           radius: 12,
           backgroundColor: AppColors.modelSelectorBackground,
-          child: Text(
-              gptDropdownValue == gptSub[3] ? "4m" : gptDropdownValue[0],
+          child: Text(allModels[gptDropdownValue]!,
               style: const TextStyle(fontSize: 10.5, color: Colors.grey))),
       padding: const EdgeInsets.only(left: 2),
       onSelected: (String value) {
-        if (value == gptSub[0]) {
-          property.initModelVersion = GPTModel.gptv35;
-        } else if (value == gptSub[1]) {
-          property.initModelVersion = GPTModel.gptv40;
-        } else if (value == gptSub[2]) {
-          property.initModelVersion = GPTModel.gptv4o;
-        } else if (value == gptSub[3]) {
-          property.initModelVersion = GPTModel.gptv4omini;
-        } else if (value == gptSub[4]) {
-          property.initModelVersion = GPTModel.gptv40Dall;
-        }
+        property.initModelVersion = value;
         gptDropdownValue = value;
       },
       position: PopupMenuPosition.over,
@@ -264,7 +216,7 @@ class InitPageState extends State<InitPage> {
             GalleryLocalizations.of(context)?.chatGPT4oDesc ?? ''),
         _buildPopupMenuItem(context, gptSub[3], "mini", "ChatGPT 4o mini",
             GalleryLocalizations.of(context)?.chatGPT4oMiniDesc ?? ''),
-        _buildPopupMenuItem(context, gptSub[2], "D", "DALL·E 3",
+        _buildPopupMenuItem(context, gptSub[4], "DALL", "DALL·E 3",
             GalleryLocalizations.of(context)?.dallEDesc ?? ''),
       ],
     );
@@ -285,26 +237,17 @@ class InitPageState extends State<InitPage> {
     return PopupMenuButton<String>(
       initialValue: claudeDropdownValue,
       tooltip: GalleryLocalizations.of(context)!.selectModelTooltip,
-      //icon: Icon(color: Colors.grey, size: 10, Icons.south),
       color: AppColors.drawerBackground,
       shadowColor: Colors.blue,
       elevation: 2,
       icon: CircleAvatar(
           radius: 12,
           backgroundColor: AppColors.modelSelectorBackground,
-          child: Text(claudeDropdownValue[0],
+          child: Text(allModels[claudeDropdownValue]![0],
               style: const TextStyle(fontSize: 10.5, color: Colors.grey))),
       padding: const EdgeInsets.only(left: 2),
       onSelected: (String value) {
-        if (value == claudeSub[0]) {
-          property.initModelVersion = ClaudeModel.haiku;
-        } else if (value == claudeSub[1]) {
-          property.initModelVersion = ClaudeModel.sonnet;
-        } else if (value == claudeSub[2]) {
-          property.initModelVersion = ClaudeModel.opus;
-        } else if (value == claudeSub[3]) {
-          property.initModelVersion = ClaudeModel.sonnet_35;
-        }
+        property.initModelVersion = value;
         claudeDropdownValue = value;
       },
       position: PopupMenuPosition.over,

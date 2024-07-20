@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import '../models/chat.dart';
@@ -13,7 +12,6 @@ import '../models/user.dart';
 import 'administrator.dart';
 import '../utils/global.dart';
 import './bots_centre.dart';
-import '../models/bot.dart';
 
 class ChatDrawer extends StatefulWidget {
   final double drawersize;

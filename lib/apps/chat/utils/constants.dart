@@ -46,15 +46,15 @@ class GPTModel {
   static const String gptv40 = "gpt-4-turbo";
   static const String gptv4o = "gpt-4o";
   static const String gptv4omini = "gpt-4o-mini";
-  static const String gptv40Vision = "gpt-4-vision-preview";
+  // static const String gptv40Vision = "gpt-4-vision-preview";
   static const String gptv40Dall = "dall-e-3";
 
   Map<String, String> toJson() {
     return {
-      '35': gptv35,
-      '40': gptv40,
-      '4o': gptv4o,
-      '4o_mini': gptv4omini,
+      gptv35: '3.5',
+      gptv40: '4.0',
+      gptv4o: '4o',
+      gptv4omini: '4m',
     };
   }
 }
@@ -67,20 +67,26 @@ class ClaudeModel {
 
   Map<String, String> toJson() {
     return {
-      'haiku': haiku,
-      'sonnet': sonnet,
-      'opus': opus,
-      "sonnet_35": sonnet_35,
+      haiku: 'haiku',
+      sonnet: 'sonnet',
+      opus: 'opus',
+      sonnet_35: "sonnet_35",
     };
   }
 }
 
 const DefaultModelVersion = GPTModel.gptv4omini;
 const DefaultClaudeModel = ClaudeModel.sonnet_35;
+const ModelForTitleGen = GPTModel.gptv4omini;
 List<String> textmodels = [
-  ...GPTModel().toJson().values.toList(),
-  ...ClaudeModel().toJson().values.toList(),
+  ...GPTModel().toJson().keys.toList(),
+  ...ClaudeModel().toJson().keys.toList(),
 ];
+Map<String, String> allModels = {
+  ...GPTModel().toJson(),
+  ...ClaudeModel().toJson(),
+  "dall-e-3": "D·E"
+};
 
 enum MsgType { text, image, file }
 

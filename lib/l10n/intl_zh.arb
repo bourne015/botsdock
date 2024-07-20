@@ -6,7 +6,7 @@
   "settingsAttribution": "To Give Life To Time",
   "githubRepo": "{repoName} GitHub 代码库",
   "aboutDialogDescription": "要查看此应用的源代码，请访问 {repoLink}。",
-  "chatGPT35Desc": "一个快速且廉价的解决简易任务的模型",
+  "chatGPT35Desc": "快速且廉价的解决简易任务的模型",
   "chatGPT40Desc": "用更高的准确度解决复杂问题",
   "chatGPT4oDesc": "最智能的GPT4模型",
   "chatGPT4oMiniDesc": "经济实惠且智能的小型模型，适用于快速、轻量级的任务",

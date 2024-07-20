@@ -37,7 +37,7 @@
       }
     }
   },
-  "chatGPT35Desc": "A fast, inexpensive model for simple tasks",
+  "chatGPT35Desc": "fast, inexpensive model for simple tasks",
   "@chatGPT35Desc": {
     "description": "chatGPT35Desc"
   },

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +8,6 @@ import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import '../utils/constants.dart';
 import '../utils/custom_widget.dart';
-import '../utils/utils.dart';
 import '../models/user.dart';
 import '../models/pages.dart';
 import '../utils/global.dart';

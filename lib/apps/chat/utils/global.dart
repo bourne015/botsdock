@@ -30,9 +30,9 @@ class Global {
           user.avatar = response.data["avatar"];
           user.avatar_bot = response.data["avatar_bot"];
           user.credit = response.data["credit"];
-          print("kkkkkkkkkkkk1: ${response.data["updated_at"]}");
+          debugPrint("kkkkkkkkkkkk1: ${response.data["updated_at"]}");
           user.updated_at = response.data["updated_at"];
-          print("kkkkkkkkkkkk2: ${response.data["updated_at"]}");
+          debugPrint("kkkkkkkkkkkk2: ${response.data["updated_at"]}");
           user.isLogedin = true;
           Global.saveProfile(user);
           await pages.fetch_pages(user.id);
@@ -45,9 +45,9 @@ class Global {
           user.avatar_bot = _prefs.getString("avatar_bot");
           user.credit = _prefs.getDouble("credit");
           user.isLogedin = true;
-          print("kkkkkkkkkkkk3: ${_prefs.getInt("updated_at")}");
+          debugPrint("kkkkkkkkkkkk3: ${_prefs.getInt("updated_at")}");
           user.updated_at = _prefs.getInt("updated_at");
-          print("kkkkkkkkkkkk4: ${_prefs.getInt("updated_at")}");
+          debugPrint("kkkkkkkkkkkk4: ${_prefs.getInt("updated_at")}");
           get_local_chats(user, pages);
           pages.sortPages();
         }
