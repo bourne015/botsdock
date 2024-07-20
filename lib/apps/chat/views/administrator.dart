@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
@@ -31,6 +32,7 @@ class AdministratorState extends State<Administrator> {
   Random random = Random();
   GlobalKey _signInformKey = GlobalKey<FormState>();
   GlobalKey _signUpformKey = GlobalKey<FormState>();
+  final GlobalKey<PopupMenuButtonState<String>> _popupMenuKey = GlobalKey();
 
   // @override
   // void initState() {}
@@ -49,26 +51,47 @@ class AdministratorState extends State<Administrator> {
     Pages pages = Provider.of<Pages>(context, listen: false);
     Property property = Provider.of<Property>(context, listen: false);
     return PopupMenuButton<String>(
+        key: _popupMenuKey,
         color: AppColors.drawerBackground,
         shadowColor: Colors.blue,
         elevation: 15,
-        child: ListTile(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          leading: user.isLogedin
-              ? image_show(user.avatar!, 15)
-              : Icon(Icons.account_circle),
-          minLeadingWidth: 0,
-          contentPadding: const EdgeInsets.symmetric(vertical: 1),
-          title: RichText(
-              text: TextSpan(
-            text: user.isLogedin
-                ? user.name
-                : GalleryLocalizations.of(context)!.adminstrator,
-            style: TextStyle(fontSize: 15, color: AppColors.msgText),
-          )),
-        ),
+        child: Material(
+            color: AppColors.drawerBackground,
+            child: Container(
+                // padding: EdgeInsets.symmetric(horizontal: 2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: InkWell(
+                    borderRadius: BorderRadius.circular(15),
+                    onTap: () {
+                      _popupMenuKey.currentState?.showButtonMenu();
+                    },
+                    child: ListTile(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      leading: user.isLogedin
+                          ? image_show(user.avatar!, 15)
+                          : Icon(Icons.account_circle),
+                      minLeadingWidth: 0,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 1),
+                      title: RichText(
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          text: TextSpan(
+                            text: user.isLogedin
+                                ? user.name
+                                : GalleryLocalizations.of(context)!
+                                    .adminstrator,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: AppColors.msgText,
+                            ),
+                          )),
+                    )))),
+        ////////
         padding: const EdgeInsets.only(left: 2),
         onSelected: (String value) {
           switch (value) {
@@ -101,14 +124,34 @@ class AdministratorState extends State<Administrator> {
         itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               user.isLogedin
                   ? PopupMenuItem(
-                      padding: EdgeInsets.fromLTRB(20, 0, 80, 0),
+                      padding: EdgeInsets.all(0),
                       value: "user",
-                      child: ListTile(
-                        leading: image_show(user.avatar!, 25),
-                        title: user.name == null ? null : Text(user.name!),
-                        subtitle: user.email == null ? null : Text(user.email!),
-                      ),
-                    )
+                      child: Material(
+                          color: AppColors.drawerBackground,
+                          child: Container(
+                              width: 400,
+                              padding: EdgeInsets.only(left: 5, right: 5),
+                              //margin: EdgeInsets.only(left: 50),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(15),
+                                onTap: () {
+                                  Navigator.pop(context, "user");
+                                },
+                                //onHover: (hovering) {},
+                                child: ListTile(
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 10),
+                                  leading: image_show(user.avatar!, 25),
+                                  title: Text(user.name ?? "",
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis),
+                                  subtitle: Text(user.email ?? ""),
+                                ),
+                                //////
+                              ))))
                   : _buildPopupMenuItem(context, "Login", Icons.login,
                       GalleryLocalizations.of(context)!.login),
               PopupMenuDivider(),
@@ -138,7 +181,7 @@ class AdministratorState extends State<Administrator> {
       child: Material(
         color: AppColors.drawerBackground,
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10),
+          padding: EdgeInsets.symmetric(horizontal: 5),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
           ),
