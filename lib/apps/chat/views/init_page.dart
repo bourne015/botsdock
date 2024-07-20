@@ -52,14 +52,20 @@ class InitPageState extends State<InitPage> {
           children: <Widget>[
             modelSelectButton(context),
             Align(
-                alignment: Alignment.center,
-                child: Text(
-                  "Chat",
-                  style: TextStyle(
-                      color: AppColors.initPageBackgroundText,
-                      fontSize: 35.0,
-                      fontWeight: FontWeight.bold),
-                )),
+              alignment: Alignment.center,
+              child: CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.transparent,
+                backgroundImage: AssetImage("assets/images/chat/cat3.gif"),
+              ),
+              // Text(
+              //   "Chat",
+              //   style: TextStyle(
+              //       color: AppColors.initPageBackgroundText,
+              //       fontSize: 35.0,
+              //       fontWeight: FontWeight.bold),
+              // ),
+            ),
             if (isDisplayDesktop(context) && constraints.maxHeight > 350)
               Align(
                   alignment: Alignment.center,

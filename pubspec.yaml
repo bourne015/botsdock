@@ -78,6 +78,7 @@ flutter:
     - assets/images/avatar/hacker.png
     - assets/images/avatar/augur.png
     - assets/images/chat/paycode.jpeg
+    - assets/images/chat/cat3.gif
 
     - assets/images/bot/bot1.png
     - assets/images/bot/bot2.png
