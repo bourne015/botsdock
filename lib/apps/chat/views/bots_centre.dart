@@ -118,6 +118,7 @@ class BotsState extends State<BotsCentre> {
   void deleteBot(Bots bots, Bot bot) async {
     var _delBotURL = botURL + "/${bot.id}";
     var assistant_id;
+    String? _avartar = bot.avatar;
     if (bot.assistant_id != null) assistant_id = bot.assistant_id!;
     var resp = await Dio()
         .delete(_delBotURL, queryParameters: {"assistant_id": assistant_id});
@@ -125,6 +126,8 @@ class BotsState extends State<BotsCentre> {
       //setState(() {
       //widget.bots
       bots.deleteBot(bot.id);
+      if (_avartar != null && _avartar.startsWith('http'))
+        deleteOSSObj(_avartar);
       //});
     }
   }
