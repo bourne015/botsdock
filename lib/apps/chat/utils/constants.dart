@@ -155,7 +155,7 @@ const supportedFilesAll = [
 
 const double drawerWidth = 260;
 
-const String baseurl = "https://phantasys.life:8001";
+const String baseurl = "https://botsdock.com:8443";
 const String sseChatUrl = "${baseurl}/v1/stream/chat";
 const String chatUrl = "${baseurl}/v1/chat";
 const String imageUrl = "${baseurl}/v1/image";
@@ -234,4 +234,4 @@ const String chatAssistantID = "asst_jyeohJN5sfUlrqdMm8pwGN2a";
 const int maxFileMBSize = 200;
 const int maxAvatarSize = 10;
 
-const String appVersion = "0.6.6";
+const String appVersion = "0.6.7";
