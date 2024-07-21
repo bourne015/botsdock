@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gallery/apps/chat/views/bots_centre.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
@@ -16,6 +17,7 @@ void main() {
 
 class ChatApp extends StatefulWidget {
   static const String homeRoute = routes.homeRoute;
+  static const String botCentre = routes.botCentre;
 
   const ChatApp({super.key});
 
@@ -60,6 +62,7 @@ class _AppState extends State<ChatApp> {
           initialRoute: ChatApp.homeRoute,
           routes: {
             ChatApp.homeRoute: (context) => const MainLayout(),
+            ChatApp.botCentre: (context) => const BotsCentre(),
           },
           localizationsDelegates: GalleryLocalizations.localizationsDelegates,
           supportedLocales: [

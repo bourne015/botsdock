@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gallery/apps/chat/main.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
@@ -82,11 +83,7 @@ class ChatDrawerState extends State<ChatDrawer> {
           title: Text(GalleryLocalizations.of(context)!.botsCentre),
           onTap: () async {
             if (!isDisplayDesktop(context)) Navigator.pop(context);
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => BotsCentre(),
-              ),
-            );
+            Navigator.pushNamed(context, ChatApp.botCentre);
           },
         ));
   }
