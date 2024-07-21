@@ -7,17 +7,22 @@ import '../utils/global.dart';
 class Bots with ChangeNotifier {
   List<Bot> _bots = [];
   List<Bot> get bots => _bots;
+  List<Bot> _bots_public = [];
+  List<Bot> get bots_public => _bots_public;
   final dio = Dio();
 
-  Future<void> fetchBots() async {
+  Future<void> fetchBots(int? user_id) async {
     final responseSh = await dio.get('${baseurl}/v1/shares');
     if (Global.botsCheck(responseSh.data["bot_updated"])) {
       if (_bots.isEmpty) {
         debugPrint("restore from local");
         restoreBots(bots);
+        if (_bots_public.isEmpty) classify(user_id: user_id);
+        return;
       }
       if (_bots.isNotEmpty) {
         debugPrint("no need restore data");
+        if (_bots_public.isEmpty) classify(user_id: user_id);
         return;
       }
     }
@@ -28,6 +33,7 @@ class Bots with ChangeNotifier {
       _bots = data.map((item) => Bot.fromJson(item)).toList();
       notifyListeners();
       cacheBots(response.data["date"]);
+      classify(user_id: user_id);
     } else {
       throw Exception('Failed to load bots');
     }
@@ -35,6 +41,10 @@ class Bots with ChangeNotifier {
 
   void sortBots() {
     _bots.sort((a, b) => a.id.compareTo(b.id));
+  }
+
+  void sortBots1() {
+    _bots_public.sort((a, b) => a.id.compareTo(b.id));
   }
 
   void addBot(Map<String, dynamic> data) {
@@ -45,6 +55,17 @@ class Bots with ChangeNotifier {
   void updateBot(Map<String, dynamic> data, id) {
     int index = _bots.indexWhere((_bot) => _bot.id == id);
     _bots[index] = Bot.fromJson(data);
+  }
+
+  void classify({int? user_id}) {
+    _bots_public.clear();
+    for (Bot bot in _bots) {
+      if (bot.public == null || bot.public == true) {
+        _bots_public.add(bot);
+      } else if (user_id != null && user_id == bot.author_id) {
+        _bots_public.add(bot);
+      }
+    }
   }
 
   void deleteBot(int id) {

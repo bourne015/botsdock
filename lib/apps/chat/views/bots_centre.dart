@@ -33,7 +33,9 @@ class BotsState extends State<BotsCentre> {
   @override
   void initState() {
     super.initState();
-    _fetchBotsFuture = Provider.of<Bots>(context, listen: false).fetchBots();
+    User user = Provider.of<User>(context, listen: false);
+    _fetchBotsFuture =
+        Provider.of<Bots>(context, listen: false).fetchBots(user.id);
   }
 
   @override
@@ -272,7 +274,7 @@ class BotsState extends State<BotsCentre> {
     Property property = Provider.of<Property>(context, listen: false);
     User user = Provider.of<User>(context, listen: false);
     Pages pages = Provider.of<Pages>(context, listen: false);
-    Bot bot = bots.bots[index];
+    Bot bot = bots.bots_public[index];
     return buildTab(
         rank: index,
         bot: bot,
@@ -307,7 +309,7 @@ class BotsState extends State<BotsCentre> {
     final int crossAxisCount = (width ~/ 300).clamp(1, 3);
     final double childAspectRatio = (width / crossAxisCount) / 200.0;
     final hpaddng = isDisplayDesktop(context) ? 50.0 : 20.0;
-    bots.sortBots();
+    bots.sortBots1();
     return Expanded(
         child: GridView.builder(
       key: UniqueKey(),
@@ -318,7 +320,7 @@ class BotsState extends State<BotsCentre> {
         childAspectRatio: childAspectRatio,
         crossAxisCount: crossAxisCount,
       ),
-      itemCount: bots.bots.length,
+      itemCount: bots.bots_public.length,
       itemBuilder: (BuildContext context, int index) {
         return BotTab(context, bots, index);
       },
