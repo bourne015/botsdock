@@ -221,13 +221,13 @@ class InitPageState extends State<InitPage> {
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
             GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
-        _buildPopupMenuItem(context, gptSub[1], "4.0", "ChatGPT 4.0",
-            GalleryLocalizations.of(context)?.chatGPT40Desc ?? ''),
-        _buildPopupMenuItem(context, gptSub[2], "4o", "ChatGPT 4o",
-            GalleryLocalizations.of(context)?.chatGPT4oDesc ?? ''),
         _buildPopupMenuItem(context, gptSub[3], "mini", "ChatGPT 4o mini",
             GalleryLocalizations.of(context)?.chatGPT4oMiniDesc ?? ''),
-        _buildPopupMenuItem(context, gptSub[4], "DALL", "DALL·E 3",
+        _buildPopupMenuItem(context, gptSub[2], "4o", "ChatGPT 4o",
+            GalleryLocalizations.of(context)?.chatGPT4oDesc ?? ''),
+        _buildPopupMenuItem(context, gptSub[1], "4.0", "ChatGPT 4.0",
+            GalleryLocalizations.of(context)?.chatGPT40Desc ?? ''),
+        _buildPopupMenuItem(context, gptSub[4], "D·E", "DALL·E 3",
             GalleryLocalizations.of(context)?.dallEDesc ?? ''),
       ],
     );
