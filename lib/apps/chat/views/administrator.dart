@@ -332,9 +332,10 @@ class AdministratorState extends State<Administrator> {
               var res = await checkLogin(user);
               if (user.isLogedin) {
                 ////fetch chat data from db
-                await pages.fetch_pages(user.id);
-                Navigator.of(context).pop();
-                Global.saveProfile(user);
+                Navigator.of(context).maybePop().then((_) async {
+                  await pages.fetch_pages(user.id);
+                  Global.saveProfile(user);
+                });
               } else
                 notifyBox(
                     context: context, title: "login status", content: res);
