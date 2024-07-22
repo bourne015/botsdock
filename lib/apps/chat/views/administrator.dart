@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
@@ -13,15 +12,11 @@ import '../models/user.dart';
 import '../models/pages.dart';
 import '../utils/global.dart';
 import './user_info.dart';
+import './settings_view.dart';
 
-class Administrator extends StatefulWidget {
-  const Administrator({super.key});
+class Administrator extends StatelessWidget {
+  Administrator({Key? key}) : super(key: key);
 
-  @override
-  State<Administrator> createState() => AdministratorState();
-}
-
-class AdministratorState extends State<Administrator> {
   final _emailcontroller = TextEditingController();
   final _namecontroller = TextEditingController();
   final _pwdcontroller = TextEditingController();
@@ -29,9 +24,9 @@ class AdministratorState extends State<Administrator> {
   final _newBotController1 = TextEditingController();
   final _newBotController2 = TextEditingController();
   final dio = Dio();
-  Random random = Random();
-  GlobalKey _signInformKey = GlobalKey<FormState>();
-  GlobalKey _signUpformKey = GlobalKey<FormState>();
+  final Random random = Random();
+  final GlobalKey _signInformKey = GlobalKey<FormState>();
+  final GlobalKey _signUpformKey = GlobalKey<FormState>();
   final GlobalKey<PopupMenuButtonState<String>> _popupMenuKey = GlobalKey();
 
   // @override
@@ -202,13 +197,22 @@ class AdministratorState extends State<Administrator> {
   }
 
   void InstructionsDialog(BuildContext context) {
+    // showDialog(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return AlertDialog(
+    //         title: Text('模型介绍'),
+    //         content: modelINFO(context),
+    //       );
+    //     });
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('模型介绍'),
-            content: modelINFO(context),
-          );
+          return Dialog(
+              child: ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: SettingsView(),
+          ));
         });
   }
 
@@ -549,82 +553,5 @@ class AdministratorState extends State<Administrator> {
       return e.toString();
     }
     return response.data["result"];
-  }
-
-  Widget modelINFO(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: [
-          DataColumn(label: Text('')),
-          DataColumn(
-              label: Text(GalleryLocalizations.of(context)!.modelDescription)),
-          DataColumn(
-              label: Text(GalleryLocalizations.of(context)!.contextWindow)),
-          DataColumn(label: Text(GalleryLocalizations.of(context)!.cost)),
-          DataColumn(
-              label: Text(GalleryLocalizations.of(context)!.inputFormat)),
-        ],
-        rows: [
-          DataRow(cells: [
-            DataCell(Text('GPT-3.5')),
-            DataCell(Text(GalleryLocalizations.of(context)!.chatGPT35Desc)),
-            DataCell(Text('16,385 tokens')),
-            DataCell(Text('\$0.50 / M input tokens, \$1.50/M output tokens')),
-            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat1)),
-          ]),
-          DataRow(cells: [
-            DataCell(Text('GPT-4')),
-            DataCell(Text(GalleryLocalizations.of(context)!.chatGPT40Desc)),
-            DataCell(Text('128K tokens')),
-            DataCell(Text('\$10.00/M input tokens, \$30.00/M output tokens')),
-            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat2)),
-          ]),
-          DataRow(cells: [
-            DataCell(Text('GPT-4o')),
-            DataCell(Text(GalleryLocalizations.of(context)!.chatGPT4oDesc)),
-            DataCell(Text('128K tokens')),
-            DataCell(Text('\$5.00 / M input tokens, \$15.00/M output tokens')),
-            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat2)),
-          ]),
-          DataRow(cells: [
-            DataCell(Text('DALL·E')),
-            DataCell(Text(GalleryLocalizations.of(context)!.dallEDesc)),
-            DataCell(Text('-')),
-            DataCell(Text('\$0.040 / image')),
-            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat1)),
-          ]),
-          DataRow(cells: [
-            DataCell(Text('Claude 3 Haiku')),
-            DataCell(Text(GalleryLocalizations.of(context)!.claude3HaikuDesc)),
-            DataCell(Text('200K tokens')),
-            DataCell(Text('\$0.25/M input tokens, \$1.25/M output tokens')),
-            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat2)),
-          ]),
-          DataRow(cells: [
-            DataCell(Text('Claude 3 Sonnet')),
-            DataCell(Text(GalleryLocalizations.of(context)!.claude3SonnetDesc)),
-            DataCell(Text('200K tokens')),
-            DataCell(Text('\$3.00/M input tokens, \$15.00/M output tokens')),
-            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat2)),
-          ]),
-          DataRow(cells: [
-            DataCell(Text('Claude 3 Opus')),
-            DataCell(Text(GalleryLocalizations.of(context)!.claude3OpusDesc)),
-            DataCell(Text('200K tokens')),
-            DataCell(Text('\$15.00/M input tokens, \$75.00/M output tokens')),
-            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat2)),
-          ]),
-          DataRow(cells: [
-            DataCell(Text('Claude 3.5 Sonnet')),
-            DataCell(
-                Text(GalleryLocalizations.of(context)!.claude35SonnetDesc)),
-            DataCell(Text('200K tokens')),
-            DataCell(Text('\$3.00/M input tokens, \$15.00/M output tokens')),
-            DataCell(Text(GalleryLocalizations.of(context)!.inputFormat2)),
-          ]),
-        ],
-      ),
-    );
   }
 }
