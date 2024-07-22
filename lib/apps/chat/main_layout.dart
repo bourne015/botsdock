@@ -116,8 +116,9 @@ class MainLayoutState extends State<MainLayout> {
     return NestedScrollView(
       floatHeaderSlivers: true,
       scrollDirection: Axis.vertical,
-
-      //physics: ClampingScrollPhysics,
+      physics: isDisplayDesktop(context)
+          ? NeverScrollableScrollPhysics()
+          : BouncingScrollPhysics(),
       headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
         return <Widget>[
           SliverAppBar(
