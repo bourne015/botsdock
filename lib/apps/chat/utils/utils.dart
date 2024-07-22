@@ -254,7 +254,7 @@ class ChatSSE {
 class ChatGen {
   final dio = Dio();
   final ChatSSE chatServer = ChatSSE();
-  Future<void> titleGenerate(Pages pages, int handlePageID) async {
+  Future<void> titleGenerate(Pages pages, int handlePageID, user) async {
     String q;
     try {
       if (pages.getPage(handlePageID).modelVersion == GPTModel.gptv40Dall) {
@@ -271,7 +271,10 @@ class ChatGen {
         "model": ModelForTitleGen,
         "question": "为下面段话写一个5个字左右的标题,只需给出最终的标题内容,不要输出其他信息:$q"
       };
-      final response = await dio.post(chatUrl, data: chatData1);
+      final response = await dio.post(
+        "${chatUrl}?user_id=${user.id}",
+        data: chatData1,
+      );
       var title = response.data;
       // in case title too long
       title = title.length > 20 ? title.substring(0, 20) : title;
@@ -440,7 +443,7 @@ class ChatGen {
         if (msgA != null) pages.getPage(handlePageID).updateScheme(msgA!.id);
         var pageTitle = pages.getPage(handlePageID).title;
         if (pageTitle.length >= 6 && pageTitle.startsWith("Chat 0")) {
-          await titleGenerate(pages, handlePageID);
+          await titleGenerate(pages, handlePageID, user);
         }
         saveChats(user, pages, handlePageID);
         updateCredit(user);
@@ -481,7 +484,7 @@ class ChatGen {
         pages.addMessage(handlePageID, msgA);
         if (response.statusCode == 200 &&
             pages.getPage(handlePageID).title == "Chat 0") {
-          await titleGenerate(pages, handlePageID);
+          await titleGenerate(pages, handlePageID, user);
         }
 
         String? ossURL = await uploadImage(pages, handlePageID, msgA.id,
@@ -528,7 +531,7 @@ class ChatGen {
           pages.getPage(handlePageID).onGenerating = false;
           var pageTitle = pages.getPage(handlePageID).title;
           if (pageTitle.length >= 6 && pageTitle.substring(0, 6) == "Chat 0") {
-            await titleGenerate(pages, handlePageID);
+            await titleGenerate(pages, handlePageID, user);
           }
           saveChats(user, pages, handlePageID);
           updateCredit(user);
