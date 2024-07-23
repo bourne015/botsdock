@@ -1,8 +1,8 @@
+import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery/apps/chat/utils/prompts.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import '../models/pages.dart';
@@ -152,50 +152,55 @@ class InitPageState extends State<InitPage> {
   Widget modelSelectButton(BuildContext context) {
     Property property = Provider.of<Property>(context);
     return Container(
-      margin: const EdgeInsets.only(top: 25),
-      child: CupertinoSlidingSegmentedControl<String>(
-        thumbColor: AppColors.modelSelected,
-        backgroundColor: AppColors.modelSelectorBackground!,
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-        // This represents a currently selected segmented control.
-        groupValue: selected,
-        // Callback that sets the selected segmented control.
-        onValueChanged: (String? value) {
-          if (value == 'ChatGPT') {
-            property.initModelVersion = DefaultModelVersion;
-          } else {
-            property.initModelVersion = DefaultClaudeModel;
-          }
-          selected = value;
-        },
-        children: <String, Widget>{
-          'ChatGPT': Padding(
-            padding: const EdgeInsets.only(left: 22, top: 7, bottom: 7),
-            child: Row(children: [
+        margin: const EdgeInsets.only(top: 25),
+        child: CustomSlidingSegmentedControl(
+          initialValue: selected,
+          children: {
+            'ChatGPT': Row(children: [
               Icon(
                 Icons.flash_on,
                 color: selected == "ChatGPT" ? Colors.green : Colors.grey,
               ),
               const Text('ChatGPT'),
-              //const SizedBox(width: 8),
               if (selected == "ChatGPT") gptdropdownMenu(context),
             ]),
-          ),
-          'Claude': Padding(
-            padding: const EdgeInsets.only(left: 26, top: 7, bottom: 7),
-            child: Row(children: [
+            'Claude': Row(children: [
               Icon(
                 Icons.workspaces,
                 color: selected == "Claude" ? Colors.purple : Colors.grey,
               ),
               const Text('Claude'),
-              const SizedBox(width: 8),
               if (selected == "Claude") claudedropdownMenu(context),
             ]),
+          },
+          decoration: BoxDecoration(
+            //color: CupertinoColors.lightBackgroundGray,
+            color: AppColors.modelSelectorBackground!,
+            borderRadius: BorderRadius.circular(10),
           ),
-        },
-      ),
-    );
+          thumbDecoration: BoxDecoration(
+            //color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(.3),
+                blurRadius: 4.0,
+                spreadRadius: 1.0,
+                offset: Offset(0.0, 2.0),
+              )
+            ],
+          ),
+          duration: Duration(milliseconds: 300),
+          curve: Curves.linear,
+          onValueChanged: (value) {
+            if (value == 'ChatGPT') {
+              property.initModelVersion = DefaultModelVersion;
+            } else {
+              property.initModelVersion = DefaultClaudeModel;
+            }
+            selected = value;
+          },
+        ));
   }
 
   Widget gptdropdownMenu(BuildContext context) {
@@ -206,7 +211,10 @@ class InitPageState extends State<InitPage> {
       //icon: Icon(color: Colors.grey, size: 10, Icons.south),
       color: AppColors.drawerBackground,
       shadowColor: Colors.blue,
-      elevation: 2,
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
       icon: CircleAvatar(
           radius: 12,
           backgroundColor: AppColors.modelSelectorBackground,
@@ -250,7 +258,10 @@ class InitPageState extends State<InitPage> {
       tooltip: GalleryLocalizations.of(context)!.selectModelTooltip,
       color: AppColors.drawerBackground,
       shadowColor: Colors.blue,
-      elevation: 2,
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
       icon: CircleAvatar(
           radius: 12,
           backgroundColor: AppColors.modelSelectorBackground,
