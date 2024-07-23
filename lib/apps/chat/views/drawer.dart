@@ -12,7 +12,6 @@ import '../models/pages.dart';
 import '../models/user.dart';
 import 'administrator.dart';
 import '../utils/global.dart';
-import './bots_centre.dart';
 
 class ChatDrawer extends StatefulWidget {
   final double drawersize;
@@ -254,7 +253,6 @@ class _ChatPageTabState extends State<ChatPageTab> {
 
   Widget delChattabButton(
       BuildContext context, Pages pages, int removeID, Property property) {
-    User user = Provider.of<User>(context, listen: false);
     return Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(
         icon: const Icon(Icons.close),
@@ -262,28 +260,37 @@ class _ChatPageTabState extends State<ChatPageTab> {
         tooltip: "delete",
         visualDensity: VisualDensity.compact,
         onPressed: () async {
-          var did = pages.getPage(removeID).dbID;
-          var msgs = pages.getPage(removeID).messages;
-          var tid = pages.getPage(removeID).threadID;
-          pages.delPage(removeID);
-          if (removeID == pages.currentPageID) {
-            pages.currentPageID = -1;
-            property.onInitPage = true;
-          }
-          if (user.isLogedin) {
-            var chatdbUrl = userUrl + "/" + "${user.id}" + "/chat/" + "$did";
-            var cres = await Dio().delete(chatdbUrl);
-            Global.deleteChat(removeID, cres.data["updated_at"]);
-          }
-          for (var m in msgs) {
-            if (m.visionFiles == null || m.visionFiles!.isEmpty) continue;
-            m.visionFiles!.forEach((_filename, _content) async {
-              if (_content.url != null) deleteOSSObj(_content.url);
-            });
-          }
-          if (tid != null) await assistant.deleteThread(tid);
+          doDeletePage(pages, removeID, property);
         },
       ),
     ]);
+  }
+
+  void doDeletePage(Pages pages, int removeID, Property property) async {
+    try {
+      User user = Provider.of<User>(context, listen: false);
+      var did = pages.getPage(removeID).dbID;
+      var msgs = pages.getPage(removeID).messages;
+      var tid = pages.getPage(removeID).threadID;
+      pages.delPage(removeID);
+      if (removeID == pages.currentPageID) {
+        pages.currentPageID = -1;
+        property.onInitPage = true;
+      }
+      if (user.isLogedin) {
+        var chatdbUrl = userUrl + "/" + "${user.id}" + "/chat/" + "$did";
+        var cres = await Dio().delete(chatdbUrl);
+        Global.deleteChat(removeID, cres.data["updated_at"]);
+      }
+      for (var m in msgs) {
+        if (m.visionFiles == null || m.visionFiles!.isEmpty) continue;
+        m.visionFiles!.forEach((_filename, _content) async {
+          if (_content.url != null) deleteOSSObj(_content.url);
+        });
+      }
+      if (tid != null) await assistant.deleteThread(tid);
+    } catch (e) {
+      debugPrint("doDeletePage error: $e");
+    }
   }
 }
