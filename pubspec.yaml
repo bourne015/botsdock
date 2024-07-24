@@ -79,7 +79,6 @@ flutter:
     - assets/images/avatar/hacker.png
     - assets/images/avatar/augur.png
     - assets/images/chat/paycode.jpeg
-    - assets/images/chat/cat3.gif
 
     - assets/images/bot/bot1.png
     - assets/images/bot/bot2.png
@@ -97,3 +96,25 @@ flutter:
     - assets/images/bot/bot14.png
     - assets/images/bot/bot15.png
     - assets/images/bot/bot16.png
+
+    - assets/images/cat/cat3.gif
+    - assets/images/cat/cat4.gif  # run to left
+    - assets/images/cat/cat28.avif # run to right
+    - assets/images/cat/cat11.avif # run to right
+    - assets/images/cat/cat7.avif
+    - assets/images/cat/cat17.avif
+    - assets/images/cat/cat20.avif
+    - assets/images/cat/cat21.avif
+    # - assets/images/cat/cat25.avif
+    - assets/images/cat/cat25-1.png
+    - assets/images/cat/cat27.avif
+    - assets/images/cat/cat30.avif
+    - assets/images/cat/cat31.avif
+    - assets/images/cat/cat35.avif
+    - assets/images/cat/cat36.avif
+    - assets/images/cat/cat37.avif
+    - assets/images/cat/cat41.avif
+    - assets/images/cat/cat42.avif
+    - assets/images/cat/cat46.avif
+    - assets/images/cat/cat48.avif
+    
