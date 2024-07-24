@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +24,8 @@ class InitPage extends StatefulWidget {
   State createState() => InitPageState();
 }
 
-class InitPageState extends State<InitPage> {
+class InitPageState extends State<InitPage>
+    with SingleTickerProviderStateMixin {
   List<String> gptSub = [
     ...GPTModel().toJson().keys.toList(),
     GPTModel.gptv40Dall
@@ -32,6 +36,75 @@ class InitPageState extends State<InitPage> {
   String? selected;
   final ChatGen chats = ChatGen();
   final dio = Dio();
+  late AnimationController _controller;
+  String _currentRestPose = '';
+  bool _isMoving = true;
+  bool _isMovingRight = true;
+  final Random _random = Random();
+  double _currentPosition = 0;
+  Timer? _stateChangeTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 50), // 总的动画周期
+      vsync: this,
+    );
+
+    _controller.addListener(_updatePosition);
+    _controller.repeat();
+
+    // 开始随机状态变化
+    _scheduleNextStateChange();
+  }
+
+  void _updatePosition() {
+    setState(() {
+      if (_isMoving) {
+        if (_isMovingRight) {
+          _currentPosition += 0.5;
+          if (_currentPosition >= 180) {
+            _currentPosition = 180;
+            _isMovingRight = false;
+          }
+        } else {
+          _currentPosition -= 0.5;
+          if (_currentPosition <= 5) {
+            _currentPosition = 5;
+            _isMovingRight = true;
+          }
+        }
+      }
+    });
+  }
+
+  void _scheduleNextStateChange() {
+    _stateChangeTimer?.cancel();
+    _stateChangeTimer = Timer(Duration(seconds: 2 + _random.nextInt(5)), () {
+      _changeState();
+      _scheduleNextStateChange();
+    });
+  }
+
+  void _changeState() {
+    setState(() {
+      _isMoving = !_isMoving;
+      if (_isMoving) {
+        _isMovingRight = _random.nextBool();
+        _currentRestPose = '';
+      } else {
+        _currentRestPose = getRestPose();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _stateChangeTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,12 +135,6 @@ class InitPageState extends State<InitPage> {
                           color: AppColors.initPageBackgroundText,
                           fontSize: 55.0,
                           fontWeight: FontWeight.bold),
-                    ),
-                    CircleAvatar(
-                      radius: 27,
-                      backgroundColor: Colors.transparent,
-                      backgroundImage:
-                          AssetImage("assets/images/chat/cat3.gif"),
                     ),
                   ],
                 )),
@@ -149,58 +216,86 @@ class InitPageState extends State<InitPage> {
         ));
   }
 
+  String getRestPose() {
+    return restCat[Random().nextInt(restCat.length)];
+  }
+
+  Widget movingCat(BuildContext context) {
+    return Positioned(
+      left: _currentPosition,
+      top: 0,
+      child: Transform.scale(
+        scaleX: _isMovingRight ? -1 : -1,
+        child: CircleAvatar(
+          radius: 25,
+          backgroundColor: Colors.transparent,
+          backgroundImage: AssetImage(
+            _isMoving
+                ? (_isMovingRight
+                    ? "assets/images/cat/cat4.gif"
+                    : "assets/images/cat/cat28.avif")
+                : _currentRestPose,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget modelSelectButton(BuildContext context) {
     Property property = Provider.of<Property>(context);
-    return Container(
-        margin: const EdgeInsets.only(top: 25),
-        child: CustomSlidingSegmentedControl(
-          initialValue: selected,
-          children: {
-            'ChatGPT': Row(children: [
-              Icon(
-                Icons.flash_on,
-                color: selected == "ChatGPT" ? Colors.green : Colors.grey,
-              ),
-              const Text('ChatGPT'),
-              if (selected == "ChatGPT") gptdropdownMenu(context),
-            ]),
-            'Claude': Row(children: [
-              Icon(
-                Icons.workspaces,
-                color: selected == "Claude" ? Colors.purple : Colors.grey,
-              ),
-              const Text('Claude'),
-              if (selected == "Claude") claudedropdownMenu(context),
-            ]),
-          },
-          decoration: BoxDecoration(
-            //color: CupertinoColors.lightBackgroundGray,
-            color: AppColors.modelSelectorBackground!,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          thumbDecoration: BoxDecoration(
-            //color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(.3),
-                blurRadius: 4.0,
-                spreadRadius: 1.0,
-                offset: Offset(0.0, 2.0),
-              )
-            ],
-          ),
-          duration: Duration(milliseconds: 300),
-          curve: Curves.linear,
-          onValueChanged: (value) {
-            if (value == 'ChatGPT') {
-              property.initModelVersion = DefaultModelVersion;
-            } else {
-              property.initModelVersion = DefaultClaudeModel;
-            }
-            selected = value;
-          },
-        ));
+    return Stack(alignment: Alignment.topCenter, children: [
+      Container(
+          margin: EdgeInsets.only(top: 32),
+          child: CustomSlidingSegmentedControl(
+            initialValue: selected,
+            children: {
+              'ChatGPT': Row(children: [
+                Icon(
+                  Icons.flash_on,
+                  color: selected == "ChatGPT" ? Colors.green : Colors.grey,
+                ),
+                const Text('ChatGPT'),
+                if (selected == "ChatGPT") gptdropdownMenu(context),
+              ]),
+              'Claude': Row(children: [
+                Icon(
+                  Icons.workspaces,
+                  color: selected == "Claude" ? Colors.purple : Colors.grey,
+                ),
+                const Text('Claude'),
+                if (selected == "Claude") claudedropdownMenu(context),
+              ]),
+            },
+            decoration: BoxDecoration(
+              //color: CupertinoColors.lightBackgroundGray,
+              color: AppColors.modelSelectorBackground!,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            thumbDecoration: BoxDecoration(
+              //color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(.3),
+                  blurRadius: 4.0,
+                  spreadRadius: 1.0,
+                  offset: Offset(0.0, 2.0),
+                )
+              ],
+            ),
+            duration: Duration(milliseconds: 300),
+            curve: Curves.linear,
+            onValueChanged: (value) {
+              if (value == 'ChatGPT') {
+                property.initModelVersion = DefaultModelVersion;
+              } else {
+                property.initModelVersion = DefaultClaudeModel;
+              }
+              selected = value;
+            },
+          )),
+      movingCat(context),
+    ]);
   }
 
   Widget gptdropdownMenu(BuildContext context) {
@@ -321,6 +416,29 @@ class InitPageState extends State<InitPage> {
       ),
     );
   }
+
+  List<String> rightCat = [
+    "assets/images/cat/cat11.avif",
+    "assets/images/cat/cat28.avif",
+  ];
+  List<String> restCat = [
+    "assets/images/cat/cat3.gif",
+    "assets/images/cat/cat7.avif",
+    "assets/images/cat/cat17.avif",
+    "assets/images/cat/cat20.avif",
+    "assets/images/cat/cat21.avif",
+    "assets/images/cat/cat25-1.png",
+    "assets/images/cat/cat27.avif",
+    "assets/images/cat/cat30.avif",
+    "assets/images/cat/cat31.avif",
+    "assets/images/cat/cat35.avif",
+    "assets/images/cat/cat36.avif",
+    "assets/images/cat/cat37.avif",
+    "assets/images/cat/cat41.avif",
+    "assets/images/cat/cat42.avif",
+    "assets/images/cat/cat46.avif",
+    "assets/images/cat/cat48.avif",
+  ];
 }
 
 class CustomCard extends StatelessWidget {
