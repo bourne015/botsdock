@@ -438,6 +438,7 @@ class InitPageState extends State<InitPage>
     "assets/images/cat/cat42.avif",
     "assets/images/cat/cat46.avif",
     "assets/images/cat/cat48.avif",
+    "assets/images/cat/cat49.avif",
   ];
 }
 
