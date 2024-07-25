@@ -225,20 +225,28 @@ class InitPageState extends State<InitPage>
     return Positioned(
       left: _currentPosition,
       top: 0,
-      child: Transform.scale(
-        scaleX: _isMovingRight ? -1 : -1,
-        child: CircleAvatar(
-          radius: 25,
-          backgroundColor: Colors.transparent,
-          backgroundImage: AssetImage(
-            _isMoving
-                ? (_isMovingRight
-                    ? "assets/images/cat/cat4.gif"
-                    : "assets/images/cat/cat28.avif")
-                : _currentRestPose,
-          ),
-        ),
-      ),
+      child: GestureDetector(
+          onTap: () {
+            // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            //   content: Text('Meow!'),
+            // ));
+            _isMoving = false;
+            _currentRestPose = "assets/images/cat/cat21.avif";
+          },
+          child: Transform.scale(
+            scaleX: _isMovingRight ? -1 : -1,
+            child: CircleAvatar(
+              radius: 25,
+              backgroundColor: Colors.transparent,
+              backgroundImage: AssetImage(
+                _isMoving
+                    ? (_isMovingRight
+                        ? "assets/images/cat/cat4.gif"
+                        : "assets/images/cat/cat28.avif")
+                    : _currentRestPose,
+              ),
+            ),
+          )),
     );
   }
 
