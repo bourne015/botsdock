@@ -58,65 +58,7 @@ flutter:
 
   assets:
     - assets/images/chatgpt_red.png
-    - assets/images/chat/chat_card.png
-    - assets/images/chat/chat_card_dark.png
-    - assets/images/avatar/1.png
-    - assets/images/avatar/2.png
-    - assets/images/avatar/3.png
-    - assets/images/avatar/4.png
-    - assets/images/avatar/5.png
-    - assets/images/avatar/6.png
-    - assets/images/avatar/7.png
-    - assets/images/avatar/8.png
-    - assets/images/avatar/9.png
-    - assets/images/avatar/10.png
-    - assets/images/avatar/11.png
-    - assets/images/avatar/12.png
-    - assets/images/avatar/13.png
-    - assets/images/avatar/14.png
-    - assets/images/avatar/15.png
-    - assets/images/avatar/cat.png
-    - assets/images/avatar/hacker.png
-    - assets/images/avatar/augur.png
-    - assets/images/chat/paycode.jpeg
-
-    - assets/images/bot/bot1.png
-    - assets/images/bot/bot2.png
-    - assets/images/bot/bot3.png
-    - assets/images/bot/bot4.png
-    - assets/images/bot/bot5.png
-    - assets/images/bot/bot6.png
-    - assets/images/bot/bot7.png
-    - assets/images/bot/bot8.png
-    - assets/images/bot/bot9.png
-    - assets/images/bot/bot10.png
-    - assets/images/bot/bot11.png
-    - assets/images/bot/bot12.png
-    - assets/images/bot/bot13.png
-    - assets/images/bot/bot14.png
-    - assets/images/bot/bot15.png
-    - assets/images/bot/bot16.png
-
-    - assets/images/cat/cat4.gif  # run to left
-    - assets/images/cat/cat28.avif # run to right
-    - assets/images/cat/cat11.avif # run to right
-    - assets/images/cat/cat3.gif
-    - assets/images/cat/cat7.avif
-    - assets/images/cat/cat17.avif
-    - assets/images/cat/cat20.avif
-    - assets/images/cat/cat21.avif
-    # - assets/images/cat/cat25.avif
-    - assets/images/cat/cat25-1.png
-    - assets/images/cat/cat26.avif
-    - assets/images/cat/cat27.avif
-    - assets/images/cat/cat30.avif
-    - assets/images/cat/cat31.avif
-    - assets/images/cat/cat35.avif
-    - assets/images/cat/cat36.avif
-    - assets/images/cat/cat37.avif
-    - assets/images/cat/cat41.avif
-    - assets/images/cat/cat42.avif
-    - assets/images/cat/cat46.avif
-    - assets/images/cat/cat48.avif
-    - assets/images/cat/cat49.avif
-    
+    - assets/images/chat/
+    - assets/images/avatar/
+    - assets/images/bot/
+    - assets/images/cat/
