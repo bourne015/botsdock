@@ -221,6 +221,7 @@ class InitPageState extends State<InitPage>
   }
 
   Widget movingCat(BuildContext context) {
+    if (!isDisplayDesktop(context)) _controller.stop();
     return Positioned(
       left: _currentPosition,
       top: 0,
