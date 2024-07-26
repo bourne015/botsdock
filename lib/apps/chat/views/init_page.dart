@@ -43,12 +43,16 @@ class InitPageState extends State<InitPage>
   final Random _random = Random();
   double _currentPosition = 0;
   Timer? _stateChangeTimer;
+  bool isDragging = false;
+  late Offset dragStart;
+  String _dragImg = '';
+  String _runImg = "assets/images/cat/cat11.avif";
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 50), // 总的动画周期
+      duration: const Duration(seconds: 20), // 总的动画周期
       vsync: this,
     );
 
@@ -61,18 +65,20 @@ class InitPageState extends State<InitPage>
 
   void _updatePosition() {
     setState(() {
-      if (_isMoving) {
+      if (_isMoving && !isDragging) {
         if (_isMovingRight) {
-          _currentPosition += 0.5;
+          _currentPosition += 0.25;
           if (_currentPosition >= 180) {
             _currentPosition = 180;
             _isMovingRight = false;
+            _runImg = leftRunCat[_random.nextInt(leftRunCat.length)];
           }
         } else {
-          _currentPosition -= 0.5;
+          _currentPosition -= 0.25;
           if (_currentPosition <= 5) {
             _currentPosition = 5;
             _isMovingRight = true;
+            _runImg = rightRunCat[_random.nextInt(rightRunCat.length)];
           }
         }
       }
@@ -93,6 +99,9 @@ class InitPageState extends State<InitPage>
       if (_isMoving) {
         _isMovingRight = _random.nextBool();
         _currentRestPose = '';
+        _runImg = _isMovingRight
+            ? rightRunCat[_random.nextInt(rightRunCat.length)]
+            : leftRunCat[_random.nextInt(leftRunCat.length)];
       } else {
         _currentRestPose = getRestPose();
       }
@@ -221,7 +230,10 @@ class InitPageState extends State<InitPage>
   }
 
   Widget movingCat(BuildContext context) {
-    if (!isDisplayDesktop(context)) _controller.stop();
+    if (!isDisplayDesktop(context)) {
+      _controller.stop();
+    }
+    ;
     return Positioned(
       left: _currentPosition,
       top: 0,
@@ -231,19 +243,35 @@ class InitPageState extends State<InitPage>
             //   content: Text('Meow!'),
             // ));
             _isMoving = false;
-            _currentRestPose = "assets/images/cat/cat21.avif";
+            _currentRestPose = clickCat[_random.nextInt(clickCat.length)];
+          },
+          onPanStart: (details) {
+            isDragging = true;
+            print("drag");
+            dragStart = details.globalPosition - Offset(_currentPosition, 0);
+            _dragImg = dragCat[_random.nextInt(dragCat.length)];
+          },
+          onPanUpdate: (details) {
+            setState(() {
+              var _posX = details.globalPosition.dx - dragStart.dx;
+              _currentRestPose = _dragImg;
+              _currentPosition = _posX > 180
+                  ? 180
+                  : _posX < 0
+                      ? 0
+                      : _posX;
+            });
+          },
+          onPanEnd: (details) {
+            isDragging = false;
           },
           child: Transform.scale(
-            scaleX: _isMovingRight ? -1 : -1,
+            scaleX: _isMovingRight ? 1 : 1,
             child: CircleAvatar(
               radius: 25,
               backgroundColor: Colors.transparent,
               backgroundImage: AssetImage(
-                _isMoving
-                    ? (_isMovingRight
-                        ? "assets/images/cat/cat4.gif"
-                        : "assets/images/cat/cat28.avif")
-                    : _currentRestPose,
+                _isMoving ? _runImg : _currentRestPose,
               ),
             ),
           )),
@@ -426,12 +454,22 @@ class InitPageState extends State<InitPage>
     );
   }
 
-  List<String> rightCat = [
+  List<String> dragCat = [
+    "assets/images/cat/cat13.avif",
+  ];
+  List<String> leftRunCat = [
+    "assets/images/cat/cat4.avif",
+  ];
+  List<String> rightRunCat = [
     "assets/images/cat/cat11.avif",
     "assets/images/cat/cat28.avif",
   ];
+  List<String> clickCat = [
+    "assets/images/cat/cat12.avif",
+    "assets/images/cat/cat21.avif",
+  ];
   List<String> restCat = [
-    "assets/images/cat/cat3.gif",
+    "assets/images/cat/cat3.avif",
     "assets/images/cat/cat7.avif",
     "assets/images/cat/cat17.avif",
     "assets/images/cat/cat20.avif",
