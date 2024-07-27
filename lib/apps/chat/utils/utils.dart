@@ -227,13 +227,17 @@ class ChatSSE {
     var response = await client.send(request);
     var stream = response.stream.transform<String>(utf8.decoder);
     final controller = StreamController<String>();
+    var _newLine = false;
 
     try {
       stream.transform(const LineSplitter()).listen((String line) {
-        if (line.isNotEmpty) {
-          var data = line.substring(5).replaceFirst(' ', '');
-          data = data.length > 0 ? data : '\n';
+        if (line.length == 0) {
+          _newLine = false;
+        } else if (line.startsWith('data:')) {
+          var data = line.substring(6);
+          data = _newLine ? '\n' + data : data;
           controller.add(data);
+          _newLine = true;
         }
       }, onDone: () {
         controller.close();
