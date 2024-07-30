@@ -466,10 +466,10 @@ class ChatGen {
       if (property.initModelVersion == GPTModel.gptv40Dall) {
         String q = pages.getMessages(handlePageID)!.last.content;
         var chatData1 = {"model": GPTModel.gptv40Dall, "question": q};
-        pages.getPage(handlePageID).onGenerating = true;
+        pages.setPageGenerateStatus(handlePageID, true);
         final response =
             await dio.post("${imageUrl}?user_id=${user.id}", data: chatData1);
-        pages.getPage(handlePageID).onGenerating = false;
+        pages.setPageGenerateStatus(handlePageID, false);
 
         var mt = DateTime.now().millisecondsSinceEpoch;
         String _aiImageName = "ai${user.id}_${handlePageID}_${mt}.png";
@@ -511,7 +511,7 @@ class ChatGen {
           },
           body: jsonEncode(chatData),
         );
-        pages.getPage(handlePageID).onGenerating = true;
+        pages.setPageGenerateStatus(handlePageID, true);
         stream.listen((data) {
           if (_isNewReply) {
             Message msgA = Message(
@@ -525,14 +525,14 @@ class ChatGen {
           } else {
             pages.appendMessage(handlePageID, msg: data);
           }
-          pages.getPage(handlePageID).onGenerating = true;
+          pages.setPageGenerateStatus(handlePageID, true);
           _isNewReply = false;
         }, onError: (e) {
           debugPrint('SSE error: $e');
-          pages.getPage(handlePageID).onGenerating = false;
+          pages.setPageGenerateStatus(handlePageID, false);
         }, onDone: () async {
           debugPrint('SSE complete');
-          pages.getPage(handlePageID).onGenerating = false;
+          pages.setPageGenerateStatus(handlePageID, false);
           var pageTitle = pages.getPage(handlePageID).title;
           if (pageTitle.length >= 6 && pageTitle.substring(0, 6) == "Chat 0") {
             await titleGenerate(pages, handlePageID, user);
@@ -543,7 +543,7 @@ class ChatGen {
       }
     } catch (e) {
       debugPrint("gen error: $e");
-      pages.getPage(handlePageID).onGenerating = false;
+      pages.setPageGenerateStatus(handlePageID, false);
     }
   }
 
