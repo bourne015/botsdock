@@ -42,7 +42,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   @override
   Widget build(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
+    Pages pages = Provider.of<Pages>(context, listen: false);
     Property property = Provider.of<Property>(context);
     User user = Provider.of<User>(context);
     var _modelV;
@@ -77,9 +77,14 @@ class _ChatInputFieldState extends State<ChatInputField> {
           inputField(context),
           !user.isLogedin || user.credit! <= 0
               ? lockButton(context, user)
-              : (!property.onInitPage && pages.currentPage!.onGenerating)
-                  ? generatingAnimation(context)
-                  : sendButton(context),
+              : Selector<Pages, bool>(
+                  selector: (_, pages) =>
+                      pages.getPageGenerateStatus(pages.currentPageID),
+                  builder: (context, isGenerating, child) {
+                    if (isGenerating) return generatingAnimation(context);
+                    return sendButton(context);
+                  },
+                ),
         ],
       ),
     );
@@ -200,8 +205,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
   }
 
   Widget textField(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
-    Property property = Provider.of<Property>(context);
+    Pages pages = Provider.of<Pages>(context, listen: false);
+    Property property = Provider.of<Property>(context, listen: false);
     String hintText = "text, image, text file";
     var _modelV;
     if (property.onInitPage)
@@ -277,7 +282,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   }
 
   Widget sendButton(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
+    Pages pages = Provider.of<Pages>(context, listen: false);
     Property property = Provider.of<Property>(context);
     User user = Provider.of<User>(context);
     return IconButton(

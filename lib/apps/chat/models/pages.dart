@@ -67,6 +67,10 @@ class Pages with ChangeNotifier {
     notifyListeners();
   }
 
+  bool getPageGenerateStatus(int pageId) {
+    return _pages[pageId]?.onGenerating ?? false;
+  }
+
   void setPageGenerateStatus(int pageID, bool status) {
     _pages[pageID]?.onGenerating = status;
     notifyListeners();
