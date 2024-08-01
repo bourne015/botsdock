@@ -522,10 +522,10 @@ class ChatGen {
                 content: data,
                 timestamp: DateTime.now().millisecondsSinceEpoch);
             pages.addMessage(handlePageID, msgA);
+            pages.setPageGenerateStatus(handlePageID, true);
           } else {
             pages.appendMessage(handlePageID, msg: data);
           }
-          pages.setPageGenerateStatus(handlePageID, true);
           _isNewReply = false;
         }, onError: (e) {
           debugPrint('SSE error: $e');
