@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:markdown/markdown.dart' as md;
 
 import 'package:flutter/services.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
-import '../utils/syntax_hightlighter.dart';
+import 'package:flutter_markdown_selectionarea/flutter_markdown.dart';
+import './flutter_highlight/flutter_highlight.dart';
+import './flutter_highlight/themes/dark.dart';
+import './flutter_highlight/themes/androidstudio.dart';
 import 'custom_widget.dart';
 import 'constants.dart';
 
@@ -60,8 +62,8 @@ extension WrapAlignmentExtension on WrapAlignment {
 
 class CodeBlockBuilder extends MarkdownElementBuilder {
   final BuildContext context;
-  final Highlighter highlighter;
-  CodeBlockBuilder(this.context, this.highlighter);
+
+  CodeBlockBuilder(this.context);
   @override
   Widget? visitElementAfter(md.Element element, TextStyle? preferredStyle) {
     String language = '';
@@ -86,16 +88,23 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         codeTitleBar(context, language, element),
-        codeContent(context, element, preferredStyle, highlighter),
+        HighlightView(
+          element.textContent,
+          language: language,
+          theme: androidstudioTheme,
+          padding: EdgeInsets.only(left: 15, top: 10),
+          // textStyle: TextStyle(fontFamily: 'Courier'),
+          tabSize: 4,
+        ),
       ],
     );
   }
 
   Widget codeTitleBar(BuildContext context, language, element) {
-    const borderV = Radius.circular(7);
+    const borderV = Radius.circular(10);
     return Container(
-      height: 32,
-      padding: const EdgeInsets.only(left: 15, top: 1, bottom: 1),
+      //height: 32,
+      padding: const EdgeInsets.only(left: 15),
       decoration: BoxDecoration(
           color: AppColors.msgCodeTitleBG,
           borderRadius: BorderRadius.only(topLeft: borderV, topRight: borderV)),
@@ -117,24 +126,6 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
             },
           ),
         ],
-      ),
-    );
-  }
-
-  Widget codeContent(
-      BuildContext context, element, preferredStyle, highlighter) {
-    const borderV = Radius.circular(7);
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-          color: AppColors.msgCodeBG,
-          borderRadius:
-              BorderRadius.only(bottomLeft: borderV, bottomRight: borderV)),
-      child: SelectableText.rich(
-        highlighter.format(element.textContent),
-        //style: preferredStyle,
-        //cursorColor: Colors.blue,
-        //showCursor: true,
       ),
     );
   }
