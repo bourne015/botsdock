@@ -21,7 +21,7 @@ dependencies:
   transparent_image: ^2.0.1
   url_launcher: ^6.3.0
   dio: ^5.4.3+1
-  flutter_markdown_selectionarea: ^0.6.17+1
+  flutter_markdown: ^0.7.3
   string_scanner: ^1.2.0
   flutter_spinkit: ^5.2.1
   file_picker: ^8.0.3
