@@ -10,7 +10,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:image_downloader_web/image_downloader_web.dart';
 
 import '../models/message.dart';
-import '../models/pages.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
 import '../utils/custom_widget.dart';
@@ -22,10 +21,17 @@ class MessageBox extends StatefulWidget {
   final Message msg;
   final bool isLast;
   final int pageId;
+  final ScrollController? controller;
+  final Stream<Message> messageStream;
 
-  MessageBox(
-      {Key? key, required this.msg, this.isLast = false, required this.pageId})
-      : super(key: ValueKey(msg.id));
+  MessageBox({
+    Key? key,
+    required this.msg,
+    this.isLast = false,
+    required this.pageId,
+    this.controller,
+    required this.messageStream,
+  }) : super(key: ValueKey(msg.id));
 
   @override
   State createState() => MessageBoxState();
@@ -35,6 +41,38 @@ class MessageBoxState extends State<MessageBox> {
   final ScrollController _attachmentscroll = ScrollController();
   final ScrollController _visionFilescroll = ScrollController();
   final assistant = AssistantsAPI();
+  bool _isNearBottom = true;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller!.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    widget.controller!.removeListener(_scrollListener);
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (widget.controller!.offset >=
+            widget.controller!.position.maxScrollExtent - 100 &&
+        !widget.controller!.position.outOfRange) {
+      _isNearBottom = true;
+    } else {
+      _isNearBottom = false;
+    }
+  }
+
+  void _scrollToBottom() {
+    widget.controller!.animateTo(
+      widget.controller!.position.maxScrollExtent,
+      duration: Duration(milliseconds: 400),
+      curve: Curves.easeOut,
+    );
+    // widget.controller!.jumpTo(widget.controller!.position.maxScrollExtent);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,11 +95,50 @@ class MessageBoxState extends State<MessageBox> {
   }
 
   Widget _msgBox(BuildContext context) {
+    return StreamBuilder<Message>(
+      stream: widget.messageStream.where((msg) => msg.id == widget.msg.id),
+      initialData: widget.msg,
+      builder: (context, snapshot) {
+        if (widget.controller!.hasClients && _isNearBottom) {
+          WidgetsBinding.instance
+              .addPostFrameCallback((_) => _scrollToBottom());
+        }
+        if (widget.msg.content.isEmpty &&
+            widget.msg.attachments.isEmpty &&
+            widget.msg.visionFiles.isEmpty) {
+          // WidgetsBinding.instance
+          //     .addPostFrameCallback((_) => _scrollToBottom());
+          return Container(
+              margin: const EdgeInsets.only(left: 10),
+              child: SpinKitThreeBounce(
+                color: Color.fromARGB(255, 140, 198, 247),
+                size: AppSize.generatingAnimation,
+              ));
+        }
+        if (snapshot.hasData) {
+          return message(context, snapshot.data!);
+        }
+        return Container(
+            margin: const EdgeInsets.only(left: 10),
+            child: SpinKitThreeBounce(
+              color: Color.fromARGB(255, 140, 198, 247),
+              size: AppSize.generatingAnimation,
+            ));
+      },
+    );
+  }
+
+/*
+  Widget _msgBox1(BuildContext context) {
     if (widget.isLast) {
       Pages pages = Provider.of<Pages>(context, listen: true);
       return ValueListenableBuilder<Message?>(
         valueListenable: pages.getPage(widget.pageId).lastMessageNotifier,
         builder: (context, lastMsg, child) {
+          if (widget.controller!.hasClients && _isNearBottom) {
+            WidgetsBinding.instance
+                .addPostFrameCallback((_) => _scrollToBottom());
+          }
           if (widget.msg.content.isEmpty &&
               widget.msg.attachments.isEmpty &&
               widget.msg.visionFiles.isEmpty)
@@ -78,24 +155,13 @@ class MessageBoxState extends State<MessageBox> {
       return message(context, widget.msg);
     }
   }
-
+*/
   Widget roleIcon(BuildContext context, Message msg) {
     User user = Provider.of<User>(context);
     if (msg.role == MessageTRole.assistant)
       return image_show(user.avatar_bot ?? defaultUserBotAvatar, 16);
     else
       return image_show(user.avatar!, 16);
-    // var icon = widget.msg.role == MessageTRole.user
-    //     ? Icons.person
-    //     : Icons.perm_identity;
-    // var color =
-    //     widget.msg.role == MessageTRole.user ? Colors.blue : Colors.green;
-
-    // return Icon(
-    //   icon,
-    //   size: 32,
-    //   color: color,
-    // );
   }
 
   Widget message(BuildContext context, Message msg) {
