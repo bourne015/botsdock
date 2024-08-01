@@ -364,25 +364,23 @@ class ChatGen {
         },
         body: jsonEncode(chatData),
       );
+      Message? msgA = Message(
+          id: pages.getPage(handlePageID).messages.length,
+          pageID: handlePageID,
+          role: MessageTRole.assistant,
+          type: MsgType.text,
+          content: "",
+          visionFiles: {},
+          attachments: {},
+          timestamp: DateTime.now().millisecondsSinceEpoch);
+      pages.addMessage(handlePageID, msgA);
       pages.setGeneratingState(handlePageID, true);
-      Message? msgA;
       stream.listen((event) {
         String? _text;
         Map<String, Attachment> attachments = {};
         Map<String, VisionFile> visionFiles = {};
         if (event is MessageStreamEvent &&
-            event.event == EventType.threadMessageCreated) {
-          msgA = Message(
-              id: pages.getPage(handlePageID).messages.length,
-              pageID: handlePageID,
-              role: MessageTRole.assistant,
-              type: MsgType.text,
-              content: "",
-              visionFiles: copyVision(visionFiles),
-              attachments: copyAttachment(attachments),
-              timestamp: DateTime.now().millisecondsSinceEpoch);
-          pages.addMessage(handlePageID, msgA!);
-        }
+            event.event == EventType.threadMessageCreated) {}
         event.when(
             threadStreamEvent: (final event, final data) {},
             runStreamEvent: (final event, final data) {},
@@ -460,8 +458,6 @@ class ChatGen {
 
   void submitText(
       Pages pages, Property property, int handlePageID, user) async {
-    bool _isNewReply = true;
-
     try {
       if (property.initModelVersion == GPTModel.gptv40Dall) {
         String q = pages.getMessages(handlePageID)!.last.content;
@@ -512,21 +508,16 @@ class ChatGen {
           body: jsonEncode(chatData),
         );
         pages.setPageGenerateStatus(handlePageID, true);
+        Message msgA = Message(
+            id: pages.getPage(handlePageID).messages.length,
+            pageID: handlePageID,
+            role: MessageTRole.assistant,
+            type: MsgType.text,
+            content: "",
+            timestamp: DateTime.now().millisecondsSinceEpoch);
+        pages.addMessage(handlePageID, msgA);
         stream.listen((data) {
-          if (_isNewReply) {
-            Message msgA = Message(
-                id: pages.getPage(handlePageID).messages.length,
-                pageID: handlePageID,
-                role: MessageTRole.assistant,
-                type: MsgType.text,
-                content: data,
-                timestamp: DateTime.now().millisecondsSinceEpoch);
-            pages.addMessage(handlePageID, msgA);
-            pages.setPageGenerateStatus(handlePageID, true);
-          } else {
-            pages.appendMessage(handlePageID, msg: data);
-          }
-          _isNewReply = false;
+          pages.appendMessage(handlePageID, msg: data);
         }, onError: (e) {
           debugPrint('SSE error: $e');
           pages.setPageGenerateStatus(handlePageID, false);
