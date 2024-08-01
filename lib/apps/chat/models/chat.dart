@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:gallery/apps/chat/models/data.dart';
 
@@ -15,7 +17,10 @@ class Chat with ChangeNotifier {
   List<Widget> messageBox = [];
   List<Map> _chatScheme = [];
   List<Map> _dbScheme = [];
-  final ValueNotifier<Message?> lastMessageNotifier = ValueNotifier(null);
+  // final ValueNotifier<Message?> lastMessageNotifier = ValueNotifier(null);
+  final StreamController<Message> _messageController =
+      StreamController<Message>.broadcast();
+  Stream<Message> get messageStream => _messageController.stream;
 
   String title;
   String _modelVersion = '';
@@ -69,7 +74,8 @@ class Chat with ChangeNotifier {
       var trNewMsg = newMsg.toMap(modelVersion);
       _chatScheme.add(trNewMsg["chat_scheme"]);
       _dbScheme.add(trNewMsg["db_scheme"]);
-      lastMessageNotifier.value = newMsg;
+      // lastMessageNotifier.value = newMsg;
+      _messageController.add(newMsg);
     } catch (e) {
       debugPrint("addMessage error:${e}");
     }
@@ -101,7 +107,8 @@ class Chat with ChangeNotifier {
     //messages[lastMsgID] is a reference, never change
     //so notifyListeners manually
     // lastMessageNotifier.value = messages[lastMsgID];
-    lastMessageNotifier.notifyListeners();
+    // lastMessageNotifier.notifyListeners();
+    _messageController.add(messages.last);
   }
 
   void updateMsg(int msgId, {Map<String, VisionFile>? vfiles}) {

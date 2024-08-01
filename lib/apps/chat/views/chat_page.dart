@@ -14,6 +14,14 @@ class ChatPage extends StatefulWidget {
 }
 
 class ChatPageState extends State<ChatPage> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -31,17 +39,18 @@ class ChatPageState extends State<ChatPage> {
         key: ValueKey(chat.id),
         controller: _scrollController,
         padding: const EdgeInsets.all(8.0),
+        itemCount: chat.messages.length,
         itemBuilder: (context, index) {
           bool isLast = index == chat.messages.length - 1;
-          // return chat.messageBox[index];
           return MessageBox(
-            key: UniqueKey(),
+            controller: _scrollController,
+            key: ValueKey(chat.messages[index].id),
             msg: chat.messages[index],
             isLast: isLast,
             pageId: pages.currentPageID,
+            messageStream: chat.messageStream,
           );
         },
-        itemCount: chat.messages.length,
       ),
     );
   }
