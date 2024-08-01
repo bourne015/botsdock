@@ -31,7 +31,6 @@ class MessageBox extends StatefulWidget {
 }
 
 class MessageBoxState extends State<MessageBox> {
-  static bool _hasCopyIcon = false;
   final ScrollController _attachmentscroll = ScrollController();
   final ScrollController _visionFilescroll = ScrollController();
   final assistant = AssistantsAPI();
@@ -137,47 +136,22 @@ class MessageBoxState extends State<MessageBox> {
         style: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
       );
     } else {
-      return MouseRegion(
-          onEnter: (_) => _setHovering(true),
-          onExit: (_) => _setHovering(false),
-          child: Container(
-            padding: const EdgeInsets.all(0),
-            margin: const EdgeInsets.all(0),
-            //color: Colors.grey[200],
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  contentMarkdown(context, msg),
-                  visibilityCopyButton(context, msg)
-                ]),
-          ));
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          contentMarkdown(context, msg),
+          IconButton(
+            tooltip: "Copy",
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: msg.content))
+                  .then((value) => showMessage(context, "Copied"));
+            },
+            icon: const Icon(Icons.copy, size: 15),
+          )
+        ],
+      );
     }
-  }
-
-  Widget visibilityCopyButton(BuildContext context, Message msg) {
-    return Visibility(
-        visible: _hasCopyIcon,
-        maintainSize: true,
-        maintainAnimation: true,
-        maintainState: true,
-        child: IconButton(
-          tooltip: "Copy",
-          onPressed: () {
-            Clipboard.setData(ClipboardData(text: msg.content))
-                .then((value) => showMessage(context, "Copied"));
-          },
-          icon: const Icon(
-            Icons.copy,
-            size: 15,
-          ),
-        ));
-  }
-
-  void _setHovering(bool hovering) {
-    setState(() {
-      _hasCopyIcon = hovering;
-    });
   }
 
   Widget contentMarkdown(BuildContext context, Message msg) {
