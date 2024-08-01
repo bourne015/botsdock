@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_markdown_selectionarea/flutter_markdown.dart';
 import 'package:flutter_markdown_latex/flutter_markdown_latex.dart';
 import 'package:gallery/apps/chat/models/data.dart';
 import 'package:markdown/markdown.dart' as md;
@@ -14,7 +14,6 @@ import '../models/user.dart';
 import '../utils/constants.dart';
 import '../utils/custom_widget.dart';
 import '../utils/markdown_extentions.dart';
-import '../utils/syntax_hightlighter.dart';
 import '../utils/utils.dart';
 import '../utils/assistants_api.dart';
 
@@ -182,13 +181,11 @@ class MessageBoxState extends State<MessageBox> {
   }
 
   Widget contentMarkdown(BuildContext context, Message msg) {
-    return MarkdownBody(
+    return SelectionArea(
+        child: MarkdownBody(
       data: msg.content, //markdownTest,
-      selectable: true,
-      syntaxHighlighter: Highlighter(),
       //extensionSet: MarkdownExtensionSet.githubFlavored.value,
       onTapLink: (text, href, title) => launchUrl(Uri.parse(href!)),
-      onSelectionChanged: (text, selection, cause) {},
       extensionSet: md.ExtensionSet(
         [
           ...md.ExtensionSet.gitHubFlavored.blockSyntaxes,
@@ -210,16 +207,21 @@ class MessageBoxState extends State<MessageBox> {
           color: AppColors.msgText,
           fontWeight: FontWeight.bold,
         ),
+        codeblockPadding: const EdgeInsets.all(10),
+        codeblockDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          // color: Colors.grey,
+        ),
       ),
       builders: {
-        'code': CodeBlockBuilder(context, Highlighter()),
-        'latex': LatexElementBuilder(
-            textStyle: const TextStyle(
-              fontWeight: FontWeight.w100,
-            ),
-            textScaleFactor: 1.2),
+        'code': CodeBlockBuilder(context),
+        // 'latex': LatexElementBuilder(
+        //     textStyle: const TextStyle(
+        //       fontWeight: FontWeight.w100,
+        //     ),
+        //     textScaleFactor: 1.2),
       },
-    );
+    ));
   }
 
   Future<void> handleDownload(
