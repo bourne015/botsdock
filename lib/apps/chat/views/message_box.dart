@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown_selectionarea/flutter_markdown.dart';
 import 'package:flutter_markdown_latex/flutter_markdown_latex.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:gallery/apps/chat/models/data.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:provider/provider.dart';
@@ -61,6 +62,15 @@ class MessageBoxState extends State<MessageBox> {
       return ValueListenableBuilder<Message?>(
         valueListenable: pages.getPage(widget.pageId).lastMessageNotifier,
         builder: (context, lastMsg, child) {
+          if (widget.msg.content.isEmpty &&
+              widget.msg.attachments.isEmpty &&
+              widget.msg.visionFiles.isEmpty)
+            return Container(
+                margin: const EdgeInsets.only(left: 10),
+                child: SpinKitThreeBounce(
+                  color: Color.fromARGB(255, 140, 198, 247),
+                  size: AppSize.generatingAnimation,
+                ));
           return message(context, lastMsg ?? widget.msg);
         },
       );
