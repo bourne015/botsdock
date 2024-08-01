@@ -38,21 +38,7 @@ class MessageBoxState extends State<MessageBox> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isLast) {
-      Pages pages = Provider.of<Pages>(context, listen: true);
-      return ValueListenableBuilder<Message?>(
-        valueListenable: pages.getPage(widget.pageId).lastMessageNotifier,
-        builder: (context, lastMsg, child) {
-          return _msgBox(context, lastMsg ?? widget.msg);
-        },
-      );
-    } else {
-      return _msgBox(context, widget.msg);
-    }
-  }
-
-  Widget _msgBox(BuildContext context, Message msg) {
-    return msg.role != MessageTRole.system
+    return widget.msg.role != MessageTRole.system
         ? Container(
             padding: isDisplayDesktop(context)
                 ? EdgeInsets.only(left: 80, right: 120)
@@ -62,12 +48,26 @@ class MessageBoxState extends State<MessageBox> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                roleIcon(context, msg),
-                message(context, msg),
+                roleIcon(context, widget.msg),
+                _msgBox(context)
               ],
             ),
           )
         : Container();
+  }
+
+  Widget _msgBox(BuildContext context) {
+    if (widget.isLast) {
+      Pages pages = Provider.of<Pages>(context, listen: true);
+      return ValueListenableBuilder<Message?>(
+        valueListenable: pages.getPage(widget.pageId).lastMessageNotifier,
+        builder: (context, lastMsg, child) {
+          return message(context, lastMsg ?? widget.msg);
+        },
+      );
+    } else {
+      return message(context, widget.msg);
+    }
   }
 
   Widget roleIcon(BuildContext context, Message msg) {
