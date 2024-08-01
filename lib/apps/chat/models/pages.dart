@@ -84,7 +84,6 @@ class Pages with ChangeNotifier {
   void appendMessage(int pageID, {String? msg, visionFiles, attachments}) {
     _pages[pageID]?.appendMessage(
         msg: msg, visionFiles: visionFiles, attachments: attachments);
-    notifyListeners();
   }
 
   List<Message>? getMessages(int pageID) => _pages[pageID]?.messages;

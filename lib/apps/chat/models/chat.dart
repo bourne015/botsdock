@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gallery/apps/chat/models/data.dart';
 
 import 'message.dart';
-import '../views/message_box.dart';
 
 //model of a chat page
-class Chat {
+class Chat with ChangeNotifier {
   int? id = -1;
   int _dbID = -1;
   int? _botID;
@@ -16,6 +15,7 @@ class Chat {
   List<Widget> messageBox = [];
   List<Map> _chatScheme = [];
   List<Map> _dbScheme = [];
+  final ValueNotifier<Message?> lastMessageNotifier = ValueNotifier(null);
 
   String title;
   String _modelVersion = '';
@@ -65,10 +65,11 @@ class Chat {
   void addMessage(Message newMsg) {
     try {
       messages.add(newMsg);
-      messageBox.insert(0, MessageBox(msg: newMsg));
+      // messageBox.add(MessageBox(msg: newMsg, key: ValueKey(newMsg.id)));
       var trNewMsg = newMsg.toMap(modelVersion);
       _chatScheme.add(trNewMsg["chat_scheme"]);
       _dbScheme.add(trNewMsg["db_scheme"]);
+      lastMessageNotifier.value = newMsg;
     } catch (e) {
       debugPrint("addMessage error:${e}");
     }
@@ -97,6 +98,10 @@ class Chat {
       });
     _chatScheme.last["content"] = messages[lastMsgID].content;
     _dbScheme.last["content"] = messages[lastMsgID].content;
+    //messages[lastMsgID] is a reference, never change
+    //so notifyListeners manually
+    // lastMessageNotifier.value = messages[lastMsgID];
+    lastMessageNotifier.notifyListeners();
   }
 
   void updateMsg(int msgId, {Map<String, VisionFile>? vfiles}) {

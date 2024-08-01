@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:image_downloader_web/image_downloader_web.dart';
 
 import '../models/message.dart';
+import '../models/pages.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
 import '../utils/custom_widget.dart';
@@ -19,8 +20,12 @@ import '../utils/assistants_api.dart';
 
 class MessageBox extends StatefulWidget {
   final Message msg;
+  final bool isLast;
+  final int pageId;
 
-  const MessageBox({Key? key, required this.msg}) : super(key: key);
+  MessageBox(
+      {Key? key, required this.msg, this.isLast = false, required this.pageId})
+      : super(key: ValueKey(msg.id));
 
   @override
   State createState() => MessageBoxState();
@@ -34,7 +39,21 @@ class MessageBoxState extends State<MessageBox> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.msg.role != MessageTRole.system
+    if (widget.isLast) {
+      Pages pages = Provider.of<Pages>(context, listen: true);
+      return ValueListenableBuilder<Message?>(
+        valueListenable: pages.getPage(widget.pageId).lastMessageNotifier,
+        builder: (context, lastMsg, child) {
+          return _msgBox(context, lastMsg ?? widget.msg);
+        },
+      );
+    } else {
+      return _msgBox(context, widget.msg);
+    }
+  }
+
+  Widget _msgBox(BuildContext context, Message msg) {
+    return msg.role != MessageTRole.system
         ? Container(
             padding: isDisplayDesktop(context)
                 ? EdgeInsets.only(left: 80, right: 120)
@@ -44,17 +63,17 @@ class MessageBoxState extends State<MessageBox> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                roleIcon(context),
-                message(context),
+                roleIcon(context, msg),
+                message(context, msg),
               ],
             ),
           )
         : Container();
   }
 
-  Widget roleIcon(BuildContext context) {
+  Widget roleIcon(BuildContext context, Message msg) {
     User user = Provider.of<User>(context);
-    if (widget.msg.role == MessageTRole.assistant)
+    if (msg.role == MessageTRole.assistant)
       return image_show(user.avatar_bot ?? defaultUserBotAvatar, 16);
     else
       return image_show(user.avatar!, 16);
@@ -71,36 +90,34 @@ class MessageBoxState extends State<MessageBox> {
     // );
   }
 
-  Widget message(BuildContext context) {
+  Widget message(BuildContext context, Message msg) {
     double bottom_v = 0;
-    if (widget.msg.role == MessageTRole.user) bottom_v = 20.0;
+    if (msg.role == MessageTRole.user) bottom_v = 20.0;
     return Flexible(
       child: Container(
         margin: EdgeInsets.only(left: 8, bottom: bottom_v),
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-            color: widget.msg.role == MessageTRole.user
+            color: msg.role == MessageTRole.user
                 ? AppColors.userMsgBox
                 : AppColors.aiMsgBox,
             borderRadius: const BorderRadius.all(Radius.circular(10))),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // messageRoleName(context),
-          if (widget.msg.visionFiles.isNotEmpty)
+          if (msg.visionFiles.isNotEmpty)
             Container(
-                height: 250,
-                child: visionFilesList(context, widget.msg.visionFiles)),
-          if (widget.msg.attachments.isNotEmpty)
+                height: 250, child: visionFilesList(context, msg.visionFiles)),
+          if (msg.attachments.isNotEmpty)
             Container(
-                height: 80,
-                child: attachmentList(context, widget.msg.attachments)),
-          messageContent(context)
+                height: 80, child: attachmentList(context, msg.attachments)),
+          messageContent(context, msg)
         ]),
       ),
     );
   }
 
-  Widget messageRoleName(BuildContext context) {
-    var name = widget.msg.role == MessageTRole.user ? "You" : "Assistant";
+  Widget messageRoleName(BuildContext context, Message msg) {
+    var name = msg.role == MessageTRole.user ? "You" : "Assistant";
 
     return Container(
         padding: const EdgeInsets.only(bottom: 10),
@@ -111,10 +128,10 @@ class MessageBoxState extends State<MessageBox> {
         )));
   }
 
-  Widget messageContent(BuildContext context) {
-    if (widget.msg.role == MessageTRole.user) {
+  Widget messageContent(BuildContext context, Message msg) {
+    if (msg.role == MessageTRole.user) {
       return SelectableText(
-        widget.msg.content,
+        msg.content,
         //overflow: TextOverflow.ellipsis,
         //showCursor: false,
         maxLines: null,
@@ -132,14 +149,14 @@ class MessageBoxState extends State<MessageBox> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  contentMarkdown(context),
-                  visibilityCopyButton(context)
+                  contentMarkdown(context, msg),
+                  visibilityCopyButton(context, msg)
                 ]),
           ));
     }
   }
 
-  Widget visibilityCopyButton(BuildContext context) {
+  Widget visibilityCopyButton(BuildContext context, Message msg) {
     return Visibility(
         visible: _hasCopyIcon,
         maintainSize: true,
@@ -148,7 +165,7 @@ class MessageBoxState extends State<MessageBox> {
         child: IconButton(
           tooltip: "Copy",
           onPressed: () {
-            Clipboard.setData(ClipboardData(text: widget.msg.content))
+            Clipboard.setData(ClipboardData(text: msg.content))
                 .then((value) => showMessage(context, "Copied"));
           },
           icon: const Icon(
@@ -164,9 +181,9 @@ class MessageBoxState extends State<MessageBox> {
     });
   }
 
-  Widget contentMarkdown(BuildContext context) {
+  Widget contentMarkdown(BuildContext context, Message msg) {
     return MarkdownBody(
-      data: widget.msg.content, //markdownTest,
+      data: msg.content, //markdownTest,
       selectable: true,
       syntaxHighlighter: Highlighter(),
       //extensionSet: MarkdownExtensionSet.githubFlavored.value,

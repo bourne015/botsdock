@@ -44,14 +44,18 @@ class MainLayoutState extends State<MainLayout> {
 
   Widget mobilLayout(BuildContext context) {
     Property property = Provider.of<Property>(context);
-    return Scaffold(
-      backgroundColor: AppColors.chatPageBackground,
-      appBar: const MyAppBar(),
-      drawer: const ChatDrawer(
-        drawersize: drawerWidth,
-      ),
-      body: property.onInitPage ? InitPage() : const ChatPage(),
-    );
+    return Selector<Pages, int>(
+        selector: (_, pages) => pages.currentPageID,
+        builder: (context, currentPid, child) {
+          return Scaffold(
+            backgroundColor: AppColors.chatPageBackground,
+            appBar: const MyAppBar(),
+            drawer: const ChatDrawer(
+              drawersize: drawerWidth,
+            ),
+            body: property.onInitPage ? InitPage() : ChatPage(),
+          );
+        });
   }
 
   Widget customDrawerButton(BuildContext context) {
@@ -112,33 +116,40 @@ class MainLayoutState extends State<MainLayout> {
   }
 
   Widget desktopChatPage(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
-    return NestedScrollView(
-      floatHeaderSlivers: true,
-      scrollDirection: Axis.vertical,
-      physics: isDisplayDesktop(context)
-          ? NeverScrollableScrollPhysics()
-          : BouncingScrollPhysics(),
-      headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-        return <Widget>[
-          SliverAppBar(
-            title: Text(
-              pages.currentPage!.modelVersion,
-              style: const TextStyle(fontSize: 16, color: AppColors.appBarText),
+    Pages pages = Provider.of<Pages>(context, listen: false);
+    return Selector<Pages, int>(
+        selector: (_, pages) => pages.currentPageID,
+        builder: (context, currentPid, child) {
+          return NestedScrollView(
+            floatHeaderSlivers: true,
+            scrollDirection: Axis.vertical,
+            physics: isDisplayDesktop(context)
+                ? NeverScrollableScrollPhysics()
+                : BouncingScrollPhysics(),
+            headerSliverBuilder:
+                (BuildContext context, bool innerBoxIsScrolled) {
+              return <Widget>[
+                SliverAppBar(
+                  title: Text(
+                    // pages.currentPage!.modelVersion,
+                    pages.getPage(currentPid).modelVersion,
+                    style: const TextStyle(
+                        fontSize: 16, color: AppColors.appBarText),
+                  ),
+                  pinned: false,
+                  floating: true,
+                  snap: true,
+                  //stretch: true,
+                  backgroundColor: AppColors.appBarBackground,
+                ),
+              ];
+            },
+            body: Row(
+              children: <Widget>[
+                Expanded(flex: 8, child: ChatPage()),
+              ],
             ),
-            pinned: false,
-            floating: true,
-            snap: true,
-            //stretch: true,
-            backgroundColor: AppColors.appBarBackground,
-          ),
-        ];
-      },
-      body: const Row(
-        children: <Widget>[
-          Expanded(flex: 8, child: ChatPage()),
-        ],
-      ),
-    );
+          );
+        });
   }
 }
