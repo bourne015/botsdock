@@ -250,7 +250,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Widget generatingAnimation(BuildContext context) {
     return Container(
         margin: const EdgeInsets.only(right: 7),
-        child: const SpinKitSpinningLines(
+        child: const SpinKitDoubleBounce(
           color: AppColors.generatingAnimation,
           size: AppSize.generatingAnimation,
         ));
