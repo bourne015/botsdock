@@ -232,11 +232,11 @@ class MessageBoxState extends State<MessageBox> {
             ),
             builders: {
               'code': CodeBlockBuilder(context),
-              // 'latex': LatexElementBuilder(
-              //     textStyle: const TextStyle(
-              //       fontWeight: FontWeight.w100,
-              //     ),
-              //     textScaleFactor: 1.2),
+              'latex': LatexElementBuilder(
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.w100,
+                  ),
+                  textScaleFactor: 1.2),
             },
           ));
     } catch (e, stackTrace) {
