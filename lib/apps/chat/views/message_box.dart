@@ -21,7 +21,6 @@ class MessageBox extends StatefulWidget {
   final Message msg;
   final bool isLast;
   final int pageId;
-  final ScrollController? controller;
   final Stream<Message> messageStream;
 
   MessageBox({
@@ -29,7 +28,6 @@ class MessageBox extends StatefulWidget {
     required this.msg,
     this.isLast = false,
     required this.pageId,
-    this.controller,
     required this.messageStream,
   }) : super(key: ValueKey(msg.id));
 
@@ -41,38 +39,6 @@ class MessageBoxState extends State<MessageBox> {
   final ScrollController _attachmentscroll = ScrollController();
   final ScrollController _visionFilescroll = ScrollController();
   final assistant = AssistantsAPI();
-  bool _isNearBottom = true;
-
-  @override
-  void initState() {
-    super.initState();
-    widget.controller!.addListener(_scrollListener);
-  }
-
-  @override
-  void dispose() {
-    widget.controller!.removeListener(_scrollListener);
-    super.dispose();
-  }
-
-  void _scrollListener() {
-    if (widget.controller!.offset >=
-            widget.controller!.position.maxScrollExtent - 100 &&
-        !widget.controller!.position.outOfRange) {
-      _isNearBottom = true;
-    } else {
-      _isNearBottom = false;
-    }
-  }
-
-  void _scrollToBottom() {
-    widget.controller!.animateTo(
-      widget.controller!.position.maxScrollExtent,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
-    // widget.controller!.jumpTo(widget.controller!.position.maxScrollExtent);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,16 +65,10 @@ class MessageBoxState extends State<MessageBox> {
       stream: widget.messageStream.where((msg) => msg.id == widget.msg.id),
       initialData: widget.msg,
       builder: (context, snapshot) {
-        if (widget.controller!.hasClients && _isNearBottom) {
-          WidgetsBinding.instance
-              .addPostFrameCallback((_) => _scrollToBottom());
-        }
         if (widget.isLast &&
             widget.msg.content.isEmpty &&
             widget.msg.attachments.isEmpty &&
             widget.msg.visionFiles.isEmpty) {
-          // WidgetsBinding.instance
-          //     .addPostFrameCallback((_) => _scrollToBottom());
           return Container(
               margin: const EdgeInsets.only(left: 10),
               child: SpinKitThreeBounce(

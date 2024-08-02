@@ -14,14 +14,6 @@ class ChatPage extends StatefulWidget {
 }
 
 class ChatPageState extends State<ChatPage> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -37,15 +29,15 @@ class ChatPageState extends State<ChatPage> {
     return Flexible(
       child: ListView.builder(
         key: ValueKey(chat.id),
-        controller: _scrollController,
+        reverse: true,
         padding: const EdgeInsets.all(8.0),
         itemCount: chat.messages.length,
         itemBuilder: (context, index) {
-          bool isLast = index == chat.messages.length - 1;
+          bool isLast = index == 0;
+          var reIndex = chat.messages.length - 1 - index;
           return MessageBox(
-            controller: _scrollController,
             key: ValueKey(chat.messages[index].id),
-            msg: chat.messages[index],
+            msg: chat.messages[reIndex],
             isLast: isLast,
             pageId: pages.currentPageID,
             messageStream: chat.messageStream,
