@@ -68,7 +68,7 @@ class MessageBoxState extends State<MessageBox> {
   void _scrollToBottom() {
     widget.controller!.animateTo(
       widget.controller!.position.maxScrollExtent,
-      duration: Duration(milliseconds: 400),
+      duration: Duration(milliseconds: 300),
       curve: Curves.easeOut,
     );
     // widget.controller!.jumpTo(widget.controller!.position.maxScrollExtent);
@@ -103,7 +103,8 @@ class MessageBoxState extends State<MessageBox> {
           WidgetsBinding.instance
               .addPostFrameCallback((_) => _scrollToBottom());
         }
-        if (widget.msg.content.isEmpty &&
+        if (widget.isLast &&
+            widget.msg.content.isEmpty &&
             widget.msg.attachments.isEmpty &&
             widget.msg.visionFiles.isEmpty) {
           // WidgetsBinding.instance
@@ -168,6 +169,7 @@ class MessageBoxState extends State<MessageBox> {
     double bottom_v = 0;
     if (msg.role == MessageTRole.user) bottom_v = 20.0;
     return Flexible(
+      key: UniqueKey(),
       child: Container(
         margin: EdgeInsets.only(left: 8, bottom: bottom_v),
         padding: EdgeInsets.all(10),
@@ -232,48 +234,51 @@ class MessageBoxState extends State<MessageBox> {
 
   Widget contentMarkdown(BuildContext context, Message msg) {
     try {
-      return MarkdownBody(
-        data: msg.content, //markdownTest,
-        selectable: true,
-        shrinkWrap: true,
-        //extensionSet: MarkdownExtensionSet.githubFlavored.value,
-        onTapLink: (text, href, title) => launchUrl(Uri.parse(href!)),
-        extensionSet: md.ExtensionSet(
-          [
-            ...md.ExtensionSet.gitHubFlavored.blockSyntaxes,
-            ...[LatexBlockSyntax()],
-          ],
-          <md.InlineSyntax>[
-            md.EmojiSyntax(),
-            ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes,
-            ...[LatexInlineSyntax()],
-          ],
-        ),
-        styleSheetTheme: MarkdownStyleSheetBaseTheme.platform,
-        styleSheet: MarkdownStyleSheet(
-          //h1: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          //h2: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          p: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
-          code: const TextStyle(
-            inherit: false,
-            color: AppColors.msgText,
-            fontWeight: FontWeight.bold,
-          ),
-          codeblockPadding: const EdgeInsets.all(10),
-          codeblockDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            // color: Colors.grey,
-          ),
-        ),
-        builders: {
-          'code': CodeBlockBuilder(context),
-          // 'latex': LatexElementBuilder(
-          //     textStyle: const TextStyle(
-          //       fontWeight: FontWeight.w100,
-          //     ),
-          //     textScaleFactor: 1.2),
-        },
-      );
+      return SelectionArea(
+          key: UniqueKey(),
+          child: MarkdownBody(
+            key: UniqueKey(),
+            data: msg.content, //markdownTest,
+            // selectable: true,
+            shrinkWrap: true,
+            //extensionSet: MarkdownExtensionSet.githubFlavored.value,
+            onTapLink: (text, href, title) => launchUrl(Uri.parse(href!)),
+            extensionSet: md.ExtensionSet(
+              [
+                ...md.ExtensionSet.gitHubFlavored.blockSyntaxes,
+                ...[LatexBlockSyntax()],
+              ],
+              <md.InlineSyntax>[
+                md.EmojiSyntax(),
+                ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes,
+                ...[LatexInlineSyntax()],
+              ],
+            ),
+            styleSheetTheme: MarkdownStyleSheetBaseTheme.platform,
+            styleSheet: MarkdownStyleSheet(
+              //h1: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              //h2: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              p: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
+              code: const TextStyle(
+                inherit: false,
+                color: AppColors.msgText,
+                fontWeight: FontWeight.bold,
+              ),
+              codeblockPadding: const EdgeInsets.all(10),
+              codeblockDecoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                // color: Colors.grey,
+              ),
+            ),
+            builders: {
+              'code': CodeBlockBuilder(context),
+              // 'latex': LatexElementBuilder(
+              //     textStyle: const TextStyle(
+              //       fontWeight: FontWeight.w100,
+              //     ),
+              //     textScaleFactor: 1.2),
+            },
+          ));
     } catch (e, stackTrace) {
       print("markdown error: $e");
       print("markdown error1: $stackTrace");
