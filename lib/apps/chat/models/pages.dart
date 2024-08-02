@@ -14,7 +14,11 @@ class Pages with ChangeNotifier {
   final Map<int, Chat> _pages = {};
   List<int> _pagesID = [];
   int _currentPageID = -1;
-  var dio = Dio();
+  late final Dio _dio;
+
+  Pages() {
+    _dio = Dio();
+  }
 
   set currentPageID(int cid) {
     _currentPageID = cid;
@@ -148,16 +152,20 @@ class Pages with ChangeNotifier {
 
   Future<void> fetch_pages(user_id) async {
     var chatdbUrl = userUrl + "/" + "${user_id}" + "/chats";
-    Response cres = await dio.post(chatdbUrl);
-    if (cres.data["result"] == "success") {
-      for (var c in cres.data["chats"]) {
-        //user dbID to recovery pageID,
-        //incase no user log, c["contents"][0]["pageID"] == currentPageID
-        var pid = restore_single_page(c);
-        Global.saveChats(pid, jsonEncode(c), 0);
-        //pid += 1;
+    try {
+      Response cres = await _dio.post(chatdbUrl);
+      if (cres.data["result"] == "success") {
+        for (var c in cres.data["chats"]) {
+          //user dbID to recovery pageID,
+          //incase no user log, c["contents"][0]["pageID"] == currentPageID
+          var pid = restore_single_page(c);
+          Global.saveChats(pid, jsonEncode(c), 0);
+          //pid += 1;
+        }
+        // sortPages();
       }
-      // sortPages();
+    } catch (e) {
+      print('Error fetching pages: $e');
     }
   }
 
