@@ -109,11 +109,8 @@ class MainLayoutState extends State<MainLayout> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-              child: property.onInitPage
-                  ? InitPage()
-                  : Expanded(
-                      child: MessageListView(),
-                    )),
+            child: property.onInitPage ? InitPage() : MessageListView(),
+          ),
           ChatInputField(),
         ]);
   }

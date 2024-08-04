@@ -44,8 +44,7 @@ class MessageListViewState extends State<MessageListView> {
     Chat chat = pages.currentPage!;
 
     _messageLength = chat.messages.length;
-    return Center(
-        child: Stack(alignment: Alignment.center, children: [
+    return Stack(alignment: Alignment.center, children: [
       LazyLoadScrollView(
           scrollOffset: 10,
           onPageScrollStart: () {},
@@ -94,7 +93,7 @@ class MessageListViewState extends State<MessageListView> {
           return const Offstage();
         },
       ),
-    ]));
+    ]);
   }
 
   Widget _buildScrollToBottom(BuildContext context) {
