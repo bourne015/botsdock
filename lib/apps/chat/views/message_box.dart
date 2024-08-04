@@ -43,20 +43,24 @@ class MessageBoxState extends State<MessageBox> {
   @override
   Widget build(BuildContext context) {
     return widget.msg.role != MessageTRole.system
-        ? Container(
-            padding: isDisplayDesktop(context)
-                ? EdgeInsets.only(left: 80, right: 120)
-                : null,
-            margin: const EdgeInsets.symmetric(vertical: 1.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                roleIcon(context, widget.msg),
-                _msgBox(context)
-              ],
-            ),
-          )
+        ? AnimatedSize(
+            duration: Duration(milliseconds: 900),
+            curve: Curves.easeOut,
+            alignment: Alignment.topCenter,
+            child: Container(
+              padding: isDisplayDesktop(context)
+                  ? EdgeInsets.only(left: 80, right: 120)
+                  : EdgeInsets.only(left: 10, right: 10),
+              margin: const EdgeInsets.symmetric(vertical: 1.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  roleIcon(context, widget.msg),
+                  _msgBox(context)
+                ],
+              ),
+            ))
         : Container();
   }
 
