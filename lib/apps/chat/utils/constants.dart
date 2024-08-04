@@ -153,7 +153,7 @@ const supportedFilesAll = [
   ...supportedFiles_cp
 ];
 
-const double drawerWidth = 260;
+const double DRAWERWIDTH = 260;
 
 const String baseurl = "https://botsdock.com:8443";
 const String sseChatUrl = "${baseurl}/v1/stream/chat";
