@@ -107,28 +107,41 @@ class Pages with ChangeNotifier {
     _pagesID = entries.map((e) => e.key).toList();
   }
 
-  void groupByDate(groupedPages) {
-    var today = DateTime.now();
-    int dayDiff = 0;
-
-    for (int pid in _pagesID) {
-      var _date = "";
-      var _page = getPage(pid);
-      var _chat_day =
+  List<dynamic> flattenPages() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final threeDaysAgo = today.subtract(const Duration(days: 3));
+    final sevenDaysAgo = today.subtract(const Duration(days: 7));
+    final _groups = [
+      PageGroup(label: '今天', date: today),
+      PageGroup(label: '昨天', date: yesterday),
+      PageGroup(label: '三天前', date: threeDaysAgo),
+      PageGroup(label: '七天前', date: sevenDaysAgo),
+    ];
+    final flattenedList = <dynamic>[];
+    for (final _pid in _pagesID) {
+      var _page = getPage(_pid);
+      final pageDate =
           DateTime.fromMillisecondsSinceEpoch(_page.updated_at * 1000);
-      dayDiff = today.difference(_chat_day).inDays.abs();
+      int dayDiff = today.difference(pageDate).inDays.abs();
       if (dayDiff == 0)
-        _date = "今天";
+        _groups[0].pages.add(_page);
       else if (dayDiff == 1)
-        _date = "昨天";
+        _groups[1].pages.add(_page);
       else if (dayDiff >= 2 && dayDiff <= 7)
-        _date = "三天前";
+        _groups[2].pages.add(_page);
       else
-        _date = "一周前";
-
-      if (!groupedPages.containsKey(_date)) groupedPages[_date] = [];
-      groupedPages[_date].add(_page);
+        _groups[3].pages.add(_page);
     }
+    for (var _group in _groups) {
+      if (_group.pages.isNotEmpty) {
+        flattenedList.add(_group.label);
+        flattenedList.addAll(_group.pages);
+      }
+    }
+
+    return flattenedList;
   }
 
   /**
@@ -268,4 +281,15 @@ class Property with ChangeNotifier {
     _onInitPage = true;
     _isLoading = true;
   }
+}
+
+class PageGroup {
+  final String label;
+  final DateTime? date;
+  final List<Chat> pages = [];
+
+  PageGroup({required this.label, this.date});
+
+  // String get dateLabel => '$label (${DateFormat('MM-dd').format(date)})';
+  String get dateLabel => '$label';
 }
