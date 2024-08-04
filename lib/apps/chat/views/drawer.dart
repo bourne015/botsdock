@@ -44,7 +44,7 @@ class ChatDrawerState extends State<ChatDrawer> {
               botsCentre(context),
             ]),
           ),
-          chatPageTabList(context),
+          ChatPageList(),
           Material(
             color: AppColors.drawerBackground,
             child: Column(children: [
@@ -136,45 +136,56 @@ class ChatDrawerState extends State<ChatDrawer> {
       ),
     );
   }
+}
 
-  Widget chatPageTabList(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
-    Property property = Provider.of<Property>(context);
-    Map<String, List> _groupedPages = {};
-    pages.groupByDate(_groupedPages);
-    List<String> dateKeys = _groupedPages.keys.toList();
+class ChatPageList extends StatefulWidget {
+  const ChatPageList({Key? key}) : super(key: key);
+
+  @override
+  _ChatPageListState createState() => _ChatPageListState();
+}
+
+class _ChatPageListState extends State<ChatPageList> {
+  @override
+  Widget build(BuildContext context) {
+    final pages = Provider.of<Pages>(context);
+    final property = Provider.of<Property>(context);
+
+    List _flattenedItems = pages.flattenPages();
+
     return Expanded(
       child: ListView.builder(
-          shrinkWrap: false,
-          itemCount: dateKeys.length,
-          itemBuilder: (context, index) {
-            return Container(
-                margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                child: Theme(
-                    data: Theme.of(context)
-                        .copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                        enabled: false,
-                        dense: true,
-                        initiallyExpanded: true,
-                        tilePadding: EdgeInsets.symmetric(horizontal: 10),
-                        trailing: Container(width: 0),
-                        title: RichText(
-                          text: TextSpan(
-                              text: dateKeys[index],
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(255, 163, 162, 162),
-                              )),
-                        ),
-                        children: _groupedPages[dateKeys[index]]!.map((page) {
-                          return ChatPageTab(
-                              context: context,
-                              pages: pages,
-                              page: page,
-                              property: property);
-                        }).toList())));
-          }),
+        itemExtent: 40,
+        itemCount: _flattenedItems.length,
+        itemBuilder: (context, index) {
+          final item = _flattenedItems[index];
+          if (item is String) {
+            return _buildDateHeader(context, item);
+          } else if (item is Chat) {
+            return ChatPageTab(
+              key: ValueKey(item.id),
+              context: context,
+              pages: pages,
+              page: item,
+              property: property,
+            );
+          }
+          return Container();
+        },
+      ),
+    );
+  }
+
+  Widget _buildDateHeader(BuildContext context, String dateLabel) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
+      child: Text(
+        dateLabel,
+        style: const TextStyle(
+          fontSize: 14,
+          color: Color.fromARGB(255, 163, 162, 162),
+        ),
+      ),
     );
   }
 }
@@ -187,10 +198,12 @@ class ChatPageTab extends StatefulWidget {
   final assistant = AssistantsAPI();
 
   ChatPageTab(
-      {required this.context,
+      {Key? key,
+      required this.context,
       required this.pages,
       required this.page,
-      required this.property});
+      required this.property})
+      : super(key: key);
 
   @override
   _ChatPageTabState createState() => _ChatPageTabState();
@@ -204,51 +217,53 @@ class _ChatPageTabState extends State<ChatPageTab> {
   Widget build(BuildContext context) {
     var bot_id = widget.page.botID;
     return MouseRegion(
-      onEnter: (event) {
-        setState(() {
-          isHovered = true;
-        });
-      },
-      onExit: (event) {
-        setState(() {
-          isHovered = false;
-        });
-      },
-      child: ListTile(
-        dense: true,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        selectedTileColor: AppColors.drawerTabSelected,
-        selected: widget.pages.currentPageID == widget.page.id,
-        leading: bot_id != null
-            ? Icon(
-                Icons.deblur,
-                size: 15,
-              )
-            : null,
-        minLeadingWidth: 0,
-        contentPadding: const EdgeInsets.fromLTRB(10, 0, 3, 0),
-        title: RichText(
-            text: TextSpan(
-              text: widget.page.title,
-              style: TextStyle(fontSize: 14.5, color: AppColors.msgText),
-            ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1),
-        onTap: () {
-          widget.pages.currentPageID = widget.page.id!;
-          widget.property.onInitPage = false;
-          if (!isDisplayDesktop(context)) Navigator.pop(context);
+        onEnter: (event) {
+          setState(() {
+            isHovered = true;
+          });
         },
-        //always keep chat 0
-        trailing: widget.pages.pagesLen > 1 &&
-                (widget.pages.currentPageID == widget.page.id || isHovered)
-            ? delChattabButton(
-                context, widget.pages, widget.page.id!, widget.property)
-            : null,
-      ),
-    );
+        onExit: (event) {
+          setState(() {
+            isHovered = false;
+          });
+        },
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          child: ListTile(
+            dense: true,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            selectedTileColor: AppColors.drawerTabSelected,
+            selected: widget.pages.currentPageID == widget.page.id,
+            leading: bot_id != null
+                ? Icon(
+                    Icons.deblur,
+                    size: 15,
+                  )
+                : null,
+            minLeadingWidth: 0,
+            contentPadding: const EdgeInsets.fromLTRB(10, 0, 3, 0),
+            title: RichText(
+                text: TextSpan(
+                  text: widget.page.title,
+                  style: TextStyle(fontSize: 14.5, color: AppColors.msgText),
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1),
+            onTap: () {
+              widget.pages.currentPageID = widget.page.id!;
+              widget.property.onInitPage = false;
+              if (!isDisplayDesktop(context)) Navigator.pop(context);
+            },
+            //always keep chat 0
+            trailing: widget.pages.pagesLen > 1 &&
+                    (widget.pages.currentPageID == widget.page.id || isHovered)
+                ? delChattabButton(
+                    context, widget.pages, widget.page.id!, widget.property)
+                : null,
+          ),
+        ));
   }
 
   Widget delChattabButton(
