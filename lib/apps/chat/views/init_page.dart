@@ -12,7 +12,6 @@ import '../models/pages.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
 import '../utils/custom_widget.dart';
-import './input_field.dart';
 import '../utils/utils.dart';
 
 class InitPage extends StatefulWidget {
@@ -130,26 +129,22 @@ class InitPageState extends State<InitPage>
         builder: (BuildContext context, BoxConstraints constraints) {
       return Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          mainAxisSize: MainAxisSize.max,
+          // mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             modelSelectButton(context),
             Align(
-                alignment: Alignment.center,
-                child: Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-                    Text(
-                      "Chat",
-                      style: TextStyle(
-                          color: AppColors.initPageBackgroundText,
-                          fontSize: 55.0,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                )),
+              alignment: Alignment.center,
+              child: Text(
+                "Chat",
+                style: TextStyle(
+                    color: AppColors.initPageBackgroundText,
+                    fontSize: 55.0,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
             if (isDisplayDesktop(context) && constraints.maxHeight > 350)
               Align(
-                  alignment: Alignment.center,
+                  alignment: Alignment.bottomCenter,
                   child: Wrap(
                     alignment: WrapAlignment.center,
                     children: [
@@ -184,9 +179,7 @@ class InitPageState extends State<InitPage>
                       ),
                     ],
                   )),
-            Align(
-                alignment: Alignment.bottomCenter,
-                child: const ChatInputField()),
+            Container(),
           ]);
     });
   }

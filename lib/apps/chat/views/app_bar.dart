@@ -20,16 +20,19 @@ class MyAppBarState extends State<MyAppBar> {
     Property property = Provider.of<Property>(context);
     return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
       AppBar(
-        leading: appbarLeading(context, property),
+        leading: !isDisplayDesktop(context)
+            ? appbarLeading(context, property)
+            : null,
         title: appbarTitle(context),
-        backgroundColor: AppColors.appBarBackground,
+        backgroundColor: AppColors.chatPageBackground,
+        surfaceTintColor: AppColors.chatPageBackground,
         toolbarHeight: 44,
       ),
-      Divider(
-        height: 1.0,
-        thickness: 1.0,
-        color: AppColors.drawerDivider,
-      ),
+      // Divider(
+      //   height: 1.0,
+      //   thickness: 1.0,
+      //   color: AppColors.drawerDivider,
+      // ),
     ]);
   }
 
