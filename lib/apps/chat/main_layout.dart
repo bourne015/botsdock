@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import 'views/message_list_view.dart';
 import './utils/utils.dart';
@@ -19,8 +18,6 @@ class MainLayout extends StatefulWidget {
 }
 
 class MainLayoutState extends State<MainLayout> {
-  var _drawerButton = Icons.more_vert_rounded;
-  double _drawerWidth = drawerWidth;
   late Duration _drawerAnimationDuration;
 
   @override
@@ -38,37 +35,9 @@ class MainLayoutState extends State<MainLayout> {
     return Scaffold(
       backgroundColor: AppColors.chatPageBackground,
       appBar: const MyAppBar(),
-      drawer: const ChatDrawer(drawersize: drawerWidth),
+      drawer: const ChatDrawer(drawersize: DRAWERWIDTH),
       body: _buildMainPageBody(context),
     );
-  }
-
-  Widget customDrawerButton(BuildContext context) {
-    Property property = Provider.of<Property>(context);
-    return MouseRegion(
-        onEnter: (_) => {
-              setState(() {
-                _drawerButton = Icons.chevron_left_rounded;
-              })
-            },
-        onExit: (_) => {
-              setState(() {
-                _drawerButton = Icons.more_vert_rounded;
-              })
-            },
-        child: IconButton(
-            iconSize: 18,
-            visualDensity: VisualDensity.compact,
-            icon: Icon(property.isDrawerOpen
-                ? _drawerButton
-                : Icons.chevron_right_rounded),
-            tooltip: property.isDrawerOpen
-                ? GalleryLocalizations.of(context)!.closeDrawerTooltip
-                : GalleryLocalizations.of(context)!.openDrawerTooltip,
-            onPressed: () {
-              property.isDrawerOpen = !property.isDrawerOpen;
-              _drawerWidth = property.isDrawerOpen ? drawerWidth : 0;
-            }));
   }
 
   Widget desktopLayout(BuildContext context) {
@@ -77,7 +46,7 @@ class MainLayoutState extends State<MainLayout> {
       _drawerAnimationDuration = Duration(milliseconds: 1150);
     else
       _drawerAnimationDuration = Duration(milliseconds: 270);
-    //print("desktopLayout");
+
     return Row(
       children: <Widget>[
         AnimatedSize(
@@ -85,13 +54,18 @@ class MainLayoutState extends State<MainLayout> {
           duration: _drawerAnimationDuration,
           alignment: Alignment.topRight,
           child: property.isDrawerOpen
-              ? ChatDrawer(drawersize: _drawerWidth)
+              ? ChatDrawer(drawersize: DRAWERWIDTH)
               : Container(),
         ),
         Container(
             alignment: Alignment.center,
             color: AppColors.chatPageBackground,
-            child: customDrawerButton(context)),
+            child: CustomDrawerButton(
+              isOpen: property.isDrawerOpen,
+              onPressed: () {
+                property.isDrawerOpen = !property.isDrawerOpen;
+              },
+            )),
         Expanded(
             child: Scaffold(
           backgroundColor: AppColors.chatPageBackground,
@@ -113,5 +87,32 @@ class MainLayoutState extends State<MainLayout> {
           ),
           ChatInputField(),
         ]);
+  }
+}
+
+class CustomDrawerButton extends StatelessWidget {
+  final bool isOpen;
+  final VoidCallback onPressed;
+  final ValueNotifier<IconData> _iconNotifier =
+      ValueNotifier(Icons.more_vert_rounded);
+
+  CustomDrawerButton({Key? key, required this.isOpen, required this.onPressed})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => _iconNotifier.value = Icons.chevron_left_rounded,
+      onExit: (_) => _iconNotifier.value = Icons.more_vert_rounded,
+      child: ValueListenableBuilder<IconData>(
+        valueListenable: _iconNotifier,
+        builder: (context, icon, child) {
+          return IconButton(
+            icon: Icon(isOpen ? icon : Icons.chevron_right_rounded),
+            onPressed: onPressed,
+          );
+        },
+      ),
+    );
   }
 }
