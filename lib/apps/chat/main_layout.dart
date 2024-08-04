@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
-import './views/chat_page.dart';
+import 'views/message_list_view.dart';
 import './utils/utils.dart';
 import './utils/constants.dart';
 import './views/app_bar.dart';
 import './views/drawer.dart';
 import './models/pages.dart';
 import './views/init_page.dart';
+import 'views/input_field.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -21,41 +22,25 @@ class MainLayoutState extends State<MainLayout> {
   var _drawerButton = Icons.more_vert_rounded;
   double _drawerWidth = drawerWidth;
   late Duration _drawerAnimationDuration;
-  //bool _isDrawerVisible = false;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   // WidgetsBinding.instance.addPostFrameCallback((_) => _toggleDrawer());
-  // }
-
-  // void _toggleDrawer() {
-  //   setState(() {
-  //     _isDrawerVisible = !_isDrawerVisible;
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
     // print("MainLayoutState");
-    if (isDisplayDesktop(context)) return desktopLayout(context);
-    return mobilLayout(context);
-  }
-
-  Widget mobilLayout(BuildContext context) {
-    Property property = Provider.of<Property>(context);
     return Selector<Pages, int>(
         selector: (_, pages) => pages.currentPageID,
         builder: (context, currentPid, child) {
-          return Scaffold(
-            backgroundColor: AppColors.chatPageBackground,
-            appBar: const MyAppBar(),
-            drawer: const ChatDrawer(
-              drawersize: drawerWidth,
-            ),
-            body: property.onInitPage ? InitPage() : ChatPage(),
-          );
+          if (isDisplayDesktop(context)) return desktopLayout(context);
+          return mobilLayout(context);
         });
+  }
+
+  Widget mobilLayout(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.chatPageBackground,
+      appBar: const MyAppBar(),
+      drawer: const ChatDrawer(drawersize: drawerWidth),
+      body: _buildMainPageBody(context),
+    );
   }
 
   Widget customDrawerButton(BuildContext context) {
@@ -93,63 +78,43 @@ class MainLayoutState extends State<MainLayout> {
     else
       _drawerAnimationDuration = Duration(milliseconds: 270);
     //print("desktopLayout");
-    return Row(children: <Widget>[
-      AnimatedSize(
-        curve: property.isDrawerOpen ? Curves.linear : Curves.ease, //out: in
-        duration: _drawerAnimationDuration,
-        alignment: Alignment.topRight,
-        child: property.isDrawerOpen
-            ? ChatDrawer(drawersize: _drawerWidth)
-            : Container(),
-      ),
-      Container(
-          alignment: Alignment.center,
-          color: AppColors.chatPageBackground,
-          child: customDrawerButton(context)),
-      Expanded(
-          child: Scaffold(
-        backgroundColor: AppColors.chatPageBackground,
-        //appBar: const MyAppBar(),
-        body: property.onInitPage ? InitPage() : desktopChatPage(context),
-      ))
-    ]);
+    return Row(
+      children: <Widget>[
+        AnimatedSize(
+          curve: property.isDrawerOpen ? Curves.linear : Curves.ease, //out: in
+          duration: _drawerAnimationDuration,
+          alignment: Alignment.topRight,
+          child: property.isDrawerOpen
+              ? ChatDrawer(drawersize: _drawerWidth)
+              : Container(),
+        ),
+        Container(
+            alignment: Alignment.center,
+            color: AppColors.chatPageBackground,
+            child: customDrawerButton(context)),
+        Expanded(
+            child: Scaffold(
+          backgroundColor: AppColors.chatPageBackground,
+          appBar: !property.onInitPage ? MyAppBar() : null,
+          body: _buildMainPageBody(context),
+        ))
+      ],
+    );
   }
 
-  Widget desktopChatPage(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context, listen: false);
-    return Selector<Pages, int>(
-        selector: (_, pages) => pages.currentPageID,
-        builder: (context, currentPid, child) {
-          return NestedScrollView(
-            floatHeaderSlivers: true,
-            scrollDirection: Axis.vertical,
-            physics: isDisplayDesktop(context)
-                ? NeverScrollableScrollPhysics()
-                : BouncingScrollPhysics(),
-            headerSliverBuilder:
-                (BuildContext context, bool innerBoxIsScrolled) {
-              return <Widget>[
-                SliverAppBar(
-                  title: Text(
-                    // pages.currentPage!.modelVersion,
-                    pages.getPage(currentPid).modelVersion,
-                    style: const TextStyle(
-                        fontSize: 16, color: AppColors.appBarText),
-                  ),
-                  pinned: false,
-                  floating: true,
-                  snap: true,
-                  //stretch: true,
-                  backgroundColor: AppColors.appBarBackground,
-                ),
-              ];
-            },
-            body: Row(
-              children: <Widget>[
-                Expanded(flex: 8, child: ChatPage()),
-              ],
-            ),
-          );
-        });
+  Widget _buildMainPageBody(BuildContext context) {
+    Property property = Provider.of<Property>(context);
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+              child: property.onInitPage
+                  ? InitPage()
+                  : Expanded(
+                      child: MessageListView(),
+                    )),
+          ChatInputField(),
+        ]);
   }
 }
