@@ -42,24 +42,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   @override
   Widget build(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context, listen: false);
-    Property property = Provider.of<Property>(context);
     User user = Provider.of<User>(context);
-    var _modelV;
-    if (property.onInitPage)
-      _modelV = property.initModelVersion;
-    else
-      _modelV = pages.currentPage?.modelVersion;
-    var _picButtonIcon = Icons.image_rounded;
-    var _picButtonTip = "选择图片";
-    if (property.onInitPage && _modelV.startsWith("gpt")) {
-      _picButtonIcon = Icons.attachment;
-      _picButtonTip = "选择文件";
-    }
-    if (!property.onInitPage && pages.currentPage!.assistantID != null) {
-      _picButtonIcon = Icons.attachment;
-      _picButtonTip = "选择文件";
-    }
 
     return Container(
       decoration: BoxDecoration(
@@ -70,7 +53,12 @@ class _ChatInputFieldState extends State<ChatInputField> {
       padding: const EdgeInsets.fromLTRB(1, 4, 1, 4),
       child: Row(
         children: [
-          pickButton(context),
+          !user.isLogedin || user.credit! <= 0
+              ? IconButton(
+                  onPressed: null,
+                  icon: Icon(Icons.attachment, size: 20),
+                )
+              : pickButton(context),
           inputField(context),
           !user.isLogedin || user.credit! <= 0
               ? lockButton(context, user)
@@ -271,7 +259,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   }
 
   Widget pickButton(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context, listen: false);
+    Pages pages = Provider.of<Pages>(context);
     Property property = Provider.of<Property>(context);
 
     String _modelV;
@@ -280,13 +268,14 @@ class _ChatInputFieldState extends State<ChatInputField> {
     else
       _modelV = pages.currentPage!.modelVersion;
 
+    if (_modelV.startsWith('gpt-3')) return const SizedBox(width: 15);
     if (!property.onInitPage && pages.currentPage!.assistantID == null) {
       return IconButton(
           tooltip: "选择图片",
           icon: Icon(Icons.image_rounded, size: 20),
           onPressed: _pickImage);
     }
-    if (_modelV.startsWith('gpt'))
+    if (_modelV.startsWith('gpt-4'))
       return _pickMenu(context);
     else if (_modelV.startsWith('claude'))
       return IconButton(
