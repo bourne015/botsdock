@@ -492,6 +492,7 @@ class ChatGen {
         if (ossURL != null) msgA.visionFiles[_aiImageName]!.url = ossURL;
         pages.getPage(handlePageID).updateScheme(msgA.id);
         saveChats(user, pages, handlePageID);
+        updateCredit(user);
       } else {
         var chatData = {
           "model": pages.currentPage?.modelVersion,
