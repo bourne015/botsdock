@@ -70,10 +70,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       padding: const EdgeInsets.fromLTRB(1, 4, 1, 4),
       child: Row(
         children: [
-          if (_modelV != GPTModel.gptv40Dall)
-            pickButton(context, _picButtonTip, _picButtonIcon)
-          else
-            const SizedBox(width: 15),
+          pickButton(context),
           inputField(context),
           !user.isLogedin || user.credit! <= 0
               ? lockButton(context, user)
@@ -237,14 +234,67 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
-  Widget pickButton(BuildContext context, picButtonTip, picButtonImg) {
-    return IconButton(
-        tooltip: picButtonTip,
-        icon: Icon(
-          picButtonImg,
-          size: 20,
-        ),
-        onPressed: _pickFile);
+  Widget _pickMenu(BuildContext context) {
+    return PopupMenuButton<String>(
+      icon: Icon(Icons.attachment, size: 20),
+      color: AppColors.drawerBackground,
+      shadowColor: Colors.blue,
+      elevation: 3,
+      //position: PopupMenuPosition.under,
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        PopupMenuItem<String>(
+            value: "image",
+            child: ListTile(
+              dense: true,
+              leading: Icon(Icons.image_rounded, size: 14),
+              title: Text("选择图片"),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickImage();
+              },
+            )),
+        PopupMenuDivider(height: 1.0),
+        PopupMenuItem<String>(
+            value: "file",
+            child: ListTile(
+              dense: true,
+              // visualDensity: VisualDensity.compact,
+              leading: Icon(Icons.attachment, size: 14),
+              title: Text("选择文件"),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickAll();
+              },
+            )),
+      ],
+    );
+  }
+
+  Widget pickButton(BuildContext context) {
+    Pages pages = Provider.of<Pages>(context, listen: false);
+    Property property = Provider.of<Property>(context);
+
+    String _modelV;
+    if (property.onInitPage)
+      _modelV = property.initModelVersion;
+    else
+      _modelV = pages.currentPage!.modelVersion;
+
+    if (!property.onInitPage && pages.currentPage!.assistantID == null) {
+      return IconButton(
+          tooltip: "选择图片",
+          icon: Icon(Icons.image_rounded, size: 20),
+          onPressed: _pickImage);
+    }
+    if (_modelV.startsWith('gpt'))
+      return _pickMenu(context);
+    else if (_modelV.startsWith('claude'))
+      return IconButton(
+          tooltip: "选择图片",
+          icon: Icon(Icons.image_rounded, size: 20),
+          onPressed: _pickImage);
+    else
+      return const SizedBox(width: 15);
   }
 
   Widget generatingAnimation(BuildContext context) {
@@ -319,6 +369,71 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
+  /**
+   * pick image and save for vision
+   */
+  Future<void> _pickImage() async {
+    var result;
+
+    if (kIsWeb) {
+      debugPrint('web platform');
+      result = await FilePickerWeb.platform
+          .pickFiles(type: FileType.custom, allowedExtensions: supportedImages);
+    } else {
+      result = await FilePicker.platform
+          .pickFiles(type: FileType.custom, allowedExtensions: supportedImages);
+    }
+    if (result != null) {
+      final fileName = result.files.first.name;
+
+      if (result.files.first.size / (1024 * 1024) > maxFileMBSize) {
+        showMessage(context, "文件大小超过限制:${maxFileMBSize}MB");
+        return;
+      } else {
+        debugPrint('Selected file: $fileName');
+        _type = MsgType.image;
+        setState(() {
+          visionFiles[fileName] = VisionFile(name: fileName);
+        });
+        _getImage(result);
+      }
+    } else {
+      debugPrint('No file selected.');
+    }
+  }
+
+/**
+ * pick all supported file(image and textfile) and save to attachment
+ */
+  Future<void> _pickAll() async {
+    var result;
+
+    if (kIsWeb) {
+      debugPrint('web platform');
+      result = await FilePickerWeb.platform.pickFiles(
+          type: FileType.custom, allowedExtensions: supportedFilesAll);
+    } else {
+      result = await FilePicker.platform.pickFiles(
+          type: FileType.custom, allowedExtensions: supportedFilesAll);
+    }
+    if (result != null) {
+      final fileName = result.files.first.name;
+
+      if (result.files.first.size / (1024 * 1024) > maxFileMBSize) {
+        showMessage(context, "文件大小超过限制:${maxFileMBSize}MB");
+      } else {
+        debugPrint('Selected file: $fileName');
+        setState(() {
+          attachments[fileName] = Attachment();
+        });
+        _type = MsgType.file;
+        _getTextFile(result);
+      }
+    } else {
+      debugPrint('No file selected.');
+    }
+  }
+
   Future<void> _pickFile() async {
     var result;
     var _supported;
@@ -379,7 +494,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
     setState(() {
       attachments[selectedfile.files.first.name]!.file_id = file_id;
       attachments[selectedfile.files.first.name]!.tools = [
-        {"type": "file_search"} //TODO: add code_interpreters
+        {"type": "file_search"},
+        {"type": "code_interpreter"},
       ];
     });
   }
