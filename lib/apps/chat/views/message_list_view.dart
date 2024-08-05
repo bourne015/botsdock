@@ -18,8 +18,8 @@ class MessageListView extends StatefulWidget {
 
 class MessageListViewState extends State<MessageListView> {
   final itemScrollController = ItemScrollController();
-  late final ItemPositionsListener _itemPositionListener =
-      ItemPositionsListener.create();
+  // late final ItemPositionsListener _itemPositionListener =
+  //     ItemPositionsListener.create();
   final ValueNotifier<bool> _showScrollToBottom = ValueNotifier(false);
   int _messageLength = 0;
   int _initialScrollIndex = 0;
@@ -27,14 +27,14 @@ class MessageListViewState extends State<MessageListView> {
   @override
   void initState() {
     super.initState();
-    _itemPositionListener.itemPositions
-        .addListener(_handleItemPositionsChanged);
+    // _itemPositionListener.itemPositions
+    //     .addListener(_handleItemPositionsChanged);
   }
 
   @override
   void dispose() {
-    _itemPositionListener.itemPositions
-        .removeListener(_handleItemPositionsChanged);
+    // _itemPositionListener.itemPositions
+    //     .removeListener(_handleItemPositionsChanged);
     super.dispose();
   }
 
@@ -47,10 +47,6 @@ class MessageListViewState extends State<MessageListView> {
     return Stack(alignment: Alignment.center, children: [
       LazyLoadScrollView(
           scrollOffset: 10,
-          onPageScrollStart: () {},
-          onPageScrollEnd: () {
-            // _userScrolling = false;
-          },
           onInBetweenOfPage: () {
             _showScrollToBottom.value = true;
           },
@@ -64,7 +60,7 @@ class MessageListViewState extends State<MessageListView> {
             key: ValueKey(chat.id),
             itemCount: _messageLength,
             itemScrollController: itemScrollController,
-            itemPositionsListener: _itemPositionListener,
+            // itemPositionsListener: _itemPositionListener,
             initialScrollIndex: _initialScrollIndex,
             initialAlignment: 0,
             reverse: true,
@@ -103,7 +99,7 @@ class MessageListViewState extends State<MessageListView> {
         child: FloatingActionButton(
           mini: true,
           backgroundColor: Colors.transparent,
-          child: Icon(Icons.keyboard_double_arrow_down),
+          child: const Icon(Icons.keyboard_double_arrow_down),
           onPressed: () async {
             scrollToButtom(duration: const Duration(seconds: 1));
             _showScrollToBottom.value = false;
@@ -111,11 +107,11 @@ class MessageListViewState extends State<MessageListView> {
         ));
   }
 
-  void _handleItemPositionsChanged() {
-    // final _itemPositions = _itemPositionListener.itemPositions.value.toList();
-    // print("itemPositions: ${_itemPositions.map((e) => e.index).toList()}");
-    // if (!_userScrolling) scrollToButtom();
-  }
+  // void _handleItemPositionsChanged() {
+  //   // final _itemPositions = _itemPositionListener.itemPositions.value.toList();
+  //   // print("itemPositions: ${_itemPositions.map((e) => e.index).toList()}");
+  //   // if (!_userScrolling) scrollToButtom();
+  // }
 
   Future<void> scrollToButtom(
       {int? index, double? alignment, Duration? duration}) async {
