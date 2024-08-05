@@ -222,38 +222,59 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
+  PopupMenuItem<String> _buildPopupMenuItem(BuildContext context, String value,
+      {Icon? icon, String? title, void Function()? onTap}) {
+    return PopupMenuItem<String>(
+      padding: EdgeInsets.all(0),
+      value: value,
+      child: Material(
+        color: AppColors.drawerBackground,
+        child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(15),
+              onTap: onTap,
+              child: ListTile(
+                  contentPadding: EdgeInsets.only(left: 5),
+                  leading: icon,
+                  title: Text(title ?? "")),
+            )),
+      ),
+    );
+  }
+
   Widget _pickMenu(BuildContext context) {
     return PopupMenuButton<String>(
       icon: Icon(Icons.attachment, size: 20),
       color: AppColors.drawerBackground,
       shadowColor: Colors.blue,
-      elevation: 3,
-      //position: PopupMenuPosition.under,
+      elevation: 5,
+      position: PopupMenuPosition.over,
+      padding: const EdgeInsets.only(left: 2),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        PopupMenuItem<String>(
-            value: "image",
-            child: ListTile(
-              dense: true,
-              leading: Icon(Icons.image_rounded, size: 14),
-              title: Text("选择图片"),
-              onTap: () {
-                Navigator.of(context).pop();
-                _pickImage();
-              },
-            )),
+        _buildPopupMenuItem(
+          context,
+          "image",
+          icon: Icon(Icons.image_rounded, size: 14),
+          title: "选择图片",
+          onTap: () {
+            Navigator.of(context).pop();
+            _pickImage();
+          },
+        ),
         PopupMenuDivider(height: 1.0),
-        PopupMenuItem<String>(
-            value: "file",
-            child: ListTile(
-              dense: true,
-              // visualDensity: VisualDensity.compact,
-              leading: Icon(Icons.attachment, size: 14),
-              title: Text("选择文件"),
-              onTap: () {
-                Navigator.of(context).pop();
-                _pickAll();
-              },
-            )),
+        _buildPopupMenuItem(
+          context,
+          "file",
+          icon: Icon(Icons.attachment, size: 14),
+          title: "选择文件",
+          onTap: () {
+            Navigator.of(context).pop();
+            _pickAll();
+          },
+        ),
       ],
     );
   }
