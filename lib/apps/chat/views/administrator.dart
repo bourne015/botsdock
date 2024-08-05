@@ -341,6 +341,7 @@ class Administrator extends StatelessWidget {
                 ////fetch chat data from db
                 Navigator.of(context).maybePop().then((_) async {
                   await pages.fetch_pages(user.id);
+                  property.isLoading = false;
                   Global.saveProfile(user);
                 });
               } else

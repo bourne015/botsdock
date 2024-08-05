@@ -241,6 +241,7 @@ class Pages with ChangeNotifier {
     _pages.clear();
     _pagesID.clear();
     currentPageID = -1;
+    notifyListeners();
   }
 }
 
