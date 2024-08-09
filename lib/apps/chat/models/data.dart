@@ -1,3 +1,17 @@
+class TextContent {
+  final String type = 'text';
+  String text;
+  TextContent({required this.text});
+
+  factory TextContent.fromJson(Map<String, dynamic> json) {
+    return TextContent(
+      text: json['text'],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {'type': 'text', 'text': text};
+}
+
 class VisionFile {
   String name;
   String url;

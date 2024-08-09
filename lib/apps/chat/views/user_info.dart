@@ -247,7 +247,7 @@ class _UserInfoTabState extends State<UserInfo> {
   }
 
   Widget UserInfoPage(BuildContext context, String title) {
-    var editUser = userUrl + "/" + "${widget.user.id}";
+    var editUser = USER_URL + "/" + "${widget.user.id}";
     return Column(
       children: [
         SizedBox(height: 40),
@@ -425,7 +425,7 @@ class _UserInfoTabState extends State<UserInfo> {
             if (!(_editPwdformKey.currentState as FormState).validate()) {
               return;
             }
-            var editUser = userUrl + "/${widget.user.id}/security";
+            var editUser = USER_URL + "/${widget.user.id}/security";
             var userdata = {
               "current_password": _pwdcontroller.text,
               "new_password": _newpwdcontroller.text,
@@ -625,7 +625,7 @@ class _UserInfoTabState extends State<UserInfo> {
 
   void onClickImage(String imagePath) async {
     var oldAvatar = widget.user.avatar;
-    var editUser = userUrl + "/" + "${widget.user.id}";
+    var editUser = USER_URL + "/" + "${widget.user.id}";
     var userdata = {"avatar": imagePath};
     var response = await dio.post(editUser, data: userdata);
     //selectAvatar((index + 1).toString());
@@ -645,7 +645,7 @@ class _UserInfoTabState extends State<UserInfo> {
 
   void onClickBotAvatar(String imagePath) async {
     var oldAvatar = widget.user.avatar_bot;
-    var editUser = userUrl + "/" + "${widget.user.id}";
+    var editUser = USER_URL + "/" + "${widget.user.id}";
     var userdata = {"avatar_bot": imagePath};
     var response = await dio.post(editUser, data: userdata);
 

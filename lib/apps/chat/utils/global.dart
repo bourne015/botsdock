@@ -6,6 +6,9 @@ import 'dart:convert';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
 import '../models/bot.dart';
+import '../models/chat.dart';
+import '../models/pages.dart';
+import '../models/user.dart';
 import '../utils/constants.dart';
 
 class Global {
@@ -19,7 +22,7 @@ class Global {
       if (_prefs.containsKey("isLogedin") &&
           _prefs.getBool("isLogedin") == true) {
         var user_id = _prefs.getInt("id");
-        var url = userUrl + "/${user_id}" + "/info";
+        var url = USER_URL + "/${user_id}" + "/info";
         var response = await dio.post(url);
         if (response.data["updated_at"] != _prefs.getInt("updated_at")) {
           Global.reset();
@@ -58,11 +61,12 @@ class Global {
     }
   }
 
-  void get_local_chats(user, pages) {
+  void get_local_chats(User user, Pages pages) {
     final keys = _prefs.getKeys().where((key) => key.startsWith('chat_'));
     for (var key in keys) {
       final jsonChat = _prefs.getString(key);
-      if (jsonChat != null) pages.restore_single_page(jsonDecode(jsonChat));
+      if (jsonChat != null) //pages.restore_single_page(jsonDecode(jsonChat));
+        pages.addPage(Chat.fromJson(jsonDecode(jsonChat)));
     }
   }
 
@@ -129,7 +133,7 @@ class Global {
   Future<Map> get_creds() async {
     var res = {};
     try {
-      var url = userUrl + "/23" + "/oss_credentials";
+      var url = USER_URL + "/23" + "/oss_credentials";
       var response = await dio.post(url);
       res = response.data["credentials"];
     } catch (e) {

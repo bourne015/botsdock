@@ -25,7 +25,7 @@ class AssistantsAPI {
       var file = selectedFile!.files.first;
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('${baseurl}/v1/files'),
+        Uri.parse('${BASE_URL}/v1/files'),
       );
       // request.files.add(
       //     await http.MultipartFile.fromPath('file', selectedFile!.files.first));
@@ -47,7 +47,7 @@ class AssistantsAPI {
   Future<String> downloadFile(String file_id, String? file_name) async {
     Response response;
     try {
-      var url = "${baseurl}/v1/assistant/files/${file_id}";
+      var url = "${BASE_URL}/v1/assistant/files/${file_id}";
       var _param = {"file_name": file_name};
       response = await dio.get(
         url,
@@ -74,7 +74,7 @@ class AssistantsAPI {
    * create openai vector store with files
    */
   Future<String> createVectorStore(selectedFile) async {
-    var url = '${baseurl}/v1/assistant/vs';
+    var url = '${BASE_URL}/v1/assistant/vs';
     try {
       var files = selectedFile.map((pfile) {
         return pfile.files.first.name;
@@ -92,7 +92,7 @@ class AssistantsAPI {
    * upload file to openai.
    */
   Future<String> fileUpload(fileName) async {
-    var url = '${baseurl}/v1/assistant/files';
+    var url = '${BASE_URL}/v1/assistant/files';
 
     var vs_data = {
       'file_name': fileName,
@@ -110,7 +110,7 @@ class AssistantsAPI {
    * delete file in openai.
    */
   Future<bool> filedelete(fileID) async {
-    var url = '${baseurl}/v1/assistant/files/${fileID}';
+    var url = '${BASE_URL}/v1/assistant/files/${fileID}';
     try {
       final response = await dio.delete(url);
       if (response.statusCode == 200) return true;
@@ -124,7 +124,7 @@ class AssistantsAPI {
      * Create a vector store file by attaching a it to a vector store.
      */
   Future<Map> vectorStoreFile(vid, fileName) async {
-    var url = '${baseurl}/v1/assistant/vs/${vid}/files';
+    var url = '${BASE_URL}/v1/assistant/vs/${vid}/files';
     var vs_data = {
       //'vector_store_id': vid,
       'file_name': fileName,
@@ -142,7 +142,7 @@ class AssistantsAPI {
  * delete file in vector store
  */
   Future<bool> vectorStoreFileDelete(vid, fileID) async {
-    var url = '${baseurl}/v1/assistant/vs/${vid}/files/${fileID}';
+    var url = '${BASE_URL}/v1/assistant/vs/${vid}/files/${fileID}';
 
     try {
       final response = await dio.delete(url);
@@ -157,7 +157,7 @@ class AssistantsAPI {
  * delete vector store
  */
   Future<bool> vectorStoreDelete(vid) async {
-    var url = '${baseurl}/v1/assistant/vs/${vid}';
+    var url = '${BASE_URL}/v1/assistant/vs/${vid}';
 
     try {
       final response = await dio.delete(url);
@@ -174,7 +174,7 @@ class AssistantsAPI {
   Future<List> getVectorStoreFiles(vectorStoreId) async {
     try {
       var vid = vectorStoreId.keys.first;
-      var url = '${baseurl}/v1/assistant/vs/${vid}/files';
+      var url = '${BASE_URL}/v1/assistant/vs/${vid}/files';
       final response = await dio.get(url);
       if (response.statusCode == 200) {
         print("get files: ${response.data["files"]}");
@@ -195,7 +195,7 @@ class AssistantsAPI {
    *  create a thread
    */
   Future<String?> createThread() async {
-    var url = '${baseurl}/v1/assistant/threads';
+    var url = '${BASE_URL}/v1/assistant/threads';
     try {
       final response = await dio.post(url);
       if (response.statusCode == 200) return response.data["id"];
@@ -209,7 +209,7 @@ class AssistantsAPI {
    *  delete a thread
    */
   Future<bool> deleteThread(String thread_id) async {
-    var url = '${baseurl}/v1/assistant/threads/${thread_id}';
+    var url = '${BASE_URL}/v1/assistant/threads/${thread_id}';
     try {
       final response = await dio.delete(url);
       if (response.statusCode == 200) return true;
@@ -224,15 +224,18 @@ class AssistantsAPI {
    */
   int newassistant(Pages pages, Property property, User user, String thread_id,
       {Bot? bot, String? ass_id}) {
-    int handlePageID = pages
-        .addPage(Chat(title: (bot != null ? bot.name : "Chat 0")), sort: true);
+    String? _model = (bot != null && bot.model != null)
+        ? bot.model
+        : property.initModelVersion;
+    int handlePageID = pages.addPage(
+        Chat(title: (bot != null ? bot.name : "Chat 0"), model: _model!),
+        sort: true);
     property.onInitPage = false;
     pages.currentPageID = handlePageID;
     //pages.setPageTitle(handlePageID, bot.name);
-    pages.getPage(handlePageID).modelVersion =
-        (bot != null && bot.model != null)
-            ? bot.model
-            : property.initModelVersion;
+    pages.getPage(handlePageID).model = (bot != null && bot.model != null)
+        ? bot.model
+        : property.initModelVersion;
     pages.getPage(handlePageID).assistantID =
         (bot != null ? bot.assistant_id : ass_id);
     pages.getPage(handlePageID).threadID = thread_id;

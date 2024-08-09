@@ -320,9 +320,9 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   }
 
   Future<bool> saveToDB() async {
-    var _botsURL = botURL;
+    var _botsURL = BOT_URL;
     try {
-      if (widget.bot != null) _botsURL = botURL + "/${widget.bot!.id}";
+      if (widget.bot != null) _botsURL = BOT_URL + "/${widget.bot!.id}";
       var botData = {
         "model": _model,
         "name": _nameController.text,

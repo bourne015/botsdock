@@ -509,7 +509,7 @@ class Administrator extends StatelessWidget {
         "credit": 0.2,
         "pwd": _pwdcontroller.text,
       };
-      response = await dio.post(userUrl, data: userdata);
+      response = await dio.post(USER_URL, data: userdata);
       if (response.data["result"] == 'success') {
         user.signUP = true;
         user.id = response.data["id"];
@@ -525,7 +525,7 @@ class Administrator extends StatelessWidget {
   }
 
   Future<String?> checkLogin(User user) async {
-    var url = userUrl + "/login";
+    var url = USER_URL + "/login";
     Response response;
     try {
       var userdata = {
