@@ -197,7 +197,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     if (property.onInitPage)
       _modelV = property.initModelVersion;
     else
-      _modelV = pages.currentPage?.modelVersion;
+      _modelV = pages.currentPage?.model;
     if (_modelV == GPTModel.gptv35) {
       hintText = "Send a message";
     } else if (_modelV == GPTModel.gptv40Dall) {
@@ -287,7 +287,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     if (property.onInitPage)
       _modelV = property.initModelVersion;
     else
-      _modelV = pages.currentPage!.modelVersion;
+      _modelV = pages.currentPage!.model;
 
     if (_modelV.startsWith('gpt-3')) return const SizedBox(width: 15);
     if (!property.onInitPage && pages.currentPage!.assistantID == null) {
@@ -360,10 +360,11 @@ class _ChatInputFieldState extends State<ChatInputField> {
                       pages, property, user, thread_id,
                       ass_id: chatAssistantID);
                 } else {
-                  newPageId = pages.addPage(Chat(title: "Chat 0"), sort: true);
+                  newPageId = pages.addPage(
+                      Chat(title: "Chat 0", model: property.initModelVersion),
+                      sort: true);
                   property.onInitPage = false;
                   pages.currentPageID = newPageId;
-                  pages.currentPage?.modelVersion = property.initModelVersion;
                 }
               } else {
                 newPageId = pages.currentPageID;
@@ -453,7 +454,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     if (property.onInitPage)
       _modelV = property.initModelVersion;
     else
-      _modelV = pages.currentPage?.modelVersion;
+      _modelV = pages.currentPage?.model;
     if (_modelV.startsWith("gpt-4"))
       _supported = supportedFilesAll;
     else if (_modelV.startsWith("gpt-3"))
@@ -523,28 +524,34 @@ class _ChatInputFieldState extends State<ChatInputField> {
       pages.setGeneratingState(handlePageID, true);
       var ts = DateTime.now().millisecondsSinceEpoch;
       Map<String, VisionFile> _vf = copyVision(visionFiles);
-      Message msgQ = Message(
-          id: pages.getPage(handlePageID).messages.length,
-          pageID: handlePageID,
-          role: MessageTRole.user,
-          type: _type,
-          content: text,
-          visionFiles: _vf,
-          attachments: copyAttachment(attachments),
-          timestamp: ts);
-      pages.addMessage(handlePageID, msgQ);
+      int msg_id = pages.getPage(handlePageID).addMessage(
+            role: MessageTRole.user,
+            text: text,
+            visionFiles: _vf,
+            attachments: copyAttachment(attachments),
+          );
       if (visionFiles.isNotEmpty) {
-        //visionFiles.forEach((_filename, _content) async {
         for (var entry in _vf.entries) {
           var _filename = entry.key;
           var _content = entry.value;
+          print("get file: $_filename");
           String oss_name = "user${user.id}_${handlePageID}_${ts}" + _filename;
-          String? ossURL = await chats.uploadImage(pages, handlePageID, msgQ.id,
-              oss_name, _filename, _content.bytes);
-          if (ossURL != null) _content.url = ossURL;
+          String? ossURL = await chats.uploadImage(
+              pages, handlePageID, oss_name, _filename, _content.bytes);
+          if (!pages.getPage(handlePageID).model.startsWith("claude")) {
+            // claude vison don't support url,
+            _content.url = ossURL ?? "";
+            pages
+                .getPage(handlePageID)
+                .messages[msg_id]
+                .updateImageURL(ossURL ?? "");
+          }
+          if (pages.getPage(handlePageID).model.startsWith("claude"))
+            pages
+                .getPage(handlePageID)
+                .messages[msg_id]
+                .updateVisionFiles(_filename, ossURL ?? "");
         }
-
-        pages.getPage(handlePageID).updateMsg(msgQ.id, vfiles: _vf);
       }
     } catch (e) {
       debugPrint("_submitText error: $e");

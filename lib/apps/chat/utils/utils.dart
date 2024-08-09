@@ -6,6 +6,7 @@ import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:highlight/languages/d.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:fetch_client/fetch_client.dart';
@@ -126,6 +127,7 @@ class _OpenAIAssistantStreamTransformer
         .map((final item) {
       final (event, data) = item;
       //print("event:${event}");
+      print("data:${data}");
 
       Map<String, dynamic> getEventDataMap({final bool decode = true}) => {
             'event': event,
@@ -261,22 +263,14 @@ class ChatGen {
   Future<void> titleGenerate(Pages pages, int handlePageID, user) async {
     String q;
     try {
-      if (pages.getPage(handlePageID).modelVersion == GPTModel.gptv40Dall) {
-        q = pages.getMessages(handlePageID)!.first.content;
-      } else if (pages.getMessages(handlePageID)!.length > 1) {
-        q = pages.getMessages(handlePageID)![1].content;
-      } else {
-        //in case no input
-        return;
-      }
-      // to save token
-      q = q.length > 1000 ? q.substring(0, 1000) : q;
+      q = pages.getPage(handlePageID).contentforTitle();
+      if (q.isEmpty) return;
       var chatData1 = {
         "model": ModelForTitleGen,
         "question": "为下面段话写一个5个字左右的标题,只需给出最终的标题内容,不要输出其他信息:$q"
       };
       final response = await dio.post(
-        "${chatUrl}?user_id=${user.id}",
+        "${CHAT_URL}?user_id=${user.id}",
         data: chatData1,
       );
       var title = response.data;
@@ -292,13 +286,13 @@ class ChatGen {
   void saveChats(user, pages, handlePageID) async {
     if (user.id != 0) {
       //only store after user login
-      var chatdbUrl = userUrl + "/" + "${user.id}" + "/chat";
+      var chatdbUrl = USER_URL + "/" + "${user.id}" + "/chat";
       var chatData = {
         "id": pages.getPage(handlePageID).dbID,
         "page_id": handlePageID,
         "title": pages.getPage(handlePageID).title,
-        "contents": pages.getPage(handlePageID).dbScheme,
-        "model": pages.getPage(handlePageID).modelVersion,
+        "contents": pages.getPage(handlePageID).dbContent(),
+        "model": pages.getPage(handlePageID).model,
         "assistant_id": pages.getPage(handlePageID).assistantID,
         "thread_id": pages.getPage(handlePageID).threadID,
         "bot_id": pages.getPage(handlePageID).botID,
@@ -322,14 +316,13 @@ class ChatGen {
   }
 
   void updateCredit(User user) async {
-    var url = userUrl + "/${user.id}" + "/info";
+    var url = USER_URL + "/${user.id}" + "/info";
     var response = await dio.post(url);
     if (response.data["result"] == "success")
       user.credit = response.data["credit"];
   }
 
-  Future<String?> uploadImage(
-      pages, pid, msg_id, oss_name, filename, imgData) async {
+  Future<String?> uploadImage(pages, pid, oss_name, filename, imgData) async {
     String? ossUrl;
     try {
       var resp = await Client().putObject(imgData, "chat/image/" + oss_name);
@@ -346,11 +339,11 @@ class ChatGen {
     var assistant_id = pages.getPage(handlePageID).assistantID;
     var thread_id = pages.getPage(handlePageID).threadID;
     var _url =
-        "${baseurl}/v1/assistant/vs/${assistant_id}/threads/${thread_id}/messages";
+        "${BASE_URL}/v1/assistant/vs/${assistant_id}/threads/${thread_id}/messages";
     try {
       var chatData = {
         "role": "user",
-        "content": pages.getPage(handlePageID).chatScheme.last["content"],
+        "content": pages.getPage(handlePageID).jsonThreadContent(),
         "attachments":
             attachments.values.map((attachment) => attachment.toJson()).toList()
       };
@@ -364,16 +357,12 @@ class ChatGen {
         },
         body: jsonEncode(chatData),
       );
-      Message? msgA = Message(
-          id: pages.getPage(handlePageID).messages.length,
-          pageID: handlePageID,
+
+      pages.getPage(handlePageID).addMessage(
           role: MessageTRole.assistant,
-          type: MsgType.text,
-          content: "",
-          visionFiles: {},
-          attachments: {},
+          text: "",
           timestamp: DateTime.now().millisecondsSinceEpoch);
-      pages.addMessage(handlePageID, msgA);
+
       pages.setGeneratingState(handlePageID, true);
       stream.listen((event) {
         String? _text;
@@ -431,10 +420,11 @@ class ChatGen {
             errorEvent: (final event, final data) {},
             doneEvent: (final event, final data) {});
 
-        pages.appendMessage(handlePageID,
-            msg: _text,
-            visionFiles: copyVision(visionFiles),
-            attachments: copyAttachment(attachments));
+        if (_text != null)
+          pages.getPage(handlePageID).appendMessage(
+              msg: _text,
+              visionFiles: copyVision(visionFiles),
+              attachments: copyAttachment(attachments));
         //pages.setGeneratingState(handlePageID, true);
       }, onError: (e) {
         debugPrint('SSE error: $e');
@@ -442,7 +432,7 @@ class ChatGen {
       }, onDone: () async {
         pages.setGeneratingState(handlePageID, false);
         debugPrint('SSE complete');
-        if (msgA != null) pages.getPage(handlePageID).updateScheme(msgA!.id);
+        // if (msgA != null) pages.getPage(handlePageID).updateScheme(msgA!.id);
         var pageTitle = pages.getPage(handlePageID).title;
         if (pageTitle.length >= 6 && pageTitle.startsWith("Chat 0")) {
           await titleGenerate(pages, handlePageID, user);
@@ -464,43 +454,44 @@ class ChatGen {
         var chatData1 = {"model": GPTModel.gptv40Dall, "question": q};
         pages.setPageGenerateStatus(handlePageID, true);
         final response =
-            await dio.post("${imageUrl}?user_id=${user.id}", data: chatData1);
+            await dio.post("${IMAGE_URL}?user_id=${user.id}", data: chatData1);
         pages.setPageGenerateStatus(handlePageID, false);
 
         var mt = DateTime.now().millisecondsSinceEpoch;
         String _aiImageName = "ai${user.id}_${handlePageID}_${mt}.png";
-        Message msgA = Message(
-            id: pages.getPage(handlePageID).messages.length,
-            pageID: handlePageID,
+
+        var msg_id = pages.getPage(handlePageID).addMessage(
             role: MessageTRole.assistant,
-            type: MsgType.image,
-            //fileUrl: ossUrl,
+            text: "",
             visionFiles: {
               _aiImageName: VisionFile(
                   name: "ai_file", bytes: base64Decode(response.data))
             },
-            content: "",
             timestamp: mt);
-        pages.addMessage(handlePageID, msgA);
+
         if (response.statusCode == 200 &&
             pages.getPage(handlePageID).title == "Chat 0") {
           await titleGenerate(pages, handlePageID, user);
         }
 
-        String? ossURL = await uploadImage(pages, handlePageID, msgA.id,
-            _aiImageName, _aiImageName, base64Decode(response.data));
-        if (ossURL != null) msgA.visionFiles[_aiImageName]!.url = ossURL;
-        pages.getPage(handlePageID).updateScheme(msgA.id);
+        String? ossURL = await uploadImage(pages, handlePageID, _aiImageName,
+            _aiImageName, base64Decode(response.data));
+        if (ossURL != null)
+          pages.getPage(handlePageID).updateVision(
+                msg_id,
+                _aiImageName,
+                ossURL,
+              );
         saveChats(user, pages, handlePageID);
         updateCredit(user);
       } else {
         var chatData = {
-          "model": pages.currentPage?.modelVersion,
-          "question": pages.getPage(handlePageID).chatScheme,
+          "model": pages.currentPage?.model,
+          "question": pages.getPage(handlePageID).jsonMessages(),
         };
         ////debugPrint("send question: ${chatData["question"]}");
         final stream = chatServer.connect(
-          "${sseChatUrl}?user_id=${user.id}",
+          "${SSE_CHAT_URL}?user_id=${user.id}",
           "POST",
           headers: {
             'Content-Type': 'application/json',
@@ -509,16 +500,14 @@ class ChatGen {
           body: jsonEncode(chatData),
         );
         pages.setPageGenerateStatus(handlePageID, true);
-        Message msgA = Message(
-            id: pages.getPage(handlePageID).messages.length,
-            pageID: handlePageID,
-            role: MessageTRole.assistant,
-            type: MsgType.text,
-            content: "",
-            timestamp: DateTime.now().millisecondsSinceEpoch);
-        pages.addMessage(handlePageID, msgA);
+
+        pages.getPage(handlePageID).addMessage(
+              role: MessageTRole.assistant,
+              text: "",
+              timestamp: DateTime.now().millisecondsSinceEpoch,
+            );
         stream.listen((data) {
-          pages.appendMessage(handlePageID, msg: data);
+          pages.getPage(handlePageID).appendMessage(msg: data);
         }, onError: (e) {
           debugPrint('SSE error: $e');
           pages.setPageGenerateStatus(handlePageID, false);
@@ -541,38 +530,38 @@ class ChatGen {
 
   void newBot(Pages pages, Property property, User user,
       {int? botID, String? name, String? prompt, String? model}) {
-    int handlePageID = pages.addPage(Chat(title: name), sort: true);
+    int handlePageID = pages.addPage(
+        Chat(title: name ?? "bot 0", model: model ?? property.initModelVersion),
+        sort: true);
     property.onInitPage = false;
     pages.currentPageID = handlePageID;
     pages.setPageTitle(handlePageID, name ?? "Chat 0");
     pages.getPage(handlePageID).botID = botID;
-    pages.currentPage?.modelVersion = model ?? property.initModelVersion;
+    pages.currentPage?.model = model ?? property.initModelVersion;
 
-    Message msgQ = Message(
+    pages.getPage(handlePageID).addMessage(
         id: 0,
-        pageID: handlePageID,
         role: MessageTRole.system,
-        type: MsgType.text,
-        content: prompt ?? "",
+        text: prompt ?? "",
         timestamp: DateTime.now().millisecondsSinceEpoch);
-    pages.addMessage(handlePageID, msgQ);
+
     submitText(pages, property, handlePageID, user);
   }
 
   void newTextChat(Pages pages, Property property, User user, String prompt) {
-    int handlePageID = pages.addPage(Chat(title: "Chat 0"), sort: true);
+    int handlePageID = pages.addPage(
+        Chat(title: "Chat 0", model: property.initModelVersion),
+        sort: true);
     property.onInitPage = false;
     pages.currentPageID = handlePageID;
-    pages.currentPage?.modelVersion = property.initModelVersion;
+    pages.currentPage?.model = property.initModelVersion;
 
-    Message msgQ = Message(
+    pages.getPage(handlePageID).addMessage(
         id: 0,
-        pageID: handlePageID,
         role: MessageTRole.user,
-        type: MsgType.text,
-        content: prompt,
+        text: prompt,
         timestamp: DateTime.now().millisecondsSinceEpoch);
-    pages.addMessage(handlePageID, msgQ);
+
     submitText(pages, property, handlePageID, user);
   }
 }

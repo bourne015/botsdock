@@ -293,7 +293,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
         property.onInitPage = true;
       }
       if (user.isLogedin) {
-        var chatdbUrl = userUrl + "/" + "${user.id}" + "/chat/" + "$did";
+        var chatdbUrl = USER_URL + "/" + "${user.id}" + "/chat/" + "$did";
         var cres = await Dio().delete(chatdbUrl);
         Global.deleteChat(removeID, cres.data["updated_at"]);
       }

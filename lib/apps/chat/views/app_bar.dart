@@ -40,7 +40,7 @@ class MyAppBarState extends State<MyAppBar> {
     Pages pages = Provider.of<Pages>(context);
     return RichText(
         text: TextSpan(
-      text: pages.currentPageID > -1 ? pages.currentPage!.modelVersion : "",
+      text: pages.currentPageID > -1 ? pages.currentPage!.model : "",
       style: const TextStyle(fontSize: 16, color: AppColors.appBarText),
     ));
   }

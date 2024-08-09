@@ -46,7 +46,7 @@ class Pages with ChangeNotifier {
 
   int addPage(Chat newChat, {bool sort = false}) {
     int? newID = newChat.id;
-    if (newID == null || newID < 0) {
+    if (newID < 0) {
       newID = assignNewPageID();
       newChat.id = newID;
     }
@@ -80,22 +80,11 @@ class Pages with ChangeNotifier {
     notifyListeners();
   }
 
-  void addMessage(int pageID, Message newMsg) {
-    _pages[pageID]?.addMessage(newMsg);
-    notifyListeners();
-  }
-
-  void appendMessage(int pageID, {String? msg, visionFiles, attachments}) {
-    _pages[pageID]?.appendMessage(
-        msg: msg, visionFiles: visionFiles, attachments: attachments);
-  }
-
   List<Message>? getMessages(int pageID) => _pages[pageID]?.messages;
-  List<Widget>? getMessageBox(int pageID) => _pages[pageID]?.messageBox;
 
   void clearMsg(int pageID) {
     _pages[pageID]?.messages.clear();
-    _pages[pageID]?.messageBox.clear();
+
     notifyListeners();
   }
 
@@ -164,15 +153,16 @@ class Pages with ChangeNotifier {
   }
 
   Future<void> fetch_pages(user_id) async {
-    var chatdbUrl = userUrl + "/" + "${user_id}" + "/chats";
+    var chatdbUrl = USER_URL + "/" + "${user_id}" + "/chats";
     try {
       Response cres = await _dio.post(chatdbUrl);
       if (cres.data["result"] == "success") {
         for (var c in cres.data["chats"]) {
           //user dbID to recovery pageID,
           //incase no user log, c["contents"][0]["pageID"] == currentPageID
-          var pid = restore_single_page(c);
-          Global.saveChats(pid, jsonEncode(c), 0);
+          //var pid = restore_single_page(c);
+          addPage(Chat.fromJson(c));
+          Global.saveChats(c["id"], jsonEncode(c), 0);
           //pid += 1;
         }
         // sortPages();
@@ -182,61 +172,72 @@ class Pages with ChangeNotifier {
     }
   }
 
+/*
   int restore_single_page(c) {
     //use db index is to prevent pid duplication
     final pid = c["id"];
     //try {
-    addPage(Chat(chatId: pid, title: c["title"]));
-    _pages[pid]!.modelVersion = c["model"];
+    addPage(Chat(id: pid, title: c["title"], model: c["model"]));
     _pages[pid]!.dbID = c["id"];
     _pages[pid]!.updated_at = c["updated_at"];
     _pages[pid]!.assistantID = c["assistant_id"];
     _pages[pid]!.threadID = c["thread_id"];
     _pages[pid]!.botID = c["bot_id"];
-    var msgContent;
+
     for (var m in c["contents"]) {
-      //print("load: $m");
-      var smid = m["id"] ?? 0;
-      int mid = smid is String ? int.parse(smid) : smid;
-      if (MsgType.values[m["type"]] == MsgType.image &&
-          m["role"] == MessageTRole.user &&
-          m["content"] is List) {
-        msgContent = jsonDecode(m["content"]);
-      } else
-        msgContent = m["content"];
-
-      Map<String, VisionFile> _vfs = {};
-      if (m["visionFiles"] != null && m["visionFiles"].isNotEmpty) {
-        _vfs = Map<String, VisionFile>.fromEntries(
-            (m["visionFiles"] as Map<String, dynamic>).entries.map((entry) {
-          return MapEntry(entry.key, VisionFile.fromJson(entry.value));
-        }));
+      if (c["model"].startsWith("claude")) {
+        _pages[pid]!.messages.add(ClaudeMessage.fromJson(m));
+      } else if (c["model"].startsWith("gpt")) {
+        _pages[pid]!.messages.add(OpenAIMessage.fromJson(m));
+      } else {
+        print("restore_single_page error: unknow model");
       }
-
-      Map<String, Attachment> _afs = {};
-      if (m["attachments"] != null && m["attachments"].isNotEmpty) {
-        _afs = Map<String, Attachment>.fromEntries(
-            (m["attachments"] as Map<String, dynamic>).entries.map((entry) {
-          return MapEntry(entry.key, Attachment.fromJson(entry.value));
-        }));
-      }
-      Message msgQ = Message(
-          id: mid,
-          pageID: pid,
-          role: m["role"],
-          type: MsgType.values[m["type"]],
-          content: msgContent,
-          visionFiles: _vfs,
-          attachments: _afs,
-          timestamp: m["timestamp"]);
-      addMessage(pid, msgQ);
     }
+    
+    //  var msgContent;
+    // for (var m in c["contents"]) {
+    //   print("load: $m");
+    //   var smid = m["id"] ?? 0;
+    //   int mid = smid is String ? int.parse(smid) : smid;
+    //   if (m["content"] is List) {
+    //     print("content is list");
+    //     msgContent = m["content"];
+    //   } else
+    //     msgContent = m["content"];
+    //   print("content: $msgContent");
+    //   Map<String, VisionFile> _vfs = {};
+    //   if (m["visionFiles"] != null && m["visionFiles"].isNotEmpty) {
+    //     _vfs = Map<String, VisionFile>.fromEntries(
+    //         (m["visionFiles"] as Map<String, dynamic>).entries.map((entry) {
+    //       return MapEntry(entry.key, VisionFile.fromJson(entry.value));
+    //     }));
+    //   }
+
+    //   Map<String, Attachment> _afs = {};
+    //   if (m["attachments"] != null && m["attachments"].isNotEmpty) {
+    //     _afs = Map<String, Attachment>.fromEntries(
+    //         (m["attachments"] as Map<String, dynamic>).entries.map((entry) {
+    //       return MapEntry(entry.key, Attachment.fromJson(entry.value));
+    //     }));
+    //   }
+
+      // print("page: vfs:${_vfs}");
+      getPage(pid).addMessage(
+        id: mid,
+        role: m["role"],
+        text: msgContent,
+        visionFiles: _vfs,
+        attachments: _afs,
+        timestamp: m["timestamp"],
+      );
+    }
+    
     // } catch (error) {
     //   debugPrint("restore_single_page error: ${error}");
     // }
     return pid;
   }
-
+*/
   void reset() {
     _pages.clear();
     _pagesID.clear();

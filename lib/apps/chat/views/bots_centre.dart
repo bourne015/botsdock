@@ -118,7 +118,7 @@ class BotsState extends State<BotsCentre> {
   }
 
   void deleteBot(Bots bots, Bot bot) async {
-    var _delBotURL = botURL + "/${bot.id}";
+    var _delBotURL = BOT_URL + "/${bot.id}";
     var assistant_id;
     String? _avartar = bot.avatar;
     if (bot.assistant_id != null) assistant_id = bot.assistant_id!;

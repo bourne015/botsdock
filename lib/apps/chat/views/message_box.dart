@@ -69,10 +69,15 @@ class MessageBoxState extends State<MessageBox> {
       stream: widget.messageStream.where((msg) => msg.id == widget.msg.id),
       initialData: widget.msg,
       builder: (context, snapshot) {
+        bool _emptyContent =
+            (widget.msg.content is String && widget.msg.content.isEmpty) ||
+                ((widget.msg.content is List &&
+                    widget.msg.content.length <= 1 &&
+                    widget.msg.content[0].text.isEmpty));
         if (widget.isLast &&
-            widget.msg.content.isEmpty &&
-            widget.msg.attachments.isEmpty &&
-            widget.msg.visionFiles.isEmpty) {
+            _emptyContent &&
+            widget.msg.attachments!.isEmpty &&
+            widget.msg.visionFiles!.isEmpty) {
           return Container(
               margin: const EdgeInsets.only(left: 10),
               child: SpinKitThreeBounce(
@@ -93,34 +98,6 @@ class MessageBoxState extends State<MessageBox> {
     );
   }
 
-/*
-  Widget _msgBox1(BuildContext context) {
-    if (widget.isLast) {
-      Pages pages = Provider.of<Pages>(context, listen: true);
-      return ValueListenableBuilder<Message?>(
-        valueListenable: pages.getPage(widget.pageId).lastMessageNotifier,
-        builder: (context, lastMsg, child) {
-          if (widget.controller!.hasClients && _isNearBottom) {
-            WidgetsBinding.instance
-                .addPostFrameCallback((_) => _scrollToBottom());
-          }
-          if (widget.msg.content.isEmpty &&
-              widget.msg.attachments.isEmpty &&
-              widget.msg.visionFiles.isEmpty)
-            return Container(
-                margin: const EdgeInsets.only(left: 10),
-                child: SpinKitThreeBounce(
-                  color: Color.fromARGB(255, 140, 198, 247),
-                  size: AppSize.generatingAnimation,
-                ));
-          return message(context, lastMsg ?? widget.msg);
-        },
-      );
-    } else {
-      return message(context, widget.msg);
-    }
-  }
-*/
   Widget roleIcon(BuildContext context, Message msg) {
     User user = Provider.of<User>(context);
     if (msg.role == MessageTRole.assistant)
@@ -144,13 +121,26 @@ class MessageBoxState extends State<MessageBox> {
             borderRadius: const BorderRadius.all(Radius.circular(10))),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // messageRoleName(context),
-          if (msg.visionFiles.isNotEmpty)
+          if (msg.visionFiles!.isNotEmpty)
+            //Claude images url saved in visionFilesList
             Container(
                 height: 250, child: visionFilesList(context, msg.visionFiles)),
-          if (msg.attachments.isNotEmpty)
+          if (msg.attachments!.isNotEmpty)
             Container(
                 height: 80, child: attachmentList(context, msg.attachments)),
-          messageContent(context, msg)
+          if (msg.content is List)
+            ...msg.content.map((_content) {
+              if (_content.type == "text")
+                return messageContent(context, msg.role, _content.text);
+              // else if (_content.type == "image")
+              //   return contentImage(context, imageBytes: _content.source.data);
+              else if (_content.type == "image_url")
+                return contentImage(context, imageUrl: _content.imageURL.url);
+              else
+                return SizedBox.shrink();
+            }).toList()
+          else if (msg.content is String)
+            messageContent(context, msg.role, msg.content)
         ]),
       ),
     );
@@ -168,10 +158,11 @@ class MessageBoxState extends State<MessageBox> {
         )));
   }
 
-  Widget messageContent(BuildContext context, Message msg) {
-    if (msg.role == MessageTRole.user) {
+  Widget messageContent(
+      BuildContext context, String role, String? _textContent) {
+    if (role == MessageTRole.user) {
       return SelectableText(
-        msg.content,
+        _textContent ?? "",
         //overflow: TextOverflow.ellipsis,
         //showCursor: false,
         maxLines: null,
@@ -182,11 +173,11 @@ class MessageBoxState extends State<MessageBox> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          contentMarkdown(context, msg),
+          contentMarkdown(context, _textContent ?? ""),
           IconButton(
             tooltip: "Copy",
             onPressed: () {
-              Clipboard.setData(ClipboardData(text: msg.content))
+              Clipboard.setData(ClipboardData(text: _textContent ?? ""))
                   .then((value) => showMessage(context, "Copied"));
             },
             icon: const Icon(Icons.copy, size: 15),
@@ -196,13 +187,13 @@ class MessageBoxState extends State<MessageBox> {
     }
   }
 
-  Widget contentMarkdown(BuildContext context, Message msg) {
+  Widget contentMarkdown(BuildContext context, String msg) {
     try {
       return SelectionArea(
           key: UniqueKey(),
           child: MarkdownBody(
             key: UniqueKey(),
-            data: msg.content, //markdownTest,
+            data: msg, //markdownTest,
             // selectable: true,
             shrinkWrap: true,
             //extensionSet: MarkdownExtensionSet.githubFlavored.value,
@@ -328,15 +319,21 @@ class MessageBoxState extends State<MessageBox> {
       itemCount: visionFiles.entries.length,
       itemBuilder: (BuildContext context, int index) {
         MapEntry entry = visionFiles.entries.elementAt(index);
-        return contentImage(context, entry.key, entry.value);
+        return contentImage(
+          context,
+          filename: entry.key,
+          imageUrl: entry.value.url,
+          imageBytes: entry.value.bytes,
+        );
       },
     );
   }
 
-  Widget loadImage(BuildContext context, _filename, _content, {height, width}) {
-    if (_content.url.isNotEmpty) {
+  Widget loadImage(BuildContext context,
+      {filename, imageurl, imagebytes, height, width}) {
+    if (imageurl != null && imageurl.isNotEmpty) {
       return Image.network(
-        _content.url,
+        imageurl,
         height: height,
         width: width,
         loadingBuilder: (context, child, loadingProgress) {
@@ -350,38 +347,50 @@ class MessageBoxState extends State<MessageBox> {
             ),
           );
         },
-        errorBuilder: (context, error, stackTrace) => Text('load image failed'),
+        errorBuilder: (context, error, stackTrace) =>
+            Text('load image url failed'),
       );
-    } else if (_content.bytes.isNotEmpty) {
+    } else if (imagebytes != null && imagebytes.isNotEmpty) {
       return Image.memory(
-        _content.bytes,
+        imagebytes,
         height: height,
         width: width,
-        errorBuilder: (context, error, stackTrace) => Text('load image failed'),
+        errorBuilder: (context, error, stackTrace) =>
+            Text('load image bytes failed'),
       );
     } else
       return Text("load image failed");
   }
 
-  Widget contentImage(BuildContext context, _filename, _content) {
+  Widget contentImage(BuildContext context, {filename, imageUrl, imageBytes}) {
     return GestureDetector(
         onTap: () {
           showDialog(
               context: context,
               builder: (BuildContext context) {
-                return Dialog(child: loadImage(context, _filename, _content));
+                return Dialog(
+                    child: loadImage(
+                  context,
+                  filename: filename,
+                  imageurl: imageUrl,
+                  imagebytes: imageBytes,
+                ));
               });
         },
         onLongPressStart: (details) {
-          _showDownloadMenu(
-              context, _filename, _content, details.globalPosition);
+          _showDownloadMenu(context, details.globalPosition,
+              filename: filename, imageUrl: imageBytes, imageBytes: imageBytes);
         },
-        child:
-            loadImage(context, _filename, _content, height: 250, width: 200));
+        child: loadImage(context,
+            filename: filename,
+            imageurl: imageUrl,
+            imagebytes: imageBytes,
+            height: 250,
+            width: 200));
   }
 
-  void _showDownloadMenu(
-      BuildContext context, _filename, _content, Offset position) {
+  void _showDownloadMenu(BuildContext context, Offset position,
+      {filename, imageUrl, imageBytes}) {
     final RenderBox? overlay =
         Overlay.of(context).context.findRenderObject() as RenderBox?;
     final RelativeRect positionRect = RelativeRect.fromLTRB(
@@ -412,17 +421,17 @@ class MessageBoxState extends State<MessageBox> {
       ],
     ).then((selectedValue) async {
       if (selectedValue == 'download') {
-        if (_content.url.isNotEmpty) {
+        if (imageUrl != null && imageUrl.isNotEmpty) {
           // var uri = Uri.parse(widget.val["fileUrl"]);
           // String filenameExp = uri.pathSegments.last;
           // String filename = filenameExp.split('=').first;
           await WebImageDownloader.downloadImageFromWeb(
             name: "ai",
-            _content.url,
+            imageUrl,
           );
-        } else if (_content.bytes.isNotEmpty)
+        } else if (imageBytes != null && imageBytes.isNotEmpty)
           await WebImageDownloader.downloadImageFromUInt8List(
-            uInt8List: _content.bytes,
+            uInt8List: imageBytes,
           );
       }
     });
