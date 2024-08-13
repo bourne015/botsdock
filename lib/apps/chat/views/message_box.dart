@@ -119,26 +119,13 @@ class MessageBoxState extends State<MessageBox> {
             borderRadius: const BorderRadius.all(Radius.circular(10))),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // messageRoleName(context),
-          if (msg.visionFiles!.isNotEmpty)
+          if (msg.visionFiles.isNotEmpty)
             //Claude images url saved in visionFilesList
             Container(
                 height: 250, child: visionFilesList(context, msg.visionFiles)),
-          if (msg.attachments!.isNotEmpty)
+          if (msg.attachments.isNotEmpty)
             Container(
                 height: 80, child: attachmentList(context, msg.attachments)),
-          if (msg.toolCalls.isNotEmpty)
-            ...msg.toolCalls.map((tool) {
-              if (!isValidJson(tool.function.arguments) &&
-                  tool.function.arguments.isNotEmpty)
-                return messageContent(
-                    context, msg.role, tool.function.arguments);
-
-              if (tool.function.name == "save_artifact")
-                return buildArtifact(
-                    context, json.decode(tool.function.arguments));
-              return SizedBox.shrink();
-            }).toList(),
-
           if (msg.content is List)
             ...msg.content.map((_content) {
               if (_content.type == "text")
@@ -157,7 +144,20 @@ class MessageBoxState extends State<MessageBox> {
                 return SizedBox.shrink();
             }).toList()
           else if (msg.content is String)
-            messageContent(context, msg.role, msg.content)
+            messageContent(context, msg.role, msg.content),
+          if (msg.toolCalls.isNotEmpty)
+            ...msg.toolCalls.map((tool) {
+              if (!isValidJson(tool.function.arguments))
+                return messageContent(
+                  context,
+                  msg.role,
+                  tool.function.arguments,
+                );
+              if (tool.function.name == "save_artifact")
+                return buildArtifact(
+                    context, json.decode(tool.function.arguments));
+              return SizedBox.shrink();
+            }).toList(),
         ]),
       ),
     );

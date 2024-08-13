@@ -5,7 +5,6 @@ import 'package:flutter/widgets.dart';
 
 import '../utils/global.dart';
 import 'chat.dart';
-import 'data.dart';
 import 'message.dart';
 import '../utils/constants.dart';
 
@@ -172,72 +171,6 @@ class Pages with ChangeNotifier {
     }
   }
 
-/*
-  int restore_single_page(c) {
-    //use db index is to prevent pid duplication
-    final pid = c["id"];
-    //try {
-    addPage(Chat(id: pid, title: c["title"], model: c["model"]));
-    _pages[pid]!.dbID = c["id"];
-    _pages[pid]!.updated_at = c["updated_at"];
-    _pages[pid]!.assistantID = c["assistant_id"];
-    _pages[pid]!.threadID = c["thread_id"];
-    _pages[pid]!.botID = c["bot_id"];
-
-    for (var m in c["contents"]) {
-      if (c["model"].startsWith("claude")) {
-        _pages[pid]!.messages.add(ClaudeMessage.fromJson(m));
-      } else if (c["model"].startsWith("gpt")) {
-        _pages[pid]!.messages.add(OpenAIMessage.fromJson(m));
-      } else {
-        print("restore_single_page error: unknow model");
-      }
-    }
-    
-    //  var msgContent;
-    // for (var m in c["contents"]) {
-    //   print("load: $m");
-    //   var smid = m["id"] ?? 0;
-    //   int mid = smid is String ? int.parse(smid) : smid;
-    //   if (m["content"] is List) {
-    //     print("content is list");
-    //     msgContent = m["content"];
-    //   } else
-    //     msgContent = m["content"];
-    //   print("content: $msgContent");
-    //   Map<String, VisionFile> _vfs = {};
-    //   if (m["visionFiles"] != null && m["visionFiles"].isNotEmpty) {
-    //     _vfs = Map<String, VisionFile>.fromEntries(
-    //         (m["visionFiles"] as Map<String, dynamic>).entries.map((entry) {
-    //       return MapEntry(entry.key, VisionFile.fromJson(entry.value));
-    //     }));
-    //   }
-
-    //   Map<String, Attachment> _afs = {};
-    //   if (m["attachments"] != null && m["attachments"].isNotEmpty) {
-    //     _afs = Map<String, Attachment>.fromEntries(
-    //         (m["attachments"] as Map<String, dynamic>).entries.map((entry) {
-    //       return MapEntry(entry.key, Attachment.fromJson(entry.value));
-    //     }));
-    //   }
-
-      // print("page: vfs:${_vfs}");
-      getPage(pid).addMessage(
-        id: mid,
-        role: m["role"],
-        text: msgContent,
-        visionFiles: _vfs,
-        attachments: _afs,
-        timestamp: m["timestamp"],
-      );
-    }
-    
-    // } catch (error) {
-    //   debugPrint("restore_single_page error: ${error}");
-    // }
-    return pid;
-  }
-*/
   void reset() {
     _pages.clear();
     _pagesID.clear();

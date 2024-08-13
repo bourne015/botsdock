@@ -534,7 +534,7 @@ class ChatGen {
         pages.getPage(handlePageID).messages.last.onThinking = true;
         pages.setPageGenerateStatus(handlePageID, true);
         stream.listen((data) {
-          print("data");
+          print("$data");
           pages.getPage(handlePageID).messages.last.onThinking = false;
           if (isValidJson(data)) {
             var res = json.decode(data) as Map<String, dynamic>;
