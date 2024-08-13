@@ -273,6 +273,9 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                         Text('模型', style: TextStyle(fontSize: 15)),
                         modelSelecter(context),
                         if (_model.startsWith("gpt")) assistantTools(context),
+                        functions(context),
+                        listFunctions(context),
+                        Divider(),
                         Text("Temperature  ${temperature.toStringAsFixed(1)}",
                             style: TextStyle(fontSize: 15)),
                         temperatureSlide(context),
@@ -397,9 +400,6 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         codeInterpreter(context),
         if (codeInterpreterFilesID.isNotEmpty)
           listCodeInterpreterFiles(context),
-        Divider(),
-        functions(context),
-        listFunctions(context),
         Divider(),
       ],
     );

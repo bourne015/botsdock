@@ -97,7 +97,7 @@ class Bot {
   Map? vector_store_ids;
   bool? code_interpreter;
   Map? code_interpreter_files;
-  Map? functions;
+  Map<String, dynamic>? functions;
   double? temperature;
 
   int? likes;

@@ -39,6 +39,7 @@ class MessageTRole {
   static const String system = "system";
   static const String user = "user";
   static const String assistant = "assistant";
+  static const String tool = "tool";
 }
 
 class GPTModel {
@@ -156,7 +157,7 @@ const supportedFilesAll = [
 const double DRAWERWIDTH = 260;
 
 const String BASE_URL = "https://botsdock.com:8443";
-const String SSE_CHAT_URL = "${BASE_URL}/v1/stream/chat";
+const String SSE_CHAT_URL = "${BASE_URL}/v1/stream/chats";
 const String CHAT_URL = "${BASE_URL}/v1/chat";
 const String IMAGE_URL = "${BASE_URL}/v1/image";
 const String USER_URL = "${BASE_URL}/v1/user";
