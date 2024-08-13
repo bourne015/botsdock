@@ -169,11 +169,20 @@ class Chat with ChangeNotifier {
         attachments: attachments,
         timestamp: timestamp,
       );
-    } else {
+    } else if (model.startsWith("gpt")) {
       _msg = OpenAIMessage(
         id: id ?? messages.length,
         role: role,
         content: _content,
+        attachments: attachments,
+        timestamp: timestamp,
+        toolCallId: toolCallId,
+      );
+    } else if (model.startsWith("dall")) {
+      _msg = OpenAIMessage(
+        id: id ?? messages.length,
+        role: role,
+        content: text,
         attachments: attachments,
         timestamp: timestamp,
         toolCallId: toolCallId,
