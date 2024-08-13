@@ -1,4 +1,3 @@
-//import 'package:adaptive_breakpoints/adaptive_breakpoints.dart';
 import 'package:dual_screen/dual_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,9 +13,7 @@ import '../models/anthropic/schema/schema.dart' as anthropic;
 import '../models/openai/schema/schema.dart' as openai;
 import '../models/chat.dart';
 import '../models/pages.dart';
-import '../models/message.dart';
 import '../models/data.dart';
-import '../models/openai/schema/schema.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
 import '../utils/global.dart';
@@ -115,11 +112,11 @@ class _PairwiseTransformer
 }
 
 class _OpenAIAssistantStreamTransformer
-    extends StreamTransformerBase<List<int>, AssistantStreamEvent> {
+    extends StreamTransformerBase<List<int>, openai.AssistantStreamEvent> {
   const _OpenAIAssistantStreamTransformer();
 
   @override
-  Stream<AssistantStreamEvent> bind(final Stream<List<int>> stream) {
+  Stream<openai.AssistantStreamEvent> bind(final Stream<List<int>> stream) {
     return stream
         .transform(utf8.decoder)
         .transform(const LineSplitter())
@@ -137,7 +134,7 @@ class _OpenAIAssistantStreamTransformer
 
       switch (event) {
         case 'thread.created':
-          return ThreadStreamEvent.fromJson(getEventDataMap());
+          return openai.ThreadStreamEvent.fromJson(getEventDataMap());
         case 'thread.run.created':
         case 'thread.run.queued':
         case 'thread.run.in_progress':
@@ -147,27 +144,27 @@ class _OpenAIAssistantStreamTransformer
         case 'thread.run.cancelling':
         case 'thread.run.cancelled':
         case 'thread.run.expired':
-          return RunStreamEvent.fromJson(getEventDataMap());
+          return openai.RunStreamEvent.fromJson(getEventDataMap());
         case 'thread.run.step.created':
         case 'thread.run.step.in_progress':
         case 'thread.run.step.completed':
         case 'thread.run.step.failed':
         case 'thread.run.step.cancelled':
         case 'thread.run.step.expired':
-          return RunStepStreamEvent.fromJson(getEventDataMap());
+          return openai.RunStepStreamEvent.fromJson(getEventDataMap());
         case 'thread.run.step.delta':
-          return RunStepStreamDeltaEvent.fromJson(getEventDataMap());
+          return openai.RunStepStreamDeltaEvent.fromJson(getEventDataMap());
         case 'thread.message.created':
         case 'thread.message.in_progress':
         case 'thread.message.completed':
         case 'thread.message.incomplete':
-          return MessageStreamEvent.fromJson(getEventDataMap());
+          return openai.MessageStreamEvent.fromJson(getEventDataMap());
         case 'thread.message.delta':
-          return MessageStreamDeltaEvent.fromJson(getEventDataMap());
+          return openai.MessageStreamDeltaEvent.fromJson(getEventDataMap());
         case 'error':
-          return ErrorEvent.fromJson(getEventDataMap());
+          return openai.ErrorEvent.fromJson(getEventDataMap());
         case 'done':
-          return DoneEvent.fromJson(getEventDataMap(decode: false));
+          return openai.DoneEvent.fromJson(getEventDataMap(decode: false));
         default:
           throw Exception('Unknown event: $event');
       }
@@ -191,7 +188,7 @@ class _DataPreprocessorTransformer
   }
 }
 
-Stream<AssistantStreamEvent> connectAssistant(
+Stream<openai.AssistantStreamEvent> CreateAssistantChatStream(
   String url,
   String method, {
   Map<String, String>? headers,
@@ -225,56 +222,54 @@ class _OpenAIStreamTransformer
   }
 }
 
-class ChatSSE {
-  Stream<String> connect(
-    String url,
-    String method, {
-    Map<String, String>? headers,
-    String? body,
-  }) async* {
-    var request = http.Request(method, Uri.parse(url));
-    if (headers != null) request.headers.addAll(headers);
-    if (body != null) request.body = body;
+Stream<String> CreateChatStream(
+  String url,
+  String method, {
+  Map<String, String>? headers,
+  String? body,
+}) async* {
+  var request = http.Request(method, Uri.parse(url));
+  if (headers != null) request.headers.addAll(headers);
+  if (body != null) request.body = body;
 
-    var client;
-    if (kIsWeb)
-      client = FetchClient(mode: RequestMode.cors);
-    else
-      client = http.Client();
-    var response = await client.send(request);
-    var stream = response.stream.transform<String>(utf8.decoder);
-    final controller = StreamController<String>();
-    var _newLine = false;
+  var client;
+  if (kIsWeb)
+    client = FetchClient(mode: RequestMode.cors);
+  else
+    client = http.Client();
+  var response = await client.send(request);
+  var stream = response.stream.transform<String>(utf8.decoder);
+  final controller = StreamController<String>();
+  var _newLine = false;
 
-    try {
-      stream.transform(const LineSplitter()).listen((String line) {
-        if (line.length == 0) {
-          _newLine = false;
-        } else if (line.startsWith('data:')) {
-          var data = line.substring(6);
-          data = _newLine ? '\n' + data : data;
-          controller.add(data);
-          _newLine = true;
-        }
-      }, onDone: () {
-        controller.close();
-        client.close();
-      }, onError: (error) {
-        controller.addError(error);
-        controller.close();
-        client.close();
-      });
-      yield* controller.stream;
-    } catch (e) {
-      controller.addError(e);
+  try {
+    stream.transform(const LineSplitter()).listen((String line) {
+      if (line.length == 0) {
+        _newLine = false;
+      } else if (line.startsWith('data:')) {
+        var data = line.substring(6);
+        data = _newLine ? '\n' + data : data;
+        controller.add(data);
+        _newLine = true;
+      }
+    }, onDone: () {
       controller.close();
-    }
+      client.close();
+    }, onError: (error) {
+      controller.addError(error);
+      controller.close();
+      client.close();
+    });
+    yield* controller.stream;
+  } catch (e) {
+    controller.addError(e);
+    controller.close();
   }
 }
 
 class ChatGen {
   final dio = Dio();
-  final ChatSSE chatServer = ChatSSE();
+
   Future<void> titleGenerate(Pages pages, int handlePageID, user) async {
     String q;
     try {
@@ -363,7 +358,7 @@ class ChatGen {
             attachments.values.map((attachment) => attachment.toJson()).toList()
       };
       ////debugPrint("send question: ${chatData["question"]}");
-      final stream = connectAssistant(
+      final stream = CreateAssistantChatStream(
         "${_url}?user_id=${user.id}",
         "POST",
         headers: {
@@ -383,8 +378,8 @@ class ChatGen {
         String? _text;
         Map<String, Attachment> attachments = {};
         Map<String, VisionFile> visionFiles = {};
-        if (event is MessageStreamEvent &&
-            event.event == EventType.threadMessageCreated) {}
+        if (event is openai.MessageStreamEvent &&
+            event.event == openai.EventType.threadMessageCreated) {}
         event.when(
             threadStreamEvent: (final event, final data) {},
             runStreamEvent: (final event, final data) {},
@@ -517,7 +512,7 @@ class ChatGen {
         };
         print("$chatData");
         ////debugPrint("send question: ${chatData["question"]}");
-        final stream = chatServer.connect(
+        final stream = CreateChatStream(
           "${SSE_CHAT_URL}?user_id=${user.id}",
           "POST",
           headers: {
@@ -572,7 +567,8 @@ class ChatGen {
           toolCalls: res.choices[0].delta.toolCalls,
         );
 
-    if (res.choices[0].finishReason == ChatCompletionFinishReason.toolCalls) {
+    if (res.choices[0].finishReason ==
+        openai.ChatCompletionFinishReason.toolCalls) {
       pages.getPage(handlePageID).setOpenaiToolInput();
       var _toolID = pages.getPage(handlePageID).messages.last.toolCalls.last.id;
       pages.getPage(handlePageID).addMessage(
