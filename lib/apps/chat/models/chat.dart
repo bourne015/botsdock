@@ -155,12 +155,14 @@ class Chat with ChangeNotifier {
   }) {
     var _msg;
     var _content = [];
-    if (visionFiles.isNotEmpty) getVisionFiles(visionFiles, _content);
+
     if (text != null) {
       var _textContent = TextContent(text: text);
       _content.add(_textContent);
     }
-
+    if (visionFiles.isNotEmpty) {
+      getVisionFiles(visionFiles, _content);
+    }
     if (model.startsWith("claude")) {
       _msg = ClaudeMessage(
         id: id ?? messages.length,
@@ -234,7 +236,6 @@ class Chat with ChangeNotifier {
    */
   void setOpenaiToolInput() {
     for (int index = 0; index < openaiToolInputDelta.length; index++) {
-      print("setOpenaiToolInput: $openaiToolInputDelta");
       var id = (messages.last.toolCalls[index]).id;
       var type = (messages.last.toolCalls[index]).type;
       var func = (messages.last.toolCalls[index]).function;
