@@ -125,7 +125,6 @@ class Chat with ChangeNotifier {
             data: _fileBase64);
         var _imgContent = anthropic.ImageBlock(type: "image", source: _source);
         content.add(_imgContent);
-        print("getVisionFiles: mt: ${_source.mediaType}");
       });
     } else {
       visionFiles.forEach((_filename, _visionFile) {
@@ -168,7 +167,6 @@ class Chat with ChangeNotifier {
         role: role,
         content: _content,
         attachments: attachments,
-        // visionFiles: visionFiles,
         timestamp: timestamp,
       );
     } else {
@@ -177,7 +175,6 @@ class Chat with ChangeNotifier {
         role: role,
         content: _content,
         attachments: attachments,
-        // visionFiles: visionFiles,
         timestamp: timestamp,
         toolCallId: toolCallId,
       );
@@ -232,7 +229,6 @@ class Chat with ChangeNotifier {
       var id = (messages.last.toolCalls[index]).id;
       var type = (messages.last.toolCalls[index]).type;
       var func = (messages.last.toolCalls[index]).function;
-      // Map<String, dynamic> func = jsonDecode(openaiToolInputDelta[index]);
       messages.last.toolCalls[index] = openai.RunToolCallObject(
         id: id,
         type: type,
@@ -253,16 +249,12 @@ class Chat with ChangeNotifier {
     dynamic toolUse,
     Map<String, VisionFile>? visionFiles,
     Map<String, Attachment>? attachments,
-    bool? doNotNotify = false,
   }) {
     try {
-      int lastMsgID = messages.isNotEmpty ? messages.length - 1 : 0;
-      if (msg != null && messages[lastMsgID].content is String)
-        messages[lastMsgID].content += msg;
-      else if (msg != null && messages[lastMsgID].content is List) {
-        //assume the last one is text content
-        //TODO: optimize
-        for (var x in messages[lastMsgID].content) {
+      if (msg != null && messages.last.content is String)
+        messages.last.content += msg;
+      else if (msg != null && messages.last.content is List) {
+        for (var x in messages.last.content) {
           if (x.type == "text") x.text += msg;
         }
       }
@@ -284,32 +276,23 @@ class Chat with ChangeNotifier {
             openaiToolInputDelta[toolCalls[i].index] +=
                 toolCalls[i].function?.arguments ?? "";
           } else {
-            // if (toolCalls[i].function?.arguments != null)
-            //   messages.last.toolCalls[i].function.arguments +=
-            //       toolCalls[i].function?.arguments;
             openaiToolInputDelta[toolCalls[i].index] +=
                 toolCalls[i].function!.arguments ?? "";
-            print("xxxxxxx: ${openaiToolInputDelta[toolCalls[i].index]}");
           }
         }
       }
       //claude use tool_use
       if (toolUse != null) {
-        if (messages.last.content is String ||
-            index! > messages.last.content.length - 1)
-          print("append tooluse error: out of range");
-        else
-          toolInputDelta += toolUse;
+        toolInputDelta += toolUse;
       }
 
       if (attachments != null)
         attachments.forEach((String name, Attachment content) {
-          messages[lastMsgID].attachments[name] =
+          messages.last.attachments[name] =
               Attachment(file_id: content.file_id, tools: content.tools);
         });
 
-      if (doNotNotify == null || !doNotNotify)
-        _messageController.add(messages.last);
+      _messageController.add(messages.last);
     } catch (e) {
       print("appendMessage: $e");
     }
@@ -340,11 +323,7 @@ class Chat with ChangeNotifier {
  */
   void updateVision(int msg_id, String imageName, String ossPath) {
     for (var msg in messages) {
-      if (msg_id == msg.id) {
-        // msg.visionFiles[imageName]!.url = ossPath;
-        // msg.visionFiles[imageName]!.bytes = [];
-        msg.updateImageURL(ossPath);
-      }
+      if (msg_id == msg.id) msg.updateImageURL(ossPath);
     }
   }
 
@@ -441,7 +420,6 @@ class ClaudeTool {
       name: data['name'],
       description: data['description'],
       inputSchema: data['input_schema'],
-      // function: FunctionObject.fromJson(data['function']),
     );
   }
 }
