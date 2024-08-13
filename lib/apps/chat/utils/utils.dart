@@ -6,16 +6,17 @@ import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:highlight/languages/d.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:fetch_client/fetch_client.dart';
 
+import '../models/anthropic/schema/schema.dart' as anthropic;
+import '../models/openai/schema/schema.dart' as openai;
 import '../models/chat.dart';
 import '../models/pages.dart';
 import '../models/message.dart';
 import '../models/data.dart';
-import '../models/schema/schema.dart';
+import '../models/openai/schema/schema.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
 import '../utils/global.dart';
@@ -210,6 +211,20 @@ Stream<AssistantStreamEvent> connectAssistant(
   yield* stream.transform(const _OpenAIAssistantStreamTransformer());
 }
 
+class _OpenAIStreamTransformer
+    extends StreamTransformerBase<List<int>, String> {
+  const _OpenAIStreamTransformer();
+
+  @override
+  Stream<String> bind(final Stream<List<int>> stream) {
+    return stream //
+        .transform(utf8.decoder) //
+        .transform(const LineSplitter()) //
+        .where((final i) => i.startsWith('data: ') && !i.endsWith('[DONE]'))
+        .map((final item) => item.substring(6));
+  }
+}
+
 class ChatSSE {
   Stream<String> connect(
     String url,
@@ -389,8 +404,6 @@ class ChatGen {
             },
             messageStreamEvent: (final event, final data) {},
             messageStreamDeltaEvent: (final event, final data) {
-              //data.delta.content?.map((final _content) {
-              //print("test5.1: ${_content}");
               if (data.delta.content != null)
                 data.delta.content![0].whenOrNull(
                     imageFile: (index, type, imageFileObj) {
@@ -446,6 +459,15 @@ class ChatGen {
     }
   }
 
+  bool isValidJson(String jsonString) {
+    try {
+      json.decode(jsonString);
+      return true;
+    } on FormatException catch (_) {
+      return false;
+    }
+  }
+
   void submitText(
       Pages pages, Property property, int handlePageID, user) async {
     try {
@@ -485,10 +507,15 @@ class ChatGen {
         saveChats(user, pages, handlePageID);
         updateCredit(user);
       } else {
+        var jsChat = pages.getPage(handlePageID).toJson();
         var chatData = {
           "model": pages.currentPage?.model,
-          "question": pages.getPage(handlePageID).jsonMessages(),
+          "messages": jsChat["messages"],
+          "tools": pages.currentPage!.model.startsWith('gpt')
+              ? jsChat["tools"]
+              : jsChat["claude_tools"],
         };
+        print("$chatData");
         ////debugPrint("send question: ${chatData["question"]}");
         final stream = chatServer.connect(
           "${SSE_CHAT_URL}?user_id=${user.id}",
@@ -499,15 +526,24 @@ class ChatGen {
           },
           body: jsonEncode(chatData),
         );
-        pages.setPageGenerateStatus(handlePageID, true);
-
         pages.getPage(handlePageID).addMessage(
               role: MessageTRole.assistant,
               text: "",
               timestamp: DateTime.now().millisecondsSinceEpoch,
             );
+        pages.getPage(handlePageID).messages.last.onThinking = true;
+        pages.setPageGenerateStatus(handlePageID, true);
         stream.listen((data) {
-          pages.getPage(handlePageID).appendMessage(msg: data);
+          print("data");
+          pages.getPage(handlePageID).messages.last.onThinking = false;
+          if (isValidJson(data)) {
+            var res = json.decode(data) as Map<String, dynamic>;
+            if (pages.getPage(handlePageID).model.startsWith('gpt')) {
+              _handleOpenaiResponse(pages, property, user, handlePageID, res);
+            } else {
+              _handleClaudeResponse(pages, property, user, handlePageID, res);
+            }
+          }
         }, onError: (e) {
           debugPrint('SSE error: $e');
           pages.setPageGenerateStatus(handlePageID, false);
@@ -528,24 +564,130 @@ class ChatGen {
     }
   }
 
+  void _handleOpenaiResponse(Pages pages, Property property, User user,
+      int handlePageID, Map<String, dynamic> j) {
+    var res = openai.CreateChatCompletionStreamResponse.fromJson(j);
+    pages.getPage(handlePageID).appendMessage(
+          msg: res.choices[0].delta.content,
+          toolCalls: res.choices[0].delta.toolCalls,
+        );
+
+    if (res.choices[0].finishReason == ChatCompletionFinishReason.toolCalls) {
+      pages.getPage(handlePageID).setOpenaiToolInput();
+      var _toolID = pages.getPage(handlePageID).messages.last.toolCalls.last.id;
+      pages.getPage(handlePageID).addMessage(
+            role: MessageTRole.tool,
+            text: "function result",
+            toolCallId: _toolID,
+          );
+      submitText(pages, property, handlePageID, user);
+    }
+  }
+
+  void _handleClaudeResponse(Pages pages, Property property, User user,
+      int handlePageID, Map<String, dynamic> j) {
+    anthropic.MessageStreamEvent res = anthropic.MessageStreamEvent.fromJson(j);
+    res.map(
+      messageStart: (anthropic.MessageStartEvent v) {
+        print("messageStart");
+      },
+      messageDelta: (anthropic.MessageDeltaEvent v) {
+        print("messageDelta");
+      },
+      messageStop: (anthropic.MessageStopEvent v) {
+        print("messageStop");
+      },
+      contentBlockStart: (anthropic.ContentBlockStartEvent v) {
+        pages.getPage(handlePageID).addTool(
+                toolUse: v.contentBlock.mapOrNull(
+              toolUse: (x) => anthropic.ToolUseBlock(
+                id: x.id,
+                name: x.name,
+                input: x.input,
+              ),
+            ));
+      },
+      contentBlockDelta: (anthropic.ContentBlockDeltaEvent v) {
+        pages.getPage(handlePageID).appendMessage(
+              index: v.index,
+              msg: v.delta.mapOrNull(textDelta: (x) => x.text),
+              toolUse: v.delta.mapOrNull(inputJsonDelta: (x) => x.partialJson),
+            );
+      },
+      contentBlockStop: (anthropic.ContentBlockStopEvent v) {
+        print("contentBlockStop");
+        if (pages.getPage(handlePageID).messages.last.content is List &&
+            pages.getPage(handlePageID).messages.last.content[v.index].type ==
+                "tool_use") {
+          pages.getPage(handlePageID).setClaudeToolInput(v.index);
+          var _toolID =
+              pages.getPage(handlePageID).messages.last.content[v.index].id;
+          pages.getPage(handlePageID).addMessage(role: MessageTRole.user);
+          print("toolID: ${_toolID}");
+          pages.getPage(handlePageID).addTool(
+                toolResult: anthropic.ToolResultBlock(
+                  toolUseId: _toolID,
+                  isError: false,
+                  content: anthropic.ToolResultBlockContent.text("tool result"),
+                ),
+              );
+          submitText(pages, property, handlePageID, user);
+        }
+      },
+      ping: (anthropic.PingEvent v) {
+        print("ping");
+      },
+    );
+  }
+
   void newBot(Pages pages, Property property, User user,
-      {int? botID, String? name, String? prompt, String? model}) {
-    int handlePageID = pages.addPage(
-        Chat(title: name ?? "bot 0", model: model ?? property.initModelVersion),
-        sort: true);
-    property.onInitPage = false;
-    pages.currentPageID = handlePageID;
-    pages.setPageTitle(handlePageID, name ?? "Chat 0");
-    pages.getPage(handlePageID).botID = botID;
-    pages.currentPage?.model = model ?? property.initModelVersion;
-
-    pages.getPage(handlePageID).addMessage(
-        id: 0,
-        role: MessageTRole.system,
-        text: prompt ?? "",
-        timestamp: DateTime.now().millisecondsSinceEpoch);
-
-    submitText(pages, property, handlePageID, user);
+      {int? botID,
+      String? name,
+      String? prompt,
+      String? model,
+      Map<String, dynamic>? functions}) {
+    try {
+      int handlePageID = pages.addPage(
+          Chat(
+              title: name ?? "bot 0",
+              model: model ?? property.initModelVersion),
+          sort: true);
+      property.onInitPage = false;
+      pages.currentPageID = handlePageID;
+      pages.setPageTitle(handlePageID, name ?? "Chat 0");
+      pages.getPage(handlePageID).botID = botID;
+      pages.currentPage?.model = model ?? property.initModelVersion;
+      if (functions != null) {
+        if (pages.currentPage!.model.startsWith('gpt')) {
+          functions.forEach((name, body) {
+            var func = {"type": "function", "function": json.decode(body)};
+            pages.getPage(handlePageID).tools.add(
+                  openai.ChatCompletionTool.fromJson(func),
+                );
+          });
+        } else {
+          functions.forEach((name, body) {
+            var func = json.decode(body);
+            var funcschema = func['input_schema'] ?? func['parameters'];
+            pages.getPage(handlePageID).claudeTools.add(
+                  ClaudeTool(
+                    name: func['name'],
+                    description: func['description'],
+                    inputSchema: funcschema,
+                  ),
+                );
+          });
+        }
+      }
+      pages.getPage(handlePageID).addMessage(
+          id: 0,
+          role: MessageTRole.system,
+          text: prompt ?? "",
+          timestamp: DateTime.now().millisecondsSinceEpoch);
+      submitText(pages, property, handlePageID, user);
+    } catch (e) {
+      print("newBot error: $e");
+    }
   }
 
   void newTextChat(Pages pages, Property property, User user, String prompt) {

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -16,6 +18,7 @@ import '../utils/custom_widget.dart';
 import '../utils/markdown_extentions.dart';
 import '../utils/utils.dart';
 import '../utils/assistants_api.dart';
+import './htmlcontent.dart';
 
 class MessageBox extends StatefulWidget {
   final Message msg;
@@ -42,7 +45,8 @@ class MessageBoxState extends State<MessageBox> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.msg.role != MessageTRole.system
+    return widget.msg.role == MessageTRole.user ||
+            widget.msg.role == MessageTRole.assistant
         ? AnimatedSize(
             duration: Duration(milliseconds: 900),
             curve: Curves.easeOut,
@@ -69,15 +73,7 @@ class MessageBoxState extends State<MessageBox> {
       stream: widget.messageStream.where((msg) => msg.id == widget.msg.id),
       initialData: widget.msg,
       builder: (context, snapshot) {
-        bool _emptyContent =
-            (widget.msg.content is String && widget.msg.content.isEmpty) ||
-                ((widget.msg.content is List &&
-                    widget.msg.content.length <= 1 &&
-                    widget.msg.content[0].text.isEmpty));
-        if (widget.isLast &&
-            _emptyContent &&
-            widget.msg.attachments!.isEmpty &&
-            widget.msg.visionFiles!.isEmpty) {
+        if (!snapshot.hasData || snapshot.data!.onThinking && widget.isLast) {
           return Container(
               margin: const EdgeInsets.only(left: 10),
               child: SpinKitThreeBounce(
@@ -102,8 +98,10 @@ class MessageBoxState extends State<MessageBox> {
     User user = Provider.of<User>(context);
     if (msg.role == MessageTRole.assistant)
       return image_show(user.avatar_bot ?? defaultUserBotAvatar, 16);
-    else
+    else if (msg.role == MessageTRole.user)
       return image_show(user.avatar!, 16);
+    else
+      return SizedBox.shrink();
   }
 
   Widget message(BuildContext context, Message msg) {
@@ -128,6 +126,19 @@ class MessageBoxState extends State<MessageBox> {
           if (msg.attachments!.isNotEmpty)
             Container(
                 height: 80, child: attachmentList(context, msg.attachments)),
+          if (msg.toolCalls.isNotEmpty)
+            ...msg.toolCalls.map((tool) {
+              if (!isValidJson(tool.function.arguments) &&
+                  tool.function.arguments.isNotEmpty)
+                return messageContent(
+                    context, msg.role, tool.function.arguments);
+
+              if (tool.function.name == "save_artifact")
+                return buildArtifact(
+                    context, json.decode(tool.function.arguments));
+              return SizedBox.shrink();
+            }).toList(),
+
           if (msg.content is List)
             ...msg.content.map((_content) {
               if (_content.type == "text")
@@ -135,13 +146,54 @@ class MessageBoxState extends State<MessageBox> {
               // else if (_content.type == "image")
               //   return contentImage(context, imageBytes: _content.source.data);
               else if (_content.type == "image_url")
-                return contentImage(context, imageUrl: _content.imageURL.url);
-              else
+                return contentImage(context, imageUrl: _content.imageUrl.url);
+              else if (_content.type == "tool_use" &&
+                  _content.name == "save_artifact") {
+                return buildArtifact(context, _content.input);
+              } else if (_content.type == "tool_result") {
+                print("thisis f: ${_content}");
+                return messageContent(context, msg.role, "tool test");
+              } else
                 return SizedBox.shrink();
             }).toList()
           else if (msg.content is String)
             messageContent(context, msg.role, msg.content)
         ]),
+      ),
+    );
+  }
+
+  bool isValidJson(String jsonString) {
+    try {
+      json.decode(jsonString);
+      return true;
+    } on FormatException catch (_) {
+      return false;
+    }
+  }
+
+  /**
+   * build Artifact: only support Html
+   */
+  Widget buildArtifact(BuildContext context, dynamic func) {
+    if (func["type"] == null) return SizedBox.shrink();
+    if (func["type"] != "html")
+      return SelectableText(
+        func["type"] + func["content"],
+        style: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
+      );
+    return Container(
+      padding: EdgeInsets.only(top: 5),
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      clipBehavior: Clip.hardEdge,
+      child: Column(
+        children: [
+          Text("Artifact: " + func["artifactName"],
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+          HtmlContentWidget(htmlContent: func["content"] ?? "")
+        ],
       ),
     );
   }

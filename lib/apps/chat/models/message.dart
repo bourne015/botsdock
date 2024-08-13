@@ -1,18 +1,6 @@
 import '../models/data.dart';
-import './claude_data.dart';
-import './openai_data.dart';
-
-enum MessageRole { user, system, assistant, tool }
-
-enum ToolChoiceType { none, auto, required }
-
-enum ImageDetailLevel { auto, low, high }
-
-enum ClaudeContentType { text, image, toolUse, toolResult }
-
-enum SourceType { base64 }
-
-enum MediaType { jpeg, png, gif, webp }
+import '../models/anthropic/schema/schema.dart' as anthropic;
+import '../models/openai/schema/schema.dart' as openai;
 
 abstract class Message {
   int? id;
@@ -20,23 +8,25 @@ abstract class Message {
   String? name;
   dynamic content; // This can be String, List<Content>, or null
   String? toolCallId;
-  List<ToolCall>? toolCalls;
+  List<openai.RunToolCallObject> toolCalls;
   Map<String, Attachment> attachments;
   //sice claude don't support url, we save urls here
   Map<String, VisionFile> visionFiles;
   final int? timestamp;
+  bool onThinking = false;
   Message({
     this.id,
     required this.role,
     this.name,
     this.content,
     this.toolCallId,
-    this.toolCalls,
+    List<openai.RunToolCallObject>? toolCalls,
     Map<String, Attachment>? attachments,
     Map<String, VisionFile>? visionFiles,
     this.timestamp,
   })  : attachments = attachments ?? {},
-        visionFiles = visionFiles ?? {};
+        visionFiles = visionFiles ?? {},
+        toolCalls = toolCalls ?? [];
 
   //save url in object
   void updateImageURL(String url);
@@ -68,7 +58,7 @@ class OpenAIMessage extends Message {
     String? name,
     dynamic content,
     String? toolCallId,
-    List<ToolCall>? toolCalls,
+    List<openai.RunToolCallObject>? toolCalls,
     Map<String, Attachment>? attachments,
     Map<String, VisionFile>? visionFiles,
     final int? timestamp,
@@ -121,12 +111,9 @@ class OpenAIMessage extends Message {
           'content': content is List<dynamic>
               ? content.map((e) => e.toJson()).toList()
               : content,
-        if (toolCallId != null) 'toolCallId': toolCallId,
-        if (toolCalls != null)
-          'toolCalls': toolCalls!.map((tc) => tc.toJson()).toList(),
-        // if (attachments != null)
-        //   'attachments': attachments
-        //       .map((key, attachment) => MapEntry(key, attachment.toJson())),
+        if (toolCallId != null) 'tool_call_id': toolCallId,
+        if (toolCalls.isNotEmpty)
+          'tool_calls': toolCalls.map((tc) => tc.toJson()).toList(),
       };
   @override
   Map<String, dynamic> toDBJson() => {
@@ -136,15 +123,15 @@ class OpenAIMessage extends Message {
           'content': content is List<dynamic>
               ? content.map((e) => e.toJson()).toList()
               : content,
-        if (toolCallId != null) 'toolCallId': toolCallId,
-        if (toolCalls != null)
-          'toolCalls': toolCalls!.map((tc) => tc.toJson()).toList(),
+        if (toolCallId != null) 'tool_call_id': toolCallId,
+        if (toolCalls.isNotEmpty)
+          'tool_calls': toolCalls.map((tc) => tc.toJson()).toList(),
       };
 
   static OpenAIMessage fromJson(Map<String, dynamic> json) {
     var role = json['role'];
     var name = json['name'];
-    var toolCallId = json['toolCallId'];
+    var toolCallId = json['tool_call_id'];
     Map<String, Attachment> attachments = json['attachments'] != null
         ? Map<String, Attachment>.fromEntries(
             (json['attachments'] as Map<String, dynamic>).entries.map((entry) {
@@ -163,8 +150,8 @@ class OpenAIMessage extends Message {
       }
     }
 
-    var toolCalls = (json['toolCalls'] as List?)
-        ?.map((toolCall) => ToolCall.fromJson(toolCall))
+    var toolCalls = (json['tool_calls'] as List?)
+        ?.map((toolCall) => openai.RunToolCallObject.fromJson(toolCall))
         .toList();
     return OpenAIMessage(
       role: role,
@@ -275,12 +262,17 @@ dynamic parseContentPart(Map<String, dynamic> contentPart) {
   switch (type) {
     case 'text':
       return TextContent.fromJson(contentPart);
+    // return openai.MessageContentTextObject.fromJson(contentPart);
     case 'image_url':
-      return ImageUrlContent.fromJson(contentPart);
+      return openai.MessageContentImageUrlObject.fromJson(contentPart);
     case 'image':
-      return ClaudeImageContent.fromJson(contentPart);
+      return anthropic.ImageBlock.fromJson(contentPart);
     case 'image_file':
-      return ImageFileContent.fromJson(contentPart);
+      return openai.MessageContentImageFileObject.fromJson(contentPart);
+    case 'tool_use':
+      return anthropic.ToolUseBlock.fromJson(contentPart);
+    case 'tool_result':
+      return anthropic.ToolResultBlock.fromJson(contentPart);
     default:
       throw Exception('Unsupported content part type: $type');
   }

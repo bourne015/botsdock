@@ -4,10 +4,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gallery/apps/chat/models/data.dart';
 
+import '../models/anthropic/schema/schema.dart' as anthropic;
+import '../models/openai/schema/schema.dart' as openai;
 import '../utils/constants.dart';
-import 'claude_data.dart';
 import 'message.dart';
-import 'openai_data.dart';
 
 //model of a chat page
 class Chat with ChangeNotifier {
@@ -17,8 +17,13 @@ class Chat with ChangeNotifier {
   String? _assistantID;
   String? _threadID;
   List<Message> messages = [];
-  dynamic _toolChoice;
-  List<Tool>? _tools;
+  // dynamic _toolChoice;
+  // List<Tool> tools = []; //openai tools
+  openai.CreateRunRequestToolChoice? _toolChoice;
+  List<openai.ChatCompletionTool> tools = [];
+  List<ClaudeTool> claudeTools = []; //claude tools
+  String toolInputDelta = "";
+  List<String> openaiToolInputDelta = [];
   StreamOptions? _streamOptions;
   final StreamController<Message> _messageController =
       StreamController<Message>.broadcast();
@@ -41,7 +46,9 @@ class Chat with ChangeNotifier {
     List<Message>? messages,
     StreamOptions? streamOptions,
     dynamic toolChoice,
-    List<Tool>? tools,
+    // List<Tool>? tools,
+    List<openai.ChatCompletionTool>? tools,
+    List<ClaudeTool>? claudeTools,
     int? updated_at,
   })  : _id = id,
         _dbID = dbID,
@@ -53,7 +60,8 @@ class Chat with ChangeNotifier {
         messages = messages ?? [],
         _streamOptions = streamOptions,
         _toolChoice = toolChoice,
-        _tools = tools,
+        tools = tools ?? [],
+        claudeTools = claudeTools ?? [],
         updated_at =
             updated_at ?? DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
@@ -103,9 +111,19 @@ class Chat with ChangeNotifier {
       visionFiles.forEach((_filename, _visionFile) {
         String _fileType = _filename.split('.').last.toLowerCase();
         String _fileBase64 = base64Encode(_visionFile.bytes);
-        var _source = Source(
-            type: "base64", mediaType: 'image/$_fileType', data: _fileBase64);
-        var _imgContent = ClaudeImageContent(source: _source);
+        var mtype = switch (_fileType) {
+          'jpeg' => anthropic.ImageBlockSourceMediaType.imageJpeg,
+          'png' => anthropic.ImageBlockSourceMediaType.imagePng,
+          'gif' => anthropic.ImageBlockSourceMediaType.imageGif,
+          'webp' => anthropic.ImageBlockSourceMediaType.imageWebp,
+          _ =>
+            throw AssertionError('Unsupported image MIME type: ${_fileType}'),
+        };
+        var _source = anthropic.ImageBlockSource(
+            type: anthropic.ImageBlockSourceType.base64,
+            mediaType: mtype,
+            data: _fileBase64);
+        var _imgContent = anthropic.ImageBlock(type: "image", source: _source);
         content.add(_imgContent);
         print("getVisionFiles: mt: ${_source.mediaType}");
       });
@@ -119,7 +137,9 @@ class Chat with ChangeNotifier {
           String _fileBase64 = base64Encode(_visionFile.bytes);
           _imgData = "data:image/$_fileType;base64,$_fileBase64";
         }
-        var _imgContent = ImageUrlContent(imageURL: ImageURL(url: _imgData));
+        var _imgContent = openai.MessageContentImageUrlObject(
+            type: "image_url",
+            imageUrl: openai.MessageContentImageUrl(url: _imgData));
         content.add(_imgContent);
       });
     }
@@ -132,6 +152,7 @@ class Chat with ChangeNotifier {
     Map<String, VisionFile> visionFiles = const {},
     Map<String, Attachment> attachments = const {},
     int? timestamp,
+    String? toolCallId,
   }) {
     var _msg;
     var _content = [];
@@ -158,6 +179,7 @@ class Chat with ChangeNotifier {
         attachments: attachments,
         // visionFiles: visionFiles,
         timestamp: timestamp,
+        toolCallId: toolCallId,
       );
     }
 
@@ -166,33 +188,131 @@ class Chat with ChangeNotifier {
     return messages.length - 1;
   }
 
-  void appendMessage(
-      {String? msg,
-      Map<String, VisionFile>? visionFiles,
-      Map<String, Attachment>? attachments}) {
-    int lastMsgID = messages.isNotEmpty ? messages.length - 1 : 0;
-    if (messages[lastMsgID].content is String)
-      messages[lastMsgID].content += msg;
-    else if (messages[lastMsgID].content is List) {
-      //assume the last one is text content
-      //TODO: optimize
-      for (var x in messages[lastMsgID].content) {
-        if (x.type == "text") x.text += msg;
-      }
+//add claude tool_use
+  void addTool({
+    List? toolCalls,
+    anthropic.ToolUseBlock? toolUse,
+    anthropic.ToolResultBlock? toolResult,
+  }) {
+    if (toolCalls != null) {
+      //openai tool
+    }
+    if (toolUse != null) {
+      //claude tool
+      (messages.last.content as List).add(toolUse);
+    }
+    if (toolResult != null) {
+      (messages.last.content as List).add(toolResult);
+    }
+  }
+
+  /**
+   * save claude tool messages output from model to message
+   */
+  void setClaudeToolInput(int index) {
+    var id = (messages.last.content[index] as anthropic.ToolUseBlock).id;
+    var name = (messages.last.content[index] as anthropic.ToolUseBlock).name;
+    var type = (messages.last.content[index] as anthropic.ToolUseBlock).type;
+    Map<String, dynamic> input = jsonDecode(toolInputDelta);
+    messages.last.content[index] = anthropic.ToolUseBlock(
+      id: id,
+      type: type,
+      name: name,
+      input: input,
+    );
+    toolInputDelta = "";
+  }
+
+  /**
+   * save openai tool messages output from model to message
+   */
+  void setOpenaiToolInput() {
+    for (int index = 0; index < openaiToolInputDelta.length; index++) {
+      print("setOpenaiToolInput: $openaiToolInputDelta");
+      var id = (messages.last.toolCalls[index]).id;
+      var type = (messages.last.toolCalls[index]).type;
+      var func = (messages.last.toolCalls[index]).function;
+      // Map<String, dynamic> func = jsonDecode(openaiToolInputDelta[index]);
+      messages.last.toolCalls[index] = openai.RunToolCallObject(
+        id: id,
+        type: type,
+        function: openai.RunToolCallFunction(
+          name: func.name,
+          arguments: openaiToolInputDelta[index],
+        ),
+      );
     }
 
-    // if (visionFiles != null && visionFiles.isNotEmpty)
-    //   visionFiles.forEach((String name, VisionFile content) {
-    //     messages[lastMsgID].visionFiles[name] = VisionFile(
-    //         name: content.name, url: content.url, bytes: content.bytes);
-    //   });
-    if (attachments != null)
-      attachments.forEach((String name, Attachment content) {
-        messages[lastMsgID].attachments![name] =
-            Attachment(file_id: content.file_id, tools: content.tools);
-      });
+    openaiToolInputDelta.clear();
+  }
 
-    _messageController.add(messages.last);
+  void appendMessage({
+    int? index,
+    String? msg,
+    List<openai.ChatCompletionStreamMessageToolCallChunk>? toolCalls,
+    dynamic toolUse,
+    Map<String, VisionFile>? visionFiles,
+    Map<String, Attachment>? attachments,
+    bool? doNotNotify = false,
+  }) {
+    try {
+      int lastMsgID = messages.isNotEmpty ? messages.length - 1 : 0;
+      if (msg != null && messages[lastMsgID].content is String)
+        messages[lastMsgID].content += msg;
+      else if (msg != null && messages[lastMsgID].content is List) {
+        //assume the last one is text content
+        //TODO: optimize
+        for (var x in messages[lastMsgID].content) {
+          if (x.type == "text") x.text += msg;
+        }
+      }
+      //openai use toolscalls
+      if (toolCalls != null) {
+        for (var i = 0; i < toolCalls.length; i++) {
+          if (messages.last.toolCalls.length - 1 < toolCalls[i].index) {
+            messages.last.toolCalls.add(
+              openai.RunToolCallObject(
+                id: toolCalls[i].id!,
+                type: openai.RunToolCallObjectType.function,
+                function: openai.RunToolCallFunction(
+                  name: toolCalls[i].function!.name ?? "",
+                  arguments: toolCalls[i].function!.arguments ?? "",
+                ),
+              ),
+            );
+            openaiToolInputDelta.add(" ");
+            openaiToolInputDelta[toolCalls[i].index] +=
+                toolCalls[i].function?.arguments ?? "";
+          } else {
+            // if (toolCalls[i].function?.arguments != null)
+            //   messages.last.toolCalls[i].function.arguments +=
+            //       toolCalls[i].function?.arguments;
+            openaiToolInputDelta[toolCalls[i].index] +=
+                toolCalls[i].function!.arguments ?? "";
+            print("xxxxxxx: ${openaiToolInputDelta[toolCalls[i].index]}");
+          }
+        }
+      }
+      //claude use tool_use
+      if (toolUse != null) {
+        if (messages.last.content is String ||
+            index! > messages.last.content.length - 1)
+          print("append tooluse error: out of range");
+        else
+          toolInputDelta += toolUse;
+      }
+
+      if (attachments != null)
+        attachments.forEach((String name, Attachment content) {
+          messages[lastMsgID].attachments[name] =
+              Attachment(file_id: content.file_id, tools: content.tools);
+        });
+
+      if (doNotNotify == null || !doNotNotify)
+        _messageController.add(messages.last);
+    } catch (e) {
+      print("appendMessage: $e");
+    }
   }
 
   String contentforTitle() {
@@ -257,6 +377,8 @@ class Chat with ChangeNotifier {
   Map<String, dynamic> toJson() => {
         'model': model,
         'messages': messages.map((m) => m.toJson()).toList(),
+        "tools": tools.map((e) => e.toJson()).toList(),
+        "claude_tools": claudeTools.map((e) => e.toJson()).toList(),
       };
 
   /**
@@ -276,9 +398,9 @@ class Chat with ChangeNotifier {
   List<dynamic> dbContent() {
     return messages.map((msg) {
       var v = msg.toDBJson();
-      if (msg.attachments!.isNotEmpty)
+      if (msg.attachments.isNotEmpty)
         v['attachments'] = msg.attachments
-            ?.map((key, attachment) => MapEntry(key, attachment.toJson()));
+            .map((key, attachment) => MapEntry(key, attachment.toJson()));
       return v;
     }).toList();
   }
@@ -300,46 +422,26 @@ class StreamOptions {
   }
 }
 
-class ToolChoice {
-  final String type;
-  final FunctionObject function;
+class ClaudeTool {
+  final String name;
+  String? description;
+  dynamic inputSchema;
 
-  ToolChoice({required this.type, required this.function});
-
-  Map<String, dynamic> toJson() => {
-        'type': type,
-        'function': function.toJson(),
-      };
-  factory ToolChoice.fromJson(Map<String, dynamic> json) {
-    return ToolChoice(
-      type: json['type'],
-      function: FunctionObject.fromJson(json['function']),
-    );
-  }
-  static bool isValid(dynamic json) {
-    return json is Map<String, dynamic> &&
-        json.containsKey('type') &&
-        json.containsKey('function');
-  }
-}
-
-class Tool {
-  final String type;
-  final FunctionObject function;
-
-  Tool({required this.type, required this.function});
-
-  factory Tool.fromJson(Map<String, dynamic> json) {
-    return Tool(
-      type: json['type'],
-      function: FunctionObject.fromJson(json['function']),
-    );
-  }
-
+  ClaudeTool({required this.name, this.description, required this.inputSchema});
   Map<String, dynamic> toJson() {
     return {
-      'type': type,
-      'function': function.toJson(),
+      'name': name,
+      'description': description,
+      'input_schema': inputSchema,
     };
+  }
+
+  static fromJson(Map<String, dynamic> data) {
+    return ClaudeTool(
+      name: data['name'],
+      description: data['description'],
+      inputSchema: data['input_schema'],
+      // function: FunctionObject.fromJson(data['function']),
+    );
   }
 }
