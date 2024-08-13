@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../models/chat.dart';
 import '../models/pages.dart';
 import 'message_box.dart';
-import './scrollable_positioned_list/scrollable_positioned_list.dart';
-import './scrollable_positioned_list/lazy_load_scroll_view.dart';
+import 'scrollable_positioned_list/lazy_load_scroll_view.dart';
 
 class MessageListView extends StatefulWidget {
   const MessageListView({Key? key}) : super(key: key);
