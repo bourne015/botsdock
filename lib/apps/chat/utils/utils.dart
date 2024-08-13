@@ -467,24 +467,24 @@ class ChatGen {
       Pages pages, Property property, int handlePageID, user) async {
     try {
       if (property.initModelVersion == GPTModel.gptv40Dall) {
-        String q = pages.getMessages(handlePageID)!.last.content;
-        var chatData1 = {"model": GPTModel.gptv40Dall, "question": q};
+        var q = pages.getMessages(handlePageID)!.last.content;
+        var chatData1 = {
+          "model": GPTModel.gptv40Dall,
+          "question": q,
+        };
         pages.setPageGenerateStatus(handlePageID, true);
+        var mt = DateTime.now().millisecondsSinceEpoch;
+        var msg_id = pages
+            .getPage(handlePageID)
+            .addMessage(role: MessageTRole.assistant, text: "", timestamp: mt);
         final response =
             await dio.post("${IMAGE_URL}?user_id=${user.id}", data: chatData1);
         pages.setPageGenerateStatus(handlePageID, false);
-
-        var mt = DateTime.now().millisecondsSinceEpoch;
         String _aiImageName = "ai${user.id}_${handlePageID}_${mt}.png";
-
-        var msg_id = pages.getPage(handlePageID).addMessage(
-            role: MessageTRole.assistant,
-            text: "",
-            visionFiles: {
-              _aiImageName: VisionFile(
-                  name: "ai_file", bytes: base64Decode(response.data))
-            },
-            timestamp: mt);
+        pages.getPage(handlePageID).messages.last.visionFiles = {
+          _aiImageName:
+              VisionFile(name: "ai_file", bytes: base64Decode(response.data))
+        };
 
         if (response.statusCode == 200 &&
             pages.getPage(handlePageID).title == "Chat 0") {
@@ -511,7 +511,6 @@ class ChatGen {
               : jsChat["claude_tools"],
         };
         print("$chatData");
-        ////debugPrint("send question: ${chatData["question"]}");
         final stream = CreateChatStream(
           "${SSE_CHAT_URL}?user_id=${user.id}",
           "POST",
@@ -584,15 +583,9 @@ class ChatGen {
       int handlePageID, Map<String, dynamic> j) {
     anthropic.MessageStreamEvent res = anthropic.MessageStreamEvent.fromJson(j);
     res.map(
-      messageStart: (anthropic.MessageStartEvent v) {
-        print("messageStart");
-      },
-      messageDelta: (anthropic.MessageDeltaEvent v) {
-        print("messageDelta");
-      },
-      messageStop: (anthropic.MessageStopEvent v) {
-        print("messageStop");
-      },
+      messageStart: (anthropic.MessageStartEvent v) {},
+      messageDelta: (anthropic.MessageDeltaEvent v) {},
+      messageStop: (anthropic.MessageStopEvent v) {},
       contentBlockStart: (anthropic.ContentBlockStartEvent v) {
         pages.getPage(handlePageID).addTool(
                 toolUse: v.contentBlock.mapOrNull(
@@ -611,7 +604,6 @@ class ChatGen {
             );
       },
       contentBlockStop: (anthropic.ContentBlockStopEvent v) {
-        print("contentBlockStop");
         if (pages.getPage(handlePageID).messages.last.content is List &&
             pages.getPage(handlePageID).messages.last.content[v.index].type ==
                 "tool_use") {
@@ -619,7 +611,6 @@ class ChatGen {
           var _toolID =
               pages.getPage(handlePageID).messages.last.content[v.index].id;
           pages.getPage(handlePageID).addMessage(role: MessageTRole.user);
-          print("toolID: ${_toolID}");
           pages.getPage(handlePageID).addTool(
                 toolResult: anthropic.ToolResultBlock(
                   toolUseId: _toolID,
@@ -630,9 +621,7 @@ class ChatGen {
           submitText(pages, property, handlePageID, user);
         }
       },
-      ping: (anthropic.PingEvent v) {
-        print("ping");
-      },
+      ping: (anthropic.PingEvent v) {},
     );
   }
 
