@@ -331,7 +331,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         "model": _model,
         "name": _nameController.text,
         "assistant_id": _assistant_id,
-        "avatar": _localAvatar ?? _logoURL,
+        "avatar": _localAvatar ?? _logoURL ?? defaultBotAvatar,
         "description": _introController.text,
         "instructions": _configInfoController.text,
         "author_id": widget.user.id,
