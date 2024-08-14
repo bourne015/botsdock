@@ -10,6 +10,7 @@ import 'package:gallery/apps/chat/models/user.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import '../models/bot.dart';
+import '../utils/client.dart';
 import "../utils/constants.dart";
 import '../utils/custom_widget.dart';
 import '../utils/utils.dart';
