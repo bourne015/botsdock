@@ -9,6 +9,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
 import '../models/user.dart';
+import '../utils/client.dart';
 import '../utils/custom_widget.dart';
 import '../utils/utils.dart';
 import '../utils/constants.dart';

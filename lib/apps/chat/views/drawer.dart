@@ -6,6 +6,7 @@ import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import '../models/chat.dart';
 import '../utils/assistants_api.dart';
+import '../utils/client.dart';
 import '../utils/constants.dart';
 import '../utils/utils.dart';
 import '../models/pages.dart';
