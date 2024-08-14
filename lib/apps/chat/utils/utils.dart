@@ -496,12 +496,10 @@ class ChatGen {
 
         String? ossURL = await uploadImage(pages, handlePageID, _aiImageName,
             _aiImageName, base64Decode(response.data));
-        if (ossURL != null)
-          pages.getPage(handlePageID).updateVision(
-                msg_id,
-                _aiImageName,
-                ossURL,
-              );
+        pages.getPage(handlePageID).messages[msg_id].updateVisionFiles(
+              _aiImageName,
+              ossURL ?? "",
+            );
         saveChats(user, pages, handlePageID);
         updateCredit(user);
       } else {
