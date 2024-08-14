@@ -21,7 +21,7 @@ class Chat with ChangeNotifier {
   // List<Tool> tools = []; //openai tools
   openai.CreateRunRequestToolChoice? _toolChoice;
   List<openai.ChatCompletionTool> tools = [];
-  List<ClaudeTool> claudeTools = []; //claude tools
+  List<anthropic.Tool> claudeTools = []; //claude tools
   String toolInputDelta = "";
   List<String> openaiToolInputDelta = [];
   StreamOptions? _streamOptions;
@@ -48,7 +48,7 @@ class Chat with ChangeNotifier {
     dynamic toolChoice,
     // List<Tool>? tools,
     List<openai.ChatCompletionTool>? tools,
-    List<ClaudeTool>? claudeTools,
+    List<anthropic.Tool>? claudeTools,
     int? updated_at,
   })  : _id = id,
         _dbID = dbID,
@@ -346,6 +346,8 @@ class Chat with ChangeNotifier {
         _msgs.add(ClaudeMessage.fromJson(m));
       } else if (c["model"].startsWith("gpt")) {
         _msgs.add(OpenAIMessage.fromJson(m));
+      } else if (c["model"].startsWith("dall")) {
+        _msgs.add(OpenAIMessage.fromJson(m));
       } else {
         print("Chat fromJson error: unknow model");
       }
@@ -385,13 +387,7 @@ class Chat with ChangeNotifier {
    * data for db content column 
    */
   List<dynamic> dbContent() {
-    return messages.map((msg) {
-      var v = msg.toDBJson();
-      if (msg.attachments.isNotEmpty)
-        v['attachments'] = msg.attachments
-            .map((key, attachment) => MapEntry(key, attachment.toJson()));
-      return v;
-    }).toList();
+    return messages.map((msg) => msg.toDBJson()).toList();
   }
 }
 
@@ -408,28 +404,5 @@ class StreamOptions {
     return {
       if (includeUsage != null) 'include_usage': includeUsage,
     };
-  }
-}
-
-class ClaudeTool {
-  final String name;
-  String? description;
-  dynamic inputSchema;
-
-  ClaudeTool({required this.name, this.description, required this.inputSchema});
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'description': description,
-      'input_schema': inputSchema,
-    };
-  }
-
-  static fromJson(Map<String, dynamic> data) {
-    return ClaudeTool(
-      name: data['name'],
-      description: data['description'],
-      inputSchema: data['input_schema'],
-    );
   }
 }

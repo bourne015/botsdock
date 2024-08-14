@@ -472,13 +472,16 @@ class ChatGen {
           "model": GPTModel.gptv40Dall,
           "question": q,
         };
+
         pages.setPageGenerateStatus(handlePageID, true);
         var mt = DateTime.now().millisecondsSinceEpoch;
         var msg_id = pages
             .getPage(handlePageID)
             .addMessage(role: MessageTRole.assistant, text: "", timestamp: mt);
+        pages.getPage(handlePageID).messages.last.onThinking = true;
         final response =
             await dio.post("${IMAGE_URL}?user_id=${user.id}", data: chatData1);
+        pages.getPage(handlePageID).messages.last.onThinking = false;
         pages.setPageGenerateStatus(handlePageID, false);
         String _aiImageName = "ai${user.id}_${handlePageID}_${mt}.png";
         pages.getPage(handlePageID).messages.last.visionFiles = {
@@ -654,12 +657,13 @@ class ChatGen {
           functions.forEach((name, body) {
             var func = json.decode(body);
             var funcschema = func['input_schema'] ?? func['parameters'];
+            var jsfunc = {
+              "name": func['name'],
+              "description": func['description'],
+              "inputSchema": funcschema
+            };
             pages.getPage(handlePageID).claudeTools.add(
-                  ClaudeTool(
-                    name: func['name'],
-                    description: func['description'],
-                    inputSchema: funcschema,
-                  ),
+                  anthropic.Tool.fromJson(jsfunc),
                 );
           });
         }

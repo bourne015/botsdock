@@ -126,6 +126,12 @@ class OpenAIMessage extends Message {
         if (toolCallId != null) 'tool_call_id': toolCallId,
         if (toolCalls.isNotEmpty)
           'tool_calls': toolCalls.map((tc) => tc.toJson()).toList(),
+        if (attachments.isNotEmpty)
+          'attachments': attachments
+              .map((key, attachment) => MapEntry(key, attachment.toJson())),
+        if (visionFiles.isNotEmpty)
+          'visionFiles': visionFiles
+              .map((key, visionFiles) => MapEntry(key, visionFiles.toJson())),
       };
 
   static OpenAIMessage fromJson(Map<String, dynamic> json) {
@@ -136,6 +142,12 @@ class OpenAIMessage extends Message {
         ? Map<String, Attachment>.fromEntries(
             (json['attachments'] as Map<String, dynamic>).entries.map((entry) {
             return MapEntry(entry.key, Attachment.fromJson(entry.value));
+          }))
+        : {};
+    Map<String, VisionFile> visionFile = json['visionFiles'] != null
+        ? Map<String, VisionFile>.fromEntries(
+            (json['visionFiles'] as Map<String, dynamic>).entries.map((entry) {
+            return MapEntry(entry.key, VisionFile.fromJson(entry.value));
           }))
         : {};
     dynamic content;
@@ -160,6 +172,7 @@ class OpenAIMessage extends Message {
       toolCallId: toolCallId,
       toolCalls: toolCalls,
       attachments: attachments,
+      visionFiles: visionFile,
     );
   }
 }
@@ -233,11 +246,23 @@ class ClaudeMessage extends Message {
                   .where((x) => x != null)
                   .toList()
               : content,
+        if (attachments.isNotEmpty)
+          'attachments': attachments
+              .map((key, attachment) => MapEntry(key, attachment.toJson())),
+        if (visionFiles.isNotEmpty)
+          'visionFiles': visionFiles
+              .map((key, visionFiles) => MapEntry(key, visionFiles.toJson())),
       };
 
   static ClaudeMessage fromJson(Map<String, dynamic> json) {
     var role = json['role'];
 
+    Map<String, VisionFile> visionFile = json['visionFiles'] != null
+        ? Map<String, VisionFile>.fromEntries(
+            (json['visionFiles'] as Map<String, dynamic>).entries.map((entry) {
+            return MapEntry(entry.key, VisionFile.fromJson(entry.value));
+          }))
+        : {};
     dynamic content;
     if (json['content'] != null) {
       if (json['content'] is List) {
@@ -252,6 +277,7 @@ class ClaudeMessage extends Message {
     return ClaudeMessage(
       role: role,
       content: content,
+      visionFiles: visionFile,
     );
   }
 }
