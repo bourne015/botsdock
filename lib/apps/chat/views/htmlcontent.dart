@@ -1,8 +1,5 @@
-import 'dart:html' as html;
-import 'dart:ui' as ui;
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class HtmlContentWidget extends StatelessWidget {
   final String htmlContent;
@@ -11,41 +8,33 @@ class HtmlContentWidget extends StatelessWidget {
 
   HtmlContentWidget({
     required this.htmlContent,
-    this.width = 800, //double.infinity,
+    this.width = 800,
     this.height = 400,
   });
 
   @override
   Widget build(BuildContext context) {
-    // 创建唯一的 id
-    final String viewId =
-        'html-content-${DateTime.now().millisecondsSinceEpoch}';
-
-    // 注册视图工厂
-    // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
-      final iframe = html.IFrameElement()
-        ..srcdoc = htmlContent
-        ..style.border = 'none'
-        ..allowFullscreen = true
-        ..width = '100%'
-        ..height = '100%';
-      return iframe;
-    });
-
     return Container(
       width: width,
       height: height,
       padding: EdgeInsets.only(top: 5),
-      constraints: BoxConstraints(maxHeight: 800, maxWidth: 800),
+      constraints: BoxConstraints(maxHeight: 1200, maxWidth: 1200),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(10),
-              bottomRight: Radius.circular(10))),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(10),
+          bottomRight: Radius.circular(10),
+        ),
+      ),
       clipBehavior: Clip.hardEdge,
-      child: kIsWeb
-          ? HtmlElementView(viewType: viewId)
-          : Text('HtmlElementView 只在 Web 平台可用'),
+      child: InAppWebView(
+        initialData: InAppWebViewInitialData(data: htmlContent),
+        onWebViewCreated: (InAppWebViewController controller) {
+          // 如果需要在 WebView 创建后执行一些操作，可以在这里添加代码
+        },
+        onLoadStop: (InAppWebViewController controller, Uri? url) {
+          // 页面加载完成后的回调，如果需要在加载完成后执行一些操作，可以在这里添加代码
+        },
+      ),
     );
   }
 }
