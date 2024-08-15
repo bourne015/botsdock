@@ -97,10 +97,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     switchPublic.dispose();
     switchFileSearch.dispose();
     switchCodeInterpreter.dispose();
-    fileSearchFiles.clear();
-    functionsBody.clear();
-    codeInterpreterFiles.clear();
-    vectoreStoreFiles.clear();
+    // fileSearchFiles.clear();
+    // functionsBody.clear();
+    // codeInterpreterFiles.clear();
+    // vectoreStoreFiles.clear();
     super.dispose();
   }
 
