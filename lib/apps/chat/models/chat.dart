@@ -24,7 +24,6 @@ class Chat with ChangeNotifier {
   List<anthropic.Tool> claudeTools = []; //claude tools
   String toolInputDelta = "";
   List<String> openaiToolInputDelta = [];
-  StreamOptions? _streamOptions;
   final StreamController<Message> _messageController =
       StreamController<Message>.broadcast();
   Stream<Message> get messageStream => _messageController.stream;
@@ -44,7 +43,6 @@ class Chat with ChangeNotifier {
     String title = "Chat 0",
     required String model,
     List<Message>? messages,
-    StreamOptions? streamOptions,
     dynamic toolChoice,
     // List<Tool>? tools,
     List<openai.ChatCompletionTool>? tools,
@@ -58,7 +56,6 @@ class Chat with ChangeNotifier {
         _title = title,
         _model = model,
         messages = messages ?? [],
-        _streamOptions = streamOptions,
         _toolChoice = toolChoice,
         tools = tools ?? [],
         claudeTools = claudeTools ?? [],
@@ -388,21 +385,5 @@ class Chat with ChangeNotifier {
    */
   List<dynamic> dbContent() {
     return messages.map((msg) => msg.toDBJson()).toList();
-  }
-}
-
-class StreamOptions {
-  final bool? includeUsage;
-
-  StreamOptions({this.includeUsage});
-
-  factory StreamOptions.fromJson(Map<String, dynamic> json) {
-    return StreamOptions(includeUsage: json['include_usage']);
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      if (includeUsage != null) 'include_usage': includeUsage,
-    };
   }
 }
