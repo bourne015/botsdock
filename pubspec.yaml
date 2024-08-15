@@ -37,7 +37,7 @@ dependencies:
   flutter_image_compress: ^2.3.0
   custom_sliding_segmented_control: ^1.8.3
   highlight: ^0.7.0
-  flutter_widget_from_html: ^0.15.1
+  flutter_inappwebview: ^6.0.0
   scrollable_positioned_list: ^0.3.8
 
 dev_dependencies:
