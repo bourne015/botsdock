@@ -312,7 +312,7 @@ class ChatGen {
         pages.getPage(handlePageID).messages.last.onThinking = true;
         pages.setPageGenerateStatus(handlePageID, true);
         stream.listen((data) {
-          print("$data");
+          // print("$data");
           pages.getPage(handlePageID).messages.last.onThinking = false;
           if (isValidJson(data)) {
             var res = json.decode(data) as Map<String, dynamic>;
@@ -426,7 +426,7 @@ class ChatGen {
       pages.setPageTitle(handlePageID, name ?? "Chat 0");
       pages.getPage(handlePageID).botID = botID;
       pages.currentPage?.model = model ?? property.initModelVersion;
-      if (functions != null) {
+      if (functions != null && functions.isNotEmpty) {
         if (pages.currentPage!.model.startsWith('gpt')) {
           functions.forEach((name, body) {
             var func = {"type": "function", "function": json.decode(body)};
@@ -441,7 +441,7 @@ class ChatGen {
             var jsfunc = {
               "name": func['name'],
               "description": func['description'],
-              "inputSchema": funcschema
+              "input_schema": funcschema
             };
             pages.getPage(handlePageID).claudeTools.add(
                   anthropic.Tool.fromJson(jsfunc),

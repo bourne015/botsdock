@@ -235,4 +235,4 @@ const String chatAssistantID = "asst_jyeohJN5sfUlrqdMm8pwGN2a";
 const int maxFileMBSize = 200;
 const int maxAvatarSize = 10;
 
-const String appVersion = "0.8.2";
+const String appVersion = "0.8.3";
