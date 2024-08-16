@@ -365,48 +365,61 @@ class ChatGen {
 
   void _handleClaudeResponse(Pages pages, Property property, User user,
       int handlePageID, Map<String, dynamic> j) {
-    anthropic.MessageStreamEvent res = anthropic.MessageStreamEvent.fromJson(j);
-    res.map(
-      messageStart: (anthropic.MessageStartEvent v) {},
-      messageDelta: (anthropic.MessageDeltaEvent v) {},
-      messageStop: (anthropic.MessageStopEvent v) {},
-      contentBlockStart: (anthropic.ContentBlockStartEvent v) {
-        pages.getPage(handlePageID).addTool(
-                toolUse: v.contentBlock.mapOrNull(
-              toolUse: (x) => anthropic.ToolUseBlock(
-                id: x.id,
-                name: x.name,
-                input: x.input,
-              ),
-            ));
-      },
-      contentBlockDelta: (anthropic.ContentBlockDeltaEvent v) {
-        pages.getPage(handlePageID).appendMessage(
-              index: v.index,
-              msg: v.delta.mapOrNull(textDelta: (x) => x.text),
-              toolUse: v.delta.mapOrNull(inputJsonDelta: (x) => x.partialJson),
-            );
-      },
-      contentBlockStop: (anthropic.ContentBlockStopEvent v) {
-        if (pages.getPage(handlePageID).messages.last.content is List &&
-            pages.getPage(handlePageID).messages.last.content[v.index].type ==
-                "tool_use") {
-          pages.getPage(handlePageID).setClaudeToolInput(v.index);
-          var _toolID =
-              pages.getPage(handlePageID).messages.last.content[v.index].id;
-          pages.getPage(handlePageID).addMessage(role: MessageTRole.user);
+    try {
+      anthropic.MessageStreamEvent res =
+          anthropic.MessageStreamEvent.fromJson(j);
+      res.whenOrNull(
+        messageStart:
+            (anthropic.Message v, anthropic.MessageStreamEventType t) {},
+        messageDelta: (anthropic.MessageDelta d,
+            anthropic.MessageStreamEventType t,
+            anthropic.MessageDeltaUsage u) {},
+        messageStop: (anthropic.MessageStreamEventType t) {},
+        contentBlockStart:
+            (anthropic.Block b, int i, anthropic.MessageStreamEventType t) {
           pages.getPage(handlePageID).addTool(
-                toolResult: anthropic.ToolResultBlock(
-                  toolUseId: _toolID,
-                  isError: false,
-                  content: anthropic.ToolResultBlockContent.text("tool result"),
+                  toolUse: b.mapOrNull(
+                toolUse: (x) => anthropic.ToolUseBlock(
+                  id: x.id,
+                  name: x.name,
+                  input: x.input,
                 ),
+              ));
+        },
+        contentBlockDelta: (anthropic.BlockDelta b, int i,
+            anthropic.MessageStreamEventType t) {
+          pages.getPage(handlePageID).appendMessage(
+                index: i,
+                msg: b.mapOrNull(textDelta: (x) => x.text),
+                toolUse: b.mapOrNull(inputJsonDelta: (x) => x.partialJson),
               );
-          submitText(pages, property, handlePageID, user);
-        }
-      },
-      ping: (anthropic.PingEvent v) {},
-    );
+        },
+        contentBlockStop: (int i, anthropic.MessageStreamEventType t) {
+          if (pages.getPage(handlePageID).messages.last.content is List &&
+              pages.getPage(handlePageID).messages.last.content[i].type ==
+                  "tool_use") {
+            pages.getPage(handlePageID).setClaudeToolInput(i);
+            var _toolID =
+                pages.getPage(handlePageID).messages.last.content[i].id;
+            pages.getPage(handlePageID).addMessage(role: MessageTRole.user);
+            pages.getPage(handlePageID).addTool(
+                  toolResult: anthropic.ToolResultBlock(
+                    toolUseId: _toolID,
+                    isError: false,
+                    content:
+                        anthropic.ToolResultBlockContent.text("tool result"),
+                  ),
+                );
+            submitText(pages, property, handlePageID, user);
+          }
+        },
+        ping: (anthropic.MessageStreamEventType t) {},
+      );
+    } catch (e) {
+      pages.getPage(handlePageID).appendMessage(
+            msg: j.toString() + e.toString(),
+          );
+    }
   }
 
   void newBot(Pages pages, Property property, User user,
