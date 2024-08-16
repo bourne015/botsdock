@@ -26,7 +26,7 @@ Future<http.StreamedResponse> makeRequestStream(
       client = http.Client();
     response = await client.send(request);
   } catch (e) {
-    print("error: ${e}");
+    debugPrint("error: ${e}");
   }
   return response;
 }
@@ -51,7 +51,7 @@ class _PairwiseTransformer
                 controller.add((event, dataStr));
               }
             } catch (e) {
-              print("_PairwiseTransformer error: ${e}");
+              debugPrint("_PairwiseTransformer error: ${e}");
             }
           },
           onError: controller.addError,
@@ -82,7 +82,7 @@ class _OpenAIAssistantStreamTransformer
         .map((final item) {
       final (event, data) = item;
       //print("event:${event}");
-      print("data:${data}");
+      // print("data:${data}");
 
       Map<String, dynamic> getEventDataMap({final bool decode = true}) => {
             'event': event,
@@ -148,7 +148,10 @@ class _DataPreprocessorTransformer
 Stream<openai.AssistantStreamEvent> CreateAssistantChatStream(
   String url,
   String method, {
-  Map<String, String>? headers,
+  Map<String, String>? headers = const {
+    'Content-Type': 'application/json',
+    'Accept': 'text/event-stream'
+  },
   String? body,
 }) async* {
   var request = http.Request(method, Uri.parse(url));
@@ -182,7 +185,10 @@ class _OpenAIStreamTransformer
 Stream<String> CreateChatStream(
   String url,
   String method, {
-  Map<String, String>? headers,
+  Map<String, String>? headers = const {
+    'Content-Type': 'application/json',
+    'Accept': 'text/event-stream'
+  },
   String? body,
 }) async* {
   var request = http.Request(method, Uri.parse(url));

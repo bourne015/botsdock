@@ -144,10 +144,6 @@ class ChatGen {
       final stream = CreateAssistantChatStream(
         "${_url}?user_id=${user.id}",
         "POST",
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'text/event-stream'
-        },
         body: jsonEncode(chatData),
       );
 
@@ -157,80 +153,72 @@ class ChatGen {
           timestamp: DateTime.now().millisecondsSinceEpoch);
 
       pages.setGeneratingState(handlePageID, true);
-      stream.listen((event) {
-        String? _text;
-        Map<String, Attachment> attachments = {};
-        Map<String, VisionFile> visionFiles = {};
-        if (event is openai.MessageStreamEvent &&
-            event.event == openai.EventType.threadMessageCreated) {}
-        event.when(
-            threadStreamEvent: (final event, final data) {},
-            runStreamEvent: (final event, final data) {},
-            runStepStreamEvent: (final event, final data) {
-              if (data.usage != null) {
-                print("promptTokens: ${data.usage!.promptTokens}");
-                print("completionTokens: ${data.usage!.completionTokens}");
-                print("totalTokens: ${data.usage!.totalTokens}");
-              }
-            },
-            runStepStreamDeltaEvent: (final event, final data) {
-              data.delta.stepDetails!.whenOrNull(
-                toolCalls: (type, toolCalls) {
-                  print("$type, $toolCalls");
-                },
-              );
-            },
-            messageStreamEvent: (final event, final data) {},
-            messageStreamDeltaEvent: (final event, final data) {
-              if (data.delta.content != null)
-                data.delta.content![0].whenOrNull(
-                    imageFile: (index, type, imageFileObj) {
-                  var _image_fild_id = imageFileObj!.fileId;
-                  attachments["${_image_fild_id}"] =
-                      Attachment(file_id: _image_fild_id);
-                }, text: (index, type, textObj) {
-                  _text = textObj!.value;
-                  if (textObj.annotations != null &&
-                      textObj.annotations!.isNotEmpty)
-                    textObj.annotations!.forEach((annotation) {
-                      annotation.whenOrNull(fileCitation: (index, type, text,
-                          file_citation, start_index, end_index) {
-                        var file_name = text!.split('/').last;
-                        attachments[file_name] =
-                            Attachment(file_id: file_citation!.fileId);
-                      }, filePath: (index, type, text, file_path, start_index,
-                          end_index) {
-                        var file_name = text!.split('/').last;
-                        attachments[file_name] =
-                            Attachment(file_id: file_path!.fileId);
+      stream.listen(
+        (event) {
+          String? _text;
+          Map<String, Attachment> attachments = {};
+          Map<String, VisionFile> visionFiles = {};
+          if (event is openai.MessageStreamEvent &&
+              event.event == openai.EventType.threadMessageCreated) {}
+          event.when(
+              threadStreamEvent: (final event, final data) {},
+              runStreamEvent: (final event, final data) {},
+              runStepStreamEvent: (final event, final data) {
+                if (data.usage != null) {
+                  debugPrint("promptTokens: ${data.usage!.promptTokens}");
+                  debugPrint(
+                      "completionTokens: ${data.usage!.completionTokens}");
+                  debugPrint("totalTokens: ${data.usage!.totalTokens}");
+                }
+              },
+              runStepStreamDeltaEvent: (final event, final data) {
+                data.delta.stepDetails!.whenOrNull(
+                  toolCalls: (type, toolCalls) {
+                    debugPrint("$type, $toolCalls");
+                  },
+                );
+              },
+              messageStreamEvent: (final event, final data) {},
+              messageStreamDeltaEvent: (final event, final data) {
+                if (data.delta.content != null)
+                  data.delta.content![0].whenOrNull(
+                      imageFile: (index, type, imageFileObj) {
+                    var _image_fild_id = imageFileObj!.fileId;
+                    attachments["${_image_fild_id}"] =
+                        Attachment(file_id: _image_fild_id);
+                  }, text: (index, type, textObj) {
+                    _text = textObj!.value;
+                    if (textObj.annotations != null &&
+                        textObj.annotations!.isNotEmpty)
+                      textObj.annotations!.forEach((annotation) {
+                        annotation.whenOrNull(fileCitation: (index, type, text,
+                            file_citation, start_index, end_index) {
+                          var file_name = text!.split('/').last;
+                          attachments[file_name] =
+                              Attachment(file_id: file_citation!.fileId);
+                        }, filePath: (index, type, text, file_path, start_index,
+                            end_index) {
+                          var file_name = text!.split('/').last;
+                          attachments[file_name] =
+                              Attachment(file_id: file_path!.fileId);
+                        });
                       });
-                    });
-                });
-              //});
-            },
-            errorEvent: (final event, final data) {},
-            doneEvent: (final event, final data) {});
+                  });
+                //});
+              },
+              errorEvent: (final event, final data) {},
+              doneEvent: (final event, final data) {});
 
-        if (_text != null)
-          pages.getPage(handlePageID).appendMessage(
-              msg: _text,
-              visionFiles: copyVision(visionFiles),
-              attachments: copyAttachment(attachments));
-        //pages.setGeneratingState(handlePageID, true);
-      }, onError: (e) {
-        debugPrint('SSE error: $e');
-        pages.setGeneratingState(handlePageID, false);
-      }, onDone: () async {
-        pages.setGeneratingState(handlePageID, false);
-        debugPrint('SSE complete');
-        // if (msgA != null) pages.getPage(handlePageID).updateScheme(msgA!.id);
-        var pageTitle = pages.getPage(handlePageID).title;
-        if (pageTitle.length >= 6 && pageTitle.startsWith("Chat 0")) {
-          await titleGenerate(pages, handlePageID, user);
-        }
-        saveChats(user, pages, handlePageID);
-        updateCredit(user);
-      });
+          if (_text != null)
+            pages.getPage(handlePageID).appendMessage(
+                msg: _text,
+                visionFiles: copyVision(visionFiles),
+                attachments: copyAttachment(attachments));
+          //pages.setGeneratingState(handlePageID, true);
+        },
+        onError: (e) => _handleStreamError(pages, handlePageID, e),
+        onDone: () => _handleStreamDone(pages, handlePageID, user),
+      );
     } catch (e) {
       debugPrint("gen error: $e");
       pages.setGeneratingState(handlePageID, false);
@@ -248,43 +236,10 @@ class ChatGen {
 
   void submitText(
       Pages pages, Property property, int handlePageID, user) async {
+    StreamSubscription? subscription;
     try {
       if (property.initModelVersion == GPTModel.gptv40Dall) {
-        var q = pages.getMessages(handlePageID)!.last.content;
-        var chatData1 = {
-          "model": GPTModel.gptv40Dall,
-          "question": q,
-        };
-
-        pages.setPageGenerateStatus(handlePageID, true);
-        var mt = DateTime.now().millisecondsSinceEpoch;
-        var msg_id = pages
-            .getPage(handlePageID)
-            .addMessage(role: MessageTRole.assistant, text: "", timestamp: mt);
-        pages.getPage(handlePageID).messages.last.onThinking = true;
-        final response =
-            await dio.post("${IMAGE_URL}?user_id=${user.id}", data: chatData1);
-        pages.getPage(handlePageID).messages.last.onThinking = false;
-        pages.setPageGenerateStatus(handlePageID, false);
-        String _aiImageName = "ai${user.id}_${handlePageID}_${mt}.png";
-        pages.getPage(handlePageID).messages.last.visionFiles = {
-          _aiImageName:
-              VisionFile(name: "ai_file", bytes: base64Decode(response.data))
-        };
-
-        if (response.statusCode == 200 &&
-            pages.getPage(handlePageID).title == "Chat 0") {
-          await titleGenerate(pages, handlePageID, user);
-        }
-
-        String? ossURL = await uploadImage(pages, handlePageID, _aiImageName,
-            _aiImageName, base64Decode(response.data));
-        pages.getPage(handlePageID).messages[msg_id].updateVisionFiles(
-              _aiImageName,
-              ossURL ?? "",
-            );
-        saveChats(user, pages, handlePageID);
-        updateCredit(user);
+        _imageGeneration(pages, property, handlePageID, user);
       } else {
         var jsChat = pages.getPage(handlePageID).toJson();
         var chatData = {
@@ -294,14 +249,9 @@ class ChatGen {
               ? jsChat["tools"]
               : jsChat["claude_tools"],
         };
-        print("$chatData");
         final stream = CreateChatStream(
           "${SSE_CHAT_URL}?user_id=${user.id}",
           "POST",
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'text/event-stream'
-          },
           body: jsonEncode(chatData),
         );
         pages.getPage(handlePageID).addMessage(
@@ -311,35 +261,75 @@ class ChatGen {
             );
         pages.getPage(handlePageID).messages.last.onThinking = true;
         pages.setPageGenerateStatus(handlePageID, true);
-        stream.listen((data) {
-          // print("$data");
-          pages.getPage(handlePageID).messages.last.onThinking = false;
-          if (isValidJson(data)) {
-            var res = json.decode(data) as Map<String, dynamic>;
-            if (pages.getPage(handlePageID).model.startsWith('gpt')) {
-              _handleOpenaiResponse(pages, property, user, handlePageID, res);
-            } else {
-              _handleClaudeResponse(pages, property, user, handlePageID, res);
+        stream.listen(
+          (data) {
+            pages.getPage(handlePageID).messages.last.onThinking = false;
+            if (isValidJson(data)) {
+              var res = json.decode(data) as Map<String, dynamic>;
+              if (pages.getPage(handlePageID).model.startsWith('gpt')) {
+                _handleOpenaiResponse(pages, property, user, handlePageID, res);
+              } else {
+                _handleClaudeResponse(pages, property, user, handlePageID, res);
+              }
             }
-          }
-        }, onError: (e) {
-          debugPrint('SSE error: $e');
-          pages.setPageGenerateStatus(handlePageID, false);
-        }, onDone: () async {
-          debugPrint('SSE complete');
-          pages.setPageGenerateStatus(handlePageID, false);
-          var pageTitle = pages.getPage(handlePageID).title;
-          if (pageTitle.length >= 6 && pageTitle.substring(0, 6) == "Chat 0") {
-            await titleGenerate(pages, handlePageID, user);
-          }
-          saveChats(user, pages, handlePageID);
-          updateCredit(user);
-        });
+          },
+          onError: (e) => _handleStreamError(pages, handlePageID, e),
+          onDone: () => _handleStreamDone(pages, handlePageID, user),
+        );
       }
     } catch (e) {
       debugPrint("gen error: $e");
       pages.setPageGenerateStatus(handlePageID, false);
     }
+  }
+
+  Future<void> _imageGeneration(
+      Pages pages, Property property, int handlePageID, user) async {
+    var q = pages.getMessages(handlePageID)!.last.content;
+    var chatData1 = {
+      "model": GPTModel.gptv40Dall,
+      "question": q,
+    };
+
+    pages.setPageGenerateStatus(handlePageID, true);
+    var mt = DateTime.now().millisecondsSinceEpoch;
+    var msg_id = pages
+        .getPage(handlePageID)
+        .addMessage(role: MessageTRole.assistant, text: "", timestamp: mt);
+    pages.getPage(handlePageID).messages.last.onThinking = true;
+    final response =
+        await dio.post("${IMAGE_URL}?user_id=${user.id}", data: chatData1);
+    pages.getPage(handlePageID).messages.last.onThinking = false;
+    pages.setPageGenerateStatus(handlePageID, false);
+    String _aiImageName = "ai${user.id}_${handlePageID}_${mt}.png";
+    pages.getPage(handlePageID).messages.last.visionFiles = {
+      _aiImageName:
+          VisionFile(name: "ai_file", bytes: base64Decode(response.data))
+    };
+
+    String? ossURL = await uploadImage(pages, handlePageID, _aiImageName,
+        _aiImageName, base64Decode(response.data));
+    pages.getPage(handlePageID).messages[msg_id].updateVisionFiles(
+          _aiImageName,
+          ossURL ?? "",
+        );
+    _handleStreamDone(pages, handlePageID, user);
+  }
+
+  void _handleStreamError(Pages pages, int handlePageID, dynamic error) {
+    debugPrint('SSE error: $error');
+    pages.setPageGenerateStatus(handlePageID, false);
+  }
+
+  Future<void> _handleStreamDone(pages, handlePageID, user) async {
+    debugPrint('SSE complete');
+    pages.setPageGenerateStatus(handlePageID, false);
+    var pageTitle = pages.getPage(handlePageID).title;
+    if (pageTitle.length >= 6 && pageTitle.substring(0, 6) == "Chat 0") {
+      await titleGenerate(pages, handlePageID, user);
+    }
+    saveChats(user, pages, handlePageID);
+    updateCredit(user);
   }
 
   void _handleOpenaiResponse(Pages pages, Property property, User user,
@@ -369,12 +359,6 @@ class ChatGen {
       anthropic.MessageStreamEvent res =
           anthropic.MessageStreamEvent.fromJson(j);
       res.whenOrNull(
-        messageStart:
-            (anthropic.Message v, anthropic.MessageStreamEventType t) {},
-        messageDelta: (anthropic.MessageDelta d,
-            anthropic.MessageStreamEventType t,
-            anthropic.MessageDeltaUsage u) {},
-        messageStop: (anthropic.MessageStreamEventType t) {},
         contentBlockStart:
             (anthropic.Block b, int i, anthropic.MessageStreamEventType t) {
           pages.getPage(handlePageID).addTool(
@@ -413,7 +397,6 @@ class ChatGen {
             submitText(pages, property, handlePageID, user);
           }
         },
-        ping: (anthropic.MessageStreamEventType t) {},
       );
     } catch (e) {
       pages.getPage(handlePageID).appendMessage(
@@ -469,7 +452,7 @@ class ChatGen {
           timestamp: DateTime.now().millisecondsSinceEpoch);
       submitText(pages, property, handlePageID, user);
     } catch (e) {
-      print("newBot error: $e");
+      debugPrint("newBot error: $e");
     }
   }
 
