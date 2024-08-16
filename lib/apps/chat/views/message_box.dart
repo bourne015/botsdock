@@ -138,7 +138,6 @@ class MessageBoxState extends State<MessageBox> {
                   _content.name == "save_artifact") {
                 return buildArtifact(context, _content.input);
               } else if (_content.type == "tool_result") {
-                print("thisis f: ${_content}");
                 return messageContent(context, msg.role, "tool test");
               } else
                 return SizedBox.shrink();
