@@ -76,21 +76,21 @@ class ChatGen {
   }
 
   //save chats to DB and local cache
-  void saveChats(user, pages, handlePageID) async {
-    if (user.id != 0) {
-      //only store after user login
-      var chatdbUrl = USER_URL + "/" + "${user.id}" + "/chat";
-      var chatData = {
-        "id": pages.getPage(handlePageID).dbID,
-        "page_id": handlePageID,
-        "title": pages.getPage(handlePageID).title,
-        "contents": pages.getPage(handlePageID).dbContent(),
-        "model": pages.getPage(handlePageID).model,
-        "assistant_id": pages.getPage(handlePageID).assistantID,
-        "thread_id": pages.getPage(handlePageID).threadID,
-        "bot_id": pages.getPage(handlePageID).botID,
-      };
+  Future<void> saveChats(user, pages, handlePageID) async {
+    if (user.id == 0) return;
+    var chatdbUrl = "${USER_URL}/${user.id}/chat";
+    var chatData = {
+      "id": pages.getPage(handlePageID).dbID,
+      "page_id": handlePageID,
+      "title": pages.getPage(handlePageID).title,
+      "contents": pages.getPage(handlePageID).dbContent(),
+      "model": pages.getPage(handlePageID).model,
+      "assistant_id": pages.getPage(handlePageID).assistantID,
+      "thread_id": pages.getPage(handlePageID).threadID,
+      "bot_id": pages.getPage(handlePageID).botID,
+    };
 
+    try {
       Response cres = await dio.post(
         chatdbUrl,
         data: chatData,
@@ -105,6 +105,8 @@ class ChatGen {
         Global.saveChats(
             chatData["id"], jsonEncode(chatData), cres.data["updated_at"]);
       }
+    } catch (e) {
+      debugPrint("saveChats error: $e");
     }
   }
 
@@ -127,114 +129,70 @@ class ChatGen {
     return ossUrl;
   }
 
-  void submitAssistant(Pages pages, Property property, int handlePageID, user,
-      attachments) async {
-    var assistant_id = pages.getPage(handlePageID).assistantID;
-    var thread_id = pages.getPage(handlePageID).threadID;
-    var _url =
-        "${BASE_URL}/v1/assistant/vs/${assistant_id}/threads/${thread_id}/messages";
-    try {
-      var chatData = {
-        "role": "user",
-        "content": pages.getPage(handlePageID).jsonThreadContent(),
-        "attachments":
-            attachments.values.map((attachment) => attachment.toJson()).toList()
-      };
-      ////debugPrint("send question: ${chatData["question"]}");
-      final stream = CreateAssistantChatStream(
-        "${_url}?user_id=${user.id}",
-        "POST",
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'text/event-stream'
+  void _handleAssistantStream(
+    Pages pages,
+    int handlePageID,
+    event,
+  ) {
+    String? _text;
+    Map<String, Attachment> attachments = {};
+    Map<String, VisionFile> visionFiles = {};
+    if (event is openai.MessageStreamEvent &&
+        event.event == openai.EventType.threadMessageCreated) {}
+    event.when(
+        threadStreamEvent: (final event, final data) {},
+        runStreamEvent: (final event, final data) {},
+        runStepStreamEvent: (final event, final data) {
+          if (data.usage != null) {
+            debugPrint("promptTokens: ${data.usage!.promptTokens}");
+            debugPrint("completionTokens: ${data.usage!.completionTokens}");
+            debugPrint("totalTokens: ${data.usage!.totalTokens}");
+          }
         },
-        body: jsonEncode(chatData),
-      );
-
-      pages.getPage(handlePageID).addMessage(
-          role: MessageTRole.assistant,
-          text: "",
-          timestamp: DateTime.now().millisecondsSinceEpoch);
-
-      pages.setGeneratingState(handlePageID, true);
-      stream.listen((event) {
-        String? _text;
-        Map<String, Attachment> attachments = {};
-        Map<String, VisionFile> visionFiles = {};
-        if (event is openai.MessageStreamEvent &&
-            event.event == openai.EventType.threadMessageCreated) {}
-        event.when(
-            threadStreamEvent: (final event, final data) {},
-            runStreamEvent: (final event, final data) {},
-            runStepStreamEvent: (final event, final data) {
-              if (data.usage != null) {
-                print("promptTokens: ${data.usage!.promptTokens}");
-                print("completionTokens: ${data.usage!.completionTokens}");
-                print("totalTokens: ${data.usage!.totalTokens}");
-              }
+        runStepStreamDeltaEvent: (final event, final data) {
+          data.delta.stepDetails!.whenOrNull(
+            toolCalls: (type, toolCalls) {
+              debugPrint("$type, $toolCalls");
             },
-            runStepStreamDeltaEvent: (final event, final data) {
-              data.delta.stepDetails!.whenOrNull(
-                toolCalls: (type, toolCalls) {
-                  print("$type, $toolCalls");
-                },
-              );
-            },
-            messageStreamEvent: (final event, final data) {},
-            messageStreamDeltaEvent: (final event, final data) {
-              if (data.delta.content != null)
-                data.delta.content![0].whenOrNull(
-                    imageFile: (index, type, imageFileObj) {
-                  var _image_fild_id = imageFileObj!.fileId;
-                  attachments["${_image_fild_id}"] =
-                      Attachment(file_id: _image_fild_id);
-                }, text: (index, type, textObj) {
-                  _text = textObj!.value;
-                  if (textObj.annotations != null &&
-                      textObj.annotations!.isNotEmpty)
-                    textObj.annotations!.forEach((annotation) {
-                      annotation.whenOrNull(fileCitation: (index, type, text,
-                          file_citation, start_index, end_index) {
-                        var file_name = text!.split('/').last;
-                        attachments[file_name] =
-                            Attachment(file_id: file_citation!.fileId);
-                      }, filePath: (index, type, text, file_path, start_index,
-                          end_index) {
-                        var file_name = text!.split('/').last;
-                        attachments[file_name] =
-                            Attachment(file_id: file_path!.fileId);
-                      });
-                    });
+          );
+        },
+        messageStreamEvent: (final event, final data) {},
+        messageStreamDeltaEvent: (final event, final data) {
+          if (data.delta.content != null)
+            data.delta.content![0].whenOrNull(
+                imageFile: (index, type, imageFileObj) {
+              var _image_fild_id = imageFileObj!.fileId;
+              attachments["${_image_fild_id}"] =
+                  Attachment(file_id: _image_fild_id);
+            }, text: (index, type, textObj) {
+              _text = textObj!.value;
+              if (textObj.annotations != null &&
+                  textObj.annotations!.isNotEmpty)
+                textObj.annotations!.forEach((annotation) {
+                  annotation.whenOrNull(fileCitation: (index, type, text,
+                      file_citation, start_index, end_index) {
+                    var file_name = text!.split('/').last;
+                    attachments[file_name] =
+                        Attachment(file_id: file_citation!.fileId);
+                  }, filePath:
+                      (index, type, text, file_path, start_index, end_index) {
+                    var file_name = text!.split('/').last;
+                    attachments[file_name] =
+                        Attachment(file_id: file_path!.fileId);
+                  });
                 });
-              //});
-            },
-            errorEvent: (final event, final data) {},
-            doneEvent: (final event, final data) {});
+            });
+          //});
+        },
+        errorEvent: (final event, final data) {},
+        doneEvent: (final event, final data) {});
 
-        if (_text != null)
-          pages.getPage(handlePageID).appendMessage(
-              msg: _text,
-              visionFiles: copyVision(visionFiles),
-              attachments: copyAttachment(attachments));
-        //pages.setGeneratingState(handlePageID, true);
-      }, onError: (e) {
-        debugPrint('SSE error: $e');
-        pages.setGeneratingState(handlePageID, false);
-      }, onDone: () async {
-        pages.setGeneratingState(handlePageID, false);
-        debugPrint('SSE complete');
-        // if (msgA != null) pages.getPage(handlePageID).updateScheme(msgA!.id);
-        var pageTitle = pages.getPage(handlePageID).title;
-        if (pageTitle.length >= 6 && pageTitle.startsWith("Chat 0")) {
-          await titleGenerate(pages, handlePageID, user);
-        }
-        saveChats(user, pages, handlePageID);
-        updateCredit(user);
-      });
-    } catch (e) {
-      debugPrint("gen error: $e");
-      pages.setGeneratingState(handlePageID, false);
-    }
+    if (_text != null)
+      pages.getPage(handlePageID).appendMessage(
+          msg: _text,
+          visionFiles: copyVision(visionFiles),
+          attachments: copyAttachment(attachments));
+    //pages.setGeneratingState(handlePageID, true);
   }
 
   bool isValidJson(String jsonString) {
@@ -246,100 +204,84 @@ class ChatGen {
     }
   }
 
-  void submitText(
-      Pages pages, Property property, int handlePageID, user) async {
-    try {
-      if (property.initModelVersion == GPTModel.gptv40Dall) {
-        var q = pages.getMessages(handlePageID)!.last.content;
-        var chatData1 = {
-          "model": GPTModel.gptv40Dall,
-          "question": q,
-        };
-
-        pages.setPageGenerateStatus(handlePageID, true);
-        var mt = DateTime.now().millisecondsSinceEpoch;
-        var msg_id = pages
-            .getPage(handlePageID)
-            .addMessage(role: MessageTRole.assistant, text: "", timestamp: mt);
-        pages.getPage(handlePageID).messages.last.onThinking = true;
-        final response =
-            await dio.post("${IMAGE_URL}?user_id=${user.id}", data: chatData1);
-        pages.getPage(handlePageID).messages.last.onThinking = false;
-        pages.setPageGenerateStatus(handlePageID, false);
-        String _aiImageName = "ai${user.id}_${handlePageID}_${mt}.png";
-        pages.getPage(handlePageID).messages.last.visionFiles = {
-          _aiImageName:
-              VisionFile(name: "ai_file", bytes: base64Decode(response.data))
-        };
-
-        if (response.statusCode == 200 &&
-            pages.getPage(handlePageID).title == "Chat 0") {
-          await titleGenerate(pages, handlePageID, user);
-        }
-
-        String? ossURL = await uploadImage(pages, handlePageID, _aiImageName,
-            _aiImageName, base64Decode(response.data));
-        pages.getPage(handlePageID).messages[msg_id].updateVisionFiles(
-              _aiImageName,
-              ossURL ?? "",
-            );
-        saveChats(user, pages, handlePageID);
-        updateCredit(user);
-      } else {
-        var jsChat = pages.getPage(handlePageID).toJson();
-        var chatData = {
-          "model": pages.currentPage?.model,
-          "messages": jsChat["messages"],
-          "tools": pages.currentPage!.model.startsWith('gpt')
-              ? jsChat["tools"]
-              : jsChat["claude_tools"],
-        };
-        print("$chatData");
-        final stream = CreateChatStream(
-          "${SSE_CHAT_URL}?user_id=${user.id}",
-          "POST",
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'text/event-stream'
-          },
-          body: jsonEncode(chatData),
+  /**
+   * initialize an empty assistant message to show animation
+   */
+  void _initializeAssistantMessage(Pages pages, int handlePageID) {
+    pages.getPage(handlePageID).addMessage(
+          role: MessageTRole.assistant,
+          text: "",
+          timestamp: DateTime.now().millisecondsSinceEpoch,
         );
-        pages.getPage(handlePageID).addMessage(
-              role: MessageTRole.assistant,
-              text: "",
-              timestamp: DateTime.now().millisecondsSinceEpoch,
-            );
-        pages.getPage(handlePageID).messages.last.onThinking = true;
-        pages.setPageGenerateStatus(handlePageID, true);
-        stream.listen((data) {
-          // print("$data");
-          pages.getPage(handlePageID).messages.last.onThinking = false;
-          if (isValidJson(data)) {
-            var res = json.decode(data) as Map<String, dynamic>;
-            if (pages.getPage(handlePageID).model.startsWith('gpt')) {
-              _handleOpenaiResponse(pages, property, user, handlePageID, res);
-            } else {
-              _handleClaudeResponse(pages, property, user, handlePageID, res);
-            }
-          }
-        }, onError: (e) {
-          debugPrint('SSE error: $e');
-          pages.setPageGenerateStatus(handlePageID, false);
-        }, onDone: () async {
-          debugPrint('SSE complete');
-          pages.setPageGenerateStatus(handlePageID, false);
-          var pageTitle = pages.getPage(handlePageID).title;
-          if (pageTitle.length >= 6 && pageTitle.substring(0, 6) == "Chat 0") {
-            await titleGenerate(pages, handlePageID, user);
-          }
-          saveChats(user, pages, handlePageID);
-          updateCredit(user);
-        });
+    pages.getPage(handlePageID).messages.last.onThinking = true;
+    pages.setPageGenerateStatus(handlePageID, true);
+  }
+
+  void _handleChatStream(
+    Pages pages,
+    int handlePageID,
+    Property property,
+    User user,
+    data,
+  ) {
+    pages.getPage(handlePageID).messages.last.onThinking = false;
+    if (isValidJson(data)) {
+      var res = json.decode(data) as Map<String, dynamic>;
+      if (pages.getPage(handlePageID).model.startsWith('gpt')) {
+        _handleOpenaiResponse(pages, property, user, handlePageID, res);
+      } else {
+        _handleClaudeResponse(pages, property, user, handlePageID, res);
       }
-    } catch (e) {
-      debugPrint("gen error: $e");
-      pages.setPageGenerateStatus(handlePageID, false);
     }
+  }
+
+  Future<void> _imageGeneration(
+      Pages pages, Property property, int handlePageID, user) async {
+    var q = pages.getMessages(handlePageID)!.last.content;
+    var chatData1 = {
+      "model": GPTModel.gptv40Dall,
+      "question": q,
+    };
+
+    pages.setPageGenerateStatus(handlePageID, true);
+    var mt = DateTime.now().millisecondsSinceEpoch;
+    var msg_id = pages
+        .getPage(handlePageID)
+        .addMessage(role: MessageTRole.assistant, text: "", timestamp: mt);
+    pages.getPage(handlePageID).messages.last.onThinking = true;
+    final response =
+        await dio.post("${IMAGE_URL}?user_id=${user.id}", data: chatData1);
+    pages.getPage(handlePageID).messages.last.onThinking = false;
+    pages.setPageGenerateStatus(handlePageID, false);
+    String _aiImageName = "ai${user.id}_${handlePageID}_${mt}.png";
+    pages.getPage(handlePageID).messages.last.visionFiles = {
+      _aiImageName:
+          VisionFile(name: "ai_file", bytes: base64Decode(response.data))
+    };
+
+    String? ossURL = await uploadImage(pages, handlePageID, _aiImageName,
+        _aiImageName, base64Decode(response.data));
+    pages.getPage(handlePageID).messages[msg_id].updateVisionFiles(
+          _aiImageName,
+          ossURL ?? "",
+        );
+    _handleStreamDone(pages, handlePageID, user);
+  }
+
+  void _handleStreamError(Pages pages, int handlePageID, dynamic error) {
+    debugPrint('SSE error: $error');
+    pages.setPageGenerateStatus(handlePageID, false);
+  }
+
+  Future<void> _handleStreamDone(pages, handlePageID, user) async {
+    debugPrint('SSE complete');
+    pages.setPageGenerateStatus(handlePageID, false);
+    var pageTitle = pages.getPage(handlePageID).title;
+    if (pageTitle.length >= 6 && pageTitle.substring(0, 6) == "Chat 0") {
+      await titleGenerate(pages, handlePageID, user);
+    }
+    saveChats(user, pages, handlePageID);
+    updateCredit(user);
   }
 
   void _handleOpenaiResponse(Pages pages, Property property, User user,
@@ -365,48 +307,131 @@ class ChatGen {
 
   void _handleClaudeResponse(Pages pages, Property property, User user,
       int handlePageID, Map<String, dynamic> j) {
-    anthropic.MessageStreamEvent res = anthropic.MessageStreamEvent.fromJson(j);
-    res.map(
-      messageStart: (anthropic.MessageStartEvent v) {},
-      messageDelta: (anthropic.MessageDeltaEvent v) {},
-      messageStop: (anthropic.MessageStopEvent v) {},
-      contentBlockStart: (anthropic.ContentBlockStartEvent v) {
-        pages.getPage(handlePageID).addTool(
-                toolUse: v.contentBlock.mapOrNull(
-              toolUse: (x) => anthropic.ToolUseBlock(
-                id: x.id,
-                name: x.name,
-                input: x.input,
-              ),
-            ));
-      },
-      contentBlockDelta: (anthropic.ContentBlockDeltaEvent v) {
-        pages.getPage(handlePageID).appendMessage(
-              index: v.index,
-              msg: v.delta.mapOrNull(textDelta: (x) => x.text),
-              toolUse: v.delta.mapOrNull(inputJsonDelta: (x) => x.partialJson),
-            );
-      },
-      contentBlockStop: (anthropic.ContentBlockStopEvent v) {
-        if (pages.getPage(handlePageID).messages.last.content is List &&
-            pages.getPage(handlePageID).messages.last.content[v.index].type ==
-                "tool_use") {
-          pages.getPage(handlePageID).setClaudeToolInput(v.index);
-          var _toolID =
-              pages.getPage(handlePageID).messages.last.content[v.index].id;
-          pages.getPage(handlePageID).addMessage(role: MessageTRole.user);
+    try {
+      anthropic.MessageStreamEvent res =
+          anthropic.MessageStreamEvent.fromJson(j);
+      res.whenOrNull(
+        contentBlockStart:
+            (anthropic.Block b, int i, anthropic.MessageStreamEventType t) {
           pages.getPage(handlePageID).addTool(
-                toolResult: anthropic.ToolResultBlock(
-                  toolUseId: _toolID,
-                  isError: false,
-                  content: anthropic.ToolResultBlockContent.text("tool result"),
+                  toolUse: b.mapOrNull(
+                toolUse: (x) => anthropic.ToolUseBlock(
+                  id: x.id,
+                  name: x.name,
+                  input: x.input,
                 ),
+              ));
+        },
+        contentBlockDelta: (anthropic.BlockDelta b, int i,
+            anthropic.MessageStreamEventType t) {
+          pages.getPage(handlePageID).appendMessage(
+                index: i,
+                msg: b.mapOrNull(textDelta: (x) => x.text),
+                toolUse: b.mapOrNull(inputJsonDelta: (x) => x.partialJson),
               );
-          submitText(pages, property, handlePageID, user);
-        }
-      },
-      ping: (anthropic.PingEvent v) {},
-    );
+        },
+        contentBlockStop: (int i, anthropic.MessageStreamEventType t) {
+          if (pages.getPage(handlePageID).messages.last.content is List &&
+              pages.getPage(handlePageID).messages.last.content[i].type ==
+                  "tool_use") {
+            pages.getPage(handlePageID).setClaudeToolInput(i);
+            var _toolID =
+                pages.getPage(handlePageID).messages.last.content[i].id;
+            pages.getPage(handlePageID).addMessage(role: MessageTRole.user);
+            pages.getPage(handlePageID).addTool(
+                  toolResult: anthropic.ToolResultBlock(
+                    toolUseId: _toolID,
+                    isError: false,
+                    content:
+                        anthropic.ToolResultBlockContent.text("tool result"),
+                  ),
+                );
+            submitText(pages, property, handlePageID, user);
+          }
+        },
+      );
+    } catch (e) {
+      pages.getPage(handlePageID).appendMessage(
+            msg: j.toString() + e.toString(),
+          );
+    }
+  }
+
+  void submitAssistant(
+    Pages pages,
+    Property property,
+    int handlePageID,
+    user,
+    attachments,
+  ) async {
+    var assistantId = pages.getPage(handlePageID).assistantID;
+    var threadId = pages.getPage(handlePageID).threadID;
+
+    try {
+      var chatData = {
+        "role": "user",
+        "content": pages.getPage(handlePageID).jsonThreadContent(),
+        "attachments":
+            attachments.values.map((attachment) => attachment.toJson()).toList()
+      };
+
+      final stream = CreateAssistantChatStream(
+        "${BASE_URL}/v1/assistant/vs/${assistantId}/threads/${threadId}/messages?user_id=${user.id}",
+        body: jsonEncode(chatData),
+      );
+
+      _initializeAssistantMessage(pages, handlePageID);
+      stream.listen(
+        (event) {
+          _handleAssistantStream(pages, handlePageID, event);
+        },
+        onError: (e) => _handleStreamError(pages, handlePageID, e),
+        onDone: () => _handleStreamDone(pages, handlePageID, user),
+        cancelOnError: true,
+      );
+    } catch (e) {
+      debugPrint("gen error: $e");
+      pages.setGeneratingState(handlePageID, false);
+    }
+  }
+
+  void submitText(
+    Pages pages,
+    Property property,
+    int handlePageID,
+    user,
+  ) async {
+    StreamSubscription? subscription;
+    try {
+      if (property.initModelVersion == GPTModel.gptv40Dall) {
+        _imageGeneration(pages, property, handlePageID, user);
+      } else {
+        var jsChat = pages.getPage(handlePageID).toJson();
+        var chatData = {
+          "model": pages.currentPage?.model,
+          "messages": jsChat["messages"],
+          "tools": pages.currentPage!.model.startsWith('gpt')
+              ? jsChat["tools"]
+              : jsChat["claude_tools"],
+        };
+        final stream = CreateChatStream(
+          "${SSE_CHAT_URL}?user_id=${user.id}",
+          body: jsonEncode(chatData),
+        );
+        _initializeAssistantMessage(pages, handlePageID);
+        stream.listen(
+          (data) {
+            _handleChatStream(pages, handlePageID, property, user, data);
+          },
+          onError: (e) => _handleStreamError(pages, handlePageID, e),
+          onDone: () => _handleStreamDone(pages, handlePageID, user),
+          cancelOnError: true,
+        );
+      }
+    } catch (e) {
+      debugPrint("gen error: $e");
+      pages.setPageGenerateStatus(handlePageID, false);
+    }
   }
 
   void newBot(Pages pages, Property property, User user,
@@ -456,11 +481,16 @@ class ChatGen {
           timestamp: DateTime.now().millisecondsSinceEpoch);
       submitText(pages, property, handlePageID, user);
     } catch (e) {
-      print("newBot error: $e");
+      debugPrint("newBot error: $e");
     }
   }
 
-  void newTextChat(Pages pages, Property property, User user, String prompt) {
+  void newTextChat(
+    Pages pages,
+    Property property,
+    User user,
+    String prompt,
+  ) {
     int handlePageID = pages.addPage(
         Chat(title: "Chat 0", model: property.initModelVersion),
         sort: true);
