@@ -386,4 +386,11 @@ class Chat with ChangeNotifier {
   List<dynamic> dbContent() {
     return messages.map((msg) => msg.toDBJson()).toList();
   }
+
+  void clearMessage() {
+    if (messages.first.role == MessageTRole.system)
+      messages.removeRange(1, messages.length);
+    else
+      messages.clear();
+  }
 }

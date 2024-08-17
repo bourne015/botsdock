@@ -27,6 +27,10 @@ class MyAppBarState extends State<MyAppBar> {
         backgroundColor: AppColors.chatPageBackground,
         surfaceTintColor: AppColors.chatPageBackground,
         toolbarHeight: 44,
+        centerTitle: true,
+        actions: [
+          _appBarMenu(context),
+        ],
       ),
       // Divider(
       //   height: 1.0,
@@ -34,6 +38,53 @@ class MyAppBarState extends State<MyAppBar> {
       //   color: AppColors.drawerDivider,
       // ),
     ]);
+  }
+
+  Widget _appBarMenu(BuildContext context) {
+    Pages pages = Provider.of<Pages>(context);
+    return PopupMenuButton<String>(
+      icon: Icon(Icons.more_vert_rounded, size: 20),
+      color: AppColors.drawerBackground,
+      shadowColor: Colors.blue,
+      elevation: 5,
+      position: PopupMenuPosition.under,
+      padding: const EdgeInsets.only(left: 2),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        _buildPopupMenuItem(
+          context,
+          "clear",
+          icon: Icon(Icons.delete_outline, size: 18),
+          title: "清空当前页面",
+          onTap: () {
+            Navigator.of(context).pop();
+            pages.clearCurrentPage();
+          },
+        ),
+      ],
+    );
+  }
+
+  PopupMenuItem<String> _buildPopupMenuItem(BuildContext context, String value,
+      {Icon? icon, String? title, void Function()? onTap}) {
+    return PopupMenuItem<String>(
+      padding: EdgeInsets.all(0),
+      value: value,
+      child: Material(
+        color: AppColors.drawerBackground,
+        child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 5),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(15),
+              onTap: onTap,
+              child: ListTile(
+                  contentPadding: EdgeInsets.only(left: 5),
+                  leading: icon,
+                  title: Text(title ?? "")),
+            )),
+      ),
+    );
   }
 
   Widget appbarTitle(BuildContext context) {
