@@ -129,6 +129,16 @@ class ChatGen {
     return ossUrl;
   }
 
+  String _prepareAssistantData(Pages pages, int handlePageID, attachments) {
+    var chatData = {
+      "role": "user",
+      "content": pages.getPage(handlePageID).jsonThreadContent(),
+      "attachments":
+          attachments.values.map((attachment) => attachment.toJson()).toList()
+    };
+    return jsonEncode(chatData);
+  }
+
   void _handleAssistantStream(
     Pages pages,
     int handlePageID,
@@ -215,6 +225,18 @@ class ChatGen {
         );
     pages.getPage(handlePageID).messages.last.onThinking = true;
     pages.setPageGenerateStatus(handlePageID, true);
+  }
+
+  String _prepareChatData(Pages pages, int handlePageID) {
+    var jsChat = pages.getPage(handlePageID).toJson();
+    var chatData = {
+      "model": pages.currentPage?.model,
+      "messages": jsChat["messages"],
+      "tools": pages.currentPage!.model.startsWith('gpt')
+          ? jsChat["tools"]
+          : jsChat["claude_tools"],
+    };
+    return jsonEncode(chatData);
   }
 
   void _handleChatStream(
@@ -368,16 +390,11 @@ class ChatGen {
     var threadId = pages.getPage(handlePageID).threadID;
 
     try {
-      var chatData = {
-        "role": "user",
-        "content": pages.getPage(handlePageID).jsonThreadContent(),
-        "attachments":
-            attachments.values.map((attachment) => attachment.toJson()).toList()
-      };
+      var chatData = _prepareAssistantData(pages, handlePageID, attachments);
 
       final stream = CreateAssistantChatStream(
         "${BASE_URL}/v1/assistant/vs/${assistantId}/threads/${threadId}/messages?user_id=${user.id}",
-        body: jsonEncode(chatData),
+        body: chatData,
       );
 
       _initializeAssistantMessage(pages, handlePageID);
@@ -406,17 +423,10 @@ class ChatGen {
       if (property.initModelVersion == GPTModel.gptv40Dall) {
         _imageGeneration(pages, property, handlePageID, user);
       } else {
-        var jsChat = pages.getPage(handlePageID).toJson();
-        var chatData = {
-          "model": pages.currentPage?.model,
-          "messages": jsChat["messages"],
-          "tools": pages.currentPage!.model.startsWith('gpt')
-              ? jsChat["tools"]
-              : jsChat["claude_tools"],
-        };
+        var chatData = _prepareChatData(pages, handlePageID);
         final stream = CreateChatStream(
           "${SSE_CHAT_URL}?user_id=${user.id}",
-          body: jsonEncode(chatData),
+          body: chatData,
         );
         _initializeAssistantMessage(pages, handlePageID);
         stream.listen(
