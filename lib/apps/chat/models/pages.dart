@@ -81,9 +81,8 @@ class Pages with ChangeNotifier {
 
   List<Message>? getMessages(int pageID) => _pages[pageID]?.messages;
 
-  void clearMsg(int pageID) {
-    _pages[pageID]?.messages.clear();
-
+  void clearCurrentPage() {
+    currentPage!.clearMessage();
     notifyListeners();
   }
 
