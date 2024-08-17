@@ -399,9 +399,7 @@ class ChatGen {
 
       _initializeAssistantMessage(pages, handlePageID);
       stream.listen(
-        (event) {
-          _handleAssistantStream(pages, handlePageID, event);
-        },
+        (event) => _handleAssistantStream(pages, handlePageID, event),
         onError: (e) => _handleStreamError(pages, handlePageID, e),
         onDone: () => _handleStreamDone(pages, handlePageID, user),
         cancelOnError: true,
@@ -430,9 +428,8 @@ class ChatGen {
         );
         _initializeAssistantMessage(pages, handlePageID);
         stream.listen(
-          (data) {
-            _handleChatStream(pages, handlePageID, property, user, data);
-          },
+          (data) =>
+              _handleChatStream(pages, handlePageID, property, user, data),
           onError: (e) => _handleStreamError(pages, handlePageID, e),
           onDone: () => _handleStreamDone(pages, handlePageID, user),
           cancelOnError: true,
