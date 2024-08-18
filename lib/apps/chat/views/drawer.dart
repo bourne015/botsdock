@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:gallery/apps/chat/main.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
@@ -74,7 +75,7 @@ class ChatDrawerState extends State<ChatDrawer> {
             borderRadius: const BorderRadius.all(Radius.circular(15))),
         child: ListTile(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BORDERRADIUS10,
           ),
           leading: Icon(
             Icons.view_compact_sharp,
@@ -123,10 +124,13 @@ class ChatDrawerState extends State<ChatDrawer> {
       decoration: BoxDecoration(
         border:
             Border.all(color: Color.fromARGB(255, 162, 158, 158), width: 0.5),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BORDERRADIUS10,
       ),
       margin: const EdgeInsets.fromLTRB(10, 15, 10, 10),
       child: ListTile(
+        shape: RoundedRectangleBorder(
+          borderRadius: BORDERRADIUS10,
+        ),
         onTap: () {
           property.onInitPage = true;
           pages.currentPageID = -1;
@@ -233,7 +237,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
           child: ListTile(
             dense: true,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BORDERRADIUS10,
             ),
             selectedTileColor: AppColors.drawerTabSelected,
             selected: widget.pages.currentPageID == widget.page.id,

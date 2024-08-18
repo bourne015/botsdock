@@ -8,6 +8,8 @@ import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../apps/chat/utils/constants.dart';
+
 void showAboutDialog({
   required BuildContext context,
 }) {
@@ -44,7 +46,7 @@ class _AboutDialog extends StatelessWidget {
 
     return AlertDialog(
       backgroundColor: colorScheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      shape: RoundedRectangleBorder(borderRadius: BORDERRADIUS10),
       content: Container(
         constraints: const BoxConstraints(maxWidth: 400),
         child: Column(

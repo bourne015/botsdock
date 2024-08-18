@@ -110,7 +110,7 @@ Widget botTextFormField(
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(fontSize: 14),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          border: OutlineInputBorder(borderRadius: BORDERRADIUS10),
         ),
         validator: (v) {
           return v == null || v.trim().isNotEmpty ? null : "不能为空";
@@ -128,10 +128,10 @@ PopupMenuItem<String> buildPopupMenuItem(BuildContext context,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BORDERRADIUS15,
         ),
         child: InkWell(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BORDERRADIUS15,
           onTap: () {
             Navigator.pop(context, value);
           },

@@ -49,7 +49,7 @@ class MyAppBarState extends State<MyAppBar> {
       elevation: 5,
       position: PopupMenuPosition.under,
       padding: const EdgeInsets.only(left: 2),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      shape: RoundedRectangleBorder(borderRadius: BORDERRADIUS10),
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         _buildPopupMenuItem(
           context,
@@ -74,9 +74,9 @@ class MyAppBarState extends State<MyAppBar> {
         color: AppColors.drawerBackground,
         child: Container(
             padding: EdgeInsets.symmetric(horizontal: 5),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+            decoration: BoxDecoration(borderRadius: BORDERRADIUS15),
             child: InkWell(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BORDERRADIUS15,
               onTap: onTap,
               child: ListTile(
                   contentPadding: EdgeInsets.only(left: 5),

@@ -14,6 +14,8 @@ import 'package:gallery/data/gallery_options.dart';
 import 'package:gallery/data/adaptive.dart';
 import 'package:gallery/apps/chat/routes.dart' as chat_routes;
 
+import '../apps/chat/utils/constants.dart';
+
 const _horizontalPadding = 32.0;
 const _horizontalDesktopPadding = 81.0;
 const _carouselHeightMin = 240.0;
@@ -810,7 +812,7 @@ class _CarouselCard extends StatelessWidget {
         key: ValueKey(demo!.describe),
         color: assetColor,
         elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BORDERRADIUS10),
         clipBehavior: Clip.antiAlias,
         child: Stack(
           fit: StackFit.expand,

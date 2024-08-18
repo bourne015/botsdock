@@ -299,11 +299,11 @@ class InitPageState extends State<InitPage>
             decoration: BoxDecoration(
               //color: CupertinoColors.lightBackgroundGray,
               color: AppColors.modelSelectorBackground!,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BORDERRADIUS10,
             ),
             thumbDecoration: BoxDecoration(
               //color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BORDERRADIUS10,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(.3),
@@ -338,7 +338,7 @@ class InitPageState extends State<InitPage>
       shadowColor: Colors.blue,
       elevation: 5,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BORDERRADIUS10,
       ),
       icon: CircleAvatar(
           radius: 12,
@@ -385,7 +385,7 @@ class InitPageState extends State<InitPage>
       shadowColor: Colors.blue,
       elevation: 5,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BORDERRADIUS10,
       ),
       icon: CircleAvatar(
           radius: 12,
@@ -422,10 +422,10 @@ class InitPageState extends State<InitPage>
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BORDERRADIUS15,
           ),
           child: InkWell(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BORDERRADIUS15,
             onTap: () {
               Navigator.pop(context, value);
             },
@@ -508,7 +508,7 @@ class CustomCard extends StatelessWidget {
                   style: BorderStyle.solid,
                   width: 0.7,
                   color: Color.fromARGB(255, 206, 204, 204)),
-              borderRadius: BorderRadius.circular(15.0),
+              borderRadius: BORDERRADIUS15,
             ),
             elevation: 1,
             child: Material(

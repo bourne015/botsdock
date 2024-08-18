@@ -85,7 +85,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(color: Colors.blue),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BORDERRADIUS10,
         ),
         columns: [
           DataColumn(label: Text('')),
