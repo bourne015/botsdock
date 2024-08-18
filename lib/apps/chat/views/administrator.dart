@@ -51,23 +51,23 @@ class Administrator extends StatelessWidget {
         shadowColor: Colors.blue,
         elevation: 15,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BORDERRADIUS10,
         ),
         child: Material(
             color: AppColors.drawerBackground,
             child: Container(
                 // padding: EdgeInsets.symmetric(horizontal: 2),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BORDERRADIUS15,
                 ),
                 child: InkWell(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BORDERRADIUS15,
                     onTap: () {
                       _popupMenuKey.currentState?.showButtonMenu();
                     },
                     child: ListTile(
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BORDERRADIUS10,
                       ),
                       leading: user.isLogedin
                           ? image_show(user.avatar!, 15)
@@ -131,10 +131,10 @@ class Administrator extends StatelessWidget {
                               padding: EdgeInsets.only(left: 5, right: 5),
                               //margin: EdgeInsets.only(left: 50),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BORDERRADIUS15,
                               ),
                               child: InkWell(
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BORDERRADIUS15,
                                 onTap: () {
                                   Navigator.pop(context, "user");
                                 },
@@ -181,10 +181,10 @@ class Administrator extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 5),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BORDERRADIUS15,
           ),
           child: InkWell(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BORDERRADIUS15,
             onTap: () {
               Navigator.pop(context, value);
             },
@@ -213,7 +213,7 @@ class Administrator extends StatelessWidget {
         builder: (BuildContext context) {
           return Dialog(
               child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BORDERRADIUS15,
             child: SettingsView(),
           ));
         });

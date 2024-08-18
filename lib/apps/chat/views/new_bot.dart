@@ -231,7 +231,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
           forceMaterialTransparency: true,
           backgroundColor: AppColors.chatPageBackground,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BORDERRADIUS10,
           ),
           title: Text(GalleryLocalizations.of(context)!.botCreateTitle,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.5)),
@@ -923,7 +923,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                                   hintText: function_sample1,
                                   hintStyle: TextStyle(fontSize: 14),
                                   border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(15)),
+                                    borderRadius: BORDERRADIUS15,
+                                  ),
                                 ),
                                 validator: (v) {
                                   if ((v!.trim().isNotEmpty) &&

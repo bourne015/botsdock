@@ -215,7 +215,7 @@ class BotsState extends State<BotsCentre> {
     User user = Provider.of<User>(context, listen: false);
     return Card(
         color: Color.fromARGB(255, 244, 244, 244),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        shape: RoundedRectangleBorder(borderRadius: BORDERRADIUS15),
         elevation: 0,
         child: InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(15)),

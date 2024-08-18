@@ -50,7 +50,7 @@ class _UserInfoTabState extends State<UserInfo> {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(15))),
         child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BORDERRADIUS15,
             child: Container(
               width: 400,
               child: DefaultTabController(

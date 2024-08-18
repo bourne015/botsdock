@@ -231,9 +231,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
         color: AppColors.drawerBackground,
         child: Container(
             padding: EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+            decoration: BoxDecoration(borderRadius: BORDERRADIUS15),
             child: InkWell(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BORDERRADIUS15,
               onTap: onTap,
               child: ListTile(
                   contentPadding: EdgeInsets.only(left: 5),
@@ -252,7 +252,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       elevation: 5,
       position: PopupMenuPosition.over,
       padding: const EdgeInsets.only(left: 2),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      shape: RoundedRectangleBorder(borderRadius: BORDERRADIUS10),
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         _buildPopupMenuItem(
           context,

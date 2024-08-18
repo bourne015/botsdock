@@ -235,4 +235,7 @@ const String chatAssistantID = "asst_jyeohJN5sfUlrqdMm8pwGN2a";
 const int maxFileMBSize = 200;
 const int maxAvatarSize = 10;
 
+BorderRadius BORDERRADIUS10 = BorderRadius.circular(10.0);
+BorderRadius BORDERRADIUS15 = BorderRadius.circular(15.0);
+
 const String appVersion = "0.8.5";

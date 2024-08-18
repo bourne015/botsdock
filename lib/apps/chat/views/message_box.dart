@@ -272,7 +272,7 @@ class MessageBoxState extends State<MessageBox> {
               ),
               codeblockPadding: const EdgeInsets.all(10),
               codeblockDecoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BORDERRADIUS10,
                 // color: Colors.grey,
               ),
             ),
