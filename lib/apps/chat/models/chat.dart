@@ -33,6 +33,7 @@ class Chat with ChangeNotifier {
   String _model = '';
   int tokenSpent = 0;
   bool _onGenerating = false;
+  bool doStream = true;
 
   Chat({
     int id = -1,
@@ -190,6 +191,7 @@ class Chat with ChangeNotifier {
 
     messages.add(_msg);
     // _messageController.add(_msg);
+    doStream = true;
     return messages.length - 1;
   }
 
@@ -299,7 +301,7 @@ class Chat with ChangeNotifier {
               Attachment(file_id: content.file_id, tools: content.tools);
         });
 
-      _messageController.add(messages.last);
+      if (doStream) _messageController.add(messages.last);
     } catch (e) {
       print("appendMessage: $e");
     }
