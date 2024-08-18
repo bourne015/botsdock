@@ -1,16 +1,16 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../models/chat.dart';
-import '../models/pages.dart';
 import 'message_box.dart';
 import 'scrollable_positioned_list/lazy_load_scroll_view.dart';
 
 class MessageListView extends StatefulWidget {
-  const MessageListView({Key? key}) : super(key: key);
+  final Chat page;
+  const MessageListView({Key? key, required this.page}) : super(key: key);
 
   @override
   State createState() => MessageListViewState();
@@ -18,8 +18,8 @@ class MessageListView extends StatefulWidget {
 
 class MessageListViewState extends State<MessageListView> {
   final itemScrollController = ItemScrollController();
-  // late final ItemPositionsListener _itemPositionListener =
-  //     ItemPositionsListener.create();
+  late final ItemPositionsListener _itemPositionListener =
+      ItemPositionsListener.create();
   final ValueNotifier<bool> _showScrollToBottom = ValueNotifier(false);
   int _messageLength = 0;
   int _initialScrollIndex = 0;
@@ -27,21 +27,22 @@ class MessageListViewState extends State<MessageListView> {
   @override
   void initState() {
     super.initState();
-    // _itemPositionListener.itemPositions
-    //     .addListener(_handleItemPositionsChanged);
+    _itemPositionListener.itemPositions
+        .addListener(_handleItemPositionsChanged);
   }
 
   @override
   void dispose() {
-    // _itemPositionListener.itemPositions
-    //     .removeListener(_handleItemPositionsChanged);
+    _itemPositionListener.itemPositions
+        .removeListener(_handleItemPositionsChanged);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context, listen: true);
-    Chat chat = pages.currentPage!;
+    // Pages pages = Provider.of<Pages>(context, listen: true);
+    // Chat chat = pages.currentPage!;
+    Chat chat = widget.page;
 
     _messageLength = chat.messages.length;
     return Stack(alignment: Alignment.center, children: [
@@ -60,13 +61,12 @@ class MessageListViewState extends State<MessageListView> {
             key: ValueKey(chat.id),
             itemCount: _messageLength,
             itemScrollController: itemScrollController,
-            // itemPositionsListener: _itemPositionListener,
+            itemPositionsListener: _itemPositionListener,
             initialScrollIndex: _initialScrollIndex,
             initialAlignment: 0,
             reverse: true,
             itemBuilder: (context, index) {
               bool isLast = index == 0; //messageLength - 1;
-
               if (index >= _messageLength) return Offstage();
               var reindex = _messageLength - 1 - index;
 
@@ -74,7 +74,7 @@ class MessageListViewState extends State<MessageListView> {
                 key: ValueKey(chat.messages[reindex].id),
                 msg: chat.messages[reindex],
                 isLast: isLast,
-                pageId: pages.currentPageID,
+                pageId: chat.id,
                 messageStream: chat.messageStream,
               );
             },
@@ -107,11 +107,17 @@ class MessageListViewState extends State<MessageListView> {
         ));
   }
 
-  // void _handleItemPositionsChanged() {
-  //   // final _itemPositions = _itemPositionListener.itemPositions.value.toList();
-  //   // print("itemPositions: ${_itemPositions.map((e) => e.index).toList()}");
-  //   // if (!_userScrolling) scrollToButtom();
-  // }
+  void _handleItemPositionsChanged() {
+    ItemPosition? _firstItem =
+        _itemPositionListener.itemPositions.value.firstWhereOrNull(
+      (position) => position.index == 0,
+    );
+    if (_firstItem == null || _firstItem.itemLeadingEdge < -0.2) {
+      widget.page.doStream = false;
+    } else {
+      widget.page.doStream = true;
+    }
+  }
 
   Future<void> scrollToButtom(
       {int? index, double? alignment, Duration? duration}) async {

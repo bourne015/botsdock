@@ -78,12 +78,15 @@ class MainLayoutState extends State<MainLayout> {
 
   Widget _buildMainPageBody(BuildContext context) {
     Property property = Provider.of<Property>(context);
+    Pages pages = Provider.of<Pages>(context);
     return Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child: property.onInitPage ? InitPage() : MessageListView(),
+            child: property.onInitPage
+                ? InitPage()
+                : MessageListView(page: pages.currentPage!),
           ),
           ChatInputField(),
         ]);
