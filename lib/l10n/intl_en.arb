@@ -145,7 +145,7 @@
   "@botCentreMe": {
     "description": "bot centre me"
   },
-  "botCentreCreate" : "create bot",
+  "botCentreCreate" : "create",
   "@botCentreCreate": {
     "description": "create bot"
   },

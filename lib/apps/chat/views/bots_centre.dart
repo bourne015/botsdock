@@ -50,7 +50,12 @@ class BotsState extends State<BotsCentre> {
         appBar: AppBar(
           title: Text(GalleryLocalizations.of(context)!.botCentreTitle,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          centerTitle: true,
           backgroundColor: AppColors.chatPageBackground,
+          actions: [
+            createBotButton(context),
+            SizedBox(width: 15),
+          ],
         ),
         backgroundColor: AppColors.chatPageBackground,
         body: BotsPage(context));
@@ -63,11 +68,11 @@ class BotsState extends State<BotsCentre> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            Text(GalleryLocalizations.of(context)!.botCentreMe,
-                textAlign: TextAlign.left, style: TextStyle(fontSize: 18)),
-            SizedBox(height: 20),
-            createBotButton(context),
-            SizedBox(height: 30),
+            // Text(GalleryLocalizations.of(context)!.botCentreMe,
+            //     textAlign: TextAlign.left, style: TextStyle(fontSize: 18)),
+            // SizedBox(height: 20),
+            // createBotButton(context),
+            // SizedBox(height: 30),
             Text(GalleryLocalizations.of(context)!.exploreMore,
                 style: TextStyle(fontSize: 18)),
             FutureBuilder(
@@ -100,7 +105,7 @@ class BotsState extends State<BotsCentre> {
   Widget createBotButton(BuildContext context) {
     User user = Provider.of<User>(context, listen: false);
     return Container(
-        padding: EdgeInsets.only(left: isDisplayDesktop(context) ? 50 : 20),
+        // padding: EdgeInsets.only(left: isDisplayDesktop(context) ? 50 : 20),
         child: OutlinedButton.icon(
             onPressed: () {
               if (user.isLogedin) {
