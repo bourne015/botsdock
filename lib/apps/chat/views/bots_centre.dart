@@ -52,6 +52,7 @@ class BotsState extends State<BotsCentre> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           centerTitle: true,
           backgroundColor: AppColors.chatPageBackground,
+          surfaceTintColor: AppColors.chatPageBackground,
           actions: [
             createBotButton(context),
             SizedBox(width: 15),
