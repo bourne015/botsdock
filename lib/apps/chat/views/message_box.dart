@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:image_downloader_web/image_downloader_web.dart';
 
+import '../models/anthropic/schema/schema.dart' as anthropic;
 import '../models/message.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
@@ -45,6 +46,12 @@ class MessageBoxState extends State<MessageBox> {
 
   @override
   Widget build(BuildContext context) {
+    //do not show tool result message
+    if (widget.msg.role == MessageTRole.user &&
+        (widget.msg.content is List &&
+            widget.msg.content[0] is anthropic.ToolResultBlock))
+      return Container();
+
     return widget.msg.role == MessageTRole.user ||
             widget.msg.role == MessageTRole.assistant
         ? AnimatedSize(
@@ -176,7 +183,7 @@ class MessageBoxState extends State<MessageBox> {
    */
   Widget buildArtifact(BuildContext context, dynamic func) {
     if (func["type"] == null) return SizedBox.shrink();
-    if (func["type"] != "html")
+    if (func["type"] != "html" && func["type"] != "mermaid")
       return SelectableText(
         func["type"] + func["content"],
         style: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
@@ -191,7 +198,12 @@ class MessageBoxState extends State<MessageBox> {
         children: [
           Text("Artifact: " + func["artifactName"],
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-          HtmlContentWidget(htmlContent: func["content"] ?? "")
+          HtmlContentWidget(
+            content: func["content"] ?? "",
+            contentType: func["type"] == "mermaid"
+                ? ContentType.mermaid
+                : ContentType.html,
+          )
         ],
       ),
     );

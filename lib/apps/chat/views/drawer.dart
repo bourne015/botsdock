@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:gallery/apps/chat/main.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
