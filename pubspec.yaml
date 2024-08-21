@@ -1,7 +1,7 @@
 name: gallery
 description: A gallery to list apps.
 repository: https://github.com/flutter/gallery
-version: 0.8.8
+version: 0.8.9
 
 environment:
   flutter: ^3.24.1

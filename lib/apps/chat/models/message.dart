@@ -3,7 +3,7 @@ import '../models/anthropic/schema/schema.dart' as anthropic;
 import '../models/openai/schema/schema.dart' as openai;
 
 abstract class Message {
-  int? id;
+  int id;
   String role;
   String? name;
   dynamic content; // This can be String, List<Content>, or null
@@ -15,7 +15,7 @@ abstract class Message {
   final int? timestamp;
   bool onThinking = false;
   Message({
-    this.id,
+    required this.id,
     required this.role,
     this.name,
     this.content,
@@ -53,7 +53,7 @@ abstract class Message {
 
 class OpenAIMessage extends Message {
   OpenAIMessage({
-    int? id,
+    required int id,
     required String role,
     String? name,
     dynamic content,
@@ -118,6 +118,7 @@ class OpenAIMessage extends Message {
       };
   @override
   Map<String, dynamic> toDBJson() => {
+        'id': id,
         'role': role,
         if (name != null) 'name': name,
         if (content != null)
@@ -136,6 +137,9 @@ class OpenAIMessage extends Message {
       };
 
   static OpenAIMessage fromJson(Map<String, dynamic> json) {
+    int id = (json['id'] is String)
+        ? int.parse(json['id'])
+        : (json['id'] as int?) ?? DateTime.now().millisecondsSinceEpoch;
     var role = json['role'];
     var name = json['name'];
     var toolCallId = json['tool_call_id'];
@@ -167,6 +171,7 @@ class OpenAIMessage extends Message {
         ?.map((toolCall) => openai.RunToolCallObject.fromJson(toolCall))
         .toList();
     return OpenAIMessage(
+      id: id,
       role: role,
       name: name,
       content: content,
@@ -180,7 +185,7 @@ class OpenAIMessage extends Message {
 
 class ClaudeMessage extends Message {
   ClaudeMessage({
-    int? id,
+    required int id,
     required String role,
     dynamic content,
     Map<String, Attachment>? attachments,
@@ -238,6 +243,7 @@ class ClaudeMessage extends Message {
       };
   @override
   Map<String, dynamic> toDBJson() => {
+        'id': id,
         'role': role,
         if (content != null)
           'content': content is List<dynamic>
@@ -257,6 +263,9 @@ class ClaudeMessage extends Message {
       };
 
   static ClaudeMessage fromJson(Map<String, dynamic> json) {
+    int id = (json['id'] is String)
+        ? int.parse(json['id'])
+        : (json['id'] as int?) ?? DateTime.now().millisecondsSinceEpoch;
     var role = json['role'];
 
     Map<String, VisionFile> visionFile = json['visionFiles'] != null
@@ -277,6 +286,7 @@ class ClaudeMessage extends Message {
       }
     }
     return ClaudeMessage(
+      id: id,
       role: role,
       content: content,
       visionFiles: visionFile,

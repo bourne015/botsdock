@@ -24,7 +24,7 @@ class InitPage extends StatefulWidget {
 }
 
 class InitPageState extends State<InitPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, RestorationMixin {
   List<String> gptSub = [
     ...GPTModel().toJson().keys.toList(),
     GPTModel.gptv40Dall
@@ -46,10 +46,20 @@ class InitPageState extends State<InitPage>
   late Offset dragStart;
   String _dragImg = '';
   String _runImg = "assets/images/cat/cat11.avif";
+  RestorableBool switchArtifact = RestorableBool(true);
+
+  @override
+  String get restorationId => 'switch_test';
+  @override
+  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
+    registerForRestoration(switchArtifact, 'switch_artifact');
+  }
 
   @override
   void initState() {
     super.initState();
+    Property property = Provider.of<Property>(context, listen: false);
+    switchArtifact = RestorableBool(property.artifact);
     _controller = AnimationController(
       duration: const Duration(seconds: 20), // 总的动画周期
       vsync: this,
@@ -352,8 +362,8 @@ class InitPageState extends State<InitPage>
       },
       position: PopupMenuPosition.over,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
-            GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
+        // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
+        //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
         _buildPopupMenuItem(context, gptSub[3], "mini", "ChatGPT 4o mini",
             GalleryLocalizations.of(context)?.chatGPT4oMiniDesc ?? ''),
         _buildPopupMenuItem(context, gptSub[2], "4o", "ChatGPT 4o",
@@ -362,6 +372,8 @@ class InitPageState extends State<InitPage>
             GalleryLocalizations.of(context)?.chatGPT40Desc ?? ''),
         _buildPopupMenuItem(context, gptSub[4], "D·E", "DALL·E 3",
             GalleryLocalizations.of(context)?.dallEDesc ?? ''),
+        PopupMenuDivider(),
+        _buildArtifactSwitch(context),
       ],
     );
   }
@@ -407,6 +419,8 @@ class InitPageState extends State<InitPage>
             GalleryLocalizations.of(context)?.claude3OpusDesc ?? ''),
         _buildPopupMenuItem(context, claudeSub[3], "S", "Claude3.5 - Sonnet",
             GalleryLocalizations.of(context)?.claude35SonnetDesc ?? ''),
+        PopupMenuDivider(),
+        _buildArtifactSwitch(context),
       ],
     );
   }
@@ -420,7 +434,7 @@ class InitPageState extends State<InitPage>
         //color: Colors.transparent,
         color: AppColors.drawerBackground,
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10),
+          padding: EdgeInsets.symmetric(horizontal: 5),
           decoration: BoxDecoration(
             borderRadius: BORDERRADIUS15,
           ),
@@ -445,6 +459,52 @@ class InitPageState extends State<InitPage>
         ),
       ),
     );
+  }
+
+  PopupMenuItem<String> _buildArtifactSwitch(BuildContext context) {
+    Property property = Provider.of<Property>(context, listen: false);
+    return PopupMenuItem<String>(
+        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+        // value: "value",
+        child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+          return Material(
+              //color: Colors.transparent,
+              color: AppColors.drawerBackground,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BORDERRADIUS15,
+                ),
+                child: InkWell(
+                  borderRadius: BORDERRADIUS15,
+                  onTap: () {
+                    // Navigator.pop(context, value);
+                  },
+                  child: ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 5),
+                      leading: Icon(Icons.visibility_outlined),
+                      title: Text("可视化"),
+                      subtitle: Text("提供图表、图片、地图、网页预览等可视化内容",
+                          style: TextStyle(
+                              fontSize: 12.5, color: AppColors.subTitle)),
+                      trailing: Transform.scale(
+                        scale: 0.7,
+                        child: Switch(
+                          value: switchArtifact.value,
+                          activeColor: Colors.blue[300],
+                          onChanged: (value) {
+                            setState(() {
+                              switchArtifact.value = value;
+                              property.artifact = switchArtifact.value;
+                            });
+                          },
+                        ),
+                      )),
+                ),
+              ));
+        }));
   }
 
   List<String> dragCat = [
