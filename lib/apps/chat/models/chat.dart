@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery/apps/chat/models/data.dart';
+import 'package:gallery/apps/chat/utils/prompts.dart';
 
 import '../models/anthropic/schema/schema.dart' as anthropic;
 import '../models/openai/schema/schema.dart' as openai;
@@ -34,6 +36,7 @@ class Chat with ChangeNotifier {
   int tokenSpent = 0;
   bool _onGenerating = false;
   bool doStream = true;
+  bool artifact;
 
   Chat({
     int id = -1,
@@ -49,6 +52,7 @@ class Chat with ChangeNotifier {
     List<openai.ChatCompletionTool>? tools,
     List<anthropic.Tool>? claudeTools,
     int? updated_at,
+    bool? artifact,
   })  : _id = id,
         _dbID = dbID,
         _botID = botID,
@@ -60,6 +64,7 @@ class Chat with ChangeNotifier {
         _toolChoice = toolChoice,
         tools = tools ?? [],
         claudeTools = claudeTools ?? [],
+        artifact = artifact ?? false,
         updated_at =
             updated_at ?? DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
@@ -144,7 +149,7 @@ class Chat with ChangeNotifier {
 
   int addMessage({
     required String role,
-    int? id,
+    int? id, //use id if need to insert message with index
     String? text,
     Map<String, VisionFile> visionFiles = const {},
     Map<String, Attachment> attachments = const {},
@@ -162,16 +167,18 @@ class Chat with ChangeNotifier {
       getVisionFiles(visionFiles, _content);
     }
     if (model.startsWith("claude")) {
+      int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = ClaudeMessage(
-        id: id ?? messages.length,
+        id: id ?? _newid,
         role: role,
         content: _content,
         attachments: attachments,
         timestamp: timestamp,
       );
     } else if (model.startsWith("gpt")) {
+      int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = OpenAIMessage(
-        id: id ?? messages.length,
+        id: id ?? _newid,
         role: role,
         content: _content,
         attachments: attachments,
@@ -179,8 +186,9 @@ class Chat with ChangeNotifier {
         toolCallId: toolCallId,
       );
     } else if (model.startsWith("dall")) {
+      int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = OpenAIMessage(
-        id: id ?? messages.length,
+        id: id ?? _newid,
         role: role,
         content: text,
         attachments: attachments,
@@ -189,7 +197,12 @@ class Chat with ChangeNotifier {
       );
     }
 
-    messages.add(_msg);
+    if (id != null && messages.isNotEmpty) {
+      //assume that case id == 0
+      _msg.id = messages.first.id - 1;
+      messages.insert(id, _msg);
+    } else
+      messages.add(_msg);
     // _messageController.add(_msg);
     doStream = true;
     return messages.length - 1;
@@ -314,10 +327,11 @@ class Chat with ChangeNotifier {
       else if (messages.first.content is List)
         return messages.first.content.first.text;
     } else {
-      if (messages[1].content is String)
-        return messages[1].content;
-      else if (messages[1].content is List)
-        for (var c in messages[1].content)
+      var _asstMsg = messages.firstWhere((x) => x.role == MessageTRole.user);
+      if (_asstMsg.content is String)
+        return _asstMsg.content;
+      else if (_asstMsg.content is List)
+        for (var c in _asstMsg.content)
           if (c.type == 'text')
             return c.text.length > 1000 ? c.text.substring(0, 1000) : c.text;
     }
@@ -361,6 +375,7 @@ class Chat with ChangeNotifier {
       title: c["title"],
       model: c["model"],
       messages: _msgs,
+      artifact: c["artifact"] ?? false,
     );
   }
 
@@ -394,5 +409,49 @@ class Chat with ChangeNotifier {
       messages.removeRange(1, messages.length);
     else
       messages.clear();
+  }
+
+/**
+ * add save_artifact function
+ * and add a system prompt message in messages's index 0
+ */
+  void addArtifact() {
+    if (model.startsWith('gpt') && tools.isEmpty) {
+      var func = {"type": "function", "function": Functions.artifact};
+      tools.add(openai.ChatCompletionTool.fromJson(func));
+    } else if (model.startsWith('claude') && claudeTools.isEmpty) {
+      var func = Functions.artifact;
+      var funcschema = func['input_schema'] ?? func['parameters'];
+      var jsfunc = {
+        "name": func['name'],
+        "description": func['description'],
+        "input_schema": funcschema
+      };
+      claudeTools.add(anthropic.Tool.fromJson(jsfunc));
+    } else {
+      debugPrint("not addArtifact");
+    }
+    if (messages.isEmpty || messages.first.role != MessageTRole.system)
+      addMessage(
+        id: 0,
+        role: MessageTRole.system,
+        text: Prompt.artifact,
+        timestamp: DateTime.now().millisecondsSinceEpoch,
+      );
+    artifact = true;
+  }
+
+/**
+ * clear tools
+ * remove messages's index 0 if it's a system message
+ */
+  void removeArtifact() {
+    if (messages.isNotEmpty && messages[0].role == MessageTRole.system)
+      messages.removeAt(0);
+    if (model.startsWith('gpt'))
+      tools.clear();
+    else
+      claudeTools.clear();
+    artifact = false;
   }
 }

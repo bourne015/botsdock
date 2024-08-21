@@ -89,6 +89,7 @@ class ChatGen {
       "assistant_id": pages.getPage(handlePageID).assistantID,
       "thread_id": pages.getPage(handlePageID).threadID,
       "bot_id": pages.getPage(handlePageID).botID,
+      "artifact": pages.getPage(handlePageID).artifact,
     };
 
     try {
@@ -422,6 +423,11 @@ class ChatGen {
       if (property.initModelVersion == GPTModel.gptv40Dall) {
         _imageGeneration(pages, property, handlePageID, user);
       } else {
+        if (pages.getPage(handlePageID).artifact)
+          pages.getPage(handlePageID).addArtifact();
+        else
+          pages.getPage(handlePageID).removeArtifact();
+
         var chatData = _prepareChatData(pages, handlePageID);
         final stream = CreateChatStream(
           "${SSE_CHAT_URL}?user_id=${user.id}",
@@ -506,8 +512,12 @@ class ChatGen {
     pages.currentPageID = handlePageID;
     pages.currentPage?.model = property.initModelVersion;
 
+    if (pages.getPage(handlePageID).artifact)
+      pages.getPage(handlePageID).addArtifact();
+    else
+      pages.getPage(handlePageID).removeArtifact();
+
     pages.getPage(handlePageID).addMessage(
-        id: 0,
         role: MessageTRole.user,
         text: prompt,
         timestamp: DateTime.now().millisecondsSinceEpoch);

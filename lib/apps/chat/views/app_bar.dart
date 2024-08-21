@@ -14,16 +14,39 @@ class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight + 1.0);
 }
 
-class MyAppBarState extends State<MyAppBar> {
+class MyAppBarState extends State<MyAppBar> with RestorationMixin {
+  RestorableBool switchArtifact = RestorableBool(true);
+
+  @override
+  String get restorationId => 'switch_test';
+  @override
+  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
+    registerForRestoration(switchArtifact, 'switch_artifact');
+  }
+
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     Property property = Provider.of<Property>(context);
+    Pages pages = Provider.of<Pages>(context);
+    switchArtifact.value = pages.currentPage!.artifact;
     return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
       AppBar(
         leading: !isDisplayDesktop(context)
             ? appbarLeading(context, property)
             : null,
-        title: appbarTitle(context),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            appbarTitle(context),
+            SizedBox(width: 10),
+            if (pages.currentPage!.artifact)
+              Icon(Icons.visibility_outlined, size: 18)
+          ],
+        ),
         backgroundColor: AppColors.chatPageBackground,
         surfaceTintColor: AppColors.chatPageBackground,
         toolbarHeight: 44,
@@ -61,6 +84,8 @@ class MyAppBarState extends State<MyAppBar> {
             pages.clearCurrentPage();
           },
         ),
+        PopupMenuDivider(),
+        _buildArtifactSwitch(context),
       ],
     );
   }
@@ -108,5 +133,52 @@ class MyAppBarState extends State<MyAppBar> {
       },
       tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
     );
+  }
+
+  PopupMenuItem<String> _buildArtifactSwitch(BuildContext context) {
+    Pages pages = Provider.of<Pages>(context, listen: false);
+    return PopupMenuItem<String>(
+        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+        // value: "value",
+        child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+          return Material(
+              //color: Colors.transparent,
+              color: AppColors.drawerBackground,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BORDERRADIUS15,
+                ),
+                child: InkWell(
+                  borderRadius: BORDERRADIUS15,
+                  onTap: () {
+                    // Navigator.pop(context, value);
+                  },
+                  child: ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 5),
+                      leading: Icon(Icons.visibility_outlined, size: 18),
+                      title: Text("可视化(experimental)"),
+                      subtitle: Text("提供图表、动画、地图、网页预览等可视化内容",
+                          style: TextStyle(
+                              fontSize: 12.5, color: AppColors.subTitle)),
+                      trailing: Transform.scale(
+                        scale: 0.7,
+                        child: Switch(
+                          value: switchArtifact.value,
+                          activeColor: Colors.blue[300],
+                          onChanged: (value) {
+                            setState(() {
+                              switchArtifact.value = value;
+                              pages.currentPage!.artifact =
+                                  switchArtifact.value;
+                            });
+                          },
+                        ),
+                      )),
+                ),
+              ));
+        }));
   }
 }

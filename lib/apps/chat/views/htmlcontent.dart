@@ -75,7 +75,10 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
           height: widget.height ?? constraints.maxHeight,
           constraints: BoxConstraints(maxWidth: 800, maxHeight: 800),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(10),
+              bottomRight: Radius.circular(10),
+            ),
           ),
           clipBehavior: Clip.hardEdge,
           child: HtmlElementView(viewType: viewId),

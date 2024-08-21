@@ -361,7 +361,11 @@ class _ChatInputFieldState extends State<ChatInputField> {
                       ass_id: chatAssistantID);
                 } else {
                   newPageId = pages.addPage(
-                      Chat(title: "Chat 0", model: property.initModelVersion),
+                      Chat(
+                        title: "Chat 0",
+                        model: property.initModelVersion,
+                        // artifact: property.artifact,
+                      ),
                       sort: true);
                   property.onInitPage = false;
                   pages.currentPageID = newPageId;
