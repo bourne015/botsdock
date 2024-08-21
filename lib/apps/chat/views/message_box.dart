@@ -237,14 +237,15 @@ class MessageBoxState extends State<MessageBox> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           contentMarkdown(context, _textContent ?? ""),
-          IconButton(
-            tooltip: "Copy",
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: _textContent ?? ""))
-                  .then((value) => showMessage(context, "Copied"));
-            },
-            icon: const Icon(Icons.copy, size: 15),
-          )
+          if (_textContent != null && _textContent.isNotEmpty)
+            IconButton(
+              tooltip: "Copy",
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: _textContent ?? ""))
+                    .then((value) => showMessage(context, "Copied"));
+              },
+              icon: const Icon(Icons.copy, size: 15),
+            )
         ],
       );
     }
