@@ -86,15 +86,17 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
 
   String _generateHtmlContent() {
     if (widget.contentType == ContentType.html) {
+      debugPrint("html");
       return _sanitizeHtml(widget.content);
     } else if (widget.contentType == ContentType.mermaid) {
+      debugPrint("mermaid");
       return '''
         <!DOCTYPE html>
         <html lang="en">
           <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1">
-            <script src="file:///assets/assets/mermaid.min.js"></script>
+           <script src="https://cdn.bootcdn.net/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
             <script>
               document.addEventListener("DOMContentLoaded", function() {
                 if (typeof mermaid !== 'undefined') {
