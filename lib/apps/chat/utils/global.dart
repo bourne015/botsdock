@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:dio/dio.dart';
 import 'dart:convert';
 
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
@@ -9,11 +8,11 @@ import '../models/bot.dart';
 import '../models/chat.dart';
 import '../models/pages.dart';
 import '../models/user.dart';
-import '../utils/constants.dart';
+import './chat_api.dart';
 
 class Global {
   static late SharedPreferences _prefs;
-  var dio = Dio();
+  var chatApi = ChatAPI();
 
   Future init(user, pages) async {
     _prefs = await SharedPreferences.getInstance();
@@ -21,38 +20,26 @@ class Global {
       oss_init();
       if (_prefs.containsKey("isLogedin") &&
           _prefs.getBool("isLogedin") == true) {
-        var user_id = _prefs.getInt("id");
-        var url = USER_URL + "/${user_id}" + "/info";
-        var response = await dio.post(url);
-        if (response.data["updated_at"] != _prefs.getInt("updated_at")) {
+        var user_id = _prefs.getInt("cached_user_id");
+        User? _u = await chatApi.UserInfo(user_id);
+        if (_u == null) {
+          debugPrint("failed to get user info");
+        } else if (_u.updated_at != _prefs.getInt("updated_at")) {
           Global.reset();
-          user.id = response.data["id"];
-          user.email = response.data["email"];
-          user.name = response.data["name"];
-          user.phone = response.data["phone"];
-          user.avatar = response.data["avatar"];
-          user.avatar_bot = response.data["avatar_bot"];
-          user.credit = response.data["credit"];
-          debugPrint("kkkkkkkkkkkk1: ${response.data["updated_at"]}");
-          user.updated_at = response.data["updated_at"];
-          debugPrint("kkkkkkkkkkkk2: ${response.data["updated_at"]}");
-          user.isLogedin = true;
+          user.copy(_u);
+          user.update(isLogedin: true);
           Global.saveProfile(user);
           await pages.fetch_pages(user.id);
         } else {
-          user.id = _prefs.getInt("id");
-          user.email = _prefs.getString("email");
-          user.name = _prefs.getString("name");
-          user.phone = _prefs.getString("phone");
-          user.avatar = _prefs.getString("avatar");
-          user.avatar_bot = _prefs.getString("avatar_bot");
-          user.credit = _prefs.getDouble("credit");
-          user.isLogedin = true;
-          debugPrint("kkkkkkkkkkkk3: ${_prefs.getInt("updated_at")}");
-          user.updated_at = _prefs.getInt("updated_at");
-          debugPrint("kkkkkkkkkkkk4: ${_prefs.getInt("updated_at")}");
-          get_local_chats(user, pages);
-          pages.sortPages();
+          final String? jsonUser = _prefs.getString("user_${user_id}");
+          if (jsonUser != null) {
+            User _lu = User.fromJson(jsonDecode(jsonUser));
+            if (_lu.isLogedin) {
+              user.copy(_lu);
+              get_local_chats(user, pages);
+              pages.sortPages();
+            }
+          }
         }
       }
     } catch (e) {
@@ -70,17 +57,11 @@ class Global {
     }
   }
 
-  static saveProfile(user) {
-    if (user.id != null) _prefs.setInt("id", user.id);
-    if (user.email != null) _prefs.setString("email", user.email);
-    if (user.name != null) _prefs.setString("name", user.name);
-    if (user.phone != null) _prefs.setString("phone", user.phone);
-    if (user.avatar != null) _prefs.setString("avatar", user.avatar);
-    if (user.avatar_bot != null)
-      _prefs.setString("avatar_bot", user.avatar_bot);
-    if (user.credit != null) _prefs.setDouble("credit", user.credit);
-    if (user.isLogedin != null) _prefs.setBool("isLogedin", user.isLogedin);
-    if (user.updated_at != null) _prefs.setInt("updated_at", user.updated_at);
+  static saveProfile(User user) {
+    _prefs.setInt("updated_at", user.updated_at);
+    _prefs.setInt("cached_user_id", user.id);
+    _prefs.setBool("isLogedin", user.isLogedin);
+    _prefs.setString("user_${user.id}", jsonEncode(user.toJson()));
   }
 
   static saveChats(page_id, cdata, updated_at) {
@@ -130,22 +111,9 @@ class Global {
         authGetter: _authGetter);
   }
 
-  Future<Map> get_creds() async {
-    var res = {};
-    try {
-      var url = USER_URL + "/23" + "/oss_credentials";
-      var response = await dio.post(url);
-      res = response.data["credentials"];
-    } catch (e) {
-      debugPrint("get_creds error: $e");
-      return {};
-    }
-    return res;
-  }
-
   Future<Auth> _authGetter() async {
     //Auth _authGetter() {
-    var creds = await get_creds();
+    var creds = await chatApi.get_creds();
     return Auth(
         accessKey: creds["AccessKeyId"] ?? "",
         accessSecret: creds["AccessKeySecret"] ?? "",
