@@ -386,14 +386,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Future<void> _pickImage() async {
     var result;
 
-    if (kIsWeb) {
-      debugPrint('web platform');
-      result = await FilePickerWeb.platform
-          .pickFiles(type: FileType.custom, allowedExtensions: supportedImages);
-    } else {
-      result = await FilePicker.platform
-          .pickFiles(type: FileType.custom, allowedExtensions: supportedImages);
-    }
+    result = await FilePicker.platform
+        .pickFiles(type: FileType.custom, allowedExtensions: supportedImages);
+
     if (result != null) {
       final fileName = result.files.first.name;
 
@@ -419,14 +414,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Future<void> _pickAll() async {
     var result;
 
-    if (kIsWeb) {
-      debugPrint('web platform');
-      result = await FilePickerWeb.platform.pickFiles(
-          type: FileType.custom, allowedExtensions: supportedFilesAll);
-    } else {
-      result = await FilePicker.platform.pickFiles(
-          type: FileType.custom, allowedExtensions: supportedFilesAll);
-    }
+    result = await FilePicker.platform
+        .pickFiles(type: FileType.custom, allowedExtensions: supportedFilesAll);
+
     if (result != null) {
       final fileName = result.files.first.name;
 
@@ -461,14 +451,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
       _supported = supportedFiles;
     else
       _supported = supportedImages;
-    if (kIsWeb) {
-      debugPrint('web platform');
-      result = await FilePickerWeb.platform
-          .pickFiles(type: FileType.custom, allowedExtensions: _supported);
-    } else {
-      result = await FilePicker.platform
-          .pickFiles(type: FileType.custom, allowedExtensions: _supported);
-    }
+
+    result = await FilePicker.platform
+        .pickFiles(type: FileType.custom, allowedExtensions: _supported);
+
     if (result != null) {
       final fileName = result.files.first.name;
 

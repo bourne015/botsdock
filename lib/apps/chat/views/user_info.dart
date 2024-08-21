@@ -557,14 +557,8 @@ class _UserInfoTabState extends State<UserInfo> {
   Future<void> _pickUserLocalImage(BuildContext context) async {
     var result;
     try {
-      if (kIsWeb) {
-        debugPrint('web platform');
-        result = await FilePickerWeb.platform.pickFiles(
-            type: FileType.custom, allowedExtensions: supportedImages);
-      } else {
-        result = await FilePicker.platform.pickFiles(
-            type: FileType.custom, allowedExtensions: supportedImages);
-      }
+      result = await FilePicker.platform
+          .pickFiles(type: FileType.custom, allowedExtensions: supportedImages);
 
       if (result != null) {
         if (result.files.first.size / (1024 * 1024) > maxAvatarSize) {
@@ -592,14 +586,8 @@ class _UserInfoTabState extends State<UserInfo> {
   Future<void> _pickBotLocalImage(BuildContext context) async {
     var result;
     try {
-      if (kIsWeb) {
-        debugPrint('web platform');
-        result = await FilePickerWeb.platform.pickFiles(
-            type: FileType.custom, allowedExtensions: supportedImages);
-      } else {
-        result = await FilePicker.platform.pickFiles(
-            type: FileType.custom, allowedExtensions: supportedImages);
-      }
+      result = await FilePicker.platform
+          .pickFiles(type: FileType.custom, allowedExtensions: supportedImages);
 
       if (result != null) {
         if (result.files.first.size / (1024 * 1024) > maxAvatarSize) {

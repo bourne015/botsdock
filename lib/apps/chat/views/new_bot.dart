@@ -122,14 +122,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   Future<void> _pickLogo(BuildContext context) async {
     var result;
     try {
-      if (kIsWeb) {
-        debugPrint('web platform');
-        result = await FilePickerWeb.platform.pickFiles(
-            type: FileType.custom, allowedExtensions: supportedImages);
-      } else {
-        result = await FilePicker.platform.pickFiles(
-            type: FileType.custom, allowedExtensions: supportedImages);
-      }
+      result = await FilePicker.platform
+          .pickFiles(type: FileType.custom, allowedExtensions: supportedImages);
 
       if (result != null) {
         if (result.files.first.size / (1024 * 1024) > maxAvatarSize) {
@@ -851,14 +845,9 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   Future _pickFile(context) async {
     var result;
     try {
-      if (kIsWeb) {
-        debugPrint('web platform');
-        result = await FilePickerWeb.platform.pickFiles(
-            type: FileType.custom, allowedExtensions: supportedFiles);
-      } else {
-        result = await FilePicker.platform.pickFiles(
-            type: FileType.custom, allowedExtensions: supportedFiles);
-      }
+      result = await FilePicker.platform
+          .pickFiles(type: FileType.custom, allowedExtensions: supportedFiles);
+
       if (result != null) {
         if (result.files.first.size / (1024 * 1024) > maxFileMBSize) {
           _showMessage("文件大小超过限制: ${maxFileMBSize}MB");
