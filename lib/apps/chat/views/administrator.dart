@@ -8,6 +8,7 @@ import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import '../utils/constants.dart';
 import '../utils/custom_widget.dart';
+import '../utils/utils.dart';
 import '../models/user.dart';
 import '../models/pages.dart';
 import '../utils/global.dart';
@@ -227,8 +228,9 @@ class Administrator extends StatelessWidget {
     );
   }
 
-  void aboutDialog(BuildContext context) {
-    var content = aboutText + '\nVersion $appVersion';
+  void aboutDialog(BuildContext context) async {
+    String _version = await getVersionNumber();
+    var content = aboutText + '\nVersion $_version';
     notifyBox(context: context, title: 'About', content: content);
   }
 
