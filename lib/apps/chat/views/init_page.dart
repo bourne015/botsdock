@@ -486,7 +486,7 @@ class InitPageState extends State<InitPage>
                       contentPadding: EdgeInsets.symmetric(horizontal: 5),
                       leading: Icon(Icons.visibility_outlined),
                       title: Text("可视化(experimental)"),
-                      subtitle: Text("提供图表、图片、地图、网页预览等可视化内容",
+                      subtitle: Text("提供图表、动画、地图、网页预览等可视化内容",
                           style: TextStyle(
                               fontSize: 12.5, color: AppColors.subTitle)),
                       trailing: Transform.scale(
