@@ -364,7 +364,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
                       Chat(
                         title: "Chat 0",
                         model: property.initModelVersion,
-                        // artifact: property.artifact,
+                        artifact: property.artifact,
                       ),
                       sort: true);
                   property.onInitPage = false;
