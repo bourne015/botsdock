@@ -32,7 +32,11 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
   Widget build(BuildContext context) {
     Property property = Provider.of<Property>(context);
     Pages pages = Provider.of<Pages>(context);
-    switchArtifact.value = pages.currentPage!.artifact;
+    if (property.onInitPage) {
+      switchArtifact.value = property.artifact;
+    } else {
+      switchArtifact.value = pages.currentPage!.artifact;
+    }
     return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
       AppBar(
         leading: !isDisplayDesktop(context)
@@ -43,7 +47,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
           children: [
             appbarTitle(context),
             SizedBox(width: 10),
-            if (pages.currentPage!.artifact)
+            if (!property.onInitPage && pages.currentPage!.artifact)
               Icon(Icons.visibility_outlined, size: 18)
           ],
         ),
@@ -52,7 +56,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
         toolbarHeight: 44,
         centerTitle: true,
         actions: [
-          _appBarMenu(context),
+          if (!property.onInitPage) _appBarMenu(context),
         ],
       ),
       // Divider(
