@@ -319,12 +319,6 @@ class ChatGen {
     if (res.choices[0].finishReason ==
         openai.ChatCompletionFinishReason.toolCalls) {
       pages.getPage(handlePageID).setOpenaiToolInput();
-      var _toolID = pages.getPage(handlePageID).messages.last.toolCalls.last.id;
-      pages.getPage(handlePageID).addMessage(
-            role: MessageTRole.tool,
-            text: "function result",
-            toolCallId: _toolID,
-          );
       submitText(pages, property, handlePageID, user);
     }
   }

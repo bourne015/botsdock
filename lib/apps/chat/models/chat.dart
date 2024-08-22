@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery/apps/chat/models/data.dart';
 import 'package:gallery/apps/chat/utils/prompts.dart';
@@ -247,17 +246,24 @@ class Chat with ChangeNotifier {
    * save openai tool messages output from model to message
    */
   void setOpenaiToolInput() {
+    int _last = messages.length - 1;
     for (int index = 0; index < openaiToolInputDelta.length; index++) {
-      var id = (messages.last.toolCalls[index]).id;
-      var type = (messages.last.toolCalls[index]).type;
-      var func = (messages.last.toolCalls[index]).function;
-      messages.last.toolCalls[index] = openai.RunToolCallObject(
+      //toolcall id
+      var id = (messages[_last].toolCalls[index]).id;
+      var type = (messages[_last].toolCalls[index]).type;
+      var func = (messages[_last].toolCalls[index]).function;
+      messages[_last].toolCalls[index] = openai.RunToolCallObject(
         id: id,
         type: type,
         function: openai.RunToolCallFunction(
           name: func.name,
           arguments: openaiToolInputDelta[index],
         ),
+      );
+      addMessage(
+        role: MessageTRole.tool,
+        text: "function result",
+        toolCallId: id,
       );
     }
 
