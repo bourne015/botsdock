@@ -452,8 +452,14 @@ class Chat with ChangeNotifier {
  * remove messages's index 0 if it's a system message
  */
   void removeArtifact() {
-    if (messages.isNotEmpty && messages[0].role == MessageTRole.system)
-      messages.removeAt(0);
+    if (messages.isNotEmpty && messages[0].role == MessageTRole.system) {
+      String _tx = '';
+      if (messages[0].content is String)
+        _tx = messages[0].content;
+      else if (messages[0].content is List)
+        for (var c in messages[0].content) if (c.type == 'text') _tx = c.text;
+      if (_tx == Prompt.artifact) messages.removeAt(0);
+    }
     if (model.startsWith('gpt'))
       tools.clear();
     else
