@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gallery/apps/chat/models/data.dart';
 import 'package:gallery/apps/chat/utils/prompts.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../models/anthropic/schema/schema.dart' as anthropic;
 import '../models/openai/schema/schema.dart' as openai;
@@ -36,6 +37,7 @@ class Chat with ChangeNotifier {
   bool _onGenerating = false;
   bool doStream = true;
   bool artifact;
+  ItemPosition? position;
 
   Chat({
     int id = -1,

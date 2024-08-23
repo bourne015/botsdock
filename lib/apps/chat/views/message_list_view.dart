@@ -23,6 +23,7 @@ class MessageListViewState extends State<MessageListView> {
   final ValueNotifier<bool> _showScrollToBottom = ValueNotifier(false);
   int _messageLength = 0;
   int _initialScrollIndex = 0;
+  double _initialAlignment = 0;
 
   @override
   void initState() {
@@ -43,7 +44,9 @@ class MessageListViewState extends State<MessageListView> {
     // Pages pages = Provider.of<Pages>(context, listen: true);
     // Chat chat = pages.currentPage!;
     Chat chat = widget.page;
-
+    _initialScrollIndex = widget.page.position?.index ?? 0;
+    _initialAlignment = widget.page.position?.itemLeadingEdge ?? 0;
+    // debugPrint("build: ${_initialScrollIndex}, ${_initialAlignment}");
     _messageLength = chat.messages.length;
     return Stack(alignment: Alignment.center, children: [
       LazyLoadScrollView(
@@ -63,7 +66,7 @@ class MessageListViewState extends State<MessageListView> {
             itemScrollController: itemScrollController,
             itemPositionsListener: _itemPositionListener,
             initialScrollIndex: _initialScrollIndex,
-            initialAlignment: 0,
+            initialAlignment: _initialAlignment,
             reverse: true,
             itemBuilder: (context, index) {
               bool isLast = index == 0; //messageLength - 1;
@@ -112,6 +115,9 @@ class MessageListViewState extends State<MessageListView> {
         _itemPositionListener.itemPositions.value.firstWhereOrNull(
       (position) => position.index == 0,
     );
+    ItemPosition? t = _itemPositionListener.itemPositions.value.firstOrNull;
+    widget.page.position = t;
+    // debugPrint("postion: $t");
     if (_firstItem == null || _firstItem.itemLeadingEdge < -0.2) {
       widget.page.doStream = false;
     } else {
