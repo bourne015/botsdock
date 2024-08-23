@@ -1,8 +1,8 @@
-import 'dart:html' as html;
-import 'dart:ui_web' as ui;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:web/web.dart' as web;
+import 'dart:ui_web' as ui;
+import 'dart:js_util' as js;
 
 enum ContentType { html, mermaid }
 
@@ -33,11 +33,13 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
   void initState() {
     super.initState();
     if (kIsWeb) {
-      html.window.onMessage.listen((event) {
-        if (event.data is String && event.data.startsWith('error:')) {
-          setState(() {
-            _errorMessage = event.data.substring(6);
-          });
+      web.window.onMessage.listen((event) {
+        if (event.data is String) {
+          String message = event.data as String;
+          if (message.startsWith('error:'))
+            setState(() {
+              _errorMessage = message;
+            });
         }
       });
     }
@@ -59,12 +61,12 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
 
     // Register view factory
     ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
-      return html.IFrameElement()
-        ..srcdoc = htmlContent
+      return web.HTMLIFrameElement()
+        ..srcdoc = js.jsify(htmlContent)
         ..style.border = 'none'
         ..allowFullscreen = true
-        ..width = '100%'
-        ..height = '100%'
+        ..style.width = '100%'
+        ..style.height = '100%'
         ..setAttribute('title', 'Content Viewer'); // For accessibility
     });
 
@@ -89,10 +91,8 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
 
   String _generateHtmlContent() {
     if (widget.contentType == ContentType.html) {
-      debugPrint("html");
       return _sanitizeHtml(widget.content);
     } else if (widget.contentType == ContentType.mermaid) {
-      debugPrint("mermaid");
       return '''
         <!DOCTYPE html>
         <html lang="en">
@@ -129,10 +129,6 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
   }
 
   String _sanitizeHtml(String html) {
-    // This is a very basic sanitization. For production, use a proper HTML sanitizer library.
-    // return html
-    //     .replaceAll('<script', '&lt;script')
-    //     .replaceAll('</script>', '&lt;/script&gt;');
-    return html;
+    return html; // 此处需更强的HTML清理措施
   }
 }
