@@ -8,6 +8,7 @@ import '../models/chat.dart';
 import '../utils/assistants_api.dart';
 import '../utils/client.dart';
 import '../utils/constants.dart';
+import '../utils/custom_widget.dart';
 import '../utils/utils.dart';
 import '../models/pages.dart';
 import '../models/user.dart';
@@ -28,7 +29,8 @@ class ChatDrawerState extends State<ChatDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
+    return WebViewAware(
+        child: Drawer(
       width: widget.drawersize,
       backgroundColor: AppColors.drawerBackground,
       shape: isDisplayDesktop(context)
@@ -64,7 +66,7 @@ class ChatDrawerState extends State<ChatDrawer> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget botsCentre(BuildContext context) {

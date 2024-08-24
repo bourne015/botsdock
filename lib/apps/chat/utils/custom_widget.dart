@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gallery/data/adaptive.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 import 'constants.dart';
 
@@ -247,4 +248,28 @@ Widget image_show(String img_path, double radius) {
           radius: radius,
           backgroundImage: AssetImage(img_path),
         );
+}
+
+class WebViewAware extends StatelessWidget {
+  /// Child widget
+  final Widget child;
+
+  /// If set to true, a red box will appear around the widget
+  final bool debug;
+
+  /// Constructor
+  const WebViewAware({
+    Key? key,
+    required this.child,
+    this.debug = false,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return PointerInterceptor(
+      key: key,
+      debug: debug,
+      child: child,
+    );
+  }
 }
