@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:gallery/data/adaptive.dart';
 import 'package:web/web.dart' as web;
 import 'dart:ui_web' as ui;
 import 'dart:js_util' as js;
@@ -67,6 +68,7 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
         ..allowFullscreen = true
         ..style.width = '100%'
         ..style.height = '100%'
+        ..style.pointerEvents = isDisplayDesktop(context) ? 'auto' : 'none'
         ..setAttribute('title', 'Content Viewer'); // For accessibility
     });
 
