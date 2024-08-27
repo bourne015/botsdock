@@ -53,8 +53,12 @@ class Bots with ChangeNotifier {
   }
 
   void updateBot(Map<String, dynamic> data, id) {
+    Bot b = Bot.fromJson(data);
     int index = _bots.indexWhere((_bot) => _bot.id == id);
-    _bots[index] = Bot.fromJson(data);
+    _bots[index] = b;
+    index = _bots_public.indexWhere((_bot) => _bot.id == id);
+    if (index != -1) _bots_public[index] = b;
+    notifyListeners();
   }
 
   void classify({int? user_id}) {
