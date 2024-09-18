@@ -12,10 +12,10 @@ class ChatAPI {
   /**
    * upload file to backend
    */
-  Future<User?> UserInfo(user_id) async {
+  Future<User?> userInfo(userId) async {
     try {
-      var url = "${USER_URL}/${user_id}/info";
-      var response = await dio.post(url);
+      String url = "${USER_URL}/${userId}/info";
+      Response response = await dio.post(url);
       if (response.statusCode == 200) {
         return User.fromJson(response.data);
       }
@@ -23,6 +23,22 @@ class ChatAPI {
       debugPrint('UserInfo error: $error');
     }
     return null;
+  }
+
+  /**
+   * get all chat from db
+   */
+  Future<dynamic> chats(userId) async {
+    try {
+      String url = "${USER_URL}/${userId}/chats";
+      Response cres = await dio.post(url);
+      if (cres.statusCode == 200) {
+        return cres.data["chats"];
+      }
+    } catch (error) {
+      debugPrint('get chats error: $error');
+    }
+    return [];
   }
 
   Future<Map> get_creds() async {

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 
+import '../utils/chat_api.dart';
 import '../utils/global.dart';
 import 'chat.dart';
 import 'message.dart';
@@ -13,11 +14,7 @@ class Pages with ChangeNotifier {
   final Map<int, Chat> _pages = {};
   List<int> _pagesID = [];
   int _currentPageID = -1;
-  late final Dio _dio;
-
-  Pages() {
-    _dio = Dio();
-  }
+  var chatApi = ChatAPI();
 
   set currentPageID(int cid) {
     _currentPageID = cid;
@@ -151,20 +148,17 @@ class Pages with ChangeNotifier {
   }
 
   Future<void> fetch_pages(user_id) async {
-    var chatdbUrl = USER_URL + "/" + "${user_id}" + "/chats";
     try {
-      Response cres = await _dio.post(chatdbUrl);
-      if (cres.data["result"] == "success") {
-        for (var c in cres.data["chats"]) {
-          //user dbID to recovery pageID,
-          //incase no user log, c["contents"][0]["pageID"] == currentPageID
-          //var pid = restore_single_page(c);
-          addPage(Chat.fromJson(c));
-          Global.saveChats(c["id"], jsonEncode(c), 0);
-          //pid += 1;
-        }
-        // sortPages();
+      var chatData = await chatApi.chats(user_id);
+      for (var c in chatData) {
+        //user dbID to recovery pageID,
+        //incase no user log, c["contents"][0]["pageID"] == currentPageID
+        //var pid = restore_single_page(c);
+        addPage(Chat.fromJson(c));
+        Global.saveChats(c["id"], jsonEncode(c), 0);
+        //pid += 1;
       }
+      // sortPages();
     } catch (e) {
       print('Error fetching pages: $e');
     }

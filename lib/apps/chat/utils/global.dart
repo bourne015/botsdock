@@ -14,14 +14,14 @@ class Global {
   static late SharedPreferences _prefs;
   var chatApi = ChatAPI();
 
-  Future init(user, pages) async {
+  Future init(User user, Pages pages) async {
     _prefs = await SharedPreferences.getInstance();
     try {
       oss_init();
       if (_prefs.containsKey("isLogedin") &&
           _prefs.getBool("isLogedin") == true) {
         var user_id = _prefs.getInt("cached_user_id");
-        User? _u = await chatApi.UserInfo(user_id);
+        User? _u = await chatApi.userInfo(user_id);
         if (_u == null) {
           debugPrint("failed to get user info");
         } else if (_u.updated_at != _prefs.getInt("updated_at")) {
@@ -33,12 +33,9 @@ class Global {
         } else {
           final String? jsonUser = _prefs.getString("user_${user_id}");
           if (jsonUser != null) {
-            User _lu = User.fromJson(jsonDecode(jsonUser));
-            if (_lu.isLogedin) {
-              user.copy(_lu);
-              get_local_chats(user, pages);
-              pages.sortPages();
-            }
+            user.copy(User.fromJson(jsonDecode(jsonUser)));
+            get_local_chats(user, pages);
+            pages.sortPages();
           }
         }
       }

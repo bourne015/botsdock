@@ -360,7 +360,7 @@ class Chat with ChangeNotifier {
 
   static Chat fromJson(c) {
     //use db index is to prevent pid duplication
-    final pid = c["id"];
+    final int pid = c["id"] as int;
     List<Message> _msgs = [];
     for (var m in c["contents"]) {
       if (c["model"].startsWith("claude")) {
