@@ -69,10 +69,12 @@ Widget logTextFormField(
     bool? obscure,
     IconData? icon,
     int? maxLength}) {
-  return TextFormField(
-      decoration: InputDecoration(
-          //filled: true,
-          //fillColor: AppColors.inputBoxBackground,
+  return Container(
+    padding: EdgeInsets.only(top: 15),
+    child: TextFormField(
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: AppColors.inputBoxBackground,
           labelText: hintText,
           prefixIcon: icon != null
               ? Icon(
@@ -80,18 +82,20 @@ Widget logTextFormField(
                   color: Colors.blue,
                 )
               : null,
-          // border: OutlineInputBorder(
-          //   borderRadius: BorderRadius.circular(10),
-          // ),
-          hintText: hintText),
-      obscureText: obscure ?? false,
-      maxLines: 1,
-      maxLength: maxLength,
-      textInputAction: TextInputAction.newline,
-      controller: ctr,
-      validator: (v) {
-        return v == null || v.trim().isNotEmpty ? null : "$hintText不能为空";
-      });
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          hintText: hintText,
+        ),
+        obscureText: obscure ?? false,
+        maxLines: 1,
+        maxLength: maxLength,
+        textInputAction: TextInputAction.newline,
+        controller: ctr,
+        validator: (v) {
+          return v == null || v.trim().isNotEmpty ? null : "$hintText不能为空";
+        }),
+  );
 }
 
 Widget botTextFormField(

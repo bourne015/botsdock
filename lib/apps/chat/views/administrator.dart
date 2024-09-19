@@ -320,8 +320,32 @@ class Administrator extends StatelessWidget {
         ),
       ),
       scrollable: true,
+      backgroundColor: AppColors.chatPageBackground,
       content: loginDialogContent(context),
       actions: loginDialogActions(context, user, pages, property),
+    );
+  }
+
+  void _showLoading(BuildContext context, String text) {
+    showDialog(
+      context: context,
+      builder: (context) => Center(
+        child: Container(
+          padding: EdgeInsets.all(20.0),
+          decoration: BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 10),
+              Text(text, style: TextStyle(color: Colors.white)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -338,7 +362,9 @@ class Administrator extends StatelessWidget {
                 //notifyBox(title: "warning", content: "内容不能为空");
                 return;
               }
+              _showLoading(context, "正在登录...");
               var res = await checkLogin(user);
+              Navigator.of(context).pop();
               if (user.isLogedin) {
                 ////fetch chat data from db
                 Navigator.of(context).maybePop().then((_) async {
@@ -419,6 +445,7 @@ class Administrator extends StatelessWidget {
         ),
       ),
       scrollable: true,
+      backgroundColor: AppColors.chatPageBackground,
       content: sigupDialogContent(context),
       actions: signupDialogActions(context, user),
     );
@@ -439,7 +466,9 @@ class Administrator extends StatelessWidget {
           }
           user.name = _namecontroller.text;
           user.email = _emailcontroller.text;
+          _showLoading(context, "正在注册...");
           var res = await checkSingUp(user);
+          Navigator.of(context).pop();
           if (user.signUP) {
             Navigator.of(context).pop();
             notifyBox(context: context, title: "success", content: "注册成功,请登录");
@@ -455,7 +484,7 @@ class Administrator extends StatelessWidget {
   Widget sigupDialogContent(BuildContext context) {
     return Container(
       width: 400,
-      height: 350,
+      height: 370,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
