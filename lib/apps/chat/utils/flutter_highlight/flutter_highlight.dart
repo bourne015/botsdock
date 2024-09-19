@@ -81,7 +81,7 @@ class HighlightView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var _textStyle = TextStyle(
-      fontFamily: _defaultFontFamily,
+      // fontFamily: _defaultFontFamily,
       color: theme[_rootKey]?.color ?? _defaultFontColor,
     );
     if (textStyle != null) {

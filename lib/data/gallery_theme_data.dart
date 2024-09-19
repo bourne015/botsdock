@@ -79,25 +79,15 @@ class GalleryThemeData {
   static const _bold = FontWeight.w700;
 
   static const TextTheme _textTheme = TextTheme(
-    headlineMedium:
-        TextStyle(fontFamily: 'notosans', fontWeight: _bold, fontSize: 20.0),
-    bodySmall: TextStyle(
-        fontFamily: 'notosans', fontWeight: _semiBold, fontSize: 16.0),
-    headlineSmall:
-        TextStyle(fontFamily: 'notosans', fontWeight: _medium, fontSize: 16.0),
-    titleMedium:
-        TextStyle(fontFamily: 'notosans', fontWeight: _medium, fontSize: 16.0),
-    labelSmall:
-        TextStyle(fontFamily: 'notosans', fontWeight: _medium, fontSize: 12.0),
-    bodyLarge:
-        TextStyle(fontFamily: 'notosans', fontWeight: _regular, fontSize: 14.0),
-    titleSmall:
-        TextStyle(fontFamily: 'notosans', fontWeight: _medium, fontSize: 14.0),
-    bodyMedium:
-        TextStyle(fontFamily: 'notosans', fontWeight: _regular, fontSize: 16.0),
-    titleLarge:
-        TextStyle(fontFamily: 'notosans', fontWeight: _bold, fontSize: 16.0),
-    labelLarge: TextStyle(
-        fontFamily: 'notosans', fontWeight: _semiBold, fontSize: 14.0),
+    headlineMedium: TextStyle(fontWeight: _bold, fontSize: 20.0),
+    bodySmall: TextStyle(fontWeight: _semiBold, fontSize: 16.0),
+    headlineSmall: TextStyle(fontWeight: _medium, fontSize: 16.0),
+    titleMedium: TextStyle(fontWeight: _medium, fontSize: 16.0),
+    labelSmall: TextStyle(fontWeight: _medium, fontSize: 12.0),
+    bodyLarge: TextStyle(fontWeight: _regular, fontSize: 14.0),
+    titleSmall: TextStyle(fontWeight: _medium, fontSize: 14.0),
+    bodyMedium: TextStyle(fontWeight: _regular, fontSize: 16.0),
+    titleLarge: TextStyle(fontWeight: _bold, fontSize: 16.0),
+    labelLarge: TextStyle(fontWeight: _semiBold, fontSize: 14.0),
   );
 }
