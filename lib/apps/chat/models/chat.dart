@@ -360,17 +360,21 @@ class Chat with ChangeNotifier {
 
   static Chat fromJson(c) {
     //use db index is to prevent pid duplication
-    final int pid = c["id"] as int;
+    final int pid = c["id"] as int? ?? -1;
     List<Message> _msgs = [];
-    for (var m in c["contents"]) {
-      if (c["model"].startsWith("claude")) {
-        _msgs.add(ClaudeMessage.fromJson(m));
-      } else if (c["model"].startsWith("gpt")) {
-        _msgs.add(OpenAIMessage.fromJson(m));
-      } else if (c["model"].startsWith("dall")) {
-        _msgs.add(OpenAIMessage.fromJson(m));
-      } else {
-        print("Chat fromJson error: unknow model");
+    if (c["contents"] is List) {
+      for (var m in c["contents"]) {
+        if (c["model"] is String) {
+          if (c["model"].startsWith("claude")) {
+            _msgs.add(ClaudeMessage.fromJson(m));
+          } else if (c["model"].startsWith("gpt")) {
+            _msgs.add(OpenAIMessage.fromJson(m));
+          } else if (c["model"].startsWith("dall")) {
+            _msgs.add(OpenAIMessage.fromJson(m));
+          } else {
+            print("Chat fromJson error: unknow model");
+          }
+        }
       }
     }
     return Chat(
