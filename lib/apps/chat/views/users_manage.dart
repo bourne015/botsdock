@@ -178,7 +178,13 @@ class _UsersManageState extends State<UsersManage> {
             //filled: true,
             //fillColor: AppColors.inputBoxBackground,
             labelText: text,
-            border: InputBorder.none,
+            prefixIcon: Icon(
+              Icons.currency_yuan_rounded,
+              color: Colors.blue,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             hintText: text),
         obscureText: obscure,
         maxLines: 1,
