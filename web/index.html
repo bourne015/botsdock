@@ -23,11 +23,7 @@
     body {
       background-color: #030303;
     }
-  </style>
-  
 
-  <!-- Background -->
-  <style>
     body.light {
       background-color: #E6EBEB;
     }
@@ -42,13 +38,13 @@
     // Set the theme from the URL param, with fallback to user preference if no theme is
     // specified.
     var theme = queryParams.get("brightness");
-    theme ||= window.matchMedia("(prefers-color-scheme: dark)").matches
+    theme = theme || window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
       : "light";
     document.body.classList.add(theme);
   </script>
 
-  <script src="https://unpkg.com/pica/dist/pica.min.js" ></script>
+  <script src="https://unpkg.com/pica/dist/pica.min.js"></script>
 
   <!-- Loading indicator -->
   <div id="loading">
