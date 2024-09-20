@@ -14,6 +14,7 @@ import '../utils/custom_widget.dart';
 import '../utils/utils.dart';
 import '../utils/constants.dart';
 import '../utils/global.dart';
+import 'users_manage.dart';
 
 class UserInfo extends StatefulWidget {
   final User user;
@@ -55,7 +56,7 @@ class _UserInfoTabState extends State<UserInfo> {
               width: 400,
               child: DefaultTabController(
                 initialIndex: 0,
-                length: 2,
+                length: widget.user.id == 1 ? 3 : 2,
                 child: userPannel(context),
               ),
             )));
@@ -66,10 +67,12 @@ class _UserInfoTabState extends State<UserInfo> {
     return Scaffold(
         appBar: AppBar(
           title: Text(title),
-          bottom: const TabBar(
+          bottom: TabBar(
             tabs: <Widget>[
               Tab(icon: Icon(Icons.beach_access_sharp)),
               Tab(icon: Icon(Icons.currency_exchange_rounded)),
+              if (widget.user.id == 1)
+                Tab(icon: Icon(Icons.manage_accounts_outlined)),
             ],
           ),
         ),
@@ -77,6 +80,7 @@ class _UserInfoTabState extends State<UserInfo> {
           children: <Widget>[
             SingleChildScrollView(child: UserInfoPage(context, title)),
             SingleChildScrollView(child: UserCharge(context)),
+            if (widget.user.id == 1) UsersManage(),
           ],
         ));
   }
