@@ -107,15 +107,21 @@ class _UserInfoTabState extends State<UserInfo> {
         ),
         Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
           ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
+              onPressed: () async {
+                Uint8List imageData = await loadImageAsUInt8List(
+                  'assets/images/chat/paycode.jpeg',
+                );
+                await WebImageDownloader.downloadImageFromUInt8List(
+                  name: "paycode",
+                  uInt8List: imageData,
+                );
               },
-              child: Text("取消")),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("完成")),
+              child: Text("下载付款码")),
+          // ElevatedButton(
+          //     onPressed: () {
+          //       Navigator.of(context).pop();
+          //     },
+          //     child: Text("完成")),
         ])
       ],
     );
