@@ -151,6 +151,8 @@ class ChatGen {
     Map<String, VisionFile> visionFiles = {};
     if (event is openai.MessageStreamEvent &&
         event.event == openai.EventType.threadMessageCreated) {}
+
+    pages.getPage(handlePageID).messages.last.onThinking = false;
     event.when(
         threadStreamEvent: (final event, final data) {},
         runStreamEvent: (final event, final data) {},
@@ -172,28 +174,33 @@ class ChatGen {
         messageStreamDeltaEvent: (final event, final data) {
           if (data.delta.content != null)
             data.delta.content![0].whenOrNull(
-                imageFile: (index, type, imageFileObj) {
-              var _image_fild_id = imageFileObj!.fileId;
-              attachments["${_image_fild_id}"] =
-                  Attachment(file_id: _image_fild_id);
-            }, text: (index, type, textObj) {
-              _text = textObj!.value;
-              if (textObj.annotations != null &&
-                  textObj.annotations!.isNotEmpty)
-                textObj.annotations!.forEach((annotation) {
-                  annotation.whenOrNull(fileCitation: (index, type, text,
-                      file_citation, start_index, end_index) {
-                    var file_name = text!.split('/').last;
-                    attachments[file_name] =
-                        Attachment(file_id: file_citation!.fileId);
-                  }, filePath:
-                      (index, type, text, file_path, start_index, end_index) {
-                    var file_name = text!.split('/').last;
-                    attachments[file_name] =
-                        Attachment(file_id: file_path!.fileId);
+              imageFile: (index, type, imageFileObj) {
+                var _image_fild_id = imageFileObj!.fileId;
+                attachments["${_image_fild_id}"] =
+                    Attachment(file_id: _image_fild_id);
+              },
+              text: (index, type, textObj) {
+                _text = textObj!.value;
+                if (textObj.annotations != null &&
+                    textObj.annotations!.isNotEmpty)
+                  textObj.annotations!.forEach((annotation) {
+                    annotation.whenOrNull(
+                      fileCitation: (index, type, text, file_citation,
+                          start_index, end_index) {
+                        var file_name = text!.split('/').last;
+                        attachments[file_name] =
+                            Attachment(file_id: file_citation!.fileId);
+                      },
+                      filePath: (index, type, text, file_path, start_index,
+                          end_index) {
+                        var file_name = text!.split('/').last;
+                        attachments[file_name] =
+                            Attachment(file_id: file_path!.fileId);
+                      },
+                    );
                   });
-                });
-            });
+              },
+            );
           //});
         },
         errorEvent: (final event, final data) {},
