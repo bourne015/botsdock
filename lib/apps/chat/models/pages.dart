@@ -176,7 +176,7 @@ class Property with ChangeNotifier {
   String _initModelVersion = DefaultModelVersion;
   bool _isDrawerOpen = true;
   bool _onInitPage = true;
-  bool _isLoading = true;
+  bool _isLoading = false;
   bool _artifact = false;
 
   String get initModelVersion => _initModelVersion;
@@ -195,7 +195,7 @@ class Property with ChangeNotifier {
   bool get isLoading => _isLoading;
   set isLoading(bool val) {
     _isLoading = val;
-    //notifyListeners();
+    notifyListeners();
   }
 
   bool get onInitPage => _onInitPage;
@@ -214,7 +214,7 @@ class Property with ChangeNotifier {
     _initModelVersion = DefaultModelVersion;
     _isDrawerOpen = true;
     _onInitPage = true;
-    _isLoading = true;
+    _isLoading = false;
   }
 }
 

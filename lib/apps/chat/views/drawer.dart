@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:gallery/apps/chat/main.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
@@ -28,6 +29,7 @@ class ChatDrawerState extends State<ChatDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    Property property = Provider.of<Property>(context);
     return Drawer(
       width: widget.drawersize,
       backgroundColor: AppColors.drawerBackground,
@@ -45,7 +47,12 @@ class ChatDrawerState extends State<ChatDrawer> {
               botsCentre(context),
             ]),
           ),
-          ChatPageList(),
+          property.isLoading
+              ? Expanded(
+                  child: SpinKitThreeBounce(
+                      color: AppColors.generatingAnimation,
+                      size: AppSize.generatingAnimation))
+              : ChatPageList(),
           Material(
             color: AppColors.drawerBackground,
             child: Column(children: [

@@ -38,6 +38,7 @@ class _AppState extends State<ChatApp> {
   }
 
   Future<void> _initData() async {
+    property.isLoading = true;
     await Global().init(user, pages);
     setState(() {
       property.isLoading = false;
