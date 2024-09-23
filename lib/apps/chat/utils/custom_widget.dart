@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:gallery/data/adaptive.dart';
 
 import 'constants.dart';
@@ -251,4 +252,29 @@ Widget image_show(String img_path, double radius) {
           radius: radius,
           backgroundImage: AssetImage(img_path),
         );
+}
+
+/**
+ * animation for loading
+ */
+void showLoading(BuildContext context, {String? text}) {
+  showDialog(
+    context: context,
+    builder: (context) => Center(
+      child: Container(
+        // height: 55,
+        // color: Colors.black54,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SpinKitPulsingGrid(
+              color: const Color.fromARGB(255, 127, 180, 224),
+            ),
+            if (text != null) SizedBox(width: 10),
+            if (text != null) Text(text, style: TextStyle(color: Colors.white)),
+          ],
+        ),
+      ),
+    ),
+  );
 }

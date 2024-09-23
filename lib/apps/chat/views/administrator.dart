@@ -326,29 +326,6 @@ class Administrator extends StatelessWidget {
     );
   }
 
-  void _showLoading(BuildContext context, String text) {
-    showDialog(
-      context: context,
-      builder: (context) => Center(
-        child: Container(
-          padding: EdgeInsets.all(20.0),
-          decoration: BoxDecoration(
-            color: Colors.black54,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 10),
-              Text(text, style: TextStyle(color: Colors.white)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   List<Widget> loginDialogActions(
       context, User user, Pages pages, Property property) {
     return [
@@ -362,7 +339,7 @@ class Administrator extends StatelessWidget {
                 //notifyBox(title: "warning", content: "内容不能为空");
                 return;
               }
-              _showLoading(context, "正在登录...");
+              showLoading(context, text: "正在登录...");
               var res = await checkLogin(user);
               Navigator.of(context).pop();
               if (user.isLogedin) {
@@ -467,7 +444,7 @@ class Administrator extends StatelessWidget {
           }
           user.name = _namecontroller.text;
           user.email = _emailcontroller.text;
-          _showLoading(context, "正在注册...");
+          showLoading(context, text: "正在注册...");
           var res = await checkSingUp(user);
           Navigator.of(context).pop();
           if (user.signUP) {

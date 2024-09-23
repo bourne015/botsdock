@@ -303,12 +303,14 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     if (!(_createBotformKey.currentState as FormState).validate()) {
       return;
     }
+    showLoading(context);
     await uploadLogo();
     // assistant will create in backend
     String? _preAvatar;
     if (widget.bot != null) _preAvatar = widget.bot!.avatar;
     var resp = await saveToDB();
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(); // pop showLoading
+    Navigator.of(context).pop(); // pop edit bot dialog
     if (resp == true) {
       notifyBox(context: context, title: "success", content: "操作成功");
       if (_preAvatar != null && _preAvatar.startsWith("http"))
