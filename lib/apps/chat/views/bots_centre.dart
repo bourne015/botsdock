@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
 import '../models/bot.dart';
@@ -82,9 +83,14 @@ class BotsState extends State<BotsCentre> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Expanded(
                       child: Container(
-                          height: 40,
-                          alignment: Alignment.center,
-                          child: CircularProgressIndicator()),
+                        height: 40,
+                        alignment: Alignment.center,
+                        child: SpinKitWaveSpinner(
+                          color: AppColors.generatingAnimation,
+                          waveColor: const Color.fromARGB(255, 172, 223, 173),
+                          // size: AppSize.generatingAnimation,
+                        ),
+                      ),
                     );
                   } else if (snapshot.hasError) {
                     return Expanded(
