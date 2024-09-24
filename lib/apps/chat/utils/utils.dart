@@ -263,6 +263,8 @@ class ChatGen {
       } else {
         _handleClaudeResponse(pages, property, user, handlePageID, res);
       }
+    } else {
+      pages.getPage(handlePageID).appendMessage(msg: data);
     }
   }
 
