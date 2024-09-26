@@ -172,7 +172,7 @@ class InitPageState extends State<InitPage>
                         CustomCard(
                           icon: Icons.translate_outlined,
                           color: const Color.fromARGB(255, 104, 197, 107),
-                          title: "帮我进行汉英互译",
+                          title: "翻译员",
                           prompt: Prompt.translator,
                         ),
                       CustomCard(
