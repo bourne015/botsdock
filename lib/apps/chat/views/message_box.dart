@@ -60,7 +60,7 @@ class MessageBoxState extends State<MessageBox> {
             alignment: Alignment.topCenter,
             child: Container(
               padding: isDisplayDesktop(context)
-                  ? EdgeInsets.only(left: 80, right: 120)
+                  ? EdgeInsets.only(left: 100, right: 120)
                   : EdgeInsets.only(left: 10, right: 10),
               margin: const EdgeInsets.symmetric(vertical: 1.0),
               child: Row(

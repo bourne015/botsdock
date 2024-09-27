@@ -43,13 +43,14 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
     bool _userReady = isUserReady(user);
+    double _hmargin = isDisplayDesktop(context) ? 100 : 50;
 
     return Container(
       decoration: BoxDecoration(
           color: AppColors.inputBoxBackground,
           border: Border.all(color: Colors.grey[350]!, width: 1.0),
           borderRadius: const BorderRadius.all(Radius.circular(15))),
-      margin: const EdgeInsets.fromLTRB(70, 5, 70, 25),
+      margin: EdgeInsets.fromLTRB(_hmargin, 5, _hmargin + 20, 25),
       padding: const EdgeInsets.fromLTRB(1, 4, 1, 4),
       child: Row(
         children: [
