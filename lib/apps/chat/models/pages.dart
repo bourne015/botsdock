@@ -171,6 +171,7 @@ class Pages with ChangeNotifier {
   void reset() {
     _pages.clear();
     _pagesID.clear();
+    flattenedPages.clear();
     currentPageID = -1;
     notifyListeners();
   }
