@@ -1,6 +1,6 @@
-import 'package:file_picker/_internal/file_picker_web.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gallery/apps/chat/models/user.dart';
 import 'package:gallery/apps/chat/utils/custom_widget.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +9,6 @@ import 'package:file_picker/file_picker.dart';
 
 import '../models/pages.dart';
 import '../models/chat.dart';
-import '../models/message.dart';
 import '../models/data.dart';
 import '../utils/constants.dart';
 import '../utils/utils.dart';
@@ -26,7 +25,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   final ChatGen chats = ChatGen();
   final _controller = TextEditingController();
   bool _hasInputContent = false;
-  MsgType _type = MsgType.text;
+
   final assistant = AssistantsAPI();
   final ScrollController _attachmentscroll = ScrollController();
   final ScrollController _visionFilescroll = ScrollController();
@@ -43,6 +42,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
+    bool _userReady = isUserReady(user);
 
     return Container(
       decoration: BoxDecoration(
@@ -53,14 +53,14 @@ class _ChatInputFieldState extends State<ChatInputField> {
       padding: const EdgeInsets.fromLTRB(1, 4, 1, 4),
       child: Row(
         children: [
-          !user.isLogedin || user.credit! <= 0
+          !_userReady
               ? IconButton(
                   onPressed: null,
                   icon: Icon(Icons.attachment, size: 20),
                 )
               : pickButton(context),
           inputField(context),
-          !user.isLogedin || user.credit! <= 0
+          !_userReady
               ? lockButton(context, user)
               : Selector<Pages, bool>(
                   selector: (_, pages) =>
@@ -76,13 +76,28 @@ class _ChatInputFieldState extends State<ChatInputField> {
   }
 
   Widget inputField(BuildContext context) {
+    Pages pages = Provider.of<Pages>(context, listen: false);
+    Property property = Provider.of<Property>(context);
+    User user = Provider.of<User>(context);
     return Expanded(
         child: Column(children: [
       if (attachments.isNotEmpty)
         Container(height: 70, child: attachmentsList(context)),
       if (visionFiles.isNotEmpty)
         Container(height: 70, child: visionFilesList(context)),
-      textField(context),
+      KeyboardListener(
+        focusNode: FocusNode(),
+        onKeyEvent: (event) {
+          if (event is KeyDownEvent) {
+            if (event.logicalKey == LogicalKeyboardKey.enter &&
+                HardwareKeyboard.instance.isControlPressed &&
+                isUserReady(user) &&
+                isContentReady(pages, property))
+              _sendContent(pages, property, user);
+          }
+        },
+        child: textField(context),
+      )
     ]));
   }
 
@@ -106,7 +121,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
               setState(() {
                 var _fileid = content.file_id;
                 attachments.remove(name);
-                if (attachments.isEmpty) _type = MsgType.text;
+
                 assistant.filedelete(_fileid); //TODO: delete in backend
               });
             }),
@@ -132,7 +147,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
                 onPressed: () {
                   setState(() {
                     visionFiles.remove(_name); //TODO: delete in oss
-                    if (visionFiles.isEmpty) _type = MsgType.text;
                   });
                 },
               )),
@@ -330,6 +344,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
+  bool isUserReady(User user) {
+    return (user.isLogedin && user.credit! > 0) ? true : false;
+  }
+
   bool isContentReady(Pages pages, Property property) {
     bool isReady = false;
     if ((visionFiles.isNotEmpty ||
@@ -345,43 +363,49 @@ class _ChatInputFieldState extends State<ChatInputField> {
     Pages pages = Provider.of<Pages>(context, listen: false);
     Property property = Provider.of<Property>(context);
     User user = Provider.of<User>(context);
+    bool _enabled = isContentReady(pages, property);
+
     return IconButton(
       icon: const Icon(Icons.send),
-      color: isContentReady(pages, property) ? Colors.blue : Colors.grey,
-      onPressed: isContentReady(pages, property)
+      color: _enabled ? Colors.blue : Colors.grey,
+      tooltip: _enabled ? "Ctrl+Enter发送" : "",
+      onPressed: _enabled
           ? () async {
-              int newPageId = -1;
-              if (property.onInitPage) {
-                String? thread_id = null;
-                if (attachments.isNotEmpty)
-                  thread_id = await assistant.createThread();
-                if (thread_id != null) {
-                  newPageId = assistant.newassistant(
-                      pages, property, user, thread_id,
-                      ass_id: chatAssistantID);
-                } else {
-                  newPageId = pages.addPage(
-                      Chat(
-                        title: "Chat 0",
-                        model: property.initModelVersion,
-                        artifact: property.artifact,
-                      ),
-                      sort: true);
-                  property.onInitPage = false;
-                  pages.currentPageID = newPageId;
-                }
-              } else {
-                newPageId = pages.currentPageID;
-              }
-              _submitText(pages, property, newPageId, _controller.text, user);
-              _controller.clear();
-              _hasInputContent = false;
-              attachments.clear();
-              visionFiles.clear();
-              _type = MsgType.text;
+              _sendContent(pages, property, user);
             }
           : () {},
     );
+  }
+
+  void _sendContent(pages, property, user) async {
+    int newPageId = -1;
+
+    if (property.onInitPage) {
+      String? thread_id = null;
+      if (attachments.isNotEmpty) thread_id = await assistant.createThread();
+      if (thread_id != null) {
+        newPageId = assistant.newassistant(pages, property, user, thread_id,
+            ass_id: chatAssistantID);
+      } else {
+        newPageId = pages.addPage(
+          Chat(
+            title: "Chat 0",
+            model: property.initModelVersion,
+            artifact: property.artifact,
+          ),
+          sort: true,
+        );
+        property.onInitPage = false;
+        pages.currentPageID = newPageId;
+      }
+    } else {
+      newPageId = pages.currentPageID;
+    }
+    _submitText(pages, property, newPageId, _controller.text, user);
+    _controller.clear();
+    _hasInputContent = false;
+    attachments.clear();
+    visionFiles.clear();
   }
 
   /**
@@ -401,7 +425,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
         return;
       } else {
         debugPrint('Selected file: $fileName');
-        _type = MsgType.image;
+
         setState(() {
           visionFiles[fileName] = VisionFile(name: fileName);
         });
@@ -431,7 +455,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
         setState(() {
           attachments[fileName] = Attachment();
         });
-        _type = MsgType.file;
+
         _getTextFile(result);
       }
     } else {
@@ -473,10 +497,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
         setState(() {
           attachments[fileName] = Attachment();
         });
-        _type = MsgType.file;
+
         _getTextFile(result);
       } else if (supportedImages.contains(fileType)) {
-        _type = MsgType.image;
         setState(() {
           visionFiles[fileName] = VisionFile(name: fileName);
         });
