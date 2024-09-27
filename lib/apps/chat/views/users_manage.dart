@@ -100,13 +100,14 @@ class _UsersManageState extends State<UsersManage> {
         .substring(0, user["name"].length > 4 ? 4 : user["name"].length);
     return Container(
         //margin: const EdgeInsets.all(50),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         child: ListTile(
+          dense: true,
           leading: CircleAvatar(
               radius: 16,
               child: Text(leadingstr,
                   style: const TextStyle(fontSize: 10, color: Colors.grey))),
-          title: Text(user["email"]),
+          title: Text(user["id"].toString() + " - " + user["email"]),
           trailing: Text(user["credit"].toStringAsFixed(3)),
           onTap: () {
             chargeDialog(context, user);
