@@ -162,7 +162,8 @@ class _ChatPageListState extends State<ChatPageList> {
     final pages = Provider.of<Pages>(context);
     final property = Provider.of<Property>(context);
 
-    List _flattenedItems = pages.flattenPages();
+    // List _flattenedItems = pages.flattenPages();
+    List _flattenedItems = pages.flattenedPages;
 
     return Expanded(
       child: ListView.builder(
@@ -299,6 +300,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
       var msgs = pages.getPage(removeID).messages;
       var tid = pages.getPage(removeID).threadID;
       pages.delPage(removeID);
+      pages.flattenPages();
       if (removeID == pages.currentPageID) {
         pages.currentPageID = -1;
         property.onInitPage = true;

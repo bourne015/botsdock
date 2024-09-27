@@ -347,6 +347,7 @@ class Administrator extends StatelessWidget {
                 Navigator.of(context).maybePop().then((_) async {
                   property.isLoading = true;
                   await pages.fetch_pages(user.id);
+                  pages.flattenPages();
                   property.isLoading = false;
                   Global.saveProfile(user);
                 });

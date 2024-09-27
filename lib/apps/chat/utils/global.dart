@@ -35,9 +35,10 @@ class Global {
           if (jsonUser != null) {
             user.copy(User.fromJson(jsonDecode(jsonUser)));
             get_local_chats(user, pages);
-            pages.sortPages();
+            // pages.sortPages();
           }
         }
+        pages.flattenPages();
       }
     } catch (e) {
       debugPrint("init error, reset:${e}");

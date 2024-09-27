@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 
 import '../utils/chat_api.dart';
@@ -12,6 +11,7 @@ import '../utils/constants.dart';
 //all chat pages
 class Pages with ChangeNotifier {
   final Map<int, Chat> _pages = {};
+  final flattenedPages = <dynamic>[];
   List<int> _pagesID = [];
   int _currentPageID = -1;
   var chatApi = ChatAPI();
@@ -49,7 +49,7 @@ class Pages with ChangeNotifier {
     //_currentPageID = newID;
     _pages[newID] = newChat;
     _pagesID.add(newID);
-    if (sort) sortPages();
+    if (sort) flattenPages();
     notifyListeners();
     return newID;
   }
@@ -91,7 +91,10 @@ class Pages with ChangeNotifier {
     _pagesID = entries.map((e) => e.key).toList();
   }
 
-  List<dynamic> flattenPages() {
+  /**
+   * group pages by date
+   */
+  void flattenPages() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
@@ -103,7 +106,8 @@ class Pages with ChangeNotifier {
       PageGroup(label: '三天前', date: threeDaysAgo),
       PageGroup(label: '七天前', date: sevenDaysAgo),
     ];
-    final flattenedList = <dynamic>[];
+    // final flattenedList = <dynamic>[];
+    flattenedPages.clear();
     for (final _pid in _pagesID) {
       var _page = getPage(_pid);
       final pageDate =
@@ -120,12 +124,12 @@ class Pages with ChangeNotifier {
     }
     for (var _group in _groups) {
       if (_group.pages.isNotEmpty) {
-        flattenedList.add(_group.label);
-        flattenedList.addAll(_group.pages);
+        flattenedPages.add(_group.label);
+        flattenedPages.addAll(_group.pages);
       }
     }
 
-    return flattenedList;
+    // return flattenedList;
   }
 
   /**
