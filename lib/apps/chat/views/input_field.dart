@@ -86,19 +86,21 @@ class _ChatInputFieldState extends State<ChatInputField> {
         Container(height: 70, child: attachmentsList(context)),
       if (visionFiles.isNotEmpty)
         Container(height: 70, child: visionFilesList(context)),
-      KeyboardListener(
-        focusNode: FocusNode(),
-        onKeyEvent: (event) {
-          if (event is KeyDownEvent) {
-            if (event.logicalKey == LogicalKeyboardKey.enter &&
-                HardwareKeyboard.instance.isControlPressed &&
-                isUserReady(user) &&
-                isContentReady(pages, property))
-              _sendContent(pages, property, user);
-          }
-        },
-        child: textField(context),
-      )
+      isDisplayDesktop(context)
+          ? KeyboardListener(
+              focusNode: FocusNode(),
+              onKeyEvent: (event) {
+                if (event is KeyDownEvent) {
+                  if (event.logicalKey == LogicalKeyboardKey.enter &&
+                      HardwareKeyboard.instance.isControlPressed &&
+                      isUserReady(user) &&
+                      isContentReady(pages, property))
+                    _sendContent(pages, property, user);
+                }
+              },
+              child: textField(context),
+            )
+          : textField(context),
     ]));
   }
 
