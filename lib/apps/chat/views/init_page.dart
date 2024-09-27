@@ -96,7 +96,7 @@ class InitPageState extends State<InitPage>
 
   void _scheduleNextStateChange() {
     _stateChangeTimer?.cancel();
-    _stateChangeTimer = Timer(Duration(seconds: 2 + _random.nextInt(5)), () {
+    _stateChangeTimer = Timer(Duration(seconds: 2 + _random.nextInt(15)), () {
       _changeState();
       _scheduleNextStateChange();
     });
