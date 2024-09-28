@@ -223,9 +223,15 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
     return TextFormField(
       onChanged: (value) {
-        setState(() {
-          _hasInputContent = value.isNotEmpty;
-        });
+        if (_hasInputContent && value.isEmpty) {
+          setState(() {
+            _hasInputContent = false;
+          });
+        } else if (!_hasInputContent && value.isNotEmpty) {
+          setState(() {
+            _hasInputContent = true;
+          });
+        }
       },
       decoration: InputDecoration(
           //filled: true,
