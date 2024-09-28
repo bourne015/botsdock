@@ -43,6 +43,14 @@ class MessageBoxState extends State<MessageBox> {
   final ScrollController _attachmentscroll = ScrollController();
   final ScrollController _visionFilescroll = ScrollController();
   final assistant = AssistantsAPI();
+  late final Stream<Message> _messageStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _messageStream =
+        widget.messageStream.where((msg) => msg.id == widget.msg.id);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,49 +62,35 @@ class MessageBoxState extends State<MessageBox> {
 
     return widget.msg.role == MessageTRole.user ||
             widget.msg.role == MessageTRole.assistant
-        ? AnimatedSize(
-            duration: Duration(milliseconds: 900),
-            curve: Curves.easeOut,
-            alignment: Alignment.topCenter,
-            child: Container(
-              padding: isDisplayDesktop(context)
-                  ? EdgeInsets.only(left: 100, right: 120)
-                  : EdgeInsets.only(left: 10, right: 10),
-              margin: const EdgeInsets.symmetric(vertical: 1.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  roleIcon(context, widget.msg),
-                  _msgBox(context)
-                ],
-              ),
-            ))
+        ? Container(
+            padding: isDisplayDesktop(context)
+                ? EdgeInsets.only(left: 100, right: 120)
+                : EdgeInsets.only(left: 10, right: 10),
+            margin: const EdgeInsets.symmetric(vertical: 1.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                roleIcon(context, widget.msg),
+                _msgBox(context)
+              ],
+            ),
+          )
         : Container();
   }
 
   Widget _msgBox(BuildContext context) {
     return StreamBuilder<Message>(
-      stream: widget.messageStream.where((msg) => msg.id == widget.msg.id),
+      stream: _messageStream,
       initialData: widget.msg,
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data!.onThinking && widget.isLast) {
-          return Container(
-              margin: const EdgeInsets.only(left: 10),
-              child: SpinKitThreeBounce(
-                color: Color.fromARGB(255, 140, 198, 247),
-                size: AppSize.generatingAnimation,
-              ));
+          return ThinkingIndicator();
         }
         if (snapshot.hasData) {
           return message(context, snapshot.data!);
         }
-        return Container(
-            margin: const EdgeInsets.only(left: 10),
-            child: SpinKitThreeBounce(
-              color: Color.fromARGB(255, 140, 198, 247),
-              size: AppSize.generatingAnimation,
-            ));
+        return ThinkingIndicator();
       },
     );
   }
@@ -109,6 +103,16 @@ class MessageBoxState extends State<MessageBox> {
       return image_show(user.avatar!, 16);
     else
       return SizedBox.shrink();
+  }
+
+  Widget ThinkingIndicator() {
+    return Container(
+      margin: const EdgeInsets.only(left: 10),
+      child: const SpinKitThreeBounce(
+        color: Color.fromARGB(255, 140, 198, 247),
+        size: AppSize.generatingAnimation,
+      ),
+    );
   }
 
   Widget message(BuildContext context, Message msg) {
@@ -241,7 +245,7 @@ class MessageBoxState extends State<MessageBox> {
             IconButton(
               tooltip: "Copy",
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: _textContent ?? ""))
+                Clipboard.setData(ClipboardData(text: _textContent))
                     .then((value) => showMessage(context, "Copied"));
               },
               icon: const Icon(Icons.copy, size: 15),
