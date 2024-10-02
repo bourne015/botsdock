@@ -49,7 +49,10 @@ class Pages with ChangeNotifier {
     //_currentPageID = newID;
     _pages[newID] = newChat;
     _pagesID.add(newID);
-    if (sort) flattenPages();
+    if (sort) {
+      sortPages();
+      flattenPages();
+    }
     notifyListeners();
     return newID;
   }
