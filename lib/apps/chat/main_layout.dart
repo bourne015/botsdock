@@ -58,15 +58,7 @@ class MainLayoutState extends State<MainLayout> {
             ),
           ),
         ),
-        Container(
-            alignment: Alignment.center,
-            color: AppColors.chatPageBackground,
-            child: CustomDrawerButton(
-              isOpen: property.isDrawerOpen,
-              onPressed: () {
-                property.isDrawerOpen = !property.isDrawerOpen;
-              },
-            )),
+        CustomDrawerButton(),
         Expanded(
             child: Scaffold(
           backgroundColor: AppColors.chatPageBackground,
@@ -95,30 +87,35 @@ class MainLayoutState extends State<MainLayout> {
 }
 
 class CustomDrawerButton extends StatelessWidget {
-  final bool isOpen;
-  final VoidCallback onPressed;
   final ValueNotifier<IconData> _iconNotifier =
       ValueNotifier(Icons.more_vert_rounded);
 
-  CustomDrawerButton({Key? key, required this.isOpen, required this.onPressed})
-      : super(key: key);
+  CustomDrawerButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => _iconNotifier.value = Icons.chevron_left_rounded,
-      onExit: (_) => _iconNotifier.value = Icons.more_vert_rounded,
-      child: ValueListenableBuilder<IconData>(
-        valueListenable: _iconNotifier,
-        builder: (context, icon, child) {
-          return IconButton(
-            // hoverColor: AppColors.chatPageBackground,
-            // highlightColor: AppColors.chatPageBackground,
-            icon: Icon(isOpen ? icon : Icons.chevron_right_rounded),
-            onPressed: onPressed,
-          );
-        },
-      ),
-    );
+    Property property = Provider.of<Property>(context);
+    return Container(
+        alignment: Alignment.center,
+        color: AppColors.chatPageBackground,
+        child: MouseRegion(
+          onEnter: (_) => _iconNotifier.value = Icons.chevron_left_rounded,
+          onExit: (_) => _iconNotifier.value = Icons.more_vert_rounded,
+          child: ValueListenableBuilder<IconData>(
+            valueListenable: _iconNotifier,
+            builder: (context, icon, child) {
+              return IconButton(
+                visualDensity: VisualDensity.compact,
+                // hoverColor: AppColors.chatPageBackground,
+                // highlightColor: AppColors.chatPageBackground,
+                icon: Icon(
+                    property.isDrawerOpen ? icon : Icons.chevron_right_rounded),
+                onPressed: () {
+                  property.isDrawerOpen = !property.isDrawerOpen;
+                },
+              );
+            },
+          ),
+        ));
   }
 }
