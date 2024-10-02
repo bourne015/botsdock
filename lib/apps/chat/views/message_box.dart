@@ -124,7 +124,7 @@ class MessageBoxState extends State<MessageBox> {
     double bottom_v = 0;
     if (msg.role == MessageTRole.user) bottom_v = 20.0;
     return Flexible(
-      key: UniqueKey(),
+      // key: UniqueKey(),
       child: Container(
         margin: EdgeInsets.only(left: 8, bottom: bottom_v),
         padding: EdgeInsets.all(10),
@@ -263,50 +263,50 @@ class MessageBoxState extends State<MessageBox> {
   Widget contentMarkdown(BuildContext context, String msg) {
     try {
       return SelectionArea(
-          key: UniqueKey(),
+          // key: UniqueKey(),
           child: MarkdownBody(
-            key: UniqueKey(),
-            data: msg, //markdownTest,
-            // selectable: true,
-            shrinkWrap: true,
-            //extensionSet: MarkdownExtensionSet.githubFlavored.value,
-            onTapLink: (text, href, title) => launchUrl(Uri.parse(href!)),
-            extensionSet: md.ExtensionSet(
-              [
-                ...md.ExtensionSet.gitHubFlavored.blockSyntaxes,
-                ...[LatexBlockSyntax()],
-              ],
-              <md.InlineSyntax>[
-                md.EmojiSyntax(),
-                ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes,
-                ...[LatexInlineSyntax()],
-              ],
-            ),
-            styleSheetTheme: MarkdownStyleSheetBaseTheme.platform,
-            styleSheet: MarkdownStyleSheet(
-              //h1: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              //h2: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              p: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
-              code: const TextStyle(
-                inherit: false,
-                color: AppColors.msgText,
-                fontWeight: FontWeight.bold,
+        // key: UniqueKey(),
+        data: msg, //markdownTest,
+        // selectable: true,
+        shrinkWrap: true,
+        //extensionSet: MarkdownExtensionSet.githubFlavored.value,
+        onTapLink: (text, href, title) => launchUrl(Uri.parse(href!)),
+        extensionSet: md.ExtensionSet(
+          [
+            ...md.ExtensionSet.gitHubFlavored.blockSyntaxes,
+            ...[LatexBlockSyntax()],
+          ],
+          <md.InlineSyntax>[
+            md.EmojiSyntax(),
+            ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes,
+            ...[LatexInlineSyntax()],
+          ],
+        ),
+        styleSheetTheme: MarkdownStyleSheetBaseTheme.platform,
+        styleSheet: MarkdownStyleSheet(
+          //h1: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          //h2: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          p: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
+          code: const TextStyle(
+            inherit: false,
+            color: AppColors.msgText,
+            fontWeight: FontWeight.bold,
+          ),
+          codeblockPadding: const EdgeInsets.all(10),
+          codeblockDecoration: BoxDecoration(
+            borderRadius: BORDERRADIUS10,
+            // color: Colors.grey,
+          ),
+        ),
+        builders: {
+          'code': CodeBlockBuilder(context),
+          'latex': LatexElementBuilder(
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w100,
               ),
-              codeblockPadding: const EdgeInsets.all(10),
-              codeblockDecoration: BoxDecoration(
-                borderRadius: BORDERRADIUS10,
-                // color: Colors.grey,
-              ),
-            ),
-            builders: {
-              'code': CodeBlockBuilder(context),
-              'latex': LatexElementBuilder(
-                  textStyle: const TextStyle(
-                    fontWeight: FontWeight.w100,
-                  ),
-                  textScaleFactor: 1.2),
-            },
-          ));
+              textScaleFactor: 1.2),
+        },
+      ));
     } catch (e, stackTrace) {
       print("markdown error: $e");
       print("markdown error1: $stackTrace");
