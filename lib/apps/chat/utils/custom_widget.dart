@@ -278,3 +278,18 @@ void showLoading(BuildContext context, {String? text}) {
     ),
   );
 }
+
+class ThinkingIndicator extends StatelessWidget {
+  const ThinkingIndicator({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(left: 10),
+      child: const SpinKitThreeBounce(
+        color: Color.fromARGB(255, 140, 198, 247),
+        size: AppSize.generatingAnimation,
+      ),
+    );
+  }
+}

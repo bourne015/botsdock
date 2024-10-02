@@ -13,6 +13,7 @@ import 'package:image_downloader_web/image_downloader_web.dart';
 
 import '../models/anthropic/schema/schema.dart' as anthropic;
 import '../models/message.dart';
+import '../models/pages.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
 import '../utils/custom_widget.dart';
@@ -40,16 +41,26 @@ class MessageBox extends StatefulWidget {
 }
 
 class MessageBoxState extends State<MessageBox> {
-  final ScrollController _attachmentscroll = ScrollController();
-  final ScrollController _visionFilescroll = ScrollController();
-  final assistant = AssistantsAPI();
+  late final ScrollController _attachmentscroll;
+  late final ScrollController _visionFilescroll;
+  late final assistant;
   late final Stream<Message> _messageStream;
 
   @override
   void initState() {
     super.initState();
+    _attachmentscroll = ScrollController();
+    _visionFilescroll = ScrollController();
+    assistant = AssistantsAPI();
     _messageStream =
         widget.messageStream.where((msg) => msg.id == widget.msg.id);
+  }
+
+  @override
+  void dispose() {
+    _attachmentscroll.dispose();
+    _visionFilescroll.dispose();
+    super.dispose();
   }
 
   @override
@@ -60,12 +71,16 @@ class MessageBoxState extends State<MessageBox> {
             widget.msg.content[0] is anthropic.ToolResultBlock))
       return Container();
 
+    Property property = Provider.of<Property>(context, listen: false);
+    double hval = 100;
+    if (!property.isDrawerOpen) hval = 200;
     return widget.msg.role == MessageTRole.user ||
             widget.msg.role == MessageTRole.assistant
-        ? Container(
+        ? AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
             padding: isDisplayDesktop(context)
-                ? EdgeInsets.only(left: 100, right: 120)
-                : EdgeInsets.only(left: 10, right: 10),
+                ? EdgeInsets.symmetric(horizontal: hval)
+                : EdgeInsets.symmetric(horizontal: 10),
             margin: const EdgeInsets.symmetric(vertical: 1.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -85,34 +100,24 @@ class MessageBoxState extends State<MessageBox> {
       initialData: widget.msg,
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data!.onThinking && widget.isLast) {
-          return ThinkingIndicator();
+          return const ThinkingIndicator();
         }
         if (snapshot.hasData) {
           return message(context, snapshot.data!);
         }
-        return ThinkingIndicator();
+        return const ThinkingIndicator();
       },
     );
   }
 
   Widget roleIcon(BuildContext context, Message msg) {
-    User user = Provider.of<User>(context);
+    User user = Provider.of<User>(context, listen: false);
     if (msg.role == MessageTRole.assistant)
       return image_show(user.avatar_bot ?? defaultUserBotAvatar, 16);
     else if (msg.role == MessageTRole.user)
       return image_show(user.avatar!, 16);
     else
       return SizedBox.shrink();
-  }
-
-  Widget ThinkingIndicator() {
-    return Container(
-      margin: const EdgeInsets.only(left: 10),
-      child: const SpinKitThreeBounce(
-        color: Color.fromARGB(255, 140, 198, 247),
-        size: AppSize.generatingAnimation,
-      ),
-    );
   }
 
   Widget message(BuildContext context, Message msg) {

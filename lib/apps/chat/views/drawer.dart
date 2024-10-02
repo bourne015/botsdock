@@ -16,60 +16,77 @@ import 'administrator.dart';
 import '../utils/global.dart';
 
 class ChatDrawer extends StatefulWidget {
-  final double drawersize;
-  const ChatDrawer({super.key, required this.drawersize});
+  const ChatDrawer({super.key});
 
   @override
   State<ChatDrawer> createState() => ChatDrawerState();
 }
 
 class ChatDrawerState extends State<ChatDrawer> {
-  bool isHovered = false;
-  final dio = Dio();
-
   @override
   Widget build(BuildContext context) {
     Property property = Provider.of<Property>(context);
     return Drawer(
-      width: widget.drawersize,
+      width: DRAWERWIDTH,
       backgroundColor: AppColors.drawerBackground,
       shape: isDisplayDesktop(context)
           ? RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,
             )
           : null,
-      child: Column(
-        children: [
-          Material(
-            color: AppColors.drawerBackground,
-            child: Column(children: [
-              newchatButton(context),
-              botsCentre(context),
-            ]),
-          ),
-          property.isLoading
-              ? Expanded(
-                  child: SpinKitThreeBounce(
-                      color: AppColors.generatingAnimation,
-                      size: AppSize.generatingAnimation))
-              : ChatPageList(),
-          Material(
-            color: AppColors.drawerBackground,
-            child: Column(children: [
-              Divider(
-                  height: 10,
-                  thickness: 1,
-                  indent: 10,
-                  endIndent: 10,
-                  color: AppColors.drawerDivider),
-              Container(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-                  child: Administrator()),
-              const SizedBox(height: 10),
-            ]),
-          ),
-        ],
+      child: LayoutBuilder(builder: (context, constraints) {
+        return Column(
+          children: [
+            const _DrawerHeader(),
+            property.isLoading
+                ? const Expanded(
+                    child: SpinKitThreeBounce(
+                        color: AppColors.generatingAnimation,
+                        size: AppSize.generatingAnimation))
+                : const ChatPageList(),
+            const _DrawerFooter(),
+          ],
+        );
+      }),
+    );
+  }
+}
+
+class _DrawerHeader extends StatelessWidget {
+  const _DrawerHeader({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+        color: Color.fromARGB(255, 245, 244, 244),
+        child: Column(
+          children: [
+            newchatButton(context),
+            botsCentre(context),
+          ],
+        ));
+  }
+
+  Widget newchatButton(BuildContext context) {
+    Pages pages = Provider.of<Pages>(context, listen: false);
+    Property property = Provider.of<Property>(context, listen: false);
+    return Container(
+      decoration: BoxDecoration(
+        border:
+            Border.all(color: Color.fromARGB(255, 162, 158, 158), width: 0.5),
+        borderRadius: BORDERRADIUS10,
+      ),
+      margin: const EdgeInsets.fromLTRB(10, 15, 10, 10),
+      child: ListTile(
+        shape: RoundedRectangleBorder(
+          borderRadius: BORDERRADIUS10,
+        ),
+        onTap: () {
+          property.onInitPage = true;
+          pages.currentPageID = -1;
+          if (!isDisplayDesktop(context)) Navigator.pop(context);
+        },
+        leading: const Icon(Icons.add),
+        title: Text(GalleryLocalizations.of(context)!.newChat),
       ),
     );
   }
@@ -94,56 +111,30 @@ class ChatDrawerState extends State<ChatDrawer> {
           },
         ));
   }
+}
 
-  void showSlideInDialog({
-    required BuildContext context,
-    required WidgetBuilder builder,
-  }) {
-    showGeneralDialog(
-      context: context,
-      pageBuilder: (context, anim1, anim2) {
-        return builder(context);
-      },
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black54,
-      transitionDuration: Duration(milliseconds: 200),
-      transitionBuilder: (context, anim1, anim2, child) {
-        final curvedAnim =
-            CurvedAnimation(parent: anim1, curve: Curves.easeInOut);
+class _DrawerFooter extends StatelessWidget {
+  const _DrawerFooter({Key? key}) : super(key: key);
 
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: Offset(1, 0),
-            end: Offset(0, 0),
-          ).animate(curvedAnim),
-          child: child,
-        );
-      },
-    );
-  }
-
-  Widget newchatButton(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context);
-    Property property = Provider.of<Property>(context);
-    return Container(
-      decoration: BoxDecoration(
-        border:
-            Border.all(color: Color.fromARGB(255, 162, 158, 158), width: 0.5),
-        borderRadius: BORDERRADIUS10,
-      ),
-      margin: const EdgeInsets.fromLTRB(10, 15, 10, 10),
-      child: ListTile(
-        shape: RoundedRectangleBorder(
-          borderRadius: BORDERRADIUS10,
-        ),
-        onTap: () {
-          property.onInitPage = true;
-          pages.currentPageID = -1;
-          if (!isDisplayDesktop(context)) Navigator.pop(context);
-        },
-        leading: const Icon(Icons.add),
-        title: Text(GalleryLocalizations.of(context)!.newChat),
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.drawerBackground,
+      child: Column(
+        children: [
+          const Divider(
+            height: 10,
+            thickness: 1,
+            indent: 10,
+            endIndent: 10,
+            color: Color.fromARGB(255, 212, 211, 211),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+            child: Administrator(),
+          ),
+          const SizedBox(height: 10),
+        ],
       ),
     );
   }
@@ -182,7 +173,7 @@ class _ChatPageListState extends State<ChatPageList> {
               property: property,
             );
           }
-          return Container();
+          return const SizedBox.shrink();
         },
       ),
     );

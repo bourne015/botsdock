@@ -18,7 +18,7 @@ class MainLayout extends StatefulWidget {
 }
 
 class MainLayoutState extends State<MainLayout> {
-  late Duration _drawerAnimationDuration;
+  final Duration _drawerAnimationDuration = Duration(milliseconds: 270);
 
   @override
   Widget build(BuildContext context) {
@@ -35,27 +35,28 @@ class MainLayoutState extends State<MainLayout> {
     return Scaffold(
       backgroundColor: AppColors.chatPageBackground,
       appBar: const MyAppBar(),
-      drawer: const ChatDrawer(drawersize: DRAWERWIDTH),
+      drawer: const ChatDrawer(),
       body: _buildMainPageBody(context),
     );
   }
 
   Widget desktopLayout(BuildContext context) {
     Property property = Provider.of<Property>(context);
-    if (property.isLoading)
-      _drawerAnimationDuration = Duration(milliseconds: 1150);
-    else
-      _drawerAnimationDuration = Duration(milliseconds: 270);
 
     return Row(
       children: <Widget>[
-        AnimatedSize(
-          curve: property.isDrawerOpen ? Curves.linear : Curves.ease, //out: in
+        AnimatedContainer(
+          curve: Curves.easeInOut, //out: in
           duration: _drawerAnimationDuration,
+          width: property.isDrawerOpen ? DRAWERWIDTH : 0,
           alignment: Alignment.topRight,
-          child: property.isDrawerOpen
-              ? ChatDrawer(drawersize: DRAWERWIDTH)
-              : Container(),
+          child: const ClipRect(
+            child: OverflowBox(
+              alignment: Alignment.topRight,
+              maxWidth: DRAWERWIDTH,
+              child: RepaintBoundary(child: ChatDrawer()),
+            ),
+          ),
         ),
         Container(
             alignment: Alignment.center,
@@ -69,7 +70,7 @@ class MainLayoutState extends State<MainLayout> {
         Expanded(
             child: Scaffold(
           backgroundColor: AppColors.chatPageBackground,
-          appBar: !property.onInitPage ? MyAppBar() : null,
+          appBar: !property.onInitPage ? const MyAppBar() : null,
           body: _buildMainPageBody(context),
         ))
       ],
@@ -85,10 +86,10 @@ class MainLayoutState extends State<MainLayout> {
         children: [
           Expanded(
             child: property.onInitPage
-                ? InitPage()
+                ? const InitPage()
                 : MessageListView(page: pages.currentPage!),
           ),
-          ChatInputField(),
+          const ChatInputField(),
         ]);
   }
 }
@@ -111,6 +112,8 @@ class CustomDrawerButton extends StatelessWidget {
         valueListenable: _iconNotifier,
         builder: (context, icon, child) {
           return IconButton(
+            // hoverColor: AppColors.chatPageBackground,
+            // highlightColor: AppColors.chatPageBackground,
             icon: Icon(isOpen ? icon : Icons.chevron_right_rounded),
             onPressed: onPressed,
           );
