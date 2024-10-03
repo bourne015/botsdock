@@ -42,11 +42,11 @@ class MainLayoutState extends State<MainLayout> {
 
   Widget desktopLayout(BuildContext context) {
     Property property = Provider.of<Property>(context);
-
+    double hval = property.isDrawerOpen ? 100 : 180;
     return Row(
       children: <Widget>[
         AnimatedContainer(
-          curve: Curves.easeInOut, //out: in
+          curve: Curves.easeInOut,
           duration: _drawerAnimationDuration,
           width: property.isDrawerOpen ? DRAWERWIDTH : 0,
           alignment: Alignment.topRight,
@@ -63,8 +63,14 @@ class MainLayoutState extends State<MainLayout> {
             child: Scaffold(
           backgroundColor: AppColors.chatPageBackground,
           appBar: !property.onInitPage ? const MyAppBar() : null,
-          body: _buildMainPageBody(context),
-        ))
+          body: AnimatedContainer(
+            duration: _drawerAnimationDuration,
+            padding: isDisplayDesktop(context)
+                ? EdgeInsets.symmetric(horizontal: hval)
+                : EdgeInsets.symmetric(horizontal: 10),
+            child: _buildMainPageBody(context),
+          ),
+        )),
       ],
     );
   }

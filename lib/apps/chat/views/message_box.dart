@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_markdown_latex/flutter_markdown_latex.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:gallery/apps/chat/models/data.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:provider/provider.dart';
@@ -71,16 +70,9 @@ class MessageBoxState extends State<MessageBox> {
             widget.msg.content[0] is anthropic.ToolResultBlock))
       return Container();
 
-    Property property = Provider.of<Property>(context, listen: false);
-    double hval = 100;
-    if (!property.isDrawerOpen) hval = 200;
     return widget.msg.role == MessageTRole.user ||
             widget.msg.role == MessageTRole.assistant
-        ? AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
-            padding: isDisplayDesktop(context)
-                ? EdgeInsets.symmetric(horizontal: hval)
-                : EdgeInsets.symmetric(horizontal: 10),
+        ? Container(
             margin: const EdgeInsets.symmetric(vertical: 1.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
