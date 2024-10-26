@@ -144,18 +144,23 @@ class ChatGen {
   void _handleAssistantStream(
     Pages pages,
     int handlePageID,
-    event,
+    openai.AssistantStreamEvent event,
   ) {
     String? _text;
     Map<String, Attachment> attachments = {};
     Map<String, VisionFile> visionFiles = {};
-    if (event is openai.MessageStreamEvent &&
-        event.event == openai.EventType.threadMessageCreated) {}
+    if (event.event == openai.EventType.threadMessageCreated) {}
 
     pages.getPage(handlePageID).messages.last.onThinking = false;
+    print("_handleAssistantStream: ${event}");
     event.when(
         threadStreamEvent: (final event, final data) {},
-        runStreamEvent: (final event, final data) {},
+        runStreamEvent: (final event, final data) {
+          if (data.lastError != null) {
+            debugPrint("lastError: ${data.lastError?.message}");
+            _text = data.lastError?.message;
+          }
+        },
         runStepStreamEvent: (final event, final data) {
           if (data.usage != null) {
             debugPrint("promptTokens: ${data.usage!.promptTokens}");
@@ -203,8 +208,12 @@ class ChatGen {
             );
           //});
         },
-        errorEvent: (final event, final data) {},
-        doneEvent: (final event, final data) {});
+        errorEvent: (final event, final data) {
+          debugPrint("errorEvent: $data");
+        },
+        doneEvent: (final event, final data) {
+          debugPrint("doneEvent");
+        });
 
     if (_text != null)
       pages.getPage(handlePageID).appendMessage(
