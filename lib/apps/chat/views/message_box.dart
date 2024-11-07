@@ -12,7 +12,6 @@ import 'package:image_downloader_web/image_downloader_web.dart';
 
 import '../models/anthropic/schema/schema.dart' as anthropic;
 import '../models/message.dart';
-import '../models/pages.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
 import '../utils/custom_widget.dart';

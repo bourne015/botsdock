@@ -255,7 +255,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1),
             onTap: () {
-              widget.pages.currentPageID = widget.page.id!;
+              widget.pages.currentPageID = widget.page.id;
               widget.property.onInitPage = false;
               if (!isDisplayDesktop(context)) Navigator.pop(context);
             },
@@ -263,7 +263,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
             trailing: widget.pages.pagesLen > 1 &&
                     (widget.pages.currentPageID == widget.page.id || isHovered)
                 ? delChattabButton(
-                    context, widget.pages, widget.page.id!, widget.property)
+                    context, widget.pages, widget.page.id, widget.property)
                 : null,
           ),
         ));
@@ -302,9 +302,9 @@ class _ChatPageTabState extends State<ChatPageTab> {
         Global.deleteChat(removeID, cres.data["updated_at"]);
       }
       for (var m in msgs) {
-        if (m.visionFiles == null || m.visionFiles!.isEmpty) continue;
-        m.visionFiles!.forEach((_filename, _content) async {
-          if (_content.url != null) deleteOSSObj(_content.url);
+        if (m.visionFiles.isEmpty) continue;
+        m.visionFiles.forEach((_filename, _content) async {
+          if (_content.url.isNotEmpty) deleteOSSObj(_content.url);
         });
       }
       if (tid != null) await assistant.deleteThread(tid);

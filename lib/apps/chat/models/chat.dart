@@ -21,7 +21,7 @@ class Chat with ChangeNotifier {
   List<Message> messages = [];
   // dynamic _toolChoice;
   // List<Tool> tools = []; //openai tools
-  openai.CreateRunRequestToolChoice? _toolChoice;
+  // openai.CreateRunRequestToolChoice? _toolChoice;
   List<openai.ChatCompletionTool> tools = [];
   List<anthropic.Tool> claudeTools = []; //claude tools
   String toolInputDelta = "";
@@ -62,7 +62,7 @@ class Chat with ChangeNotifier {
         _title = title,
         _model = model,
         messages = messages ?? [],
-        _toolChoice = toolChoice,
+        // _toolChoice = toolChoice,
         tools = tools ?? [],
         claudeTools = claudeTools ?? [],
         artifact = artifact ?? false,

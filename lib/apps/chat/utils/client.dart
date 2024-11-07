@@ -37,7 +37,7 @@ class _PairwiseTransformer
   Stream<(String, String)> bind(final Stream<String> stream) {
     late StreamController<(String, String)> controller;
     late StreamSubscription<String> subscription;
-    late String event;
+    // late String event;
 
     controller = StreamController<(String, String)>(
       onListen: () {
@@ -168,19 +168,19 @@ Stream<openai.AssistantStreamEvent> CreateAssistantChatStream(
   yield* stream.transform(const _OpenAIAssistantStreamTransformer());
 }
 
-class _OpenAIStreamTransformer
-    extends StreamTransformerBase<List<int>, String> {
-  const _OpenAIStreamTransformer();
+// class _OpenAIStreamTransformer
+//     extends StreamTransformerBase<List<int>, String> {
+//   const _OpenAIStreamTransformer();
 
-  @override
-  Stream<String> bind(final Stream<List<int>> stream) {
-    return stream //
-        .transform(utf8.decoder) //
-        .transform(const LineSplitter()) //
-        .where((final i) => i.startsWith('data: ') && !i.endsWith('[DONE]'))
-        .map((final item) => item.substring(6));
-  }
-}
+//   @override
+//   Stream<String> bind(final Stream<List<int>> stream) {
+//     return stream //
+//         .transform(utf8.decoder) //
+//         .transform(const LineSplitter()) //
+//         .where((final i) => i.startsWith('data: ') && !i.endsWith('[DONE]'))
+//         .map((final item) => item.substring(6));
+//   }
+// }
 
 Stream<String> CreateChatStream(
   String url, {

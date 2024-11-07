@@ -430,7 +430,7 @@ class ChatGen {
     int handlePageID,
     user,
   ) async {
-    StreamSubscription? subscription;
+    // StreamSubscription? subscription;
     try {
       if (property.initModelVersion == GPTModel.gptv40Dall) {
         _imageGeneration(pages, property, handlePageID, user);

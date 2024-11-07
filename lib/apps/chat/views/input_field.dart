@@ -471,6 +471,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     }
   }
 
+/*
   Future<void> _pickFile() async {
     var result;
     var _supported;
@@ -519,7 +520,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       debugPrint('No file selected.');
     }
   }
-
+*/
   Future<void> _getTextFile(selectedfile) async {
     await assistant.uploadFile(selectedfile);
     String file_id = await assistant.fileUpload(selectedfile.files.first.name);
