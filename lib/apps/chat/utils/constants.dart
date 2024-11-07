@@ -65,6 +65,7 @@ class ClaudeModel {
   static const String sonnet = "claude-3-sonnet-20240229";
   static const String opus = "claude-3-opus-20240229";
   static const String sonnet_35 = "claude-3-5-sonnet-20241022";
+  static const String haiku_35 = "claude-3-5-haiku-20241022";
 
   Map<String, String> toJson() {
     return {
@@ -72,6 +73,7 @@ class ClaudeModel {
       sonnet: 'sonnet',
       opus: 'opus',
       sonnet_35: "sonnet_35",
+      haiku_35: 'haiku_35',
     };
   }
 }
