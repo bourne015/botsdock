@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gallery/apps/chat/views/bots_centre.dart';
+import 'package:botsdock/apps/chat/views/bots_centre.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 

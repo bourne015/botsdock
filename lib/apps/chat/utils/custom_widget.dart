@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:gallery/data/adaptive.dart';
+import 'package:botsdock/data/adaptive.dart';
 
 import 'constants.dart';
 

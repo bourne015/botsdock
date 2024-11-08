@@ -5,10 +5,10 @@
 import 'package:dual_screen/dual_screen.dart';
 //import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:gallery/main.dart';
-import 'package:gallery/pages/home.dart';
-import 'package:gallery/apps/chat/main.dart' as chat;
-import 'package:gallery/apps/chat/routes.dart' as chat_routes;
+import 'package:botsdock/main.dart';
+import 'package:botsdock/pages/home.dart';
+import 'package:botsdock/apps/chat/main.dart' as chat;
+import 'package:botsdock/apps/chat/routes.dart' as chat_routes;
 
 typedef PathWidgetBuilder = Widget Function(BuildContext, String?);
 

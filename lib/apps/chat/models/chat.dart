@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:gallery/apps/chat/models/data.dart';
-import 'package:gallery/apps/chat/utils/prompts.dart';
+import 'package:botsdock/apps/chat/models/data.dart';
+import 'package:botsdock/apps/chat/utils/prompts.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../models/anthropic/schema/schema.dart' as anthropic;

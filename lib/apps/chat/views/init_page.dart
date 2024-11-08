@@ -1,8 +1,8 @@
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:gallery/apps/chat/utils/prompts.dart';
-import 'package:gallery/apps/chat/views/spirit_cat.dart';
+import 'package:botsdock/apps/chat/utils/prompts.dart';
+import 'package:botsdock/apps/chat/views/spirit_cat.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 

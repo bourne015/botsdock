@@ -1,11 +1,10 @@
-name: gallery
+name: botsdock
 description: A gallery to list apps.
-repository: https://github.com/flutter/gallery
 version: 0.9.9
 
 environment:
-  flutter: ^3.24.1
-  sdk: ^3.5.1
+  flutter: ^3.24.4
+  sdk: ^3.5.4
 
 dependencies:
   flutter:

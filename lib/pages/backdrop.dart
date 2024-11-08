@@ -5,9 +5,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:gallery/data/gallery_options.dart';
-import 'package:gallery/data/adaptive.dart';
-import 'package:gallery/pages/home.dart';
+import 'package:botsdock/data/gallery_options.dart';
+import 'package:botsdock/data/adaptive.dart';
+import 'package:botsdock/pages/home.dart';
 
 class Backdrop extends StatefulWidget {
   const Backdrop({
