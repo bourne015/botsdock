@@ -6,7 +6,7 @@ import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 import 'package:http/http.dart' as http;
 import 'package:fetch_client/fetch_client.dart';
 
-import '../models/openai/schema/schema.dart' as openai;
+import 'package:openai_dart/openai_dart.dart' as openai;
 
 Future<http.StreamedResponse> makeRequestStream(
   String url,

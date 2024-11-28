@@ -1,6 +1,6 @@
 import '../models/data.dart';
-import '../models/anthropic/schema/schema.dart' as anthropic;
-import '../models/openai/schema/schema.dart' as openai;
+import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
+import 'package:openai_dart/openai_dart.dart' as openai;
 
 abstract class Message {
   int id;

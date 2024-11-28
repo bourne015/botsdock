@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:image_downloader_web/image_downloader_web.dart';
 
-import '../models/anthropic/schema/schema.dart' as anthropic;
+import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
 import '../models/message.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
