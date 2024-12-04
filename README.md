@@ -1,16 +1,23 @@
-# App Gallery
+# Bots Dock
 
-Based on [Flutter Gallery](https://github.com/flutter/gallery) to list self-developed Apps.
+A project integrated models from OpenAI and Claude, based on [Flutter Gallery](https://github.com/flutter/gallery) for first page.
+
+this repo is the UI part, and depends on [chat](https://github.com/bourne015/chat) backend.
 
 
-## Running
+### Running
 
-One can run the gallery locally for any of these platforms. For desktop platforms,
-please see the [Flutter docs](https://docs.flutter.dev/desktop) for the latest
-requirements.
 
 ```bash
-cd app-gallery/
 flutter pub get
-flutter run
+flutter run -d chrome
 ```
+
+### build
+```bash
+flutter build web --release --pwa-strategy none --web-renderer=canvaskit
+```
+### UI
+<p align="center">
+ <img width="600" src="https://github.com/user-attachments/assets/fa372115-f603-4983-a630-35467588aaae">
+</p>
