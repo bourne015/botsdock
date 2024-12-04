@@ -19,5 +19,5 @@ flutter build web --release --pwa-strategy none --web-renderer=canvaskit
 ```
 ### UI
 <p align="center">
- <img width="600" src="https://github.com/user-attachments/assets/fa372115-f603-4983-a630-35467588aaae">
+ <img width="450" src="https://github.com/user-attachments/assets/fa372115-f603-4983-a630-35467588aaae">
 </p>
