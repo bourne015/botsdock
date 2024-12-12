@@ -78,7 +78,7 @@
     "description": "botsCentre"
   },
   "login": "Login",
-  "@Login": {
+  "@login": {
     "description": "Login"
   },
   "custmizeGPT": "custmize GPT",
@@ -105,99 +105,99 @@
   "@modelDescription": {
     "description": "Model Description"
   },
-  "contextWindow" : "Context window",
+  "contextWindow": "Context window",
   "@contextWindow": {
     "description": "Model Context window"
   },
-  "cost" : "Cost",
+  "cost": "Cost",
   "@cost": {
     "description": "Model cost"
   },
-  "inputFormat" : "Input Format",
+  "inputFormat": "Input Format",
   "@inputFormat": {
     "description": "Model input format"
   },
-  "inputFormat1" : "Text",
+  "inputFormat1": "Text",
   "@inputFormat1": {
     "description": "Text input format"
   },
-  "inputFormat2" : "Text and Image",
+  "inputFormat2": "Text and Image",
   "@inputFormat2": {
     "description": "Text and Image format"
   },
-  "selectModelTooltip" : "select model",
+  "selectModelTooltip": "select model",
   "@selectModelTooltip": {
     "description": "select model tooltip"
   },
-  "openDrawerTooltip" : "open sidebar",
+  "openDrawerTooltip": "open sidebar",
   "@openDrawerTooltip": {
     "description": "close sidebar tooltip"
   },
-  "closeDrawerTooltip" : "close sidebar",
+  "closeDrawerTooltip": "close sidebar",
   "@closeDrawerTooltip": {
     "description": "open sidebar tooltip"
   },
-  "botCentreTitle" : "Bot Centre",
+  "botCentreTitle": "Bot Centre",
   "@botCentreTitle": {
     "description": "bot centre title"
   },
-  "botCentreMe" : "Me",
+  "botCentreMe": "Me",
   "@botCentreMe": {
     "description": "bot centre me"
   },
-  "botCentreCreate" : "create",
+  "botCentreCreate": "create",
   "@botCentreCreate": {
     "description": "create bot"
   },
-  "exploreMore" : "More",
+  "exploreMore": "More",
   "@exploreMore": {
     "description": "bot centre explore more"
   },
-  "botEdit" : "edit",
+  "botEdit": "edit",
   "@botEdit": {
     "description": "botEdit"
   },
-  "botDelete" : "delete",
+  "botDelete": "delete",
   "@botDelete": {
     "description": "delete"
   },
-  "botCreateTitle" : "customize bot",
+  "botCreateTitle": "customize bot",
   "@botCreateTitle": {
     "description": "bot Create Title"
   },
-  "tools" : "Tools",
+  "tools": "Tools",
   "@tools": {
     "description": "tools"
   },
-  "fileSearch" : "File search",
+  "fileSearch": "File search",
   "@fileSearch": {
     "description": "file Search"
   },
-  "fileSearchTitle" : "Attach files to file search",
+  "fileSearchTitle": "Attach files to file search",
   "@fileSearchTitle": {
     "description": "file Search dialog title"
   },
-  "codeInterpreterTitle" : "Attach files to code interpreter",
+  "codeInterpreterTitle": "Attach files to code interpreter",
   "@codeInterpreterTitle": {
     "description": "code interpreter dialog title"
   },
-  "codeInterpreter" : "Code interpreter",
+  "codeInterpreter": "Code interpreter",
   "@codeInterpreter": {
     "description": "code interpreter"
   },
-  "functions" : "Functions",
+  "functions": "Functions",
   "@functions": {
     "description": "Functions"
   },
-  "fileSearchTip" : "File search enables the assistant with knowledge from files that you or your users upload.\nOnce a file is uploaded, the assistant automatically decides when to retrieve content based on user requests.",
-  "@fileSearchtip": {
+  "fileSearchTip": "File search enables the assistant with knowledge from files that you or your users upload.\nOnce a file is uploaded, the assistant automatically decides when to retrieve content based on user requests.",
+  "@fileSearchTip": {
     "description": "fileSearch tooltip"
   },
-  "codeInterpreterTip" : "Code Interpreter enables the assistant to write and run code.\nThis tool can process files with diverse data and formatting, and generate files such as graphs.",
+  "codeInterpreterTip": "Code Interpreter enables the assistant to write and run code.\nThis tool can process files with diverse data and formatting, and generate files such as graphs.",
   "@codeInterpreterTip": {
     "description": "codeInterpreter tooltip"
   },
-  "functionsTip" : "Function calling lets you describe custom functions of your app or external APIs to the assistant.\nThis allows the assistant to intelligently call those functions by outputting a JSON object containing relevant arguments.",
+  "functionsTip": "Function calling lets you describe custom functions of your app or external APIs to the assistant.\nThis allows the assistant to intelligently call those functions by outputting a JSON object containing relevant arguments.",
   "@functionsTip": {
     "description": "functionsTip tooltip"
   },
