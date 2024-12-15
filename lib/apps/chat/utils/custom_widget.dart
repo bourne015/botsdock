@@ -170,8 +170,8 @@ Widget localImages(
                     onClickImage(images[index]);
                     Navigator.of(context).pop();
                   },
-                  hoverColor: Colors.grey.withOpacity(0.3),
-                  splashColor: Colors.brown.withOpacity(0.5),
+                  hoverColor: Colors.grey.withValues(alpha: 0.3),
+                  splashColor: Colors.brown.withValues(alpha: 0.5),
                   child: Ink(
                     height: 80,
                     width: 80,

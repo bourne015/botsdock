@@ -192,7 +192,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
               borderRadius: BORDERRADIUS10,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(.3),
+                  color: Colors.black.withValues(alpha: .3),
                   blurRadius: 4.0,
                   spreadRadius: 1.0,
                   offset: Offset(0.0, 2.0),
@@ -422,8 +422,8 @@ class CustomCard extends StatelessWidget {
                     borderRadius: const BorderRadius.all(Radius.circular(15))),
                 child: InkWell(
                     borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    hoverColor:
-                        Color.fromARGB(255, 230, 227, 227).withOpacity(0.3),
+                    hoverColor: Color.fromARGB(255, 230, 227, 227)
+                        .withValues(alpha: 0.3),
                     onTap: () {
                       if (user.isLogedin)
                         chats.newTextChat(pages, property, user, prompt);

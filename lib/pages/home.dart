@@ -753,7 +753,7 @@ class _DesktopPageButton extends StatelessWidget {
                 ? MaterialLocalizations.of(context).nextPageTooltip
                 : MaterialLocalizations.of(context).previousPageTooltip,
             child: Material(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               shape: const CircleBorder(),
               clipBehavior: Clip.antiAlias,
               child: InkWell(
@@ -796,7 +796,8 @@ class _CarouselCard extends StatelessWidget {
     final isDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
     final asset = isDark ? assetDark : this.asset;
     final assetColor = isDark ? assetDarkColor : this.assetColor;
-    final textColor = isDark ? Colors.white.withOpacity(0.87) : this.textColor;
+    final textColor =
+        isDark ? Colors.white.withValues(alpha: 0.87) : this.textColor;
     final isDesktop = isDisplayDesktop(context);
 
     return Container(

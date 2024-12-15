@@ -169,8 +169,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                 onClickImage: onClickImage);
           },
           borderRadius: BorderRadius.circular(45.0),
-          hoverColor: Colors.red.withOpacity(0.3),
-          splashColor: Colors.red.withOpacity(0.5),
+          hoverColor: Colors.red.withValues(alpha: 0.3),
+          splashColor: Colors.red.withValues(alpha: 0.5),
           //child: _displayLogo(context),
         )),
       );
@@ -186,8 +186,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                   onClickImage: onClickImage);
             },
             borderRadius: BorderRadius.circular(45.0),
-            hoverColor: Colors.red.withOpacity(0.3),
-            splashColor: Colors.red.withOpacity(0.5),
+            hoverColor: Colors.red.withValues(alpha: 0.3),
+            splashColor: Colors.red.withValues(alpha: 0.5),
             child: _displayLogo(context),
           )));
   }
