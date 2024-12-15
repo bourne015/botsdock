@@ -99,8 +99,7 @@ class RouteConfiguration {
     */
     Path(
       r'^' + chat_routes.homeRoute,
-      (context, match) =>
-          const StudyWrapper(study: chat.ChatApp(), hasBottomNavBar: false),
+      (context, match) => const chat.ChatApp(),
       openInSecondScreen: true,
     ),
     Path(
