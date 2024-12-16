@@ -443,7 +443,7 @@ class MessageBoxState extends State<MessageBox> {
         },
         onLongPressStart: (details) {
           _showDownloadMenu(context, details.globalPosition,
-              filename: filename, imageUrl: imageBytes, imageBytes: imageBytes);
+              filename: filename, imageUrl: imageUrl, imageBytes: imageBytes);
         },
         child: loadImage(context,
             filename: filename,
@@ -493,10 +493,11 @@ class MessageBoxState extends State<MessageBox> {
             name: "ai",
             imageUrl,
           );
-        } else if (imageBytes != null && imageBytes.isNotEmpty)
+        } else if (imageBytes != null && imageBytes.isNotEmpty) {
           await WebImageDownloader.downloadImageFromUInt8List(
             uInt8List: imageBytes,
           );
+        }
       }
     });
   }
