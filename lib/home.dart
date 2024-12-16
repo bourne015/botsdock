@@ -14,13 +14,12 @@ import 'package:botsdock/apps/chat/routes.dart' as chat_routes;
 
 import 'apps/chat/utils/constants.dart';
 
+const _horizontalPadding = 32.0;
 const _horizontalDesktopPadding = 81.0;
 const _carouselHeightMin = 240.0;
-const _carouselItemDesktopMargin = 8.0;
+const _carouselItemDesktopMargin = 0.0; //8.0;
 const _carouselItemMobileMargin = 4.0;
 const _carouselItemWidth = 296.0;
-
-class ToggleSplashNotification extends Notification {}
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -30,50 +29,6 @@ class HomePage extends StatelessWidget {
     final localizations = GalleryLocalizations.of(context)!;
     final studyDemos = Demos.studies(localizations);
     final carouselCards = <Widget>[
-      _CarouselCard(
-        demo: studyDemos['chat'],
-        textColor: Color(0xFF005D57),
-        asset: const AssetImage(
-          'assets/images/chat/chat_card.png',
-        ),
-        assetColor: const Color(0xFFD1F2E6),
-        assetDark: AssetImage('assets/images/chat/chat_card_dark.png'),
-        assetDarkColor: const Color(0xFF253538),
-        studyRoute: chat_routes.homeRoute,
-      ),
-      _CarouselCard(
-        demo: studyDemos['chat'],
-        textColor: Color(0xFF005D57),
-        asset: const AssetImage(
-          'assets/images/chat/chat_card.png',
-        ),
-        assetColor: const Color(0xFFD1F2E6),
-        assetDark: AssetImage('assets/images/chat/chat_card_dark.png'),
-        assetDarkColor: const Color(0xFF253538),
-        studyRoute: chat_routes.homeRoute,
-      ),
-      _CarouselCard(
-        demo: studyDemos['chat'],
-        textColor: Color(0xFF005D57),
-        asset: const AssetImage(
-          'assets/images/chat/chat_card.png',
-        ),
-        assetColor: const Color(0xFFD1F2E6),
-        assetDark: AssetImage('assets/images/chat/chat_card_dark.png'),
-        assetDarkColor: const Color(0xFF253538),
-        studyRoute: chat_routes.homeRoute,
-      ),
-      _CarouselCard(
-        demo: studyDemos['chat'],
-        textColor: Color(0xFF005D57),
-        asset: const AssetImage(
-          'assets/images/chat/chat_card.png',
-        ),
-        assetColor: const Color(0xFFD1F2E6),
-        assetDark: AssetImage('assets/images/chat/chat_card_dark.png'),
-        assetDarkColor: const Color(0xFF253538),
-        studyRoute: chat_routes.homeRoute,
-      ),
       _CarouselCard(
         demo: studyDemos['chat'],
         textColor: Color(0xFF005D57),
@@ -100,7 +55,7 @@ class HomePage extends StatelessWidget {
             ),
             children: [
               _DesktopHomeItem(child: _GalleryHeader()),
-              _DesktopHomeItem(child: _ListApps(apps: carouselCards)),
+              _ListApps(apps: carouselCards),
             ],
           )),
           Align(
@@ -165,7 +120,7 @@ class _DesktopHomeItem extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: maxHomeItemWidth),
         padding: EdgeInsets.symmetric(
           horizontal:
-              isDisplayDesktop(context) ? _horizontalDesktopPadding : 40,
+              isDisplayDesktop(context) ? _horizontalDesktopPadding : 30,
         ),
         child: child,
       ),
@@ -181,22 +136,32 @@ class _ListApps extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDesktop = isDisplayDesktop(context);
-    return Container(
-      constraints: BoxConstraints(
-          maxHeight: _carouselHeight(isDesktop ? 0.7 : 2.7, context)),
-      // padding: const EdgeInsets.symmetric(
-      //   horizontal: _horizontalDesktopPadding,
-      // ),
-      child: CarouselView(
-          // shape: RoundedRectangleBorder(
-          //   borderRadius: BorderRadius.circular(10),
-          // ),
-          shrinkExtent: _carouselItemWidth,
-          itemExtent: _carouselItemWidth,
-          enableSplash: false,
-          scrollDirection: isDesktop ? Axis.horizontal : Axis.vertical,
-          children: this.apps),
-    );
+    return Align(
+        alignment: Alignment.center,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isDesktop
+                ? _horizontalDesktopPadding - _carouselItemDesktopMargin + 50
+                : _horizontalPadding - _carouselItemMobileMargin,
+          ),
+          constraints: isDesktop
+              ? BoxConstraints(
+                  maxHeight: _carouselHeight(0.7, context),
+                )
+              : BoxConstraints(
+                  maxWidth: _carouselItemWidth + 80,
+                  maxHeight: _carouselHeight(2.7, context),
+                ),
+          child: CarouselView(
+              // shape: RoundedRectangleBorder(
+              //   borderRadius: BorderRadius.circular(10),
+              // ),
+              shrinkExtent: _carouselHeight(0.7, context),
+              itemExtent: isDesktop ? _carouselItemWidth : _carouselHeightMin,
+              enableSplash: false,
+              scrollDirection: isDesktop ? Axis.horizontal : Axis.vertical,
+              children: this.apps),
+        ));
   }
 }
 
@@ -234,7 +199,7 @@ class _CarouselCard extends StatelessWidget {
           horizontal: isDesktop
               ? _carouselItemDesktopMargin
               : _carouselItemMobileMargin),
-      margin: const EdgeInsets.symmetric(vertical: 16.0),
+      margin: const EdgeInsets.only(top: 16, bottom: 16, right: 16),
       height: _carouselHeight(0.7, context),
       width: _carouselItemWidth,
       child: Material(
