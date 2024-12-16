@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:botsdock/home.dart';
 import 'package:dual_screen/dual_screen.dart';
 //import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:botsdock/main.dart';
-import 'package:botsdock/pages/home.dart';
 import 'package:botsdock/apps/chat/main.dart' as chat;
 import 'package:botsdock/apps/chat/routes.dart' as chat_routes;
 
@@ -104,7 +103,7 @@ class RouteConfiguration {
     ),
     Path(
       r'^/',
-      (context, match) => const RootPage(),
+      (context, match) => const HomePage(),
       openInSecondScreen: false,
     ),
   ];

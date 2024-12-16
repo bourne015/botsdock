@@ -9,13 +9,10 @@ import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 import 'package:botsdock/constants.dart';
 import 'package:botsdock/data/gallery_options.dart';
-import 'package:botsdock/pages/backdrop.dart';
 import 'package:botsdock/routes.dart';
 import 'package:botsdock/data/gallery_theme_data.dart';
 //import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import 'data/adaptive.dart';
 
 void main() async {
   GoogleFonts.config.allowRuntimeFetching = false;
@@ -46,7 +43,6 @@ class GalleryApp extends StatelessWidget {
       initialModel: GalleryOptions(
         themeMode: ThemeMode.system,
         textScaleFactor: systemTextScaleFactorOption,
-        customTextDirection: CustomTextDirection.localeBased,
         locale: null,
         timeDilation: timeDilation,
         platform: defaultTargetPlatform,
@@ -87,17 +83,5 @@ class GalleryApp extends StatelessWidget {
         },
       ),
     );
-  }
-}
-
-class RootPage extends StatelessWidget {
-  const RootPage({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ApplyTextOptions(
-        child: Backdrop(isDesktop: isDisplayDesktop(context)));
   }
 }

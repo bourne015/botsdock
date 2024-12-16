@@ -38,7 +38,7 @@ AdaptiveWindowType getAdaptiveWindowType(BuildContext context) {
 
 bool isDisplayDesktop(BuildContext context) {
   final windowType = getAdaptiveWindowType(context);
-  return windowType == AdaptiveWindowType.large;
+  return windowType != AdaptiveWindowType.small;
 }
 
 bool isDisplaySmallDesktop(BuildContext context) {

@@ -12,7 +12,7 @@ import 'package:botsdock/data/gallery_options.dart';
 import 'package:botsdock/data/adaptive.dart';
 import 'package:botsdock/apps/chat/routes.dart' as chat_routes;
 
-import '../apps/chat/utils/constants.dart';
+import 'apps/chat/utils/constants.dart';
 
 const _horizontalDesktopPadding = 81.0;
 const _carouselHeightMin = 240.0;
@@ -41,34 +41,76 @@ class HomePage extends StatelessWidget {
         assetDarkColor: const Color(0xFF253538),
         studyRoute: chat_routes.homeRoute,
       ),
+      _CarouselCard(
+        demo: studyDemos['chat'],
+        textColor: Color(0xFF005D57),
+        asset: const AssetImage(
+          'assets/images/chat/chat_card.png',
+        ),
+        assetColor: const Color(0xFFD1F2E6),
+        assetDark: AssetImage('assets/images/chat/chat_card_dark.png'),
+        assetDarkColor: const Color(0xFF253538),
+        studyRoute: chat_routes.homeRoute,
+      ),
+      _CarouselCard(
+        demo: studyDemos['chat'],
+        textColor: Color(0xFF005D57),
+        asset: const AssetImage(
+          'assets/images/chat/chat_card.png',
+        ),
+        assetColor: const Color(0xFFD1F2E6),
+        assetDark: AssetImage('assets/images/chat/chat_card_dark.png'),
+        assetDarkColor: const Color(0xFF253538),
+        studyRoute: chat_routes.homeRoute,
+      ),
+      _CarouselCard(
+        demo: studyDemos['chat'],
+        textColor: Color(0xFF005D57),
+        asset: const AssetImage(
+          'assets/images/chat/chat_card.png',
+        ),
+        assetColor: const Color(0xFFD1F2E6),
+        assetDark: AssetImage('assets/images/chat/chat_card_dark.png'),
+        assetDarkColor: const Color(0xFF253538),
+        studyRoute: chat_routes.homeRoute,
+      ),
+      _CarouselCard(
+        demo: studyDemos['chat'],
+        textColor: Color(0xFF005D57),
+        asset: const AssetImage(
+          'assets/images/chat/chat_card.png',
+        ),
+        assetColor: const Color(0xFFD1F2E6),
+        assetDark: AssetImage('assets/images/chat/chat_card_dark.png'),
+        assetDarkColor: const Color(0xFF253538),
+        studyRoute: chat_routes.homeRoute,
+      ),
     ];
 
-    if (true) {
-      return Scaffold(
-        body: Column(
-          children: [
-            Flexible(
-                child: ListView(
-              // Makes integration tests possible.
-              key: const ValueKey('HomeListView'),
-              primary: true,
-              padding: const EdgeInsetsDirectional.only(
-                top: firstHeaderDesktopTopPadding,
-              ),
-              children: [
-                _DesktopHomeItem(child: _GalleryHeader()),
-                _ListApps(child: carouselCards),
-              ],
-            )),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Text("welcome"),
+    return Scaffold(
+      body: Column(
+        children: [
+          Flexible(
+              child: ListView(
+            // Makes integration tests possible.
+            key: const ValueKey('HomeListView'),
+            primary: true,
+            padding: const EdgeInsetsDirectional.only(
+              top: firstHeaderDesktopTopPadding,
             ),
-            const SizedBox(height: 10),
-          ],
-        ),
-      );
-    }
+            children: [
+              _DesktopHomeItem(child: _GalleryHeader()),
+              _DesktopHomeItem(child: _ListApps(apps: carouselCards)),
+            ],
+          )),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Text("welcome"),
+          ),
+          const SizedBox(height: 10),
+        ],
+      ),
+    );
   }
 }
 
@@ -121,8 +163,9 @@ class _DesktopHomeItem extends StatelessWidget {
       alignment: Alignment.center,
       child: Container(
         constraints: const BoxConstraints(maxWidth: maxHomeItemWidth),
-        padding: const EdgeInsets.symmetric(
-          horizontal: _horizontalDesktopPadding,
+        padding: EdgeInsets.symmetric(
+          horizontal:
+              isDisplayDesktop(context) ? _horizontalDesktopPadding : 40,
         ),
         child: child,
       ),
@@ -131,27 +174,29 @@ class _DesktopHomeItem extends StatelessWidget {
 }
 
 class _ListApps extends StatelessWidget {
-  const _ListApps({required this.child});
+  const _ListApps({required this.apps});
 
-  final List<Widget> child;
+  final List<Widget> apps;
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-        alignment: Alignment.center,
-        child: Container(
-          constraints: BoxConstraints(maxHeight: _carouselHeight(0.7, context)),
-          padding: const EdgeInsets.symmetric(
-            horizontal: _horizontalDesktopPadding,
-          ),
-          child: CarouselView(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              itemExtent: 300,
-              enableSplash: false,
-              children: this.child),
-        ));
+    final isDesktop = isDisplayDesktop(context);
+    return Container(
+      constraints: BoxConstraints(
+          maxHeight: _carouselHeight(isDesktop ? 0.7 : 2.7, context)),
+      // padding: const EdgeInsets.symmetric(
+      //   horizontal: _horizontalDesktopPadding,
+      // ),
+      child: CarouselView(
+          // shape: RoundedRectangleBorder(
+          //   borderRadius: BorderRadius.circular(10),
+          // ),
+          shrinkExtent: _carouselItemWidth,
+          itemExtent: _carouselItemWidth,
+          enableSplash: false,
+          scrollDirection: isDesktop ? Axis.horizontal : Axis.vertical,
+          children: this.apps),
+    );
   }
 }
 
@@ -219,14 +264,14 @@ class _CarouselCard extends StatelessWidget {
                   Text(
                     demo!.title,
                     style: textTheme.bodySmall!.apply(color: textColor),
-                    maxLines: 3,
-                    overflow: TextOverflow.visible,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     demo!.subtitle,
                     style: textTheme.labelSmall!.apply(color: textColor),
-                    maxLines: 5,
-                    overflow: TextOverflow.visible,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
