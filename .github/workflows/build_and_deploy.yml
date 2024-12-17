@@ -3,7 +3,7 @@ name: Deploy Flutter Web
 on:
   push:
     branches:
-      - add_github_action
+      - main
 
 jobs:
   build:
@@ -33,6 +33,6 @@ jobs:
 
       - name: Upload build files to server
         run: |
-          scp -r -P ${{ secrets.BWG_PORT }} build/web ${{ secrets.SSH_USERNAME }}@${{ secrets.BWG_IP }}:/home/${{ secrets.SSH_USERNAME }}/test
+          scp -r -P ${{ secrets.BWG_PORT }} build/web ${{ secrets.SSH_USERNAME }}@${{ secrets.BWG_IP }}:/home/${{ secrets.SSH_USERNAME }}/www/
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
