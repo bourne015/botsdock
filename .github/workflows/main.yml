@@ -29,10 +29,10 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan {{ secrets.BWG_IP }} >> ~/.ssh/known_hosts
+          ssh-keyscan ${{ secrets.BWG_IP }} >> ~/.ssh/known_hosts
 
       - name: Upload build files to server
         run: |
-          scp -r build/web/* ${{ secrets.SSH_USERNAME }}@${{ secrets.BWG_IP }}:/home/${{ secrets.SSH_USERNAME }}/test
+          scp -r -P ${{ secrets.BWG_PORT }} build/web ${{ secrets.SSH_USERNAME }}@${{ secrets.BWG_IP }}:/home/${{ secrets.SSH_USERNAME }}/test
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
