@@ -29,7 +29,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY_BWG }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan ${{ secrets.BWG_IP }} >> ~/.ssh/known_hosts
+          ssh-keyscan -p ${{ secrets.BWG_PORT }} ${{ secrets.BWG_IP }} >> ~/.ssh/known_hosts
 
       - name: Upload build files to server
         run: |
