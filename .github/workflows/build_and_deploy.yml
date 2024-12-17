@@ -1,0 +1,38 @@
+name: Deploy Flutter Web
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable # or: beta, master (or main)
+      - run: flutter --version
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build Flutter Web
+        run: flutter build web --release --pwa-strategy none
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY_BWG }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p ${{ secrets.BWG_PORT }} ${{ secrets.BWG_IP }} >> ~/.ssh/known_hosts
+
+      - name: Upload build files to server
+        run: |
+          scp -r -P ${{ secrets.BWG_PORT }} build/web ${{ secrets.SSH_USERNAME }}@${{ secrets.BWG_IP }}:/home/${{ secrets.SSH_USERNAME }}/www/
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
