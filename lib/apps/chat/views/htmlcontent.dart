@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:botsdock/data/adaptive.dart';
 import 'package:web/web.dart' as web;
 import 'dart:ui_web' as ui;
-import 'dart:js_util' as js;
+import 'dart:js_interop';
 
 enum ContentType { html, mermaid }
 
@@ -63,7 +63,7 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
     // Register view factory
     ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
       return web.HTMLIFrameElement()
-        ..srcdoc = js.jsify(htmlContent)
+        ..srcdoc = htmlContent as JSAny
         ..style.border = 'none'
         ..allowFullscreen = true
         ..style.width = '100%'
