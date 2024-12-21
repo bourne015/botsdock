@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:botsdock/data/adaptive.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -10,7 +11,10 @@ import 'scrollable_positioned_list/lazy_load_scroll_view.dart';
 
 class MessageListView extends StatefulWidget {
   final Chat page;
-  const MessageListView({Key? key, required this.page}) : super(key: key);
+  final bool isDrawerOpen;
+  const MessageListView(
+      {Key? key, required this.page, required this.isDrawerOpen})
+      : super(key: key);
 
   @override
   State createState() => MessageListViewState();
@@ -48,6 +52,7 @@ class MessageListViewState extends State<MessageListView> {
     _initialAlignment = widget.page.position?.itemLeadingEdge ?? 0;
     // debugPrint("build: ${_initialScrollIndex}, ${_initialAlignment}");
     _messageLength = chat.messages.length;
+    double hval = widget.isDrawerOpen ? 100 : 180;
     return Stack(alignment: Alignment.center, children: [
       LazyLoadScrollView(
           scrollOffset: 10,
@@ -73,13 +78,18 @@ class MessageListViewState extends State<MessageListView> {
               if (index >= _messageLength) return Offstage();
               var reindex = _messageLength - 1 - index;
 
-              return MessageBox(
-                key: ValueKey(chat.messages[reindex].id),
-                msg: chat.messages[reindex],
-                isLast: isLast,
-                pageId: chat.id,
-                messageStream: chat.messageStream,
-              );
+              return AnimatedContainer(
+                  duration: Duration(milliseconds: 270),
+                  padding: isDisplayDesktop(context)
+                      ? EdgeInsets.symmetric(horizontal: hval)
+                      : EdgeInsets.symmetric(horizontal: 10),
+                  child: MessageBox(
+                    key: ValueKey(chat.messages[reindex].id),
+                    msg: chat.messages[reindex],
+                    isLast: isLast,
+                    pageId: chat.id,
+                    messageStream: chat.messageStream,
+                  ));
             },
           )),
       ValueListenableBuilder<bool>(

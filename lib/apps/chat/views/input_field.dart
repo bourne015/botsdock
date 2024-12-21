@@ -42,10 +42,14 @@ class _ChatInputFieldState extends State<ChatInputField> {
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
+    Property property = Provider.of<Property>(context);
     bool _userReady = isUserReady(user);
-    double _hmargin = isDisplayDesktop(context) ? 0 : 50;
+    double _hmargin =
+        isDisplayDesktop(context) ? (property.isDrawerOpen ? 100 : 180) : 50;
 
-    return Container(
+    return AnimatedContainer(
+      curve: Curves.easeInOut,
+      duration: Duration(milliseconds: 270),
       decoration: BoxDecoration(
           color: AppColors.inputBoxBackground,
           border: Border.all(color: Colors.grey[350]!, width: 1.0),

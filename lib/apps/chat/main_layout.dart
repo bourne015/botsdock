@@ -42,7 +42,6 @@ class MainLayoutState extends State<MainLayout> {
 
   Widget desktopLayout(BuildContext context) {
     Property property = Provider.of<Property>(context);
-    double hval = property.isDrawerOpen ? 100 : 180;
     return Row(
       children: <Widget>[
         AnimatedContainer(
@@ -65,9 +64,6 @@ class MainLayoutState extends State<MainLayout> {
           appBar: !property.onInitPage ? const MyAppBar() : null,
           body: AnimatedContainer(
             duration: _drawerAnimationDuration,
-            padding: isDisplayDesktop(context)
-                ? EdgeInsets.symmetric(horizontal: hval)
-                : EdgeInsets.symmetric(horizontal: 10),
             child: _buildMainPageBody(context),
           ),
         )),
@@ -85,7 +81,9 @@ class MainLayoutState extends State<MainLayout> {
           Expanded(
             child: property.onInitPage
                 ? const InitPage()
-                : MessageListView(page: pages.currentPage!),
+                : MessageListView(
+                    page: pages.currentPage!,
+                    isDrawerOpen: property.isDrawerOpen),
           ),
           const ChatInputField(),
         ]);
