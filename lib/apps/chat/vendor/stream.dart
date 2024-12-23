@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 import 'package:http/http.dart' as http;
 import 'package:fetch_client/fetch_client.dart';
 
@@ -227,17 +226,5 @@ Stream<String> CreateChatStream(
   } catch (e) {
     controller.addError(e);
     controller.close();
-  }
-}
-
-Future<void> deleteOSSObj(String url) async {
-  try {
-    var path = Uri.parse(url).path;
-    if (path.contains('%')) path = Uri.decodeFull(path);
-
-    path = path.startsWith('/') ? path.substring(1) : path;
-    if (await Client().doesObjectExist(path)) await Client().deleteObject(path);
-  } catch (e) {
-    debugPrint("deleteOSSObj error: $e");
   }
 }

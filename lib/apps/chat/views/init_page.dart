@@ -1,3 +1,5 @@
+import 'package:botsdock/apps/chat/vendor/chat_api.dart';
+import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +32,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
   String gptDropdownValue = DefaultModelVersion;
   String claudeDropdownValue = DefaultClaudeModel;
   String? selected;
-  final ChatGen chats = ChatGen();
+  final ChatAPI chats = ChatAPI();
   final dio = Dio();
   RestorableBool switchArtifact = RestorableBool(true);
 
@@ -391,7 +393,7 @@ class CustomCard extends StatelessWidget {
   final Color color;
   final String title;
   final String prompt;
-  final ChatGen chats = ChatGen();
+  final ChatAPI chats = ChatAPI();
 
   CustomCard(
       {required this.icon,

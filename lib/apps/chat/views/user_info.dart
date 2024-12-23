@@ -1,3 +1,5 @@
+import 'package:botsdock/apps/chat/vendor/chat_api.dart';
+import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +10,6 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
 import '../models/user.dart';
-import '../utils/client.dart';
 import '../utils/custom_widget.dart';
 import '../utils/utils.dart';
 import '../utils/constants.dart';
@@ -631,7 +632,7 @@ class _UserInfoTabState extends State<UserInfo> {
     //Navigator.of(context).pop();
     if (response.data["result"] == 'success') {
       if (oldAvatar != null && oldAvatar.startsWith("http"))
-        deleteOSSObj(oldAvatar);
+        ChatAPI.deleteOSSObj(oldAvatar);
       setState(() {
         widget.user.avatar = userdata['avatar'];
         Global.saveProfile(widget.user);
@@ -649,7 +650,7 @@ class _UserInfoTabState extends State<UserInfo> {
 
     if (response.data["result"] == 'success') {
       if (oldAvatar != null && oldAvatar.startsWith("http"))
-        deleteOSSObj(oldAvatar);
+        ChatAPI.deleteOSSObj(oldAvatar);
       setState(() {
         widget.user.avatar_bot = userdata['avatar_bot'];
         Global.saveProfile(widget.user);

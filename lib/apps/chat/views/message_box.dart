@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -11,13 +12,12 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:image_downloader_web/image_downloader_web.dart';
 
 import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
-import '../models/message.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
 import '../utils/custom_widget.dart';
 import '../utils/markdown_extentions.dart';
 import '../utils/utils.dart';
-import '../utils/assistants_api.dart';
+import '../vendor/assistants_api.dart';
 import './htmlcontent.dart';
 
 class MessageBox extends StatefulWidget {

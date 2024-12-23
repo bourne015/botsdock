@@ -1,3 +1,4 @@
+import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:botsdock/apps/chat/main.dart';
@@ -6,8 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import '../models/chat.dart';
-import '../utils/assistants_api.dart';
-import '../utils/client.dart';
+import '../vendor/assistants_api.dart';
 import '../utils/constants.dart';
 import '../utils/utils.dart';
 import '../models/pages.dart';
@@ -304,7 +304,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
       for (var m in msgs) {
         if (m.visionFiles.isEmpty) continue;
         m.visionFiles.forEach((_filename, _content) async {
-          if (_content.url.isNotEmpty) deleteOSSObj(_content.url);
+          if (_content.url.isNotEmpty) ChatAPI.deleteOSSObj(_content.url);
         });
       }
       if (tid != null) await assistant.deleteThread(tid);

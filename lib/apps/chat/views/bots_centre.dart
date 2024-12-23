@@ -1,3 +1,4 @@
+import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
@@ -8,12 +9,11 @@ import '../models/bot.dart';
 
 import '../models/pages.dart';
 import '../models/user.dart';
-import '../utils/client.dart';
 import "../utils/constants.dart";
 import '../utils/custom_widget.dart';
 import '../utils/utils.dart';
 import './new_bot.dart';
-import '../utils/assistants_api.dart';
+import '../vendor/assistants_api.dart';
 
 class BotsCentre extends StatefulWidget {
   const BotsCentre({
@@ -26,7 +26,7 @@ class BotsCentre extends StatefulWidget {
 
 class BotsState extends State<BotsCentre> {
   final dio = Dio();
-  final ChatGen chats = ChatGen();
+  final ChatAPI chats = ChatAPI();
   var user_likes = [];
   var botsPublicMe = [];
   final assistant = AssistantsAPI();
@@ -142,7 +142,7 @@ class BotsState extends State<BotsCentre> {
       //widget.bots
       bots.deleteBot(bot.id);
       if (_avartar != null && _avartar.startsWith('http'))
-        deleteOSSObj(_avartar);
+        ChatAPI.deleteOSSObj(_avartar);
       //});
     }
   }

@@ -1,3 +1,5 @@
+import 'package:botsdock/apps/chat/vendor/chat_api.dart';
+import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +14,7 @@ import '../models/chat.dart';
 import '../models/data.dart';
 import '../utils/constants.dart';
 import '../utils/utils.dart';
-import '../utils/assistants_api.dart';
+import '../vendor/assistants_api.dart';
 
 class ChatInputField extends StatefulWidget {
   const ChatInputField({super.key});
@@ -22,7 +24,7 @@ class ChatInputField extends StatefulWidget {
 }
 
 class _ChatInputFieldState extends State<ChatInputField> {
-  final ChatGen chats = ChatGen();
+  final ChatAPI chats = ChatAPI();
   final _controller = TextEditingController();
   bool _hasInputContent = false;
 

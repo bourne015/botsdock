@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:botsdock/apps/chat/vendor/data.dart';
+import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:flutter/material.dart';
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/utils/prompts.dart';
@@ -9,7 +11,6 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
 import 'package:openai_dart/openai_dart.dart' as openai;
 import '../utils/constants.dart';
-import 'message.dart';
 
 //model of a chat page
 class Chat with ChangeNotifier {

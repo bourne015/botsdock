@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:botsdock/apps/chat/vendor/chat_api.dart';
+import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -9,11 +11,10 @@ import 'package:botsdock/apps/chat/models/user.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import '../models/bot.dart';
-import '../utils/client.dart';
 import "../utils/constants.dart";
 import '../utils/custom_widget.dart';
 import '../utils/utils.dart';
-import '../utils/assistants_api.dart';
+import '../vendor/assistants_api.dart';
 
 class CreateBot extends StatefulWidget {
   final User user;
@@ -151,7 +152,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         "chat/avatar/" + oss_name,
       );
       _logoURL = (resp.statusCode == 200) ? resp.realUri.toString() : null;
-      if (_preLogo != null) deleteOSSObj(_preLogo);
+      if (_preLogo != null) ChatAPI.deleteOSSObj(_preLogo);
     }
   }
 
@@ -313,7 +314,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     if (resp == true) {
       notifyBox(context: context, title: "success", content: "操作成功");
       if (_preAvatar != null && _preAvatar.startsWith("http"))
-        deleteOSSObj(_preAvatar);
+        ChatAPI.deleteOSSObj(_preAvatar);
     } else
       notifyBox(context: context, title: "warning", content: "操作失败");
   }

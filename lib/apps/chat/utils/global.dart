@@ -1,3 +1,4 @@
+import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -8,7 +9,6 @@ import '../models/bot.dart';
 import '../models/chat.dart';
 import '../models/pages.dart';
 import '../models/user.dart';
-import './chat_api.dart';
 
 class Global {
   static late SharedPreferences _prefs;

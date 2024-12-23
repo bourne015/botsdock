@@ -1,12 +1,12 @@
 import 'dart:convert';
 
+import 'package:botsdock/apps/chat/vendor/chat_api.dart';
+import 'package:botsdock/apps/chat/vendor/data.dart';
+import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:flutter/widgets.dart';
 
-import '../utils/chat_api.dart';
 import '../utils/global.dart';
 import 'chat.dart';
-import 'message.dart';
-import '../utils/constants.dart';
 
 //all chat pages
 class Pages with ChangeNotifier {

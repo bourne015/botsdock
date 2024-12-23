@@ -11,7 +11,7 @@ import '../models/bot.dart';
 import '../models/chat.dart';
 import '../models/pages.dart';
 import '../models/user.dart';
-import './constants.dart';
+import '../utils/constants.dart';
 
 class AssistantsAPI {
   final dio = Dio();
