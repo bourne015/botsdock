@@ -1,6 +1,6 @@
 name: botsdock
 description: A gallery to list apps.
-version: 0.9.9
+version: 1.0.0
 
 environment:
   flutter: ^3.27.0
@@ -61,6 +61,7 @@ flutter:
 
   assets:
     - assets/images/chatgpt_red.png
+    - assets/images/deepseek.png
     - assets/images/chat/
     - assets/images/avatar/
     - assets/images/bot/

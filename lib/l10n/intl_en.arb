@@ -73,6 +73,10 @@
   "@claude35SonnetDesc": {
     "description": "claude35SonnetDesc"
   },
+  "deepseekDesc": "Open source model from China",
+  "@deepseekDesc": {
+    "description": "deepseekDesc"
+  },
   "botsCentre": "Explore",
   "@botsCentre": {
     "description": "botsCentre"

@@ -187,6 +187,17 @@ class Chat with ChangeNotifier {
         timestamp: timestamp,
         toolCallId: toolCallId,
       );
+    } else if (model.startsWith("deepseek")) {
+      int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
+      _msg = OpenAIMessage(
+        id: id ?? _newid,
+        role: role,
+        //deepseek only support text type context for now
+        content: text != null ? text : "",
+        attachments: attachments,
+        timestamp: timestamp,
+        toolCallId: toolCallId,
+      );
     } else if (model.startsWith("dall")) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = OpenAIMessage(
@@ -372,6 +383,8 @@ class Chat with ChangeNotifier {
             _msgs.add(OpenAIMessage.fromJson(m));
           } else if (c["model"].startsWith("dall")) {
             _msgs.add(OpenAIMessage.fromJson(m));
+          } else if (c["model"].startsWith("deepseek")) {
+            _msgs.add(OpenAIMessage.fromJson(m));
           } else {
             print("Chat fromJson error: unknow model");
           }
@@ -429,7 +442,8 @@ class Chat with ChangeNotifier {
  * and add a system prompt message in messages's index 0
  */
   void addArtifact() {
-    if (model.startsWith('gpt') && tools.isEmpty) {
+    if ((model.startsWith('gpt') || model.startsWith('deepseek')) &&
+        tools.isEmpty) {
       var func = {"type": "function", "function": Functions.artifact};
       tools.add(openai.ChatCompletionTool.fromJson(func));
     } else if (model.startsWith('claude') && claudeTools.isEmpty) {
@@ -467,7 +481,7 @@ class Chat with ChangeNotifier {
         for (var c in messages[0].content) if (c.type == 'text') _tx = c.text;
       if (_tx == Prompt.artifact) messages.removeAt(0);
     }
-    if (model.startsWith('gpt'))
+    if (model.startsWith('gpt') || model.startsWith('deepseek'))
       tools.clear();
     else
       claudeTools.clear();

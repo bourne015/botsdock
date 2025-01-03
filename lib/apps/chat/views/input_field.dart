@@ -318,6 +318,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       _modelV = pages.currentPage!.model;
 
     if (_modelV.startsWith('gpt-3')) return const SizedBox(width: 15);
+    if (_modelV.startsWith('deepseek')) return const SizedBox(width: 15);
     if (!property.onInitPage && pages.currentPage!.assistantID == null) {
       return IconButton(
           tooltip: "选择图片",

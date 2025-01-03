@@ -29,8 +29,10 @@ class InitPageState extends State<InitPage> with RestorationMixin {
     GPTModel.gptv40Dall
   ];
   List<String> claudeSub = ClaudeModel().toJson().keys.toList();
+  List<String> deepseekSub = DeepSeekModel().toJson().keys.toList();
   String gptDropdownValue = DefaultModelVersion;
   String claudeDropdownValue = DefaultClaudeModel;
+  String deepseekDropdownValue = DefaultDeepSeekModel;
   String? selected;
   final ChatAPI chats = ChatAPI();
   final dio = Dio();
@@ -64,6 +66,8 @@ class InitPageState extends State<InitPage> with RestorationMixin {
     } else if (claudeSub.contains(property.initModelVersion)) {
       selected = 'Claude';
       claudeDropdownValue = property.initModelVersion;
+    } else if (deepseekSub.contains(property.initModelVersion)) {
+      selected = 'DeepSeek';
     }
 
     return LayoutBuilder(
@@ -183,6 +187,16 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                 const Text('Claude'),
                 if (selected == "Claude") claudedropdownMenu(context),
               ]),
+              'DeepSeek': Row(children: [
+                Image.asset(
+                  "assets/images/deepseek.png",
+                  height: 24,
+                  width: 24,
+                  color: selected == "DeepSeek" ? Colors.blue : Colors.grey,
+                ),
+                const Text('DeepSeek'),
+                if (selected == "DeepSeek") deepseekdropdownMenu(context),
+              ]),
             },
             decoration: BoxDecoration(
               //color: CupertinoColors.lightBackgroundGray,
@@ -206,8 +220,10 @@ class InitPageState extends State<InitPage> with RestorationMixin {
             onValueChanged: (value) {
               if (value == 'ChatGPT') {
                 property.initModelVersion = DefaultModelVersion;
-              } else {
+              } else if (value == 'Claude') {
                 property.initModelVersion = DefaultClaudeModel;
+              } else {
+                property.initModelVersion = DefaultDeepSeekModel;
               }
               selected = value;
             },
@@ -305,6 +321,40 @@ class InitPageState extends State<InitPage> with RestorationMixin {
     );
   }
 
+  Widget deepseekdropdownMenu(BuildContext context) {
+    Property property = Provider.of<Property>(context);
+    return PopupMenuButton<String>(
+      initialValue: deepseekDropdownValue,
+      tooltip: GalleryLocalizations.of(context)!.selectModelTooltip,
+      //icon: Icon(color: Colors.grey, size: 10, Icons.south),
+      color: AppColors.drawerBackground,
+      shadowColor: Colors.blue,
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BORDERRADIUS10,
+      ),
+      icon: CircleAvatar(
+          radius: 12,
+          backgroundColor: AppColors.modelSelectorBackground,
+          child: Text(allModels[deepseekDropdownValue]!,
+              style: const TextStyle(fontSize: 10.5, color: Colors.grey))),
+      padding: const EdgeInsets.only(left: 2),
+      onSelected: (String value) {
+        property.initModelVersion = value;
+        deepseekDropdownValue = value;
+      },
+      position: PopupMenuPosition.over,
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
+        //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
+        _buildPopupMenuItem(context, deepseekSub[0], "v3", "DeepSeek v3",
+            GalleryLocalizations.of(context)?.deepseekDesc ?? ''),
+        PopupMenuDivider(),
+        _buildArtifactSwitch(context),
+      ],
+    );
+  }
+
   PopupMenuItem<String> _buildPopupMenuItem(BuildContext context, String value,
       String icon, String title, String description) {
     return PopupMenuItem<String>(
@@ -330,10 +380,11 @@ class InitPageState extends State<InitPage> with RestorationMixin {
               title: Text(title),
               subtitle: Text(description,
                   style: TextStyle(fontSize: 12.5, color: AppColors.subTitle)),
-              trailing:
-                  claudeDropdownValue == value || gptDropdownValue == value
-                      ? Icon(Icons.check, color: Colors.blue[300])
-                      : null,
+              trailing: deepseekDropdownValue == value ||
+                      claudeDropdownValue == value ||
+                      gptDropdownValue == value
+                  ? Icon(Icons.check, color: Colors.blue[300])
+                  : null,
             ),
           ),
         ),

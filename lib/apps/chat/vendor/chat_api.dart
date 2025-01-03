@@ -290,7 +290,8 @@ class ChatAPI {
       pages.getPage(handlePageID).botID = botID;
       pages.currentPage?.model = model ?? property.initModelVersion;
       if (functions != null && functions.isNotEmpty) {
-        if (pages.currentPage!.model.startsWith('gpt')) {
+        if (pages.currentPage!.model.startsWith('gpt') ||
+            pages.currentPage!.model.startsWith('deepseek')) {
           functions.forEach((name, body) {
             var func = {"type": "function", "function": json.decode(body)};
             pages.getPage(handlePageID).tools.add(
@@ -362,6 +363,8 @@ void _handleChatStream(
     var res = json.decode(data) as Map<String, dynamic>;
     if (pages.getPage(handlePageID).model.startsWith('gpt')) {
       AIResponse.Openai(pages, property, user, handlePageID, res);
+    } else if (pages.getPage(handlePageID).model.startsWith('deepseek')) {
+      AIResponse.Openai(pages, property, user, handlePageID, res);
     } else {
       AIResponse.Claude(pages, property, user, handlePageID, res);
     }
@@ -388,7 +391,8 @@ String _prepareChatData(Pages pages, int handlePageID) {
   var chatData = {
     "model": pages.currentPage?.model,
     "messages": jsChat["messages"],
-    "tools": pages.currentPage!.model.startsWith('gpt')
+    "tools": (pages.currentPage!.model.startsWith('gpt') ||
+            pages.currentPage!.model.startsWith('deepseek'))
         ? jsChat["tools"]
         : jsChat["claude_tools"],
   };
