@@ -172,19 +172,24 @@ class InitPageState extends State<InitPage> with RestorationMixin {
             initialValue: selected,
             children: {
               'ChatGPT': Row(children: [
-                Icon(
-                  Icons.flash_on,
+                Image.asset(
+                  "assets/images/openai.png",
+                  height: 24,
+                  width: 24,
                   color: selected == "ChatGPT" ? Colors.green : Colors.grey,
                 ),
-                const Text('ChatGPT'),
+                if (selected == "ChatGPT") const Text('ChatGPT'),
                 if (selected == "ChatGPT") gptdropdownMenu(context),
               ]),
               'Claude': Row(children: [
-                Icon(
-                  Icons.workspaces,
-                  color: selected == "Claude" ? Colors.purple : Colors.grey,
+                Image.asset(
+                  "assets/images/anthropic.png",
+                  height: 24,
+                  width: 24,
+                  color:
+                      selected == "Claude" ? Colors.yellow[900] : Colors.grey,
                 ),
-                const Text('Claude'),
+                if (selected == "Claude") const Text('Claude'),
                 if (selected == "Claude") claudedropdownMenu(context),
               ]),
               'DeepSeek': Row(children: [
@@ -194,7 +199,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                   width: 24,
                   color: selected == "DeepSeek" ? Colors.blue : Colors.grey,
                 ),
-                const Text('DeepSeek'),
+                if (selected == "DeepSeek") const Text('DeepSeek'),
                 if (selected == "DeepSeek") deepseekdropdownMenu(context),
               ]),
             },
