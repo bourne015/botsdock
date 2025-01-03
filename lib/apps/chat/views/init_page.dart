@@ -172,33 +172,40 @@ class InitPageState extends State<InitPage> with RestorationMixin {
             initialValue: selected,
             children: {
               'ChatGPT': Row(children: [
-                Image.asset(
-                  "assets/images/openai.png",
-                  height: 24,
-                  width: 24,
-                  color: selected == "ChatGPT" ? Colors.green : Colors.grey,
-                ),
-                if (selected == "ChatGPT") const Text('ChatGPT'),
+                Tooltip(
+                    message: selected != "ChatGPT" ? "ChatGPT" : "",
+                    child: Image.asset(
+                      "assets/images/openai.png",
+                      height: 24,
+                      width: 24,
+                      color: selected == "ChatGPT" ? Colors.green : Colors.grey,
+                    )),
+                if (selected == "ChatGPT") const Text(' ChatGPT'),
                 if (selected == "ChatGPT") gptdropdownMenu(context),
               ]),
               'Claude': Row(children: [
-                Image.asset(
-                  "assets/images/anthropic.png",
-                  height: 24,
-                  width: 24,
-                  color:
-                      selected == "Claude" ? Colors.yellow[900] : Colors.grey,
-                ),
-                if (selected == "Claude") const Text('Claude'),
+                Tooltip(
+                    message: selected != "Claude" ? "Claude" : "",
+                    child: Image.asset(
+                      "assets/images/anthropic.png",
+                      height: 24,
+                      width: 24,
+                      color: selected == "Claude"
+                          ? Colors.yellow[900]
+                          : Colors.grey,
+                    )),
+                if (selected == "Claude") const Text('  Claude'),
                 if (selected == "Claude") claudedropdownMenu(context),
               ]),
               'DeepSeek': Row(children: [
-                Image.asset(
-                  "assets/images/deepseek.png",
-                  height: 24,
-                  width: 24,
-                  color: selected == "DeepSeek" ? Colors.blue : Colors.grey,
-                ),
+                Tooltip(
+                    message: selected != "DeepSeek" ? "DeepSeek" : "",
+                    child: Image.asset(
+                      "assets/images/deepseek.png",
+                      height: 24,
+                      width: 24,
+                      color: selected == "DeepSeek" ? Colors.blue : Colors.grey,
+                    )),
                 if (selected == "DeepSeek") const Text('DeepSeek'),
                 if (selected == "DeepSeek") deepseekdropdownMenu(context),
               ]),
