@@ -62,6 +62,7 @@ flutter:
   assets:
     - assets/images/openai.png
     - assets/images/anthropic.png
+    - assets/images/google.png
     - assets/images/deepseek.png
     - assets/images/chat/
     - assets/images/avatar/

@@ -30,9 +30,11 @@ class InitPageState extends State<InitPage> with RestorationMixin {
   ];
   List<String> claudeSub = ClaudeModel().toJson().keys.toList();
   List<String> deepseekSub = DeepSeekModel().toJson().keys.toList();
+  List<String> geminiSub = GeminiModel().toJson().keys.toList();
   String gptDropdownValue = DefaultModelVersion;
   String claudeDropdownValue = DefaultClaudeModel;
   String deepseekDropdownValue = DefaultDeepSeekModel;
+  String geminiDropdownValue = DefaultGeminiModel;
   String? selected;
   final ChatAPI chats = ChatAPI();
   final dio = Dio();
@@ -68,6 +70,8 @@ class InitPageState extends State<InitPage> with RestorationMixin {
       claudeDropdownValue = property.initModelVersion;
     } else if (deepseekSub.contains(property.initModelVersion)) {
       selected = 'DeepSeek';
+    } else if (geminiSub.contains(property.initModelVersion)) {
+      selected = 'Gemini';
     }
 
     return LayoutBuilder(
@@ -197,6 +201,18 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                 if (selected == "Claude") const Text('  Claude'),
                 if (selected == "Claude") claudedropdownMenu(context),
               ]),
+              'Gemini': Row(children: [
+                Tooltip(
+                    message: selected != "Gemini" ? "Gemini" : "",
+                    child: Image.asset(
+                      "assets/images/google.png",
+                      height: 24,
+                      width: 24,
+                      color: selected == "Gemini" ? null : Colors.grey,
+                    )),
+                if (selected == "Gemini") const Text('Gemini'),
+                if (selected == "Gemini") geminidropdownMenu(context),
+              ]),
               'DeepSeek': Row(children: [
                 Tooltip(
                     message: selected != "DeepSeek" ? "DeepSeek" : "",
@@ -234,8 +250,10 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                 property.initModelVersion = DefaultModelVersion;
               } else if (value == 'Claude') {
                 property.initModelVersion = DefaultClaudeModel;
-              } else {
+              } else if (value == 'DeepSeek') {
                 property.initModelVersion = DefaultDeepSeekModel;
+              } else if (value == 'Gemini') {
+                property.initModelVersion = DefaultGeminiModel;
               }
               selected = value;
             },
@@ -333,6 +351,40 @@ class InitPageState extends State<InitPage> with RestorationMixin {
     );
   }
 
+  Widget geminidropdownMenu(BuildContext context) {
+    Property property = Provider.of<Property>(context);
+    return PopupMenuButton<String>(
+      initialValue: geminiDropdownValue,
+      tooltip: GalleryLocalizations.of(context)!.selectModelTooltip,
+      //icon: Icon(color: Colors.grey, size: 10, Icons.south),
+      color: AppColors.drawerBackground,
+      shadowColor: Colors.blue,
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BORDERRADIUS10,
+      ),
+      icon: CircleAvatar(
+          radius: 12,
+          backgroundColor: AppColors.modelSelectorBackground,
+          child: Text(allModels[geminiDropdownValue]!,
+              style: const TextStyle(fontSize: 10.5, color: Colors.grey))),
+      padding: const EdgeInsets.only(left: 2),
+      onSelected: (String value) {
+        property.initModelVersion = value;
+        geminiDropdownValue = value;
+      },
+      position: PopupMenuPosition.over,
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
+        //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
+        _buildPopupMenuItem(context, geminiSub[0], "v2.0", "Gemini Flash 2.0",
+            GalleryLocalizations.of(context)?.geminiDesc ?? ''),
+        PopupMenuDivider(),
+        _buildArtifactSwitch(context),
+      ],
+    );
+  }
+
   Widget deepseekdropdownMenu(BuildContext context) {
     Property property = Provider.of<Property>(context);
     return PopupMenuButton<String>(
@@ -393,6 +445,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
               subtitle: Text(description,
                   style: TextStyle(fontSize: 12.5, color: AppColors.subTitle)),
               trailing: deepseekDropdownValue == value ||
+                      geminiDropdownValue == value ||
                       claudeDropdownValue == value ||
                       gptDropdownValue == value
                   ? Icon(Icons.check, color: Colors.blue[300])

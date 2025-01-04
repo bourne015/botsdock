@@ -44,19 +44,32 @@ class DeepSeekModel {
   }
 }
 
+class GeminiModel {
+  static const String flash_20 = "gemini-2.0-flash-exp";
+
+  Map<String, String> toJson() {
+    return {
+      flash_20: '2.0',
+    };
+  }
+}
+
 const DefaultModelVersion = GPTModel.gptv4omini;
 const DefaultClaudeModel = ClaudeModel.sonnet_35;
 const DefaultDeepSeekModel = DeepSeekModel.dc;
+const DefaultGeminiModel = GeminiModel.flash_20;
 const ModelForTitleGen = GPTModel.gptv4omini;
 List<String> textmodels = [
   ...GPTModel().toJson().keys.toList(),
   ...ClaudeModel().toJson().keys.toList(),
   ...DeepSeekModel().toJson().keys.toList(),
+  ...GeminiModel().toJson().keys.toList(),
 ];
 Map<String, String> allModels = {
   ...GPTModel().toJson(),
   ...ClaudeModel().toJson(),
   ...DeepSeekModel().toJson(),
+  ...GeminiModel().toJson(),
   "dall-e-3": "D·E"
 };
 

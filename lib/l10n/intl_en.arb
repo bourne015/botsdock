@@ -73,6 +73,10 @@
   "@claude35SonnetDesc": {
     "description": "claude35SonnetDesc"
   },
+  "geminiDesc": "New generation features, speed, and multimodal generation, suitable for a variety of tasks",
+  "@geminiDesc": {
+    "description": "geminiDesc"
+  },
   "deepseekDesc": "Open source model from China",
   "@deepseekDesc": {
     "description": "deepseekDesc"
