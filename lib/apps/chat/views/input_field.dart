@@ -567,14 +567,14 @@ class _ChatInputFieldState extends State<ChatInputField> {
           String oss_name = "user${user.id}_${handlePageID}_${ts}" + _filename;
           String? ossURL = await chats.uploadImage(
               pages, handlePageID, oss_name, _filename, _content.bytes);
-          if (!pages.getPage(handlePageID).model.startsWith("claude")) {
-            // claude vison don't support url,
-            _content.url = ossURL ?? "";
-            pages
-                .getPage(handlePageID)
-                .messages[msg_id]
-                .updateImageURL(ossURL ?? "");
-          }
+          // if (!pages.getPage(handlePageID).model.startsWith("claude")) {
+          // claude vison don't support url,
+          _content.url = ossURL ?? "";
+          pages
+              .getPage(handlePageID)
+              .messages[msg_id]
+              .updateImageURL(ossURL ?? "");
+          // }
           if (pages.getPage(handlePageID).model.startsWith("claude"))
             pages
                 .getPage(handlePageID)

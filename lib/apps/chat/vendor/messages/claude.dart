@@ -1,5 +1,6 @@
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
+import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
 
 class ClaudeMessage extends Message {
   ClaudeMessage({
@@ -30,15 +31,18 @@ class ClaudeMessage extends Message {
 
   /**
    * replace image bytes with oss url path
-   * for claude: the image could display in message boxs
-   * but can't be use for second time
    */
   @override
   void updateImageURL(String ossPath) {
     if (content is List) {
-      for (var c in content) {
-        if (c.type == "image" && !c.source.data.startsWith("https:"))
-          c.source.data = ossPath;
+      for (var i = 0; i < content.length; i++) {
+        if (content[i].type == "image") {
+          var _source = anthropic.ImageBlockSource(
+              type: content[i].source.type,
+              mediaType: content[i].source.mediaType,
+              data: ossPath);
+          content[i] = anthropic.ImageBlock(type: "image", source: _source);
+        }
       }
     }
   }
@@ -67,7 +71,7 @@ class ClaudeMessage extends Message {
           'content': content is List<dynamic>
               ? content
                   .map((e) {
-                    if (e.type != "image") return e.toJson();
+                    return e.toJson();
                   })
                   .where((x) => x != null)
                   .toList()

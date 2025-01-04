@@ -131,7 +131,7 @@ class Chat with ChangeNotifier {
         var _imgContent = anthropic.ImageBlock(type: "image", source: _source);
         content.add(_imgContent);
       });
-    } else {
+    } else if (model.startsWith("gpt")) {
       visionFiles.forEach((_filename, _visionFile) {
         var _imgData = "";
         if (_visionFile.url.isNotEmpty)

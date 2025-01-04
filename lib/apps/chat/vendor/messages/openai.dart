@@ -32,17 +32,18 @@ class OpenAIMessage extends Message {
     visionFiles[filename] = VisionFile(name: filename, url: url);
   }
 
-/**
+  /**
    * replace image bytes with oss url path
-   * for claude: the image could display in message boxs
-   * but can't be use for second time
    */
   @override
   void updateImageURL(String ossPath) {
     if (content is List) {
-      for (var c in content) {
-        if (c.type == "image_url" && !c.imageURL.url.startsWith("https:"))
-          c.imageURL.url = ossPath;
+      for (var i = 0; i < content.length; i++) {
+        if (content[i].type == "image_url") {
+          content[i] = openai.MessageContentImageUrlObject(
+              type: "image_url",
+              imageUrl: openai.MessageContentImageUrl(url: ossPath));
+        }
       }
     }
   }
