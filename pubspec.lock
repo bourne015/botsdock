@@ -296,6 +296,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "6.2.1"
+  googleai_dart:
+    dependency: "direct main"
+    description:
+      name: googleai_dart
+      sha256: "4d87e1f8d0dc8d4059a9d8a3ab4ba6988924ac2a5c270cec2da9420c491e710f"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.0+3"
   highlight:
     dependency: "direct main"
     description:

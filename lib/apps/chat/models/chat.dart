@@ -112,7 +112,7 @@ class Chat with ChangeNotifier {
   }
 
   dynamic getVisionFiles(Map<String, VisionFile> visionFiles, content) {
-    if (model.startsWith("claude")) {
+    if (model.startsWith("claude") || model.startsWith("gemini")) {
       visionFiles.forEach((_filename, _visionFile) {
         String _fileType = _filename.split('.').last.toLowerCase();
         String _fileBase64 = base64Encode(_visionFile.bytes);
@@ -168,7 +168,7 @@ class Chat with ChangeNotifier {
     if (visionFiles.isNotEmpty) {
       getVisionFiles(visionFiles, _content);
     }
-    if (model.startsWith("claude")) {
+    if (model.startsWith("claude") || model.startsWith("gemini")) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = ClaudeMessage(
         id: id ?? _newid,

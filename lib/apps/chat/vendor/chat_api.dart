@@ -365,7 +365,9 @@ void _handleChatStream(
       AIResponse.Openai(pages, property, user, handlePageID, res);
     } else if (pages.getPage(handlePageID).model.startsWith('deepseek')) {
       AIResponse.Openai(pages, property, user, handlePageID, res);
-    } else {
+    } else if (pages.getPage(handlePageID).model.startsWith('gemini')) {
+      AIResponse.Gemini(pages, property, user, handlePageID, res);
+    } else if (pages.getPage(handlePageID).model.startsWith('claude')) {
       AIResponse.Claude(pages, property, user, handlePageID, res);
     }
   } else {

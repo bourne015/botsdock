@@ -327,7 +327,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     }
     if (_modelV.startsWith('gpt-4'))
       return _pickMenu(context);
-    else if (_modelV.startsWith('claude'))
+    else if (_modelV.startsWith('claude') || _modelV.startsWith('gemini'))
       return IconButton(
           tooltip: "选择图片",
           icon: Icon(Icons.image_rounded, size: 20),

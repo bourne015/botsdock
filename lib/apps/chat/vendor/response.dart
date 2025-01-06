@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import 'package:openai_dart/openai_dart.dart' as openai;
 import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
+import 'package:googleai_dart/googleai_dart.dart' as gemini;
 
 class AIResponse {
   static void Openai(Pages pages, Property property, User user,
@@ -157,5 +158,21 @@ class AIResponse {
             msg: j.toString() + e.toString(),
           );
     }
+  }
+
+  static void Gemini(Pages pages, Property property, User user,
+      int handlePageID, Map<String, dynamic> j) {
+    var res = gemini.GenerateContentResponse.fromJson(j);
+
+    pages.getPage(handlePageID).appendMessage(
+          msg: res.candidates?.first.content?.parts?.first.text,
+          // toolCalls: res.choices[0].delta.toolCalls,
+        );
+
+    // if (res.choices[0].finishReason ==
+    //     openai.ChatCompletionFinishReason.toolCalls) {
+    //   pages.getPage(handlePageID).setOpenaiToolInput();
+    //   ChatAPI().submitText(pages, property, handlePageID, user);
+    // }
   }
 }
