@@ -77,6 +77,10 @@
   "@geminiDesc": {
     "description": "geminiDesc"
   },
+  "gemini15proDesc": "Complex reasoning tasks that require higher intelligence",
+  "@gemini15proDesc": {
+    "description": "gemini15proDesc"
+  },
   "deepseekDesc": "Open source model from China",
   "@deepseekDesc": {
     "description": "deepseekDesc"

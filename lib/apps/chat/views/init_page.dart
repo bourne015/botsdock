@@ -377,6 +377,8 @@ class InitPageState extends State<InitPage> with RestorationMixin {
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
         //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
+        _buildPopupMenuItem(context, geminiSub[1], "v1.5", "Gemini Pro 1.5",
+            GalleryLocalizations.of(context)?.geminiDesc ?? ''),
         _buildPopupMenuItem(context, geminiSub[0], "v2.0", "Gemini Flash 2.0",
             GalleryLocalizations.of(context)?.geminiDesc ?? ''),
         PopupMenuDivider(),
