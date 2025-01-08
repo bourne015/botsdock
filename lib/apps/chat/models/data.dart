@@ -45,11 +45,13 @@ class VisionFile {
  */
 class Attachment {
   String? file_id; //openai file_id
+  String? file_url; //for claude & gemini: oss url
   List<Map<String, String>>? tools;
   bool? downloading;
 
   Attachment({
     this.file_id = "",
+    this.file_url = "",
     this.tools = const [],
     this.downloading = false,
   });
@@ -57,6 +59,7 @@ class Attachment {
   Map<String, dynamic> toJson() {
     return {
       'file_id': file_id,
+      'file_url': file_url,
       'downloading': downloading,
       'tools': [
         {"type": "code_interpreter"},
@@ -68,6 +71,7 @@ class Attachment {
   factory Attachment.fromJson(Map<String, dynamic> json) {
     return Attachment(
       file_id: json['file_id'] as String?,
+      file_url: json['file_url'] as String?,
       tools: json['tools'] != null
           ? List<Map<String, String>>.from(
               json['tools'].map((tool) => Map<String, String>.from(tool)))

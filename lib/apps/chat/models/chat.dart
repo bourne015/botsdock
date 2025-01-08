@@ -151,13 +151,12 @@ class Chat with ChangeNotifier {
     } else if (model.startsWith("gemini")) {
       visionFiles.forEach((_filename, _visionFile) {
         String _fileType = _filename.split('.').last.toLowerCase();
-        String _fileBase64 = base64Encode(_visionFile.bytes);
-        var _imgPart = gemini.Part(
-            inlineData: gemini.Blob(
+        var _imgPart = GeminiPart1(
+            inlineData: GeminiData1(
           mimeType: 'image/$_fileType',
-          data: _fileBase64,
+          data: _visionFile.url,
         ));
-        content.add({_imgPart});
+        content.add(_imgPart);
       });
     }
   }

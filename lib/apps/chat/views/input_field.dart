@@ -272,7 +272,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
-  Widget _pickMenu(BuildContext context) {
+  Widget _pickMenu(BuildContext context, String modelV) {
     return PopupMenuButton<String>(
       icon: Icon(Icons.attachment, size: 20),
       color: AppColors.drawerBackground,
@@ -300,7 +300,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
           title: "选择文件",
           onTap: () {
             Navigator.of(context).pop();
-            _pickAll();
+            _pickAll(modelV);
           },
         ),
       ],
@@ -319,21 +319,21 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
     if (_modelV.startsWith('gpt-3')) return const SizedBox(width: 15);
     if (_modelV.startsWith('deepseek')) return const SizedBox(width: 15);
-    if (!property.onInitPage && pages.currentPage!.assistantID == null) {
+    if (_modelV.startsWith('dall') ||
+        _modelV.startsWith('claude') ||
+        _modelV.startsWith('gemini')) {
       return IconButton(
           tooltip: "选择图片",
           icon: Icon(Icons.image_rounded, size: 20),
           onPressed: _pickImage);
+    } else if (!property.onInitPage && pages.currentPage!.assistantID == null) {
+      return IconButton(
+          tooltip: "选择图片",
+          icon: Icon(Icons.image_rounded, size: 20),
+          onPressed: _pickImage);
+    } else {
+      return _pickMenu(context, _modelV);
     }
-    if (_modelV.startsWith('gpt-4'))
-      return _pickMenu(context);
-    else if (_modelV.startsWith('claude') || _modelV.startsWith('gemini'))
-      return IconButton(
-          tooltip: "选择图片",
-          icon: Icon(Icons.image_rounded, size: 20),
-          onPressed: _pickImage);
-    else
-      return const SizedBox(width: 15);
   }
 
   Widget generatingAnimation(BuildContext context) {
@@ -454,7 +454,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
 /**
  * pick all supported file(image and textfile) and save to attachment
  */
-  Future<void> _pickAll() async {
+  Future<void> _pickAll(String modelV) async {
     var result;
 
     result = await FilePicker.platform
@@ -471,7 +471,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
           attachments[fileName] = Attachment();
         });
 
-        _getTextFile(result);
+        _getTextFile(result, modelV);
       }
     } else {
       debugPrint('No file selected.');
@@ -528,16 +528,27 @@ class _ChatInputFieldState extends State<ChatInputField> {
     }
   }
 */
-  Future<void> _getTextFile(selectedfile) async {
-    await assistant.uploadFile(selectedfile);
-    String file_id = await assistant.fileUpload(selectedfile.files.first.name);
-    setState(() {
-      attachments[selectedfile.files.first.name]!.file_id = file_id;
-      attachments[selectedfile.files.first.name]!.tools = [
-        {"type": "file_search"},
-        {"type": "code_interpreter"},
-      ];
-    });
+  Future<void> _getTextFile(selectedfile, String modelV) async {
+    if (modelV.startsWith("gpt")) {
+      await assistant.uploadFile(selectedfile);
+      String file_id =
+          await assistant.fileUpload(selectedfile.files.first.name);
+      setState(() {
+        attachments[selectedfile.files.first.name]!.file_id = file_id;
+        attachments[selectedfile.files.first.name]!.tools = [
+          {"type": "file_search"},
+          {"type": "code_interpreter"},
+        ];
+      });
+    } else {
+      String? ossURL = await chats.uploadFile(
+        selectedfile.files.first.name,
+        selectedfile.files.first.bytes,
+      );
+      setState(() {
+        attachments[selectedfile.files.first.name]!.file_url = ossURL;
+      });
+    }
   }
 
   Future<void> _getImage(selectedfile) async {
@@ -565,8 +576,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
           var _content = entry.value;
           print("get file: $_filename");
           String oss_name = "user${user.id}_${handlePageID}_${ts}" + _filename;
-          String? ossURL = await chats.uploadImage(
-              pages, handlePageID, oss_name, _filename, _content.bytes);
+          String? ossURL = await chats.uploadFile(oss_name, _content.bytes);
           // if (!pages.getPage(handlePageID).model.startsWith("claude")) {
           // claude vison don't support url,
           _content.url = ossURL ?? "";

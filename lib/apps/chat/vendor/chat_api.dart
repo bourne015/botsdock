@@ -144,10 +144,10 @@ class ChatAPI {
       user.credit = response.data["credit"];
   }
 
-  Future<String?> uploadImage(pages, pid, oss_name, filename, imgData) async {
+  Future<String?> uploadFile(filename, imgData) async {
     String? ossUrl;
     try {
-      var resp = await Client().putObject(imgData, "chat/image/" + oss_name);
+      var resp = await Client().putObject(imgData, "chat/image/" + filename);
       ossUrl = (resp.statusCode == 200) ? resp.realUri.toString() : null;
       //if (ossUrl != null) pages.updateFileUrl(pid, msg_id, filename, ossUrl);
     } catch (e) {
@@ -180,8 +180,8 @@ class ChatAPI {
           VisionFile(name: "ai_file", bytes: base64Decode(response.data))
     };
 
-    String? ossURL = await uploadImage(pages, handlePageID, _aiImageName,
-        _aiImageName, base64Decode(response.data));
+    String? ossURL =
+        await uploadFile(_aiImageName, base64Decode(response.data));
     pages.getPage(handlePageID).messages[msg_id].updateVisionFiles(
           _aiImageName,
           ossURL ?? "",

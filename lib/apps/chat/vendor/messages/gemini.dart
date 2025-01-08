@@ -15,6 +15,35 @@ class GeminiTextContent {
   }
 
   Map<String, dynamic> toJson() => {'text': text};
+  Map<String, dynamic> toMap() => {'text': text};
+}
+
+class GeminiPart1 {
+  GeminiData1? inlineData;
+  GeminiPart1({this.inlineData});
+
+  factory GeminiPart1.fromJson(Map<String, dynamic> json) {
+    return GeminiPart1(
+      inlineData: GeminiData1.fromJson(json['inline_data']),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {'inline_data': inlineData?.toJson()};
+}
+
+class GeminiData1 {
+  String? mimeType;
+  String? data;
+  GeminiData1({this.mimeType, required this.data});
+
+  factory GeminiData1.fromJson(Map<String, dynamic> json) {
+    return GeminiData1(
+      mimeType: json['mime_type'] ?? "",
+      data: json['data'] ?? "",
+    );
+  }
+
+  Map<String, dynamic> toJson() => {'mime_type': mimeType, "data": data};
 }
 
 class GeminiMessage extends Message {
@@ -54,10 +83,10 @@ class GeminiMessage extends Message {
   void updateImageURL(String ossPath) {
     if (content is List) {
       for (var i = 0; i < content.length; i++) {
-        if (content[i].inline_data != null) {
-          content[i] = gemini.Part(
-            inlineData: gemini.Blob(
-              mimeType: content[i].inline_data.mimeType,
+        if (content[i] is GeminiPart1) {
+          content[i] = GeminiPart1(
+            inlineData: GeminiData1(
+              mimeType: content[i].inlineData.mimeType,
               data: ossPath,
             ),
           );
@@ -74,7 +103,7 @@ class GeminiMessage extends Message {
         'role': role == MessageTRole.user ? 'user' : 'model',
         if (content != null)
           'parts': content is List<dynamic>
-              ? content.map((e) => e.toJson()).toList()
+              ? content.map((p) => p.toJson()).toList()
               : content,
         // if (toolCallId != null) 'tool_call_id': toolCallId,
         // if (toolCalls.isNotEmpty)
@@ -86,7 +115,7 @@ class GeminiMessage extends Message {
         'role': role == MessageTRole.user ? 'user' : 'model',
         if (name != null) 'name': name,
         if (content != null)
-          'parts': content is List<dynamic>
+          'content': content is List<dynamic>
               ? content.map((e) => e.toJson()).toList()
               : content,
         if (toolCallId != null) 'tool_call_id': toolCallId,
@@ -120,14 +149,17 @@ class GeminiMessage extends Message {
           }))
         : {};
     dynamic content;
-    if (json['parts'] != null) {
-      if (json['parts'] is List) {
+    if (json['content'] != null) {
+      if (json['content'] is List) {
         // Assuming list of content parts
-        content = (json['parts'] as List)
-            .map((contentPart) => gemini.Part.fromJson(contentPart))
-            .toList();
-      } else if (json['parts'] is String) {
-        content = json['parts'];
+        content = (json['content'] as List).map((contentPart) {
+          if (contentPart.containsKey("text"))
+            return GeminiTextContent.fromJson(contentPart);
+          else
+            return GeminiPart1.fromJson(contentPart);
+        }).toList();
+      } else if (json['content'] is String) {
+        content = json['content'];
       }
     }
 

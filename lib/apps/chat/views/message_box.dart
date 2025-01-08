@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
+import 'package:botsdock/apps/chat/vendor/messages/gemini.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -72,7 +73,8 @@ class MessageBoxState extends State<MessageBox> {
       return Container();
 
     return widget.msg.role == MessageTRole.user ||
-            widget.msg.role == MessageTRole.assistant
+            widget.msg.role == MessageTRole.assistant ||
+            widget.msg.role == "model"
         ? Container(
             margin: const EdgeInsets.symmetric(vertical: 1.0),
             child: Row(
@@ -138,10 +140,12 @@ class MessageBoxState extends State<MessageBox> {
           if (msg.content is List)
             ...msg.content.map((_content) {
               if (widget.model!.startsWith('gemini')) {
-                if (_content.text != null)
+                if (_content is GeminiTextContent)
                   return messageContent(context, msg.role, _content.text);
-                else if (_content.inlineData != null) {
-                  //
+                else {
+                  //inlineData
+                  return contentImage(context,
+                      imageUrl: _content.inlineData.data);
                 }
               } else {
                 if (_content.type == "text")
