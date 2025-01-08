@@ -24,6 +24,7 @@ class MessageBox extends StatefulWidget {
   final Message msg;
   final bool isLast;
   final int pageId;
+  final String? model;
   final Stream<Message> messageStream;
 
   MessageBox({
@@ -31,6 +32,7 @@ class MessageBox extends StatefulWidget {
     required this.msg,
     this.isLast = false,
     required this.pageId,
+    this.model,
     required this.messageStream,
   }) : super(key: ValueKey(msg.id));
 
@@ -135,19 +137,27 @@ class MessageBoxState extends State<MessageBox> {
                 height: 80, child: attachmentList(context, msg.attachments)),
           if (msg.content is List)
             ...msg.content.map((_content) {
-              if (_content.type == "text")
-                return messageContent(context, msg.role, _content.text);
-              // else if (_content.type == "image")
-              //   return contentImage(context, imageBytes: _content.source.data);
-              else if (_content.type == "image_url")
-                return contentImage(context, imageUrl: _content.imageUrl.url);
-              else if (_content.type == "tool_use" &&
-                  _content.name == "save_artifact") {
-                return buildArtifact(context, _content.input);
-              } else if (_content.type == "tool_result") {
-                return messageContent(context, msg.role, "tool test");
-              } else
-                return SizedBox.shrink();
+              if (widget.model!.startsWith('gemini')) {
+                if (_content.text != null)
+                  return messageContent(context, msg.role, _content.text);
+                else if (_content.inlineData != null) {
+                  //
+                }
+              } else {
+                if (_content.type == "text")
+                  return messageContent(context, msg.role, _content.text);
+                // else if (_content.type == "image")
+                //   return contentImage(context, imageBytes: _content.source.data);
+                else if (_content.type == "image_url")
+                  return contentImage(context, imageUrl: _content.imageUrl.url);
+                else if (_content.type == "tool_use" &&
+                    _content.name == "save_artifact") {
+                  return buildArtifact(context, _content.input);
+                } else if (_content.type == "tool_result") {
+                  return messageContent(context, msg.role, "tool test");
+                } else
+                  return SizedBox.shrink();
+              }
             }).toList()
           else if (msg.content is String)
             messageContent(context, msg.role, msg.content),

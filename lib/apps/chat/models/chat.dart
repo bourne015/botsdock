@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
+import 'package:botsdock/apps/chat/vendor/messages/gemini.dart';
 import 'package:flutter/material.dart';
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/utils/prompts.dart';
@@ -10,6 +11,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
 import 'package:openai_dart/openai_dart.dart' as openai;
+import 'package:googleai_dart/googleai_dart.dart' as gemini;
 import '../utils/constants.dart';
 
 //model of a chat page
@@ -112,7 +114,7 @@ class Chat with ChangeNotifier {
   }
 
   dynamic getVisionFiles(Map<String, VisionFile> visionFiles, content) {
-    if (model.startsWith("claude") || model.startsWith("gemini")) {
+    if (model.startsWith("claude")) {
       visionFiles.forEach((_filename, _visionFile) {
         String _fileType = _filename.split('.').last.toLowerCase();
         String _fileBase64 = base64Encode(_visionFile.bytes);
@@ -146,6 +148,17 @@ class Chat with ChangeNotifier {
             imageUrl: openai.MessageContentImageUrl(url: _imgData));
         content.add(_imgContent);
       });
+    } else if (model.startsWith("gemini")) {
+      visionFiles.forEach((_filename, _visionFile) {
+        String _fileType = _filename.split('.').last.toLowerCase();
+        String _fileBase64 = base64Encode(_visionFile.bytes);
+        var _imgPart = gemini.Part(
+            inlineData: gemini.Blob(
+          mimeType: 'image/$_fileType',
+          data: _fileBase64,
+        ));
+        content.add({_imgPart});
+      });
     }
   }
 
@@ -162,13 +175,15 @@ class Chat with ChangeNotifier {
     var _content = [];
 
     if (text != null) {
-      var _textContent = TextContent(text: text);
-      _content.add(_textContent);
+      if (model.startsWith("gemini"))
+        _content.add(GeminiTextContent(text: text));
+      else
+        _content.add(TextContent(text: text));
     }
     if (visionFiles.isNotEmpty) {
       getVisionFiles(visionFiles, _content);
     }
-    if (model.startsWith("claude") || model.startsWith("gemini")) {
+    if (model.startsWith("claude")) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = ClaudeMessage(
         id: id ?? _newid,
@@ -186,6 +201,15 @@ class Chat with ChangeNotifier {
         attachments: attachments,
         timestamp: timestamp,
         toolCallId: toolCallId,
+      );
+    } else if (model.startsWith("gemini")) {
+      int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
+      _msg = GeminiMessage(
+        id: id ?? _newid,
+        role: role,
+        content: _content,
+        attachments: attachments,
+        timestamp: timestamp,
       );
     } else if (model.startsWith("deepseek")) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
@@ -297,7 +321,10 @@ class Chat with ChangeNotifier {
         messages.last.content += msg;
       else if (msg != null && messages.last.content is List) {
         for (var x in messages.last.content) {
-          if (x.type == "text") x.text += msg;
+          if (model.startsWith('gemini') && x.text != null)
+            x.text += msg;
+          else if (!model.startsWith('gemini') && x.type == "text")
+            x.text += msg;
         }
       }
       //openai use toolscalls
@@ -385,6 +412,8 @@ class Chat with ChangeNotifier {
             _msgs.add(OpenAIMessage.fromJson(m));
           } else if (c["model"].startsWith("deepseek")) {
             _msgs.add(OpenAIMessage.fromJson(m));
+          } else if (c["model"].startsWith("gemini")) {
+            _msgs.add(GeminiMessage.fromJson(m));
           } else {
             print("Chat fromJson error: unknow model");
           }

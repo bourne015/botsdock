@@ -88,6 +88,7 @@ class MessageListViewState extends State<MessageListView> {
                     msg: chat.messages[reindex],
                     isLast: isLast,
                     pageId: chat.id,
+                    model: chat.model,
                     messageStream: chat.messageStream,
                   ));
             },

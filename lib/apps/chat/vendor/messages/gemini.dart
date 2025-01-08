@@ -4,7 +4,8 @@ import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:googleai_dart/googleai_dart.dart' as gemini;
 
 class GeminiTextContent {
-  String text;
+  String? text;
+  String? type = 'text';
   GeminiTextContent({required this.text});
 
   factory GeminiTextContent.fromJson(Map<String, dynamic> json) {
@@ -66,12 +67,7 @@ class GeminiMessage extends Message {
   }
 
   @override
-  dynamic threadContent() {
-    if (content is List<dynamic>)
-      return content.map((e) => e.toJson()).toList();
-    else if (content is String) return content;
-    return "";
-  }
+  dynamic threadContent() {}
 
   @override
   Map<String, dynamic> toJson() => {
