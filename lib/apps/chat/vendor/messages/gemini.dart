@@ -1,7 +1,6 @@
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
-import 'package:googleai_dart/googleai_dart.dart' as gemini;
 
 class GeminiTextContent {
   String? text;
@@ -31,6 +30,19 @@ class GeminiPart1 {
   Map<String, dynamic> toJson() => {'inline_data': inlineData?.toJson()};
 }
 
+class GeminiPart2 {
+  GeminiData2? fileData;
+  GeminiPart2({this.fileData});
+
+  factory GeminiPart2.fromJson(Map<String, dynamic> json) {
+    return GeminiPart2(
+      fileData: GeminiData2.fromJson(json['file_data']),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {'file_data': fileData?.toJson()};
+}
+
 class GeminiData1 {
   String? mimeType;
   String? data;
@@ -44,6 +56,21 @@ class GeminiData1 {
   }
 
   Map<String, dynamic> toJson() => {'mime_type': mimeType, "data": data};
+}
+
+class GeminiData2 {
+  String? mimeType;
+  String? fileUri;
+  GeminiData2({this.mimeType, required this.fileUri});
+
+  factory GeminiData2.fromJson(Map<String, dynamic> json) {
+    return GeminiData2(
+      mimeType: json['mime_type'] ?? "",
+      fileUri: json['file_uri'] ?? "",
+    );
+  }
+
+  Map<String, dynamic> toJson() => {'mime_type': mimeType, "file_uri": fileUri};
 }
 
 class GeminiMessage extends Message {
@@ -155,8 +182,10 @@ class GeminiMessage extends Message {
         content = (json['content'] as List).map((contentPart) {
           if (contentPart.containsKey("text"))
             return GeminiTextContent.fromJson(contentPart);
-          else
+          else if (contentPart.containsKey("inline_data"))
             return GeminiPart1.fromJson(contentPart);
+          else if ((contentPart.containsKey("file_data")))
+            return GeminiPart2.fromJson(contentPart);
         }).toList();
       } else if (json['content'] is String) {
         content = json['content'];

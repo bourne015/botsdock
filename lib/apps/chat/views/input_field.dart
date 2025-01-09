@@ -319,14 +319,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
     if (_modelV.startsWith('gpt-3')) return const SizedBox(width: 15);
     if (_modelV.startsWith('deepseek')) return const SizedBox(width: 15);
-    if (_modelV.startsWith('dall') ||
-        _modelV.startsWith('claude') ||
-        _modelV.startsWith('gemini')) {
-      return IconButton(
-          tooltip: "选择图片",
-          icon: Icon(Icons.image_rounded, size: 20),
-          onPressed: _pickImage);
-    } else if (!property.onInitPage && pages.currentPage!.assistantID == null) {
+    if (_modelV.startsWith('claude') || _modelV.startsWith('gemini')) {
+      return _pickMenu(context, _modelV);
+    } else if (_modelV.startsWith('dall') ||
+        !property.onInitPage && pages.currentPage!.assistantID == null) {
       return IconButton(
           tooltip: "选择图片",
           icon: Icon(Icons.image_rounded, size: 20),
@@ -397,7 +393,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
     if (property.onInitPage) {
       String? thread_id = null;
-      if (attachments.isNotEmpty) thread_id = await assistant.createThread();
+      if (property.initModelVersion.startsWith('gpt') && attachments.isNotEmpty)
+        thread_id = await assistant.createThread();
       if (thread_id != null) {
         newPageId = assistant.newassistant(pages, property, user, thread_id,
             ass_id: chatAssistantID);
@@ -534,19 +531,30 @@ class _ChatInputFieldState extends State<ChatInputField> {
       String file_id =
           await assistant.fileUpload(selectedfile.files.first.name);
       setState(() {
+        attachments[selectedfile.files.first.name]!.file_name =
+            selectedfile.files.first.name;
         attachments[selectedfile.files.first.name]!.file_id = file_id;
         attachments[selectedfile.files.first.name]!.tools = [
           {"type": "file_search"},
           {"type": "code_interpreter"},
         ];
       });
-    } else {
+    } else if (modelV.startsWith("claude")) {
       String? ossURL = await chats.uploadFile(
         selectedfile.files.first.name,
         selectedfile.files.first.bytes,
       );
       setState(() {
+        attachments[selectedfile.files.first.name]!.file_name =
+            selectedfile.files.first.name;
         attachments[selectedfile.files.first.name]!.file_url = ossURL;
+      });
+    } else if (modelV.startsWith("gemini")) {
+      await assistant.uploadFile(selectedfile);
+      setState(() {
+        attachments[selectedfile.files.first.name]!.file_name =
+            selectedfile.files.first.name;
+        attachments[selectedfile.files.first.name]!.file_url = "https";
       });
     }
   }

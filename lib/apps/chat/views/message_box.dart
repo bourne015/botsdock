@@ -142,10 +142,12 @@ class MessageBoxState extends State<MessageBox> {
               if (widget.model!.startsWith('gemini')) {
                 if (_content is GeminiTextContent)
                   return messageContent(context, msg.role, _content.text);
-                else {
+                else if (_content is GeminiPart1) {
                   //inlineData
                   return contentImage(context,
-                      imageUrl: _content.inlineData.data);
+                      imageUrl: _content.inlineData?.data);
+                } else if (_content is GeminiPart2) {
+                  return SizedBox.shrink();
                 }
               } else {
                 if (_content.type == "text")
@@ -324,8 +326,9 @@ class MessageBoxState extends State<MessageBox> {
     setState(() {
       attachFile.downloading = true;
     });
-    var res =
-        await assistant.downloadFile(attachFile.file_id!, attachedFileName);
+    var res = 'can not download';
+    if (widget.model!.startsWith('gpt'))
+      res = await assistant.downloadFile(attachFile.file_id!, attachedFileName);
     setState(() {
       attachFile.downloading = false;
     });

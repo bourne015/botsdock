@@ -161,6 +161,24 @@ class Chat with ChangeNotifier {
     }
   }
 
+  void getAttachments(Map<String, Attachment> attachments, content) {
+    if (model.startsWith("gemini")) {
+      attachments.forEach((_filename, _attachment) {
+        String _fileType = _filename.split('.').last.toLowerCase();
+        var mtype = switch (_fileType) {
+          'pdf' => "application/pdf",
+          _ => throw AssertionError('Unsupported doc type: ${_fileType}'),
+        };
+        var _filePart = GeminiPart2(
+            fileData: GeminiData2(
+          mimeType: mtype,
+          fileUri: _filename, //_attachment.file_url,
+        ));
+        content.add(_filePart);
+      });
+    }
+  }
+
   int addMessage({
     required String role,
     int? id, //use id if need to insert message with index
@@ -181,6 +199,9 @@ class Chat with ChangeNotifier {
     }
     if (visionFiles.isNotEmpty) {
       getVisionFiles(visionFiles, _content);
+    }
+    if (attachments.isNotEmpty) {
+      getAttachments(attachments, _content);
     }
     if (model.startsWith("claude")) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
