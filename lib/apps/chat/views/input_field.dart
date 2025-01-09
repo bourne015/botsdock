@@ -119,8 +119,11 @@ class _ChatInputFieldState extends State<ChatInputField> {
       child: ListTile(
         dense: true,
         title: Text(name, overflow: TextOverflow.ellipsis),
-        leading: content.file_id!.isEmpty
-            ? CircularProgressIndicator()
+        leading: content.file_id!.isEmpty && content.file_url!.isEmpty
+            ? Container(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2))
             : Icon(Icons.description_outlined, color: Colors.pink[300]),
         trailing: IconButton(
             visualDensity: VisualDensity.compact,
