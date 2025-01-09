@@ -74,6 +74,9 @@ Map<String, String> allModels = {
   "dall-e-3": "D·E"
 };
 
+const claudeSupportedFiles = ['pdf'];
+const geminiSupportedFiles = ['pdf'];
+
 const supportedImages = [
   'png',
   'jpg',

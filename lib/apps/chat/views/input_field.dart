@@ -453,9 +453,13 @@ class _ChatInputFieldState extends State<ChatInputField> {
  */
   Future<void> _pickAll(String modelV) async {
     var result;
+    var _spf = supportedFilesAll;
+    if (modelV.startsWith('claude'))
+      _spf = claudeSupportedFiles;
+    else if (modelV.startsWith('gemini')) _spf = geminiSupportedFiles;
 
     result = await FilePicker.platform
-        .pickFiles(type: FileType.custom, allowedExtensions: supportedFilesAll);
+        .pickFiles(type: FileType.custom, allowedExtensions: _spf);
 
     if (result != null) {
       final fileName = result.files.first.name;
