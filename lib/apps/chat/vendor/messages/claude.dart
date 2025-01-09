@@ -2,6 +2,48 @@ import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
 
+//this is for file conetent
+/**
+ * { "type": "document",
+    "source": { "type": "base64",
+                "media_type": "application/pdf",
+                "data": pdf_data},
+              "cache_control": {"type": "ephemeral"}
+    }
+ */
+class ClaudeContent1 {
+  String? type;
+  ClaudeData1? source;
+  ClaudeContent1({this.type, this.source});
+
+  factory ClaudeContent1.fromJson(Map<String, dynamic> json) {
+    return ClaudeContent1(
+      type: json['type'],
+      source: ClaudeData1.fromJson(json['source']),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {"type": type, 'source': source?.toJson()};
+}
+
+class ClaudeData1 {
+  String? type;
+  String? mediaType;
+  String? data;
+  ClaudeData1({this.type, this.mediaType, required this.data});
+
+  factory ClaudeData1.fromJson(Map<String, dynamic> json) {
+    return ClaudeData1(
+      type: json["type"],
+      mediaType: json['media_type'] ?? "",
+      data: json['data'] ?? "",
+    );
+  }
+
+  Map<String, dynamic> toJson() =>
+      {"type": type, 'media_type': mediaType, "data": data};
+}
+
 class ClaudeMessage extends Message {
   ClaudeMessage({
     required int id,

@@ -11,7 +11,6 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
 import 'package:openai_dart/openai_dart.dart' as openai;
-import 'package:googleai_dart/googleai_dart.dart' as gemini;
 import '../utils/constants.dart';
 
 //model of a chat page
@@ -175,6 +174,21 @@ class Chat with ChangeNotifier {
           fileUri: _filename, //_attachment.file_url,
         ));
         content.add(_filePart);
+      });
+    } else if (model.startsWith("claude")) {
+      attachments.forEach((_filename, _attachment) {
+        String _fileType = _filename.split('.').last.toLowerCase();
+        var mtype = switch (_fileType) {
+          'pdf' => "application/pdf",
+          _ => throw AssertionError('Unsupported doc type: ${_fileType}'),
+        };
+        var _source = ClaudeData1(
+          type: "base64",
+          mediaType: mtype,
+          data: _attachment.file_url,
+        );
+        var _imgContent = ClaudeContent1(type: "document", source: _source);
+        content.add(_imgContent);
       });
     }
   }

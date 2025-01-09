@@ -1,3 +1,5 @@
+import 'package:botsdock/apps/chat/vendor/messages/claude.dart';
+
 import '../../models/data.dart';
 import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
 import 'package:openai_dart/openai_dart.dart' as openai;
@@ -18,6 +20,8 @@ dynamic parseContentPart(Map<String, dynamic> contentPart) {
       return anthropic.ImageBlock.fromJson(contentPart);
     case 'image_file':
       return openai.MessageContentImageFileObject.fromJson(contentPart);
+    case 'document':
+      return ClaudeContent1.fromJson(contentPart);
     case 'tool_use':
       return anthropic.ToolUseBlock.fromJson(contentPart);
     case 'tool_result':

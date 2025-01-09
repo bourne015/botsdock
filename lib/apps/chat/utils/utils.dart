@@ -55,8 +55,13 @@ Map<String, Attachment> copyAttachment(Map? original) {
   Map<String, Attachment> copy = {};
   if (original == null) return copy;
   original.forEach((_filename, _content) {
-    copy[_filename] =
-        Attachment(file_id: _content.file_id, tools: List.from(_content.tools));
+    copy[_filename] = Attachment(
+      file_name: _content.file_name,
+      file_id: _content.file_id,
+      file_url: _content.file_url,
+      downloading: _content.downloading,
+      tools: List.from(_content.tools),
+    );
   });
   return copy;
 }
