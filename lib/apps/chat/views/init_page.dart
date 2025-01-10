@@ -184,7 +184,11 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                       width: 24,
                       color: selected == "ChatGPT" ? Colors.green : Colors.grey,
                     )),
-                if (selected == "ChatGPT") const Text(' ChatGPT'),
+                if (selected == "ChatGPT")
+                  Container(
+                      width: 65,
+                      child: Text(' ChatGPT',
+                          maxLines: 1, overflow: TextOverflow.ellipsis)),
                 if (selected == "ChatGPT") gptdropdownMenu(context),
               ]),
               'Claude': Row(children: [
@@ -198,7 +202,11 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                           ? Colors.yellow[900]
                           : Colors.grey,
                     )),
-                if (selected == "Claude") const Text('  Claude'),
+                if (selected == "Claude")
+                  Container(
+                      width: 65,
+                      child: Text(' Claude',
+                          maxLines: 1, overflow: TextOverflow.ellipsis)),
                 if (selected == "Claude") claudedropdownMenu(context),
               ]),
               'Gemini': Row(children: [
@@ -210,7 +218,11 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                       width: 24,
                       color: selected == "Gemini" ? null : Colors.grey,
                     )),
-                if (selected == "Gemini") const Text('Gemini'),
+                if (selected == "Gemini")
+                  Container(
+                      width: 65,
+                      child: Text(' Gemini ',
+                          maxLines: 1, overflow: TextOverflow.ellipsis)),
                 if (selected == "Gemini") geminidropdownMenu(context),
               ]),
               'DeepSeek': Row(children: [
@@ -222,7 +234,11 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                       width: 24,
                       color: selected == "DeepSeek" ? Colors.blue : Colors.grey,
                     )),
-                if (selected == "DeepSeek") const Text('DeepSeek'),
+                if (selected == "DeepSeek")
+                  Container(
+                      width: 65,
+                      child: Text('DeepSeek',
+                          maxLines: 1, overflow: TextOverflow.ellipsis)),
                 if (selected == "DeepSeek") deepseekdropdownMenu(context),
               ]),
             },
