@@ -67,7 +67,6 @@ class ClaudeMessage extends Message {
    */
   @override
   void updateVisionFiles(String filename, String url) {
-    print("updateVisionFiles: $filename, $url");
     visionFiles[filename] = VisionFile(name: filename, url: url);
   }
 

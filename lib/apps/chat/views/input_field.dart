@@ -59,23 +59,21 @@ class _ChatInputFieldState extends State<ChatInputField> {
       margin: EdgeInsets.fromLTRB(_hmargin, 5, _hmargin, 25),
       child: Row(
         children: [
-          !_userReady
-              ? IconButton(
-                  onPressed: null,
-                  icon: Icon(Icons.attachment, size: 20),
-                )
-              : pickButton(context),
+          _userReady
+              ? pickButton(context)
+              : IconButton(
+                  onPressed: null, icon: Icon(Icons.attachment, size: 20)),
           inputField(context),
-          !_userReady
-              ? lockButton(context, user)
-              : Selector<Pages, bool>(
+          _userReady
+              ? Selector<Pages, bool>(
                   selector: (_, pages) =>
                       pages.getPageGenerateStatus(pages.currentPageID),
                   builder: (context, isGenerating, child) {
                     if (isGenerating) return generatingAnimation(context);
                     return sendButton(context);
                   },
-                ),
+                )
+              : lockButton(context, user),
         ],
       ),
     );
@@ -303,7 +301,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
           title: "选择文件",
           onTap: () {
             Navigator.of(context).pop();
-            _pickAll(modelV);
+            _pickFile(modelV);
           },
         ),
       ],
@@ -364,11 +362,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   bool isContentReady(Pages pages, Property property) {
     bool isReady = false;
-    if ((visionFiles.isNotEmpty ||
-            attachments.isNotEmpty ||
-            _hasInputContent) &&
-        (property.onInitPage ||
-            (pages.currentPageID >= 0 && !pages.currentPage!.onGenerating)))
+    if (_hasInputContent &&
+        (property.onInitPage || !pages.currentPage!.onGenerating))
       isReady = true;
     return isReady;
   }
@@ -442,9 +437,11 @@ class _ChatInputFieldState extends State<ChatInputField> {
         debugPrint('Selected file: $fileName');
 
         setState(() {
-          visionFiles[fileName] = VisionFile(name: fileName);
+          visionFiles[fileName] = VisionFile(
+            name: fileName,
+            bytes: result.files.first.bytes,
+          );
         });
-        _getImage(result);
       }
     } else {
       debugPrint('No file selected.');
@@ -454,7 +451,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
 /**
  * pick all supported file(image and textfile) and save to attachment
  */
-  Future<void> _pickAll(String modelV) async {
+  Future<void> _pickFile(String modelV) async {
     var result;
     var _spf = supportedFilesAll;
     if (modelV.startsWith('claude'))
@@ -475,101 +472,34 @@ class _ChatInputFieldState extends State<ChatInputField> {
           attachments[fileName] = Attachment();
         });
 
-        _getTextFile(result, modelV);
+        _uploadPickedFiles(result, modelV);
       }
     } else {
       debugPrint('No file selected.');
     }
   }
 
-/*
-  Future<void> _pickFile() async {
-    var result;
-    var _supported;
-    Pages pages = Provider.of<Pages>(context, listen: false);
-    Property property = Provider.of<Property>(context, listen: false);
-    var _modelV;
-    if (property.onInitPage)
-      _modelV = property.initModelVersion;
-    else
-      _modelV = pages.currentPage?.model;
-    if (_modelV.startsWith("gpt-4"))
-      _supported = supportedFilesAll;
-    else if (_modelV.startsWith("gpt-3"))
-      _supported = supportedFiles;
-    else
-      _supported = supportedImages;
-
-    result = await FilePicker.platform
-        .pickFiles(type: FileType.custom, allowedExtensions: _supported);
-
-    if (result != null) {
-      final fileName = result.files.first.name;
-
-      if (result.files.first.size / (1024 * 1024) > maxFileMBSize) {
-        showMessage(context, "文件大小超过限制:${maxFileMBSize}MB");
-        return;
-      }
-      String fileType = fileName.split('.').last.toLowerCase();
-      debugPrint('Selected file: $fileName, type: $fileType');
-      if (supportedFiles.contains(fileType) ||
-          supportedFiles_cp.contains(fileType)) {
-        setState(() {
-          attachments[fileName] = Attachment();
-        });
-
-        _getTextFile(result);
-      } else if (supportedImages.contains(fileType)) {
-        setState(() {
-          visionFiles[fileName] = VisionFile(name: fileName);
-        });
-        _getImage(result);
-      } else {
-        print("unknow");
-      }
-    } else {
-      debugPrint('No file selected.');
-    }
-  }
-*/
-  Future<void> _getTextFile(selectedfile, String modelV) async {
+  Future<void> _uploadPickedFiles(selectedfile, String modelV) async {
+    String? _file_id;
+    String? _file_url;
     if (modelV.startsWith("gpt")) {
       await assistant.uploadFile(selectedfile);
-      String file_id =
-          await assistant.fileUpload(selectedfile.files.first.name);
-      setState(() {
-        attachments[selectedfile.files.first.name]!.file_name =
-            selectedfile.files.first.name;
-        attachments[selectedfile.files.first.name]!.file_id = file_id;
-        attachments[selectedfile.files.first.name]!.tools = [
-          {"type": "file_search"},
-          {"type": "code_interpreter"},
-        ];
-      });
+      _file_id = await assistant.fileUpload(selectedfile.files.first.name);
+      attachments[selectedfile.files.first.name]!.file_id = _file_id;
+      attachments[selectedfile.files.first.name]!.tools = [
+        {"type": "file_search"},
+        {"type": "code_interpreter"},
+      ];
     } else if (modelV.startsWith("claude")) {
-      String? ossURL = await chats.uploadFile(
-        selectedfile.files.first.name,
-        selectedfile.files.first.bytes,
-      );
-      setState(() {
-        attachments[selectedfile.files.first.name]!.file_name =
-            selectedfile.files.first.name;
-        attachments[selectedfile.files.first.name]!.file_url = ossURL;
-      });
+      _file_url = await chats.uploadFile(
+          selectedfile.files.first.name, selectedfile.files.first.bytes);
     } else if (modelV.startsWith("gemini")) {
       await assistant.uploadFile(selectedfile);
-      setState(() {
-        attachments[selectedfile.files.first.name]!.file_name =
-            selectedfile.files.first.name;
-        attachments[selectedfile.files.first.name]!.file_url = "https";
-      });
     }
-  }
-
-  Future<void> _getImage(selectedfile) async {
     setState(() {
-      visionFiles[selectedfile.files.first.name]!.bytes =
-          selectedfile.files.first.bytes;
+      attachments[selectedfile.files.first.name]!.file_name =
+          selectedfile.files.first.name;
+      attachments[selectedfile.files.first.name]!.file_url = _file_url ?? '';
     });
   }
 
@@ -585,26 +515,25 @@ class _ChatInputFieldState extends State<ChatInputField> {
             visionFiles: _vf,
             attachments: copyAttachment(attachments),
           );
+
+      //we save image bytes in visionFiles for quick display
+      //here we upload images to oss and save url in messages and visionFiles
       if (visionFiles.isNotEmpty) {
         for (var entry in _vf.entries) {
           var _filename = entry.key;
           var _content = entry.value;
-          print("get file: $_filename");
           String oss_name = "user${user.id}_${handlePageID}_${ts}" + _filename;
           String? ossURL = await chats.uploadFile(oss_name, _content.bytes);
-          // if (!pages.getPage(handlePageID).model.startsWith("claude")) {
-          // claude vison don't support url,
           _content.url = ossURL ?? "";
+          print("update image with url: $_filename: $ossURL");
           pages
               .getPage(handlePageID)
               .messages[msg_id]
               .updateImageURL(ossURL ?? "");
-          // }
-          if (pages.getPage(handlePageID).model.startsWith("claude"))
-            pages
-                .getPage(handlePageID)
-                .messages[msg_id]
-                .updateVisionFiles(_filename, ossURL ?? "");
+          pages
+              .getPage(handlePageID)
+              .messages[msg_id]
+              .updateVisionFiles(_filename, ossURL ?? "");
         }
       }
     } catch (e) {
