@@ -77,12 +77,14 @@ class ClaudeMessage extends Message {
   void updateImageURL(String ossPath) {
     if (content is List) {
       for (var i = 0; i < content.length; i++) {
-        if (content[i].type == "image") {
+        if (content[i].type == "image" &&
+            !content[i].source.data.startsWith('http')) {
           var _source = anthropic.ImageBlockSource(
               type: content[i].source.type,
               mediaType: content[i].source.mediaType,
               data: ossPath);
           content[i] = anthropic.ImageBlock(type: "image", source: _source);
+          break;
         }
       }
     }

@@ -1,6 +1,6 @@
 name: botsdock
 description: A gallery to list apps.
-version: 1.0.2
+version: 1.0.3
 
 environment:
   flutter: ^3.27.0

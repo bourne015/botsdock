@@ -110,13 +110,13 @@ class GeminiMessage extends Message {
   void updateImageURL(String ossPath) {
     if (content is List) {
       for (var i = 0; i < content.length; i++) {
-        if (content[i] is GeminiPart1) {
+        if (content[i] is GeminiPart1 &&
+            !content[i].inlineData.data.startsWith('http')) {
           content[i] = GeminiPart1(
             inlineData: GeminiData1(
-              mimeType: content[i].inlineData.mimeType,
-              data: ossPath,
-            ),
+                mimeType: content[i].inlineData.mimeType, data: ossPath),
           );
+          break;
         }
       }
     }

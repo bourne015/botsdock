@@ -39,10 +39,12 @@ class OpenAIMessage extends Message {
   void updateImageURL(String ossPath) {
     if (content is List) {
       for (var i = 0; i < content.length; i++) {
-        if (content[i].type == "image_url") {
+        if (content[i].type == "image_url" &&
+            !content[i].imageUrl.url.startsWith('http')) {
           content[i] = openai.MessageContentImageUrlObject(
               type: "image_url",
               imageUrl: openai.MessageContentImageUrl(url: ossPath));
+          break;
         }
       }
     }

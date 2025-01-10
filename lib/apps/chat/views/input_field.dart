@@ -495,6 +495,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
           selectedfile.files.first.name, selectedfile.files.first.bytes);
     } else if (modelV.startsWith("gemini")) {
       await assistant.uploadFile(selectedfile);
+      _file_url = 'http';
     }
     setState(() {
       attachments[selectedfile.files.first.name]!.file_name =
@@ -525,7 +526,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
           String oss_name = "user${user.id}_${handlePageID}_${ts}" + _filename;
           String? ossURL = await chats.uploadFile(oss_name, _content.bytes);
           _content.url = ossURL ?? "";
-          print("update image with url: $_filename: $ossURL");
           pages
               .getPage(handlePageID)
               .messages[msg_id]
