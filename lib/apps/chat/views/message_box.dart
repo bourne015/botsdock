@@ -144,8 +144,9 @@ class MessageBoxState extends State<MessageBox> {
                   return messageContent(context, msg.role, _content.text);
                 else if (_content is GeminiPart1) {
                   //inlineData
-                  return contentImage(context,
-                      imageUrl: _content.inlineData?.data);
+                  // return contentImage(context,
+                  //     imageUrl: _content.inlineData?.data);
+                  return SizedBox.shrink();
                 } else if (_content is GeminiPart2) {
                   return SizedBox.shrink();
                 }
@@ -155,7 +156,8 @@ class MessageBoxState extends State<MessageBox> {
                 // else if (_content.type == "image")
                 //   return contentImage(context, imageBytes: _content.source.data);
                 else if (_content.type == "image_url")
-                  return contentImage(context, imageUrl: _content.imageUrl.url);
+                  // return contentImage(context, imageUrl: _content.imageUrl.url);
+                  return SizedBox.shrink();
                 else if (_content.type == "tool_use" &&
                     _content.name == "save_artifact") {
                   return buildArtifact(context, _content.input);
