@@ -91,6 +91,7 @@ class User with ChangeNotifier {
 
   void reset() {
     _isLogedin = false;
+    notifyListeners();
   }
 
   Map<String, dynamic> toJson() => {
