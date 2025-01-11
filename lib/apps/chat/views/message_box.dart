@@ -461,8 +461,8 @@ class MessageBoxState extends State<MessageBox> {
             filename: filename,
             imageurl: imageUrl,
             imagebytes: imageBytes,
-            height: 250,
-            width: 200));
+            height: 250.0,
+            width: 200.0));
   }
 
   void _showDownloadMenu(BuildContext context, Offset position,
