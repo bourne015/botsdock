@@ -166,6 +166,15 @@ class Chat with ChangeNotifier {
         String _fileType = _filename.split('.').last.toLowerCase();
         var mtype = switch (_fileType) {
           'pdf' => "application/pdf",
+          "js" => "application/x-javascript",
+          "py" => "application/x-python",
+          "txt" => "text/plain",
+          "HTML" => "text/html",
+          "css" => "text/css",
+          "md" => "text/md",
+          "csv" => "text/csv",
+          "xml" => "text/xml",
+          "rtf" => "text/rtf",
           _ => throw AssertionError('Unsupported doc type: ${_fileType}'),
         };
         var _filePart = GeminiPart2(

@@ -75,7 +75,18 @@ Map<String, String> allModels = {
 };
 
 const claudeSupportedFiles = ['pdf'];
-const geminiSupportedFiles = ['pdf'];
+const geminiSupportedFiles = [
+  "pdf",
+  "js",
+  "py",
+  "txt",
+  "html",
+  "css",
+  "md",
+  "csv",
+  "xml",
+  "rtf",
+];
 
 const supportedImages = [
   'png',
