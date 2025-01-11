@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:image_downloader_web/image_downloader_web.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
@@ -111,10 +110,7 @@ class _UserInfoTabState extends State<UserInfo> {
                 Uint8List imageData = await loadImageAsUInt8List(
                   'assets/images/chat/paycode.jpeg',
                 );
-                await WebImageDownloader.downloadImageFromUInt8List(
-                  name: "paycode",
-                  uInt8List: imageData,
-                );
+                downloadImage(fileName: "paycode.jpeg", imageData: imageData);
               },
               child: Text("下载付款码")),
           // ElevatedButton(
@@ -154,10 +150,7 @@ class _UserInfoTabState extends State<UserInfo> {
         Uint8List imageData = await loadImageAsUInt8List(
           'assets/images/chat/paycode.jpeg',
         );
-        await WebImageDownloader.downloadImageFromUInt8List(
-          name: "paycode",
-          uInt8List: imageData,
-        );
+        downloadImage(fileName: "paycode.jpeg", imageData: imageData);
       }
     });
   }

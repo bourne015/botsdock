@@ -11,7 +11,6 @@ import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:image_downloader_web/image_downloader_web.dart';
 
 import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
 import '../models/user.dart';
@@ -499,17 +498,9 @@ class MessageBoxState extends State<MessageBox> {
     ).then((selectedValue) async {
       if (selectedValue == 'download') {
         if (imageUrl != null && imageUrl.isNotEmpty) {
-          // var uri = Uri.parse(widget.val["fileUrl"]);
-          // String filenameExp = uri.pathSegments.last;
-          // String filename = filenameExp.split('=').first;
-          await WebImageDownloader.downloadImageFromWeb(
-            name: "ai",
-            imageUrl,
-          );
+          downloadImage(fileUrl: imageUrl);
         } else if (imageBytes != null && imageBytes.isNotEmpty) {
-          await WebImageDownloader.downloadImageFromUInt8List(
-            uInt8List: imageBytes,
-          );
+          downloadImage(imageData: imageBytes);
         }
       }
     });
