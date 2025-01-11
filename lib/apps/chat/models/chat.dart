@@ -223,6 +223,7 @@ class Chat with ChangeNotifier {
         id: id ?? _newid,
         role: role,
         content: _content,
+        visionFiles: visionFiles,
         attachments: attachments,
         timestamp: timestamp,
       );
@@ -232,6 +233,7 @@ class Chat with ChangeNotifier {
         id: id ?? _newid,
         role: role,
         content: _content,
+        visionFiles: visionFiles,
         attachments: attachments,
         timestamp: timestamp,
         toolCallId: toolCallId,
@@ -242,6 +244,7 @@ class Chat with ChangeNotifier {
         id: id ?? _newid,
         role: role,
         content: _content,
+        visionFiles: visionFiles,
         attachments: attachments,
         timestamp: timestamp,
       );
@@ -252,6 +255,7 @@ class Chat with ChangeNotifier {
         role: role,
         //deepseek only support text type context for now
         content: text != null ? text : "",
+        visionFiles: visionFiles,
         attachments: attachments,
         timestamp: timestamp,
         toolCallId: toolCallId,

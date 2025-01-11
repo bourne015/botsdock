@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:botsdock/apps/chat/vendor/messages/gemini.dart';
+import 'package:botsdock/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -415,31 +416,24 @@ class MessageBoxState extends State<MessageBox> {
   Widget loadImage(BuildContext context,
       {filename, imageurl, imagebytes, height, width}) {
     if (imageurl != null && imageurl.isNotEmpty) {
-      return Image.network(
-        imageurl,
+      return FadeInImage(
+        placeholder: MemoryImage(kTransparentImage),
         height: height,
         width: width,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Center(
-            child: CircularProgressIndicator(
-              value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded /
-                      loadingProgress.expectedTotalBytes!
-                  : null,
-            ),
-          );
-        },
-        errorBuilder: (context, error, stackTrace) =>
-            Text('load image url failed'),
+        image: NetworkImage(imageurl),
+        fadeInDuration: const Duration(milliseconds: 10),
+        imageErrorBuilder: (context, error, stackTrace) =>
+            Icon(Icons.broken_image_outlined),
       );
     } else if (imagebytes != null && imagebytes.isNotEmpty) {
-      return Image.memory(
-        imagebytes,
+      return FadeInImage(
+        placeholder: MemoryImage(kTransparentImage),
         height: height,
         width: width,
-        errorBuilder: (context, error, stackTrace) =>
-            Text('load image bytes failed'),
+        image: MemoryImage(imagebytes),
+        fadeOutDuration: const Duration(milliseconds: 10),
+        imageErrorBuilder: (context, error, stackTrace) =>
+            Icon(Icons.broken_image),
       );
     } else
       return Text("load image failed");
