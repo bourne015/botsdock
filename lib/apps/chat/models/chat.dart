@@ -119,6 +119,7 @@ class Chat with ChangeNotifier {
         String _fileBase64 = base64Encode(_visionFile.bytes);
         var mtype = switch (_fileType) {
           'jpeg' => anthropic.ImageBlockSourceMediaType.imageJpeg,
+          'jpg' => anthropic.ImageBlockSourceMediaType.imageJpeg,
           'png' => anthropic.ImageBlockSourceMediaType.imagePng,
           'gif' => anthropic.ImageBlockSourceMediaType.imageGif,
           'webp' => anthropic.ImageBlockSourceMediaType.imageWebp,
