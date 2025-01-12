@@ -70,8 +70,10 @@ class InitPageState extends State<InitPage> with RestorationMixin {
       claudeDropdownValue = property.initModelVersion;
     } else if (deepseekSub.contains(property.initModelVersion)) {
       selected = 'DeepSeek';
+      deepseekDropdownValue = property.initModelVersion;
     } else if (geminiSub.contains(property.initModelVersion)) {
       selected = 'Gemini';
+      geminiDropdownValue = property.initModelVersion;
     }
 
     return LayoutBuilder(
