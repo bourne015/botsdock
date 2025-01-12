@@ -47,8 +47,11 @@ class Bots with ChangeNotifier {
     _bots_public.sort((a, b) => a.id.compareTo(b.id));
   }
 
-  void addBot(Map<String, dynamic> data) {
-    _bots.add(Bot.fromJson(data));
+  void addBot(int? user_id, Map<String, dynamic> data) {
+    var b = Bot.fromJson(data);
+    _bots.add(b);
+    if (b.public == true || (user_id != null && b.author_id == user_id))
+      _bots_public.add(b);
     notifyListeners();
   }
 
@@ -74,6 +77,7 @@ class Bots with ChangeNotifier {
 
   void deleteBot(int id) {
     _bots.removeWhere((element) => element.id == id);
+    _bots_public.removeWhere((element) => element.id == id);
     notifyListeners();
   }
 
