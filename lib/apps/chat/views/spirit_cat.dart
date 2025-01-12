@@ -25,12 +25,16 @@ class SpiritCatState extends State<SpiritCat>
   late Offset dragStart;
   String _dragImg = '';
   String _runImg = "assets/images/cat/cat11.avif";
+  List<String>? _cats;
+  double leftPosition = 5.0;
+  double rightPosition = 240.0;
 
   @override
   void initState() {
     super.initState();
+    _cats = restCat.keys.toList();
     _controller = AnimationController(
-      duration: const Duration(seconds: 20), // 总的动画周期
+      duration: const Duration(seconds: 40), // 总的动画周期
       vsync: this,
     );
 
@@ -74,10 +78,10 @@ class SpiritCatState extends State<SpiritCat>
             setState(() {
               var _posX = details.globalPosition.dx - dragStart.dx;
               _currentRestPose = _dragImg;
-              _currentPosition = _posX > 180
-                  ? 180
-                  : _posX < 0
-                      ? 0
+              _currentPosition = _posX > rightPosition
+                  ? rightPosition
+                  : _posX < leftPosition
+                      ? leftPosition
                       : _posX;
             });
           },
@@ -101,16 +105,16 @@ class SpiritCatState extends State<SpiritCat>
     setState(() {
       if (_isMoving && !isDragging) {
         if (_isMovingRight) {
-          _currentPosition += 0.25;
-          if (_currentPosition >= 180) {
-            _currentPosition = 180;
+          _currentPosition += 0.2;
+          if (_currentPosition >= rightPosition) {
+            _currentPosition = rightPosition;
             _isMovingRight = false;
             _runImg = leftRunCat[_random.nextInt(leftRunCat.length)];
           }
         } else {
-          _currentPosition -= 0.25;
-          if (_currentPosition <= 5) {
-            _currentPosition = 5;
+          _currentPosition -= 0.2;
+          if (_currentPosition <= leftPosition) {
+            _currentPosition = leftPosition;
             _isMovingRight = true;
             _runImg = rightRunCat[_random.nextInt(rightRunCat.length)];
           }
@@ -121,14 +125,22 @@ class SpiritCatState extends State<SpiritCat>
 
   void _scheduleNextStateChange() {
     _stateChangeTimer?.cancel();
-    _stateChangeTimer = Timer(Duration(seconds: 2 + _random.nextInt(15)), () {
+    int _dl = 1 + _random.nextInt(10);
+    if (restCat.containsKey(_currentRestPose)) {
+      _dl = restCat[_currentRestPose]!;
+    } else if (clickCat.contains(_currentRestPose)) {
+      _dl = 1;
+    }
+    _stateChangeTimer = Timer(Duration(seconds: _dl), () {
       _changeState();
       _scheduleNextStateChange();
     });
   }
 
   String getRestPose() {
-    return restCat[Random().nextInt(restCat.length)];
+    int c = Random().nextInt(restCat.length);
+
+    return _cats![c];
   }
 
   void _changeState() {
@@ -160,23 +172,23 @@ class SpiritCatState extends State<SpiritCat>
     "assets/images/cat/cat12.avif",
     "assets/images/cat/cat21.avif",
   ];
-  List<String> restCat = [
-    "assets/images/cat/cat3.avif",
-    "assets/images/cat/cat7.avif",
-    "assets/images/cat/cat17.avif",
-    "assets/images/cat/cat20.avif",
-    "assets/images/cat/cat21.avif",
-    "assets/images/cat/cat25-1.png",
-    "assets/images/cat/cat27.avif",
-    "assets/images/cat/cat30.avif",
-    "assets/images/cat/cat31.avif",
-    "assets/images/cat/cat35.avif",
-    "assets/images/cat/cat36.avif",
-    "assets/images/cat/cat37.avif",
-    "assets/images/cat/cat41.avif",
-    "assets/images/cat/cat42.avif",
-    "assets/images/cat/cat46.avif",
-    "assets/images/cat/cat48.avif",
-    "assets/images/cat/cat49.avif",
-  ];
+  Map<String, int> restCat = {
+    "assets/images/cat/cat3.avif": 20, //wag tail, slow
+    "assets/images/cat/cat7.avif": 10, //click phone
+    "assets/images/cat/cat17.avif": 20, //dance
+    "assets/images/cat/cat20.avif": 10, //love shake
+    "assets/images/cat/cat21.avif": 20, //angry
+    "assets/images/cat/cat25-1.png": 30, //sleep
+    "assets/images/cat/cat27.avif": 10, //ask food
+    "assets/images/cat/cat30.avif": 5, //love
+    "assets/images/cat/cat31.avif": 5, //play phone,sit
+    "assets/images/cat/cat35.avif": 20, //eating
+    "assets/images/cat/cat36.avif": 30, //play phone, lay
+    "assets/images/cat/cat37.avif": 2, //draw love
+    "assets/images/cat/cat41.avif": 3, //wag tail, fast
+    "assets/images/cat/cat42.avif": 2, //love kiss
+    "assets/images/cat/cat46.avif": 2, //shot by love arrow
+    "assets/images/cat/cat48.avif": 5, //click keyboard
+    "assets/images/cat/cat49.avif": 5, //play love ball
+  };
 }
