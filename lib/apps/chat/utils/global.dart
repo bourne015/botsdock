@@ -14,10 +14,13 @@ class Global {
   static late SharedPreferences _prefs;
   var chatApi = ChatAPI();
 
-  Future init(User user, Pages pages) async {
+  Future init(User user, Pages pages, Property property) async {
     _prefs = await SharedPreferences.getInstance();
     try {
       oss_init();
+      if (_prefs.getString("init_model") != null) {
+        property.initModelVersion = _prefs.getString("init_model");
+      }
       int? user_id = _prefs.getInt("cached_user_id");
       if (_prefs.getBool("U${user_id}_isLogedin") == true) {
         User? _u = await chatApi.userInfo(user_id);
@@ -53,6 +56,10 @@ class Global {
       if (jsonChat != null) //pages.restore_single_page(jsonDecode(jsonChat));
         pages.addPage(Chat.fromJson(jsonDecode(jsonChat)));
     }
+  }
+
+  static saveProperties({String? model}) {
+    if (model != null) _prefs.setString("init_model", model);
   }
 
   static saveProfile(User user) {

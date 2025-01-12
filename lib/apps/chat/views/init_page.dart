@@ -1,3 +1,4 @@
+import 'package:botsdock/apps/chat/utils/global.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
@@ -274,6 +275,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                 property.initModelVersion = DefaultGeminiModel;
               }
               selected = value;
+              Global.saveProperties(model: property.initModelVersion);
             },
           )),
       SpiritCat(),
@@ -455,6 +457,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
           child: InkWell(
             borderRadius: BORDERRADIUS15,
             onTap: () {
+              Global.saveProperties(model: value);
               Navigator.pop(context, value);
             },
             //onHover: (hovering) {},
