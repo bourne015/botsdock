@@ -215,14 +215,14 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Widget textField(BuildContext context) {
     Pages pages = Provider.of<Pages>(context, listen: false);
     Property property = Provider.of<Property>(context, listen: false);
-    String hintText = "text, image, text file";
+    String hintText = "text, image, file";
     var _modelV;
     if (property.onInitPage)
       _modelV = property.initModelVersion;
     else
       _modelV = pages.currentPage?.model;
-    if (_modelV == GPTModel.gptv35) {
-      hintText = "Send a message";
+    if (_modelV == GPTModel.gptv35 || _modelV == DeepSeekModel.dc) {
+      hintText = "send a message";
     } else if (_modelV == GPTModel.gptv40Dall) {
       hintText = "describe the image";
     }

@@ -1,7 +1,7 @@
 {
   "appTitle": "AI助手",
   "homeHeaderGallery": "Assistants",
-  "chatDescription": "Base on ChatGPT",
+  "chatDescription": "Base on GPT, Claude, Gemini, DeepSeek",
   "newChat": "新会话",
   "settingsAttribution": "To Give Life To Time",
   "githubRepo": "{repoName} GitHub 代码库",

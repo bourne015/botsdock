@@ -7,7 +7,7 @@
   "@homeHeaderGallery": {
     "description": "Header title on home screen for Gallery section."
   },
-  "chatDescription": "Based on ChatGPT",
+  "chatDescription": "Base on GPT, Claude, Gemini, DeepSeek",
   "@chatDescription": {
     "description": "Study description for Chat."
   },
