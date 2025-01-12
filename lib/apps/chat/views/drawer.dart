@@ -299,7 +299,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
       if (user.isLogedin) {
         var chatdbUrl = USER_URL + "/" + "${user.id}" + "/chat/" + "$did";
         var cres = await Dio().delete(chatdbUrl);
-        Global.deleteChat(removeID, cres.data["updated_at"]);
+        Global.deleteChat(user.id, removeID, cres.data["updated_at"]);
       }
       for (var m in msgs) {
         if (m.visionFiles.isEmpty) continue;

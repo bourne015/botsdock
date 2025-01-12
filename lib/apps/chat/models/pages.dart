@@ -162,7 +162,7 @@ class Pages with ChangeNotifier {
         //incase no user log, c["contents"][0]["pageID"] == currentPageID
         //var pid = restore_single_page(c);
         addPage(Chat.fromJson(c));
-        Global.saveChats(c["id"], jsonEncode(c), 0);
+        Global.saveChats(user_id, c["id"], jsonEncode(c), 0);
         //pid += 1;
       }
       // sortPages();

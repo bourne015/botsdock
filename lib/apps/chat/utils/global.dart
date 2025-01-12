@@ -18,20 +18,19 @@ class Global {
     _prefs = await SharedPreferences.getInstance();
     try {
       oss_init();
-      if (_prefs.containsKey("isLogedin") &&
-          _prefs.getBool("isLogedin") == true) {
-        var user_id = _prefs.getInt("cached_user_id");
+      int? user_id = _prefs.getInt("cached_user_id");
+      if (_prefs.getBool("U${user_id}_isLogedin") == true) {
         User? _u = await chatApi.userInfo(user_id);
-        if (_u == null) {
+        if (_u == null || _u.id != user_id) {
           debugPrint("failed to get user info");
-        } else if (_u.updated_at != _prefs.getInt("updated_at")) {
+        } else if (_u.updated_at != _prefs.getInt("U${user_id}_updated_at")) {
           Global.reset();
           user.copy(_u);
           user.update(isLogedin: true);
           Global.saveProfile(user);
           await pages.fetch_pages(user.id);
         } else {
-          final String? jsonUser = _prefs.getString("user_${user_id}");
+          final String? jsonUser = _prefs.getString("U${user_id}");
           if (jsonUser != null) {
             user.copy(User.fromJson(jsonDecode(jsonUser)));
             get_local_chats(user, pages);
@@ -47,7 +46,8 @@ class Global {
   }
 
   void get_local_chats(User user, Pages pages) {
-    final keys = _prefs.getKeys().where((key) => key.startsWith('chat_'));
+    final keys =
+        _prefs.getKeys().where((key) => key.startsWith('U${user.id}_chat_'));
     for (var key in keys) {
       final jsonChat = _prefs.getString(key);
       if (jsonChat != null) //pages.restore_single_page(jsonDecode(jsonChat));
@@ -56,20 +56,20 @@ class Global {
   }
 
   static saveProfile(User user) {
-    _prefs.setInt("updated_at", user.updated_at);
+    _prefs.setInt("U${user.id}_updated_at", user.updated_at);
     _prefs.setInt("cached_user_id", user.id);
-    _prefs.setBool("isLogedin", user.isLogedin);
-    _prefs.setString("user_${user.id}", jsonEncode(user.toJson()));
+    _prefs.setBool("U${user.id}_isLogedin", user.isLogedin);
+    _prefs.setString("U${user.id}", jsonEncode(user.toJson()));
   }
 
-  static saveChats(page_id, cdata, updated_at) {
-    _prefs.setString("chat_$page_id", cdata);
-    if (updated_at != 0) _prefs.setInt("updated_at", updated_at);
+  static saveChats(user_id, page_id, cdata, updated_at) {
+    _prefs.setString("U${user_id}_chat_$page_id", cdata);
+    if (updated_at != 0) _prefs.setInt("U${user_id}_updated_at", updated_at);
   }
 
-  static deleteChat(page_id, updated_at) {
-    _prefs.remove("chat_$page_id");
-    if (updated_at != 0) _prefs.setInt("updated_at", updated_at);
+  static deleteChat(user_id, page_id, updated_at) {
+    _prefs.remove("U${user_id}_chat_$page_id");
+    if (updated_at != 0) _prefs.setInt("U${user_id}_updated_at", updated_at);
   }
 
   static saveBots(List<Bot> bots, updated_at) {

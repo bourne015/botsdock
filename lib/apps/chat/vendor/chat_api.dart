@@ -130,7 +130,11 @@ class ChatAPI {
         chatData["dbID"] = cres.data["id"];
         chatData["updated_at"] = cres.data["updated_at"];
         Global.saveChats(
-            chatData["id"], jsonEncode(chatData), cres.data["updated_at"]);
+          user.id,
+          chatData["id"],
+          jsonEncode(chatData),
+          cres.data["updated_at"],
+        );
       }
     } catch (e) {
       debugPrint("saveChats error: $e");
