@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:botsdock/apps/chat/utils/prompts.dart';
 import 'package:botsdock/apps/chat/views/spirit_cat.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
@@ -106,8 +107,8 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                         CustomCard(
                           icon: Icons.pets,
                           color: const Color.fromARGB(255, 227, 84, 132),
-                          title: "用厨房的食材制作食谱",
-                          prompt: Prompt.chef,
+                          title: "使用说明",
+                          prompt: "describe",
                         ),
                       if (isDisplayDesktop(context) ||
                           constraints.maxHeight > 700)
@@ -566,7 +567,12 @@ class CustomCard extends StatelessWidget {
                     hoverColor: Color.fromARGB(255, 230, 227, 227)
                         .withValues(alpha: 0.3),
                     onTap: () {
-                      if (user.isLogedin)
+                      if (title == "使用说明")
+                        describe(
+                          context: context,
+                          title: title,
+                        );
+                      else if (user.isLogedin)
                         chats.newTextChat(pages, property, user, prompt);
                       else
                         showMessage(context, "请登录");
@@ -598,4 +604,71 @@ class CustomCard extends StatelessWidget {
               ),
             )));
   }
+
+  void describe({context, var title}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => Dialog(
+        backgroundColor: AppColors.chatPageBackground,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20))),
+        child: ClipRRect(
+          borderRadius: BORDERRADIUS15,
+          child: Container(
+            width: 500,
+            margin: EdgeInsets.fromLTRB(35, 30, 0, 0),
+            child: SingleChildScrollView(
+              child: MarkdownBody(
+                data: _describe,
+                styleSheetTheme: MarkdownStyleSheetBaseTheme.platform,
+                styleSheet: MarkdownStyleSheet(
+                  p: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
+
+String _describe = """
+### 1.输入格式
+
+- ##### GPT
+- [x] 文本
+- [x] 图片: JPEG, PNG, GIF, WEBP
+- [x] 文档, 支持常用文档格式(PDF, DOC, PPT, TXT...), 功能待完善
+
+- ##### Claude
+- [x] 文本
+- [x] 图片: JPEG, PNG, GIF, WEBP
+- [x] 文档, 仅支持PDF
+
+- ##### Gemini
+- [x] 文本
+- [x] 图片: JPEG, PNG, GIF, WEBP
+- [x] 文档: PDF、文本文档(py, js, txt, html, css, md, csv,xml, rtf)
+
+- ##### DeepSeek
+- [x] 文本
+- [ ] 图片
+- [ ] 文档
+
+### 2.可视化
+可视化功能支持生成**流程图**、**甘特图**、**时序图**、**思维导图**、**网页**等；
+- Gemini不支持可视化输出
+
+### 3.文档生成
+- 新建智能体中开启'代码解释器(Code Interpreter)'后即支持生成文档，'Data Analyst'智能体已开启code Interpreter
+- 使用GPT模型并添加附件文档后, 会自动开启Code Interpreter和File Search功能
+
+### 4.下载
+- 长按下载图片
+- 点击图标下载文档附件，超链接无效
+
+### 5.tips
+- 手机端, 在浏览器中将页面添加到主屏幕, 可将网站作为PWA应用
+- PC端, 浏览器地址栏安装应用, 可将网站作为PWA应用
+""";

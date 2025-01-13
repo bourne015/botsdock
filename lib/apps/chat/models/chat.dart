@@ -496,6 +496,10 @@ class Chat with ChangeNotifier {
     return messages.map((msg) => msg.toJson()).toList();
   }
 
+  /**
+   * for assistant chat: only send last message
+   * since assistant server saved message in thread
+   */
   dynamic jsonThreadContent() {
     return messages.last.threadContent();
   }
