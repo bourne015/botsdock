@@ -622,7 +622,13 @@ class CustomCard extends StatelessWidget {
                 data: _describe,
                 styleSheetTheme: MarkdownStyleSheetBaseTheme.platform,
                 styleSheet: MarkdownStyleSheet(
-                  p: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
+                  h3: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                  h4: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                  strong: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.bold),
+                  p: const TextStyle(fontSize: 14.0, color: AppColors.msgText),
                 ),
               ),
             ),
