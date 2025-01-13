@@ -32,6 +32,14 @@ class OpenAIMessage extends Message {
     visionFiles[filename] = VisionFile(name: filename, url: url);
   }
 
+  @override
+  void updateAttachments(String filename, Attachment content) {
+    attachments[filename] = Attachment(
+      file_id: content.file_id,
+      tools: content.tools,
+    );
+  }
+
   /**
    * replace image bytes with oss url path
    */

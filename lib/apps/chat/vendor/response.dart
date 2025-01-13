@@ -37,7 +37,7 @@ class AIResponse {
     if (event.event == openai.EventType.threadMessageCreated) {}
 
     pages.getPage(handlePageID).messages.last.onThinking = false;
-    print("_handleAssistantStream: ${event}");
+    // print("_handleAssistantStream: ${event}");
     event.when(
         threadStreamEvent: (final event, final data) {},
         runStreamEvent: (final event, final data) {
@@ -100,11 +100,10 @@ class AIResponse {
           debugPrint("doneEvent");
         });
 
-    if (_text != null)
-      pages.getPage(handlePageID).appendMessage(
-          msg: _text,
-          visionFiles: copyVision(visionFiles),
-          attachments: copyAttachment(attachments));
+    pages.getPage(handlePageID).appendMessage(
+        msg: _text,
+        visionFiles: copyVision(visionFiles),
+        attachments: copyAttachment(attachments));
     //pages.setGeneratingState(handlePageID, true);
   }
 

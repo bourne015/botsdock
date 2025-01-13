@@ -61,6 +61,8 @@ abstract class Message {
   void updateImageURL(String url);
   //save url in VisionFiles
   void updateVisionFiles(String filename, String url);
+  //save url in VisionFiles
+  void updateAttachments(String filename, Attachment content);
   /**
    * assiatant thread content: string or array
    * no need role in content

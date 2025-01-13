@@ -207,8 +207,8 @@ class Chat with ChangeNotifier {
     required String role,
     int? id, //use id if need to insert message with index
     String? text,
-    Map<String, VisionFile> visionFiles = const {},
-    Map<String, Attachment> attachments = const {},
+    Map<String, VisionFile>? visionFiles,
+    Map<String, Attachment>? attachments,
     int? timestamp,
     String? toolCallId,
   }) {
@@ -221,10 +221,10 @@ class Chat with ChangeNotifier {
       else
         _content.add(TextContent(text: text));
     }
-    if (visionFiles.isNotEmpty) {
+    if (visionFiles != null) {
       getVisionFiles(visionFiles, _content);
     }
-    if (attachments.isNotEmpty) {
+    if (attachments != null) {
       getAttachments(attachments, _content);
     }
     if (model.startsWith("claude")) {
@@ -405,8 +405,7 @@ class Chat with ChangeNotifier {
 
       if (attachments != null)
         attachments.forEach((String name, Attachment content) {
-          messages.last.attachments[name] =
-              Attachment(file_id: content.file_id, tools: content.tools);
+          messages.last.updateAttachments(name, content);
         });
 
       if (doStream) _messageController.add(messages.last);

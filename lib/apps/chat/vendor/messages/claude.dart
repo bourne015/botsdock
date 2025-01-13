@@ -70,6 +70,11 @@ class ClaudeMessage extends Message {
     visionFiles[filename] = VisionFile(name: filename, url: url);
   }
 
+  @override
+  void updateAttachments(String filename, Attachment content) {
+    // TODO: implement updateAttachments
+  }
+
   /**
    * replace image bytes with oss url path
    */
