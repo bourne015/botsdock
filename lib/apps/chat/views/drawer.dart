@@ -302,9 +302,12 @@ class _ChatPageTabState extends State<ChatPageTab> {
         Global.deleteChat(user.id, removeID, cres.data["updated_at"]);
       }
       for (var m in msgs) {
-        if (m.visionFiles.isEmpty) continue;
         m.visionFiles.forEach((_filename, _content) async {
           if (_content.url.isNotEmpty) ChatAPI.deleteOSSObj(_content.url);
+        });
+        m.attachments.forEach((_filename, _content) async {
+          if (_content.file_url != null)
+            ChatAPI.deleteOSSObj(_content.file_url!);
         });
       }
       if (tid != null) await assistant.deleteThread(tid);
