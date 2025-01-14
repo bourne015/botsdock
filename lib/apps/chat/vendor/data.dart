@@ -58,7 +58,7 @@ class GeminiModel {
 const DefaultModelVersion = GPTModel.gptv4omini;
 const DefaultClaudeModel = ClaudeModel.sonnet_35;
 const DefaultDeepSeekModel = DeepSeekModel.dc;
-const DefaultGeminiModel = GeminiModel.pro_15;
+const DefaultGeminiModel = GeminiModel.flash_20;
 const ModelForTitleGen = GPTModel.gptv4omini;
 List<String> textmodels = [
   ...GPTModel().toJson().keys.toList(),
