@@ -517,6 +517,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                               switchArtifact.value = value;
                               property.artifact = switchArtifact.value;
                             });
+                            Global.saveProperties(artifact: property.artifact);
                           },
                         ),
                       )),

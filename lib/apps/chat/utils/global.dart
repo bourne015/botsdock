@@ -18,9 +18,7 @@ class Global {
     _prefs = await SharedPreferences.getInstance();
     try {
       oss_init();
-      if (_prefs.getString("init_model") != null) {
-        property.initModelVersion = _prefs.getString("init_model");
-      }
+      restoreProperties(property);
       int? user_id = _prefs.getInt("cached_user_id");
       if (_prefs.getBool("U${user_id}_isLogedin") == true) {
         User? _u = await chatApi.userInfo(user_id);
@@ -58,8 +56,16 @@ class Global {
     }
   }
 
-  static saveProperties({String? model}) {
+  void restoreProperties(Property property) {
+    if (_prefs.getString("init_model") != null)
+      property.initModelVersion = _prefs.getString("init_model");
+    if (_prefs.getBool("artifact") != null)
+      property.artifact = _prefs.getBool("artifact") ?? false;
+  }
+
+  static saveProperties({String? model, bool? artifact}) {
     if (model != null) _prefs.setString("init_model", model);
+    if (artifact != null) _prefs.setBool("artifact", artifact);
   }
 
   static saveProfile(User user) {
