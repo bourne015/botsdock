@@ -618,7 +618,7 @@ class CustomCard extends StatelessWidget {
             child: SingleChildScrollView(
               child: MarkdownBody(
                 data: _describe,
-                styleSheetTheme: MarkdownStyleSheetBaseTheme.platform,
+                styleSheetTheme: MarkdownStyleSheetBaseTheme.material,
                 styleSheet: MarkdownStyleSheet(
                   h3: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold),
@@ -640,33 +640,33 @@ class CustomCard extends StatelessWidget {
 String _describe = """
 ### 1.输入格式
 
-- ##### GPT
-- [x] 文本
-- [x] 图片: JPEG, PNG, GIF, WEBP
-- [x] 文档, 支持常用文档格式(PDF, DOC, PPT, TXT...), 功能待完善
+##### GPT
+  - [x] 文本
+  - [x] 图片: JPEG, PNG, GIF, WEBP
+  - [x] 文档, 支持常用文档格式(PDF, DOC, PPT, TXT...), 功能待完善
 
-- ##### Claude
-- [x] 文本
-- [x] 图片: JPEG, PNG, GIF, WEBP
-- [x] 文档, 仅支持PDF
+##### Claude
+  - [x] 文本
+  - [x] 图片
+  - [x] 文档, 仅支持PDF
 
-- ##### Gemini
-- [x] 文本
-- [x] 图片: JPEG, PNG, GIF, WEBP
-- [x] 文档: PDF、文本文档(py, js, txt, html, css, md, csv,xml, rtf)
+##### Gemini
+  - [x] 文本
+  - [x] 图片
+  - [x] 文档: PDF、文本文档(py, js, txt, html, css, md, csv,xml, rtf)
 
-- ##### DeepSeek
-- [x] 文本
-- [ ] 图片
-- [ ] 文档
+##### DeepSeek
+  - [x] 文本
+  - [ ] 图片
+  - [ ] 文档
 
 ### 2.可视化
-可视化功能支持生成**流程图**、**甘特图**、**时序图**、**思维导图**、**网页**等；
+- 可视化功能支持生成**流程图**、**甘特图**、**时序图**、**思维导图**、**网页**等；
 - Gemini不支持可视化输出
 
 ### 3.文档生成
 - 新建智能体中开启'代码解释器(Code Interpreter)'后即支持生成文档，'Data Analyst'智能体已开启code Interpreter
-- 使用GPT模型并添加附件文档后, 会自动开启Code Interpreter和File Search功能
+- 新会话选择GPT模型并添加附件文档后, 会自动开启Code Interpreter和File Search功能
 
 ### 4.下载
 - 长按下载图片
