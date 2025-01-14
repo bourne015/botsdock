@@ -529,12 +529,12 @@ class Chat with ChangeNotifier {
     } else if (model.startsWith('claude') && claudeTools.isEmpty) {
       var func = Functions.artifact;
       var funcschema = func['input_schema'] ?? func['parameters'];
-      var jsfunc = {
-        "name": func['name'],
-        "description": func['description'],
-        "input_schema": funcschema
-      };
-      claudeTools.add(anthropic.Tool.fromJson(jsfunc));
+      var jsTool = anthropic.Tool.custom(
+        name: func['name'],
+        description: func['description'],
+        inputSchema: funcschema,
+      );
+      claudeTools.add(jsTool);
     } else {
       debugPrint("not addArtifact");
     }

@@ -403,7 +403,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         _buildPopupMenuItem(context, geminiSub[0], "v2.0", "Gemini Flash 2.0",
             GalleryLocalizations.of(context)?.geminiDesc ?? ''),
         PopupMenuDivider(),
-        _buildArtifactSwitch(context),
+        // _buildArtifactSwitch(context),
       ],
     );
   }
@@ -498,9 +498,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                 ),
                 child: InkWell(
                   borderRadius: BORDERRADIUS15,
-                  onTap: () {
-                    // Navigator.pop(context, value);
-                  },
+                  // onTap: null,
                   child: ListTile(
                       dense: true,
                       contentPadding: EdgeInsets.symmetric(horizontal: 5),
