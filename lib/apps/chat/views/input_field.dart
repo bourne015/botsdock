@@ -494,8 +494,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
       _file_url = await chats.uploadFile(
           selectedfile.files.first.name, selectedfile.files.first.bytes);
     } else if (modelV.startsWith("gemini")) {
-      await assistant.uploadFile(selectedfile);
-      _file_url = 'http';
+      _file_url = await chats.uploadFile(
+          selectedfile.files.first.name, selectedfile.files.first.bytes);
     }
     setState(() {
       attachments[selectedfile.files.first.name]!.file_name =

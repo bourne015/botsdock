@@ -181,7 +181,7 @@ class Chat with ChangeNotifier {
         var _filePart = GeminiPart2(
             fileData: GeminiData2(
           mimeType: mtype,
-          fileUri: _filename, //_attachment.file_url,
+          fileUri: _attachment.file_url,
         ));
         content.add(_filePart);
       });
