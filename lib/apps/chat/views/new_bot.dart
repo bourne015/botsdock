@@ -345,7 +345,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         if (widget.bot != null)
           widget.bots!.updateBot(resp.data, widget.bot!.id);
         else
-          widget.bots!.addBot(widget.user!.id, resp.data);
+          widget.bots!.addBot(widget.user.id, resp.data);
         return true;
       }
     } catch (e) {

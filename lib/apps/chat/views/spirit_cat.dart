@@ -135,7 +135,7 @@ class SpiritCatState extends State<SpiritCat>
         user.cat_id = await assistant.createThread();
         var userdata = {"cat_id": user.cat_id};
         var editUser = USER_URL + "/" + "${user.id}";
-        var response = await dio.post(editUser, data: userdata);
+        await dio.post(editUser, data: userdata);
       }
 
       if (user.cat_id != null) {

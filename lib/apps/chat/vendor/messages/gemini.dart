@@ -167,7 +167,7 @@ class GeminiMessage extends Message {
         : (json['id'] as int?) ?? DateTime.now().millisecondsSinceEpoch;
     var role = json['role'];
     var name = json['name'];
-    var toolCallId = json['tool_call_id'];
+    // var toolCallId = json['tool_call_id'];
     Map<String, Attachment> attachments = json['attachments'] != null
         ? Map<String, Attachment>.fromEntries(
             (json['attachments'] as Map<String, dynamic>).entries.map((entry) {
