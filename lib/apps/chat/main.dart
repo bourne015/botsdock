@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:botsdock/apps/chat/views/bots_centre.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import './models/pages.dart';
 import './models/user.dart';
@@ -43,6 +44,7 @@ class _AppState extends State<ChatApp> {
     setState(() {
       property.isLoading = false;
     });
+    await dotenv.load(fileName: "assets/env.conf");
   }
 
   @override

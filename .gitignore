@@ -80,3 +80,5 @@ test_goldens/failures/
 **/google-services.json
 **/GoogleService-Info.plist
 devtools_options.yaml
+
+*/env.conf
