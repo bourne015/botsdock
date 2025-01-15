@@ -1,7 +1,15 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:botsdock/apps/chat/models/pages.dart';
+import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/apps/chat/utils/constants.dart';
+import 'package:botsdock/apps/chat/vendor/assistants_api.dart';
+import 'package:botsdock/apps/chat/vendor/chat_api.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 
 import '../../../data/adaptive.dart';
 
@@ -28,6 +36,9 @@ class SpiritCatState extends State<SpiritCat>
   List<String>? _cats;
   double leftPosition = 5.0;
   double rightPosition = 240.0;
+  final assistant = AssistantsAPI();
+  final ChatAPI chats = ChatAPI();
+  final dio = Dio();
 
   @override
   void initState() {
@@ -54,6 +65,9 @@ class SpiritCatState extends State<SpiritCat>
 
   @override
   Widget build(BuildContext context) {
+    User user = Provider.of<User>(context, listen: false);
+    Pages pages = Provider.of<Pages>(context, listen: false);
+    Property property = Provider.of<Property>(context, listen: false);
     if (!isDisplayDesktop(context)) {
       _controller.stop();
     }
@@ -61,6 +75,11 @@ class SpiritCatState extends State<SpiritCat>
       left: _currentPosition,
       top: 0,
       child: GestureDetector(
+          onDoubleTap: user.isLogedin
+              ? () async {
+                  chat_cat(pages, user, property);
+                }
+              : null,
           onTap: () {
             // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             //   content: Text('Meow!'),
@@ -99,6 +118,38 @@ class SpiritCatState extends State<SpiritCat>
             ),
           )),
     );
+  }
+
+  void chat_cat(Pages pages, User user, Property property) async {
+    String? ass_id = dotenv.maybeGet(
+      "assistant_id_cat",
+      fallback: null,
+    );
+    if (ass_id == null) return;
+    int handlePageID = pages.checkCat(ass_id);
+    if (handlePageID != -1) {
+      pages.currentPageID = handlePageID;
+      property.onInitPage = false;
+    } else {
+      if (user.cat_id == null) {
+        user.cat_id = await assistant.createThread();
+        var userdata = {"cat_id": user.cat_id};
+        var editUser = USER_URL + "/" + "${user.id}";
+        var response = await dio.post(editUser, data: userdata);
+      }
+
+      if (user.cat_id != null) {
+        handlePageID = assistant.newassistant(
+            pages, property, user, user.cat_id!,
+            ass_id: ass_id, chat_title: "cat");
+        pages.setGeneratingState(handlePageID, true);
+        pages.getPage(handlePageID).addMessage(
+              role: MessageTRole.system,
+              text: "我是你的主人${user.name}",
+            );
+        chats.submitAssistant(pages, property, handlePageID, user, {});
+      }
+    }
   }
 
   void _updatePosition() {

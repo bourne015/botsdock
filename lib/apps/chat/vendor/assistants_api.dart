@@ -223,12 +223,14 @@ class AssistantsAPI {
    * newassistant()
    */
   int newassistant(Pages pages, Property property, User user, String thread_id,
-      {Bot? bot, String? ass_id}) {
+      {Bot? bot, String? ass_id, String? chat_title}) {
     String? _model = (bot != null && bot.model != null)
         ? bot.model
         : property.initModelVersion;
     int handlePageID = pages.addPage(
-        Chat(title: (bot != null ? bot.name : "Chat 0"), model: _model!),
+        Chat(
+            title: (bot != null ? bot.name : chat_title ?? "Chat 0"),
+            model: _model!),
         sort: true);
     property.onInitPage = false;
     pages.currentPageID = handlePageID;

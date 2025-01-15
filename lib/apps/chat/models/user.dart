@@ -9,6 +9,7 @@ class User with ChangeNotifier {
   String? _phone;
   String? _avatar;
   String? _avatar_bot;
+  String? _cat_id;
   double? _credit;
   bool _signUP = false;
   int _updated_at = 0;
@@ -21,6 +22,7 @@ class User with ChangeNotifier {
     String? phone,
     String? avatar,
     String? avatar_bot,
+    String? cat_id,
     double? credit,
     bool? signUP = true,
     int? updated_at = 0,
@@ -31,6 +33,7 @@ class User with ChangeNotifier {
         _phone = phone,
         _avatar = avatar,
         _avatar_bot = avatar_bot,
+        _cat_id = cat_id,
         _credit = credit,
         _signUP = signUP ?? false,
         _updated_at = updated_at ?? 0;
@@ -84,6 +87,11 @@ class User with ChangeNotifier {
     notifyListeners();
   }
 
+  String? get cat_id => _cat_id;
+  set cat_id(String? v) {
+    _cat_id = v;
+  }
+
   double? get credit => _credit;
   set credit(double? recharge) {
     _credit = recharge;
@@ -101,6 +109,7 @@ class User with ChangeNotifier {
         "phone": _phone,
         "avatar": _avatar,
         "avatar_bot": _avatar_bot,
+        "cat_id": _cat_id,
         "credit": _credit,
         "isLogedin": _isLogedin,
         "updated_at": _updated_at,
@@ -114,6 +123,7 @@ class User with ChangeNotifier {
       phone: u["phone"],
       avatar: u["avatar"],
       avatar_bot: u["avatar_bot"],
+      cat_id: u["cat_id"],
       credit: u["credit"],
       updated_at: u["updated_at"] as int,
       isLogedin: u["isLogedin"] ?? false,
@@ -128,6 +138,7 @@ class User with ChangeNotifier {
     String? phone,
     String? avatar,
     String? avatar_bot,
+    String? cat_id,
     double? credit,
     bool? signUP,
     int? updated_at,
@@ -139,6 +150,7 @@ class User with ChangeNotifier {
     if (phone != null) _phone = phone;
     if (avatar != null) _avatar = avatar;
     if (avatar_bot != null) _avatar_bot = avatar_bot;
+    if (cat_id != null) _cat_id = cat_id;
     if (credit != null) _credit = credit;
     if (signUP != null) _signUP = signUP;
     if (updated_at != null) _updated_at = updated_at;
@@ -155,6 +167,7 @@ class User with ChangeNotifier {
     if (u.phone != null) _phone = u.phone;
     if (u.avatar != null) _avatar = u.avatar;
     if (u.avatar_bot != null) _avatar_bot = u.avatar_bot;
+    if (u.cat_id != null) _cat_id = u.cat_id;
     if (u.credit != null) _credit = u.credit;
     notifyListeners();
   }

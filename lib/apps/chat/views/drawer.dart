@@ -310,7 +310,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
             ChatAPI.deleteOSSObj(_content.file_url!);
         });
       }
-      if (tid != null) await assistant.deleteThread(tid);
+      if (tid != null && tid != user.cat_id) await assistant.deleteThread(tid);
     } catch (e) {
       debugPrint("doDeletePage error: $e");
     }

@@ -149,6 +149,20 @@ class Pages with ChangeNotifier {
     return -1;
   }
 
+  /**
+   * search for cat assistant by assistant id
+   */
+  int checkCat(String ass_id) {
+    for (var entry in _pages.entries) {
+      var _pid = entry.key;
+      var _chatpage = entry.value;
+      if (_chatpage.assistantID == ass_id) {
+        return _pid;
+      }
+    }
+    return -1;
+  }
+
   void setGeneratingState(int pid, bool state) {
     _pages[pid]!.onGenerating = state;
     notifyListeners();
