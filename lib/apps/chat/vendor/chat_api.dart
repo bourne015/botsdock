@@ -35,6 +35,28 @@ class ChatAPI {
   }
 
   /**
+   * delete a chat page
+   */
+  Future<void> deleteChat(int user_id, int chat_id) async {
+    try {
+      var chatdbUrl = USER_URL + "/" + "$user_id" + "/chat/" + "$chat_id";
+      await dio.delete(chatdbUrl);
+    } catch (e) {
+      debugPrint("failed to delete chat ${chat_id}, error: $e");
+    }
+  }
+
+  Future<void> updateUser(int user_id, Map userdata) async {
+    try {
+      String endpoint = USER_URL + "/" + "${user_id}";
+      await dio.post(endpoint, data: userdata);
+      // Global.saveProfile(user);
+    } catch (e) {
+      debugPrint("failed to update user ${user_id}, error: $e");
+    }
+  }
+
+  /**
    * query user information by user_id
    */
   Future<User?> userInfo(userId) async {

@@ -4,8 +4,10 @@ import 'dart:math';
 import 'package:botsdock/apps/chat/models/pages.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
 import 'package:botsdock/apps/chat/utils/constants.dart';
+import 'package:botsdock/apps/chat/utils/global.dart';
 import 'package:botsdock/apps/chat/vendor/assistants_api.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
+import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -133,15 +135,23 @@ class SpiritCatState extends State<SpiritCat>
     } else {
       if (user.cat_id == null) {
         user.cat_id = await assistant.createThread();
-        var userdata = {"cat_id": user.cat_id};
-        var editUser = USER_URL + "/" + "${user.id}";
-        await dio.post(editUser, data: userdata);
+        chats.updateUser(user.id, {"cat_id": user.cat_id});
+        Global.saveProfile(user);
+      } else {
+        //check whether the thread is ineffective
+        var thd_valid = assistant.retriveThread(user.cat_id!);
+        if (thd_valid == false) {
+          user.cat_id = null;
+          chats.updateUser(user.id, {"cat_id": user.cat_id});
+          Global.saveProfile(user);
+          return;
+        }
       }
 
       if (user.cat_id != null) {
         handlePageID = assistant.newassistant(
             pages, property, user, user.cat_id!,
-            ass_id: ass_id, chat_title: "cat");
+            ass_id: ass_id, chat_title: "cat", model: GPTModel.gptv4omini);
         pages.setGeneratingState(handlePageID, true);
         pages.getPage(handlePageID).addMessage(
               role: MessageTRole.system,

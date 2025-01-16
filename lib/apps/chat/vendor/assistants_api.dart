@@ -205,6 +205,20 @@ class AssistantsAPI {
     return null;
   }
 
+  Future<bool> retriveThread(String thread_id) async {
+    var url = '${BASE_URL}/v1/assistant/threads/${thread_id}';
+    try {
+      var response = await dio.post(url);
+      if (response.statusCode == 200)
+        return true;
+      else
+        debugPrint('retriveThread ${thread_id} failed: ${response.data}');
+    } catch (e) {
+      debugPrint('retriveThread error: $e');
+    }
+    return false;
+  }
+
   /**
    *  delete a thread
    */
@@ -223,10 +237,12 @@ class AssistantsAPI {
    * newassistant()
    */
   int newassistant(Pages pages, Property property, User user, String thread_id,
-      {Bot? bot, String? ass_id, String? chat_title}) {
-    String? _model = (bot != null && bot.model != null)
-        ? bot.model
-        : property.initModelVersion;
+      {Bot? bot, String? ass_id, String? chat_title, String? model}) {
+    String? _model = model != null
+        ? model
+        : (bot != null && bot.model != null)
+            ? bot.model
+            : property.initModelVersion;
     int handlePageID = pages.addPage(
         Chat(
             title: (bot != null ? bot.name : chat_title ?? "Chat 0"),
@@ -235,9 +251,7 @@ class AssistantsAPI {
     property.onInitPage = false;
     pages.currentPageID = handlePageID;
     //pages.setPageTitle(handlePageID, bot.name);
-    pages.getPage(handlePageID).model = (bot != null && bot.model != null)
-        ? bot.model
-        : property.initModelVersion;
+    pages.getPage(handlePageID).model = _model;
     pages.getPage(handlePageID).assistantID =
         (bot != null ? bot.assistant_id : ass_id);
     pages.getPage(handlePageID).threadID = thread_id;
