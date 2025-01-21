@@ -434,8 +434,10 @@ class InitPageState extends State<InitPage> with RestorationMixin {
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
         //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
-        _buildPopupMenuItem(context, deepseekSub[0], "v3", "DeepSeek v3",
+        _buildPopupMenuItem(context, deepseekSub[0], "v3", "DeepSeek V3",
             GalleryLocalizations.of(context)?.deepseekDesc ?? ''),
+        _buildPopupMenuItem(context, deepseekSub[1], "r1", "DeepSeek R1",
+            GalleryLocalizations.of(context)?.deepseekR1Desc ?? ''),
         PopupMenuDivider(),
         _buildArtifactSwitch(context),
       ],

@@ -81,9 +81,13 @@
   "@gemini15proDesc": {
     "description": "gemini15proDesc"
   },
-  "deepseekDesc": "Open source model from China",
+  "deepseekDesc": "Open source model from China, deepseek chat v3",
   "@deepseekDesc": {
-    "description": "deepseekDesc"
+    "description": "deepseek chat"
+  },
+  "deepseekR1Desc": "deepseek reasoner r1",
+  "@deepseekR1Desc": {
+    "description": "deepseek reasoner"
   },
   "botsCentre": "Explore",
   "@botsCentre": {

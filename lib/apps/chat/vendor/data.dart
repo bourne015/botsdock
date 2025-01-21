@@ -36,10 +36,12 @@ class ClaudeModel {
 
 class DeepSeekModel {
   static const String dc = "deepseek-chat";
+  static const String dc_r = "deepseek-reasoner";
 
   Map<String, String> toJson() {
     return {
       dc: 'v3',
+      dc_r: 'r1',
     };
   }
 }
@@ -57,7 +59,7 @@ class GeminiModel {
 
 const DefaultModelVersion = GPTModel.gptv4omini;
 const DefaultClaudeModel = ClaudeModel.sonnet_35;
-const DefaultDeepSeekModel = DeepSeekModel.dc;
+const DefaultDeepSeekModel = DeepSeekModel.dc_r;
 const DefaultGeminiModel = GeminiModel.flash_20;
 const ModelForTitleGen = GPTModel.gptv4omini;
 List<String> textmodels = [
