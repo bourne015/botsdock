@@ -260,8 +260,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
               if (!isDisplayDesktop(context)) Navigator.pop(context);
             },
             //always keep chat 0
-            trailing: widget.pages.pagesLen > 1 &&
-                    (widget.pages.currentPageID == widget.page.id || isHovered)
+            trailing: widget.pages.currentPageID == widget.page.id || isHovered
                 ? delChattabButton(
                     context, widget.pages, widget.page.id, widget.property)
                 : null,
