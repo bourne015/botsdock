@@ -3,11 +3,14 @@ import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:openai_dart/openai_dart.dart' as openai;
 
 class DeepSeekMessage extends Message {
+  String reasoning_content;
+
   DeepSeekMessage({
     required int id,
     required String role,
     String? name,
     dynamic content,
+    this.reasoning_content = '',
     String? toolCallId,
     List<openai.RunToolCallObject>? toolCalls,
     Map<String, Attachment>? attachments,

@@ -360,12 +360,17 @@ class Chat with ChangeNotifier {
   void appendMessage({
     int? index,
     String? msg,
+    String? reasoning_content,
     List<openai.ChatCompletionStreamMessageToolCallChunk>? toolCalls,
     dynamic toolUse,
     Map<String, VisionFile>? visionFiles,
     Map<String, Attachment>? attachments,
   }) {
     try {
+      if (reasoning_content != null && messages.last is DeepSeekMessage) {
+        messages.last as DeepSeekMessage
+          ..reasoning_content += reasoning_content;
+      }
       if (msg != null && messages.last.content is String)
         messages.last.content += msg;
       else if (msg != null && messages.last.content is List) {

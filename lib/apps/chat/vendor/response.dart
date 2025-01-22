@@ -164,6 +164,8 @@ class AIResponse {
     var res = openai.CreateChatCompletionStreamResponse.fromJson(j);
     pages.getPage(handlePageID).appendMessage(
           msg: res.choices[0].delta.content,
+          reasoning_content: j["choices"][0]["delta"]["reasoning_content"] ??
+              '', //res.choices[0].delta.reasoning_content,
           toolCalls: res.choices[0].delta.toolCalls,
         );
 

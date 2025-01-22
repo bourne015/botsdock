@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
+import 'package:botsdock/apps/chat/vendor/messages/deepseek.dart';
 import 'package:botsdock/apps/chat/vendor/messages/gemini.dart';
 import 'package:botsdock/constants.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_markdown_latex/flutter_markdown_latex.dart';
 import 'package:botsdock/apps/chat/models/data.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -137,6 +139,8 @@ class MessageBoxState extends State<MessageBox> {
           if (msg.attachments.isNotEmpty)
             Container(
                 height: 80, child: attachmentList(context, msg.attachments)),
+          if (msg is DeepSeekMessage && msg.reasoning_content.isNotEmpty)
+            ThinkingContent(context, msg.role, msg.reasoning_content),
           if (msg.content is List)
             ...msg.content.map((_content) {
               if (widget.model!.startsWith('gemini')) {
@@ -239,6 +243,32 @@ class MessageBoxState extends State<MessageBox> {
         )));
   }
 
+/**
+ * Chain of Thought content
+ * only DeepSeek
+ */
+  Widget ThinkingContent(
+      BuildContext context, String role, String? _textContent) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: AppColors.thinkingMsgBox,
+        borderRadius: BORDERRADIUS15,
+      ),
+      child: Column(
+          // mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SpinKitRipple(
+              color: Colors.red,
+              size: AppSize.generatingAnimation,
+            ),
+            contentMarkdown(context, _textContent ?? "", pSize: 14),
+          ]),
+    );
+  }
+
   Widget messageContent(
       BuildContext context, String role, String? _textContent) {
     if (role == MessageTRole.user) {
@@ -269,7 +299,7 @@ class MessageBoxState extends State<MessageBox> {
     }
   }
 
-  Widget contentMarkdown(BuildContext context, String msg) {
+  Widget contentMarkdown(BuildContext context, String msg, {double? pSize}) {
     try {
       return SelectionArea(
           // key: UniqueKey(),
@@ -295,7 +325,7 @@ class MessageBoxState extends State<MessageBox> {
         styleSheet: MarkdownStyleSheet(
           //h1: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           //h2: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          p: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
+          p: TextStyle(fontSize: pSize ?? 16.0, color: AppColors.msgText),
           code: const TextStyle(
             inherit: false,
             color: AppColors.msgText,

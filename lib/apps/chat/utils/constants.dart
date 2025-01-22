@@ -22,6 +22,7 @@ class AppColors {
   static final inputTextField = Colors.blue[50];
   static final userMsgBox = Colors.grey[300]; //chatPageBackground;
   static final aiMsgBox = chatPageBackground;
+  static final thinkingMsgBox = Colors.grey[200];
   static const msgText = Color.fromARGB(255, 60, 58, 58);
 
   static const generatingAnimation = Colors.grey;
