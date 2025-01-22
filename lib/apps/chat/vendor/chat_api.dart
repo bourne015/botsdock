@@ -195,10 +195,10 @@ class ChatAPI {
     var msg_id = pages
         .getPage(handlePageID)
         .addMessage(role: MessageTRole.assistant, text: "", timestamp: mt);
-    pages.getPage(handlePageID).messages.last.onThinking = true;
+    pages.getPage(handlePageID).messages.last.onProcessing = true;
     final response =
         await dio.post("${IMAGE_URL}?user_id=${user.id}", data: chatData1);
-    pages.getPage(handlePageID).messages.last.onThinking = false;
+    pages.getPage(handlePageID).messages.last.onProcessing = false;
     pages.setPageGenerateStatus(handlePageID, false);
     String _aiImageName = "ai${user.id}_${handlePageID}_${mt}.png";
     pages.getPage(handlePageID).messages.last.visionFiles = {
@@ -384,7 +384,7 @@ void _handleChatStream(
   User user,
   data,
 ) {
-  pages.getPage(handlePageID).messages.last.onThinking = false;
+  pages.getPage(handlePageID).messages.last.onProcessing = false;
   if (isValidJson(data)) {
     var res = json.decode(data) as Map<String, dynamic>;
     if (pages.getPage(handlePageID).model.startsWith('gpt')) {
@@ -410,7 +410,7 @@ void _initializeAssistantMessage(Pages pages, int handlePageID) {
         text: "",
         timestamp: DateTime.now().millisecondsSinceEpoch,
       );
-  pages.getPage(handlePageID).messages.last.onThinking = true;
+  pages.getPage(handlePageID).messages.last.onProcessing = true;
   pages.setPageGenerateStatus(handlePageID, true);
 }
 

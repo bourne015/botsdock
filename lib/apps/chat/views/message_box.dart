@@ -96,7 +96,7 @@ class MessageBoxState extends State<MessageBox> {
       stream: _messageStream,
       initialData: widget.msg,
       builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data!.onThinking && widget.isLast) {
+        if (!snapshot.hasData || snapshot.data!.onProcessing && widget.isLast) {
           return const ThinkingIndicator();
         }
         if (snapshot.hasData) {

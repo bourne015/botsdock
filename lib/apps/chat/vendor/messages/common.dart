@@ -42,7 +42,7 @@ abstract class Message {
   //sice claude don't support url, we save urls here
   Map<String, VisionFile> visionFiles;
   final int? timestamp;
-  bool onThinking = false;
+  bool onProcessing = false;
   Message({
     required this.id,
     required this.role,

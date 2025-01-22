@@ -36,7 +36,7 @@ class AIResponse {
     Map<String, VisionFile> visionFiles = {};
     if (event.event == openai.EventType.threadMessageCreated) {}
 
-    pages.getPage(handlePageID).messages.last.onThinking = false;
+    pages.getPage(handlePageID).messages.last.onProcessing = false;
     // print("_handleAssistantStream: ${event}");
     event.when(
         threadStreamEvent: (final event, final data) {},

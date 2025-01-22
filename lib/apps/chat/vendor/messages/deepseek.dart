@@ -16,7 +16,7 @@ class DeepSeekMessage extends Message {
     Map<String, Attachment>? attachments,
     Map<String, VisionFile>? visionFiles,
     final int? timestamp,
-    bool? onThinking = false,
+    bool? onProcessing = false,
   }) : super(
           id: id,
           role: role,
