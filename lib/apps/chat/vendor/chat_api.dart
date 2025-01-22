@@ -390,7 +390,7 @@ void _handleChatStream(
     if (pages.getPage(handlePageID).model.startsWith('gpt')) {
       AIResponse.Openai(pages, property, user, handlePageID, res);
     } else if (pages.getPage(handlePageID).model.startsWith('deepseek')) {
-      AIResponse.Openai(pages, property, user, handlePageID, res);
+      AIResponse.DeepSeek(pages, property, user, handlePageID, res);
     } else if (pages.getPage(handlePageID).model.startsWith('gemini')) {
       AIResponse.Gemini(pages, property, user, handlePageID, res);
     } else if (pages.getPage(handlePageID).model.startsWith('claude')) {

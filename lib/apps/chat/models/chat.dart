@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
+import 'package:botsdock/apps/chat/vendor/messages/deepseek.dart';
 import 'package:botsdock/apps/chat/vendor/messages/gemini.dart';
 import 'package:flutter/material.dart';
 import 'package:botsdock/apps/chat/models/data.dart';
@@ -260,7 +261,7 @@ class Chat with ChangeNotifier {
       );
     } else if (model.startsWith("deepseek")) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
-      _msg = OpenAIMessage(
+      _msg = DeepSeekMessage(
         id: id ?? _newid,
         role: role,
         //deepseek only support text type context for now
