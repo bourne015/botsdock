@@ -367,9 +367,12 @@ class Chat with ChangeNotifier {
     Map<String, Attachment>? attachments,
   }) {
     try {
-      if (reasoning_content != null && messages.last is DeepSeekMessage) {
+      if (reasoning_content != null) {
+        messages.last.onThinking = true;
         messages.last as DeepSeekMessage
           ..reasoning_content += reasoning_content;
+      } else {
+        messages.last.onThinking = false;
       }
       if (msg != null && messages.last.content is String)
         messages.last.content += msg;

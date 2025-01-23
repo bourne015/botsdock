@@ -74,7 +74,7 @@ class MessageListViewState extends State<MessageListView> {
             initialAlignment: _initialAlignment,
             reverse: true,
             itemBuilder: (context, index) {
-              bool isLast = index == 0; //messageLength - 1;
+              bool isLast = index == 0; //_messageLength - 1;
               if (index >= _messageLength) return Offstage();
               var reindex = _messageLength - 1 - index;
 

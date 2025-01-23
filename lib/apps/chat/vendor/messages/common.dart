@@ -43,6 +43,7 @@ abstract class Message {
   Map<String, VisionFile> visionFiles;
   final int? timestamp;
   bool onProcessing = false;
+  bool onThinking = false;
   Message({
     required this.id,
     required this.role,

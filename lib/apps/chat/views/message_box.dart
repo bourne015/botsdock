@@ -139,8 +139,10 @@ class MessageBoxState extends State<MessageBox> {
           if (msg.attachments.isNotEmpty)
             Container(
                 height: 80, child: attachmentList(context, msg.attachments)),
-          if (msg is DeepSeekMessage && msg.reasoning_content.isNotEmpty)
-            ThinkingContent(context, msg.role, msg.reasoning_content),
+          if (widget.isLast &&
+              msg is DeepSeekMessage &&
+              msg.reasoning_content.isNotEmpty)
+            ThinkingContent(context, msg.role, msg.onThinking, msg),
           if (msg.content is List)
             ...msg.content.map((_content) {
               if (widget.model!.startsWith('gemini')) {
@@ -248,24 +250,59 @@ class MessageBoxState extends State<MessageBox> {
  * only DeepSeek
  */
   Widget ThinkingContent(
-      BuildContext context, String role, String? _textContent) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: AppColors.thinkingMsgBox,
-        borderRadius: BORDERRADIUS15,
-      ),
-      child: Column(
-          // mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SpinKitRipple(
-              color: Colors.red,
-              size: AppSize.generatingAnimation,
-            ),
-            contentMarkdown(context, _textContent ?? "", pSize: 14),
-          ]),
+      BuildContext context, String role, bool onThinking, DeepSeekMessage msg) {
+    return Stack(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+          margin: const EdgeInsets.only(bottom: 10),
+          decoration: BoxDecoration(
+            color: AppColors.thinkingMsgBox,
+            borderRadius: BORDERRADIUS15,
+          ),
+          constraints: const BoxConstraints(minWidth: double.infinity),
+          child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (onThinking)
+                          SpinKitRipple(
+                            color: Colors.red,
+                            size: AppSize.generatingAnimation,
+                          ),
+                        Text(
+                          onThinking ? "思考中" : "思维链",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ]),
+                ),
+                if (msg.reasoning_content.isNotEmpty)
+                  contentMarkdown(context, msg.reasoning_content, pSize: 13.5),
+              ]),
+        ),
+        Positioned(
+          top: 10,
+          right: 10,
+          child: IconButton(
+            icon: const Icon(Icons.close),
+            iconSize: 18,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            tooltip: "delete",
+            visualDensity: VisualDensity.compact,
+            onPressed: () {
+              setState(() {
+                msg.reasoning_content = '';
+              });
+            },
+          ),
+        ),
+      ],
     );
   }
 

@@ -14,6 +14,7 @@ class OpenAIMessage extends Message {
     Map<String, VisionFile>? visionFiles,
     final int? timestamp,
     bool? onProcessing = false,
+    bool? onThinking = false,
   }) : super(
           id: id,
           role: role,
