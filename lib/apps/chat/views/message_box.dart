@@ -48,6 +48,7 @@ class MessageBoxState extends State<MessageBox> {
   late final ScrollController _visionFilescroll;
   late final assistant;
   late final Stream<Message> _messageStream;
+  bool isExpanded = true;
 
   @override
   void initState() {
@@ -265,45 +266,96 @@ class MessageBoxState extends State<MessageBox> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (onThinking)
-                          SpinKitRipple(
-                            color: Colors.red,
-                            size: AppSize.generatingAnimation,
-                          ),
-                        Text(
-                          onThinking ? "思考中" : "思维链",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ]),
-                ),
-                if (msg.reasoning_content.isNotEmpty)
-                  contentMarkdown(context, msg.reasoning_content, pSize: 13.5),
+                thinkingTitle(onThinking),
+                thinkingMsg(msg),
               ]),
         ),
-        Positioned(
-          top: 10,
-          right: 10,
-          child: IconButton(
-            icon: const Icon(Icons.close),
-            iconSize: 18,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-            tooltip: "delete",
-            visualDensity: VisualDensity.compact,
-            onPressed: () {
-              setState(() {
-                msg.reasoning_content = '';
-              });
-            },
-          ),
-        ),
+        thinkingExpand(),
+        thinkingClose(msg),
       ],
     );
+  }
+
+  Widget thinkingMsg(DeepSeekMessage msg) {
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 300),
+      alignment: Alignment.bottomLeft,
+      curve: Curves.easeInOut,
+      child: isExpanded
+          ? msg.reasoning_content.isNotEmpty
+              ? ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  child: SingleChildScrollView(
+                    reverse: true,
+                    child: contentMarkdown(
+                      context,
+                      msg.reasoning_content,
+                      pSize: 13.5,
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink()
+          : const SizedBox.shrink(),
+    );
+  }
+
+  Widget thinkingTitle(bool onThinking) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        if (onThinking)
+          SpinKitRipple(
+            color: Colors.red,
+            size: AppSize.generatingAnimation,
+          ),
+        Text(
+          onThinking ? "思考中" : "思维链",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ]),
+    );
+  }
+
+  Widget thinkingClose(DeepSeekMessage msg) {
+    return Positioned(
+      top: 5,
+      right: 5,
+      child: IconButton(
+        icon: const Icon(Icons.close),
+        // iconSize: 18,
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(),
+        tooltip: "delete",
+        visualDensity: VisualDensity.compact,
+        onPressed: () {
+          setState(() {
+            msg.reasoning_content = '';
+          });
+        },
+      ),
+    );
+  }
+
+  Widget thinkingExpand() {
+    return Positioned(
+        top: 8,
+        left: 8,
+        child: Tooltip(
+          message: isExpanded ? "收起内容" : "展开内容",
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () => setState(() => isExpanded = !isExpanded),
+            child: AnimatedRotation(
+              duration: const Duration(milliseconds: 200),
+              turns: isExpanded ? 0 : 0.5,
+              child: const Icon(
+                Icons.expand_less,
+                size: 20,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+        ));
   }
 
   Widget messageContent(
