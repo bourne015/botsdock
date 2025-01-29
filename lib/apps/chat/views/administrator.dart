@@ -507,7 +507,7 @@ class Administrator extends StatelessWidget {
   }
 
   Future<String?> checkSingUp(User user) async {
-    int avatarNum = random.nextInt(15) + 1;
+    int avatarNum = random.nextInt(15);
     Response response;
     try {
       var userdata = {
