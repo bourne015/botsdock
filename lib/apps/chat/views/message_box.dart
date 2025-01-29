@@ -290,7 +290,7 @@ class MessageBoxState extends State<MessageBox> {
                     child: contentMarkdown(
                       context,
                       msg.reasoning_content,
-                      pSize: 13.5,
+                      pSize: 13.0,
                     ),
                   ),
                 )
@@ -303,11 +303,15 @@ class MessageBoxState extends State<MessageBox> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        if (onThinking)
-          SpinKitRipple(
-            color: Colors.red,
-            size: AppSize.generatingAnimation,
-          ),
+        onThinking
+            ? SpinKitRipple(
+                color: Colors.red,
+                size: AppSize.generatingAnimation,
+              )
+            : Icon(
+                Icons.lightbulb_outline,
+                color: Colors.amber,
+              ),
         Text(
           onThinking ? "思考中" : "思维链",
           style: TextStyle(fontWeight: FontWeight.bold),
