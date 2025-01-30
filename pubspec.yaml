@@ -18,11 +18,11 @@ dependencies:
   provider: ^6.1.2
   transparent_image: ^2.0.1
   url_launcher: ^6.3.1
-  dio: ^5.8.0
+  dio: ^5.8.0+1
   flutter_markdown: ^0.7.5
   flutter_spinkit: ^5.2.1
-  file_picker: ^8.1.7
-  shared_preferences: ^2.4.0
+  file_picker: ^8.3.1
+  shared_preferences: ^2.5.1
   flutter_oss_aliyun: ^6.4.2
   fetch_client: ^1.1.2
   flutter_markdown_latex: ^0.3.4
