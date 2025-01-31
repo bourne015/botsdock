@@ -314,7 +314,7 @@ class MessageBoxState extends State<MessageBox> {
               ),
         Text(
           onThinking ? "思考中" : "思维链",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold),
         ),
       ]),
     );
@@ -322,7 +322,7 @@ class MessageBoxState extends State<MessageBox> {
 
   Widget thinkingClose(DeepSeekMessage msg) {
     return Positioned(
-      top: 5,
+      top: 12,
       right: 5,
       child: IconButton(
         icon: const Icon(Icons.close),
@@ -342,7 +342,7 @@ class MessageBoxState extends State<MessageBox> {
 
   Widget thinkingExpand() {
     return Positioned(
-        top: 8,
+        top: 12,
         left: 8,
         child: Tooltip(
           message: isExpanded ? "收起内容" : "展开内容",
