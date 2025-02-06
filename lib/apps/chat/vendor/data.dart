@@ -47,7 +47,7 @@ class DeepSeekModel {
 }
 
 class GeminiModel {
-  static const String flash_20 = "gemini-2.0-flash-exp";
+  static const String flash_20 = "gemini-2.0-flash-001";
   static const String pro_15 = "gemini-1.5-pro";
   Map<String, String> toJson() {
     return {
