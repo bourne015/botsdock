@@ -27,8 +27,8 @@ class InitPage extends StatefulWidget {
 
 class InitPageState extends State<InitPage> with RestorationMixin {
   List<String> gptSub = [
-    ...GPTModel().toJson().keys.toList(),
-    GPTModel.gptv40Dall
+    ...GPTModel.all,
+    GPTModel.gptv40Dall,
   ];
   List<String> claudeSub = ClaudeModel().toJson().keys.toList();
   List<String> deepseekSub = DeepSeekModel().toJson().keys.toList();

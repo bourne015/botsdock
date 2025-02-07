@@ -114,7 +114,7 @@ class Chat with ChangeNotifier {
   }
 
   dynamic getVisionFiles(Map<String, VisionFile> visionFiles, content) {
-    if (model.startsWith("claude")) {
+    if (ClaudeModel.all.contains(model)) {
       visionFiles.forEach((_filename, _visionFile) {
         String _fileType = _filename.split('.').last.toLowerCase();
         String _fileBase64 = base64Encode(_visionFile.bytes);
@@ -134,7 +134,7 @@ class Chat with ChangeNotifier {
         var _imgContent = anthropic.ImageBlock(type: "image", source: _source);
         content.add(_imgContent);
       });
-    } else if (GPTModel().toJson().containsKey(model)) {
+    } else if (GPTModel.all.contains(model)) {
       visionFiles.forEach((_filename, _visionFile) {
         var _imgData = "";
         if (_visionFile.url.isNotEmpty)
@@ -149,7 +149,7 @@ class Chat with ChangeNotifier {
             imageUrl: openai.MessageContentImageUrl(url: _imgData));
         content.add(_imgContent);
       });
-    } else if (model.startsWith("gemini")) {
+    } else if (GeminiModel.all.contains(model)) {
       visionFiles.forEach((_filename, _visionFile) {
         String _fileType = _filename.split('.').last.toLowerCase();
         var _imgPart = GeminiPart1(
@@ -163,7 +163,7 @@ class Chat with ChangeNotifier {
   }
 
   void getAttachments(Map<String, Attachment> attachments, content) {
-    if (model.startsWith("gemini")) {
+    if (GeminiModel.all.contains(model)) {
       attachments.forEach((_filename, _attachment) {
         String _fileType = _filename.split('.').last.toLowerCase();
         var mtype = switch (_fileType) {
@@ -186,7 +186,7 @@ class Chat with ChangeNotifier {
         ));
         content.add(_filePart);
       });
-    } else if (model.startsWith("claude")) {
+    } else if (ClaudeModel.all.contains(model)) {
       attachments.forEach((_filename, _attachment) {
         String _fileType = _filename.split('.').last.toLowerCase();
         var mtype = switch (_fileType) {
@@ -217,7 +217,7 @@ class Chat with ChangeNotifier {
     var _content = [];
 
     if (text != null) {
-      if (model.startsWith("gemini"))
+      if (GeminiModel.all.contains(model))
         _content.add(GeminiTextContent(text: text));
       else
         _content.add(TextContent(text: text));
@@ -228,7 +228,7 @@ class Chat with ChangeNotifier {
     if (attachments != null) {
       getAttachments(attachments, _content);
     }
-    if (model.startsWith("claude")) {
+    if (ClaudeModel.all.contains(model)) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = ClaudeMessage(
         id: id ?? _newid,
@@ -238,7 +238,7 @@ class Chat with ChangeNotifier {
         attachments: attachments,
         timestamp: timestamp,
       );
-    } else if (GPTModel().toJson().containsKey(model)) {
+    } else if (GPTModel.all.contains(model)) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = OpenAIMessage(
         id: id ?? _newid,
@@ -249,7 +249,7 @@ class Chat with ChangeNotifier {
         timestamp: timestamp,
         toolCallId: toolCallId,
       );
-    } else if (model.startsWith("gemini")) {
+    } else if (GeminiModel.all.contains(model)) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = GeminiMessage(
         id: id ?? _newid,
@@ -259,7 +259,7 @@ class Chat with ChangeNotifier {
         attachments: attachments,
         timestamp: timestamp,
       );
-    } else if (model.startsWith("deepseek")) {
+    } else if (DeepSeekModel.all.contains(model)) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = DeepSeekMessage(
         id: id ?? _newid,
@@ -271,7 +271,7 @@ class Chat with ChangeNotifier {
         timestamp: timestamp,
         toolCallId: toolCallId,
       );
-    } else if (model.startsWith("dall")) {
+    } else if (model == GPTModel.gptv40Dall) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = OpenAIMessage(
         id: id ?? _newid,
@@ -378,9 +378,9 @@ class Chat with ChangeNotifier {
         messages.last.content += msg;
       else if (msg != null && messages.last.content is List) {
         for (var x in messages.last.content) {
-          if (model.startsWith('gemini') && x.text != null)
+          if (GeminiModel.all.contains(model) && x.text != null)
             x.text += msg;
-          else if (!model.startsWith('gemini') && x.type == "text")
+          else if (!GeminiModel.all.contains(model) && x.type == "text")
             x.text += msg;
         }
       }
@@ -460,15 +460,15 @@ class Chat with ChangeNotifier {
     if (c["contents"] is List) {
       for (var m in c["contents"]) {
         if (c["model"] is String) {
-          if (c["model"].startsWith("claude")) {
+          if (ClaudeModel.all.contains(c["model"])) {
             _msgs.add(ClaudeMessage.fromJson(m));
-          } else if (GPTModel().toJson().containsKey(c["model"])) {
+          } else if (GPTModel.all.contains(c["model"])) {
             _msgs.add(OpenAIMessage.fromJson(m));
-          } else if (c["model"].startsWith("dall")) {
+          } else if (c["model"] == GPTModel.gptv40Dall) {
             _msgs.add(OpenAIMessage.fromJson(m));
-          } else if (c["model"].startsWith("deepseek")) {
+          } else if (DeepSeekModel.all.contains(c["model"])) {
             _msgs.add(OpenAIMessage.fromJson(m));
-          } else if (c["model"].startsWith("gemini")) {
+          } else if (GeminiModel.all.contains(c["model"])) {
             _msgs.add(GeminiMessage.fromJson(m));
           } else {
             print("Chat fromJson error: unknow model");
@@ -531,11 +531,11 @@ class Chat with ChangeNotifier {
  * and add a system prompt message in messages's index 0
  */
   void addArtifact() {
-    if ((model.startsWith('gpt') || model.startsWith('deepseek')) &&
+    if ((GPTModel.all.contains(model) || DeepSeekModel.all.contains(model)) &&
         tools.isEmpty) {
       var func = {"type": "function", "function": Functions.artifact};
       tools.add(openai.ChatCompletionTool.fromJson(func));
-    } else if (model.startsWith('claude') && claudeTools.isEmpty) {
+    } else if (ClaudeModel.all.contains(model) && claudeTools.isEmpty) {
       var func = Functions.artifact;
       var funcschema = func['input_schema'] ?? func['parameters'];
       var jsTool = anthropic.Tool.custom(
@@ -570,7 +570,7 @@ class Chat with ChangeNotifier {
         for (var c in messages[0].content) if (c.type == 'text') _tx = c.text;
       if (_tx == Prompt.artifact) messages.removeAt(0);
     }
-    if (GPTModel().toJson().containsKey(model) || model.startsWith('deepseek'))
+    if (GPTModel.all.contains(model) || DeepSeekModel.all.contains(model))
       tools.clear();
     else
       claudeTools.clear();

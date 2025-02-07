@@ -316,8 +316,8 @@ class ChatAPI {
       pages.getPage(handlePageID).botID = botID;
       pages.currentPage?.model = model ?? property.initModelVersion;
       if (functions != null && functions.isNotEmpty) {
-        if (pages.currentPage!.model.startsWith('gpt') ||
-            pages.currentPage!.model.startsWith('deepseek')) {
+        if (GPTModel.all.contains(pages.currentPage!.model) ||
+            DeepSeekModel.all.contains(pages.currentPage!.model)) {
           functions.forEach((name, body) {
             var func = {"type": "function", "function": json.decode(body)};
             pages.getPage(handlePageID).tools.add(
@@ -387,13 +387,13 @@ void _handleChatStream(
   pages.getPage(handlePageID).messages.last.onProcessing = false;
   if (isValidJson(data)) {
     var res = json.decode(data) as Map<String, dynamic>;
-    if (GPTModel().toJson().containsKey(pages.getPage(handlePageID).model)) {
+    if (GPTModel.all.contains(pages.getPage(handlePageID).model)) {
       AIResponse.Openai(pages, property, user, handlePageID, res);
-    } else if (pages.getPage(handlePageID).model.startsWith('deepseek')) {
+    } else if (DeepSeekModel.all.contains(pages.getPage(handlePageID).model)) {
       AIResponse.DeepSeek(pages, property, user, handlePageID, res);
-    } else if (pages.getPage(handlePageID).model.startsWith('gemini')) {
+    } else if (GeminiModel.all.contains(pages.getPage(handlePageID).model)) {
       AIResponse.Gemini(pages, property, user, handlePageID, res);
-    } else if (pages.getPage(handlePageID).model.startsWith('claude')) {
+    } else if (ClaudeModel.all.contains(pages.getPage(handlePageID).model)) {
       AIResponse.Claude(pages, property, user, handlePageID, res);
     }
   } else {
@@ -419,8 +419,8 @@ String _prepareChatData(Pages pages, int handlePageID) {
   var chatData = {
     "model": pages.currentPage?.model,
     "messages": jsChat["messages"],
-    "tools": (GPTModel().toJson().containsKey(pages.currentPage!.model) ||
-            pages.currentPage!.model.startsWith('deepseek'))
+    "tools": (GPTModel.all.contains(pages.currentPage!.model) ||
+            DeepSeekModel.all.contains(pages.currentPage!.model))
         ? jsChat["tools"]
         : jsChat["claude_tools"],
   };

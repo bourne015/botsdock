@@ -321,9 +321,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
       _modelV = pages.currentPage!.model;
 
     if (_modelV.startsWith('gpt-3')) return const SizedBox(width: 15);
-    if (_modelV.startsWith('deepseek')) return const SizedBox(width: 15);
-    if (_modelV.startsWith('dall')) return const SizedBox(width: 15);
-    if (GPTModel().toJson().containsKey(_modelV) &&
+    if (DeepSeekModel.all.contains(_modelV)) return const SizedBox(width: 15);
+    if (_modelV == GPTModel.gptv40Dall) return const SizedBox(width: 15);
+    if (_modelV == GPTModel.gptvo1mini) return const SizedBox(width: 15);
+    if (GPTModel.all.contains(_modelV) &&
         !property.onInitPage &&
         pages.currentPage!.assistantID == null) {
       return IconButton(
@@ -392,7 +393,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
     if (property.onInitPage) {
       String? thread_id = null;
-      if (GPTModel().toJson().containsKey(property.initModelVersion) &&
+      if (GPTModel.all.contains(property.initModelVersion) &&
           attachments.isNotEmpty) thread_id = await assistant.createThread();
       if (thread_id != null) {
         newPageId = assistant.newassistant(pages, property, user, thread_id,
@@ -484,7 +485,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Future<void> _uploadPickedFiles(selectedfile, String modelV) async {
     String? _file_id;
     String? _file_url;
-    if (GPTModel().toJson().containsKey(modelV)) {
+    if (GPTModel.all.contains(modelV)) {
       await assistant.uploadFile(selectedfile);
       _file_id = await assistant.fileUpload(selectedfile.files.first.name);
       attachments[selectedfile.files.first.name]!.file_id = _file_id;

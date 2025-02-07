@@ -267,7 +267,8 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                         SizedBox(height: 20),
                         Text('模型', style: TextStyle(fontSize: 15)),
                         modelSelecter(context),
-                        if (_model.startsWith("gpt")) assistantTools(context),
+                        if (GPTModel.all.contains(_model))
+                          assistantTools(context),
                         functions(context),
                         listFunctions(context),
                         Divider(),

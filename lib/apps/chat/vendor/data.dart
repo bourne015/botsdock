@@ -9,6 +9,16 @@ class GPTModel {
   static const String gptvo3mini = "o3-mini";
   static const String gptv40Dall = "dall-e-3";
 
+  static const List<String> all = [
+    gptv35,
+    gptv40,
+    gptv4o,
+    gptv4omini,
+    gptvo1,
+    gptvo1mini,
+    gptvo3mini,
+    //gptv40Dall,
+  ];
   Map<String, String> toJson() {
     return {
       gptv35: '3.5',
@@ -29,6 +39,13 @@ class ClaudeModel {
   static const String sonnet_35 = "claude-3-5-sonnet-20241022";
   static const String haiku_35 = "claude-3-5-haiku-20241022";
 
+  static const List<String> all = [
+    haiku,
+    sonnet,
+    opus,
+    sonnet_35,
+    haiku_35,
+  ];
   Map<String, String> toJson() {
     return {
       haiku: 'haiku',
@@ -44,6 +61,8 @@ class DeepSeekModel {
   static const String dc = "deepseek-chat";
   static const String dc_r = "deepseek-reasoner";
 
+  static const List<String> all = [dc, dc_r];
+
   Map<String, String> toJson() {
     return {
       dc: 'v3',
@@ -55,6 +74,9 @@ class DeepSeekModel {
 class GeminiModel {
   static const String flash_20 = "gemini-2.0-flash-001";
   static const String pro_15 = "gemini-1.5-pro";
+
+  static const List<String> all = [flash_20, pro_15];
+
   Map<String, String> toJson() {
     return {
       flash_20: '2.0',
@@ -69,10 +91,10 @@ const DefaultDeepSeekModel = DeepSeekModel.dc_r;
 const DefaultGeminiModel = GeminiModel.flash_20;
 const ModelForTitleGen = GPTModel.gptv4omini;
 List<String> textmodels = [
-  ...GPTModel().toJson().keys.toList(),
-  ...ClaudeModel().toJson().keys.toList(),
-  ...DeepSeekModel().toJson().keys.toList(),
-  ...GeminiModel().toJson().keys.toList(),
+  ...GPTModel.all,
+  ...ClaudeModel.all,
+  ...DeepSeekModel.all,
+  ...GeminiModel.all,
 ];
 Map<String, String> allModels = {
   ...GPTModel().toJson(),

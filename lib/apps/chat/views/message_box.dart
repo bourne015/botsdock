@@ -147,7 +147,7 @@ class MessageBoxState extends State<MessageBox> {
             ThinkingContent(context, msg.role, msg.onThinking, msg),
           if (msg.content is List)
             ...msg.content.map((_content) {
-              if (widget.model!.startsWith('gemini')) {
+              if (GeminiModel.all.contains(widget.model!)) {
                 if (_content is GeminiTextContent)
                   return messageContent(context, msg.role, _content.text);
                 else if (_content is GeminiPart1) {
@@ -453,7 +453,7 @@ class MessageBoxState extends State<MessageBox> {
       attachFile.downloading = true;
     });
     var res = 'can not download';
-    if (GPTModel().toJson().containsKey(widget.model!))
+    if (GPTModel.all.contains(widget.model!))
       res = await assistant.downloadFile(attachFile.file_id!, attachedFileName);
     setState(() {
       attachFile.downloading = false;
