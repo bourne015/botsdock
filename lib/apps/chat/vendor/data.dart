@@ -4,6 +4,9 @@ class GPTModel {
   static const String gptv4o = "gpt-4o";
   static const String gptv4omini = "gpt-4o-mini";
   // static const String gptv40Vision = "gpt-4-vision-preview";
+  static const String gptvo1 = "o1";
+  static const String gptvo1mini = "o1-mini";
+  static const String gptvo3mini = "o3-mini";
   static const String gptv40Dall = "dall-e-3";
 
   Map<String, String> toJson() {
@@ -12,6 +15,9 @@ class GPTModel {
       gptv40: '4.0',
       gptv4o: '4o',
       gptv4omini: '4m',
+      gptvo1: "o1",
+      gptvo1mini: "o1m",
+      gptvo3mini: "o3m",
     };
   }
 }

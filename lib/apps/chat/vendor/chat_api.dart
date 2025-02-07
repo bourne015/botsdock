@@ -387,7 +387,7 @@ void _handleChatStream(
   pages.getPage(handlePageID).messages.last.onProcessing = false;
   if (isValidJson(data)) {
     var res = json.decode(data) as Map<String, dynamic>;
-    if (pages.getPage(handlePageID).model.startsWith('gpt')) {
+    if (GPTModel().toJson().containsKey(pages.getPage(handlePageID).model)) {
       AIResponse.Openai(pages, property, user, handlePageID, res);
     } else if (pages.getPage(handlePageID).model.startsWith('deepseek')) {
       AIResponse.DeepSeek(pages, property, user, handlePageID, res);
@@ -419,7 +419,7 @@ String _prepareChatData(Pages pages, int handlePageID) {
   var chatData = {
     "model": pages.currentPage?.model,
     "messages": jsChat["messages"],
-    "tools": (pages.currentPage!.model.startsWith('gpt') ||
+    "tools": (GPTModel().toJson().containsKey(pages.currentPage!.model) ||
             pages.currentPage!.model.startsWith('deepseek'))
         ? jsChat["tools"]
         : jsChat["claude_tools"],

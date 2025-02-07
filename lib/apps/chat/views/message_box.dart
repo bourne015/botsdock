@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:botsdock/apps/chat/vendor/messages/deepseek.dart';
 import 'package:botsdock/apps/chat/vendor/messages/gemini.dart';
@@ -452,7 +453,7 @@ class MessageBoxState extends State<MessageBox> {
       attachFile.downloading = true;
     });
     var res = 'can not download';
-    if (widget.model!.startsWith('gpt'))
+    if (GPTModel().toJson().containsKey(widget.model!))
       res = await assistant.downloadFile(attachFile.file_id!, attachedFileName);
     setState(() {
       attachFile.downloading = false;

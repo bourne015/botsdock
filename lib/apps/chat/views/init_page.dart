@@ -317,6 +317,20 @@ class InitPageState extends State<InitPage> with RestorationMixin {
           description:
               GalleryLocalizations.of(context)?.chatGPT4oMiniDesc ?? '',
         ),
+        // _buildPopupMenuItem(
+        //   context: context,
+        //   value: gptSub[5],
+        //   inputType: "文本",
+        //   title: "ChatGPT o3-mini",
+        //   description: GalleryLocalizations.of(context)?.chatGPTo3mDesc ?? '',
+        // ),
+        _buildPopupMenuItem(
+          context: context,
+          value: gptSub[5],
+          inputType: "文本",
+          title: "ChatGPT o1-mini",
+          description: GalleryLocalizations.of(context)?.chatGPTo3mDesc ?? '',
+        ),
         _buildPopupMenuItem(
           context: context,
           value: gptSub[2],
@@ -324,16 +338,16 @@ class InitPageState extends State<InitPage> with RestorationMixin {
           title: "ChatGPT 4o",
           description: GalleryLocalizations.of(context)?.chatGPT4oDesc ?? '',
         ),
+        // _buildPopupMenuItem(
+        //   context: context,
+        //   value: gptSub[4],
+        //   inputType: "多模态",
+        //   title: "ChatGPT o1",
+        //   description: GalleryLocalizations.of(context)?.chatGPTo1Desc ?? '',
+        // ),
         _buildPopupMenuItem(
           context: context,
-          value: gptSub[1],
-          inputType: "多模态",
-          title: "ChatGPT 4.0",
-          description: GalleryLocalizations.of(context)?.chatGPT40Desc ?? '',
-        ),
-        _buildPopupMenuItem(
-          context: context,
-          value: gptSub[4],
+          value: gptSub.last,
           inputType: "文本",
           title: "DALL·E 3",
           description: GalleryLocalizations.of(context)?.dallEDesc ?? '',

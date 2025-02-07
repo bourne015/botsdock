@@ -45,9 +45,17 @@
   "@chatGPT40Desc": {
     "description": "chatGPT40Desc"
   },
-  "chatGPT4oDesc": "The fastest and most affordable flagship model",
+  "chatGPT4oDesc": "Versatile, high-intelligence flagship model",
   "@chatGPT4oDesc": {
     "description": "chatGPT4oDesc"
+  },
+  "chatGPTo1Desc": "Designed to solve hard problems across domains",
+  "@chatGPTo1Desc": {
+    "description": "chatGPTo1Desc"
+  },
+  "chatGPTo3mDesc": "Designed to excel at science, math, and coding tasks.",
+  "@chatGPTo3mDesc": {
+    "description": "chatGPTo3mDesc"
   },
   "chatGPT4oMiniDesc": "affordable and intelligent small model for fast, lightweight tasks",
   "@chatGPT4oMiniDesc": {

@@ -221,7 +221,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
       _modelV = property.initModelVersion;
     else
       _modelV = pages.currentPage?.model;
-    if (_modelV == GPTModel.gptv35 || _modelV == DeepSeekModel.dc) {
+    if (_modelV == GPTModel.gptv35 ||
+        _modelV == DeepSeekModel.dc ||
+        _modelV == DeepSeekModel.dc_r) {
       hintText = "send a message";
     } else if (_modelV == GPTModel.gptv40Dall) {
       hintText = "describe the image";
@@ -320,17 +322,16 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
     if (_modelV.startsWith('gpt-3')) return const SizedBox(width: 15);
     if (_modelV.startsWith('deepseek')) return const SizedBox(width: 15);
-    if (_modelV.startsWith('claude') || _modelV.startsWith('gemini')) {
-      return _pickMenu(context, _modelV);
-    } else if (_modelV.startsWith('dall') ||
-        !property.onInitPage && pages.currentPage!.assistantID == null) {
+    if (_modelV.startsWith('dall')) return const SizedBox(width: 15);
+    if (GPTModel().toJson().containsKey(_modelV) &&
+        !property.onInitPage &&
+        pages.currentPage!.assistantID == null) {
       return IconButton(
           tooltip: "选择图片",
           icon: Icon(Icons.image_rounded, size: 20),
           onPressed: _pickImage);
-    } else {
-      return _pickMenu(context, _modelV);
     }
+    return _pickMenu(context, _modelV);
   }
 
   Widget generatingAnimation(BuildContext context) {
@@ -391,8 +392,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
     if (property.onInitPage) {
       String? thread_id = null;
-      if (property.initModelVersion.startsWith('gpt') && attachments.isNotEmpty)
-        thread_id = await assistant.createThread();
+      if (GPTModel().toJson().containsKey(property.initModelVersion) &&
+          attachments.isNotEmpty) thread_id = await assistant.createThread();
       if (thread_id != null) {
         newPageId = assistant.newassistant(pages, property, user, thread_id,
             ass_id: chatAssistantID);
@@ -454,9 +455,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Future<void> _pickFile(String modelV) async {
     var result;
     var _spf = supportedFilesAll;
-    if (modelV.startsWith('claude'))
+    if (ClaudeModel().toJson().containsKey(modelV))
       _spf = claudeSupportedFiles;
-    else if (modelV.startsWith('gemini')) _spf = geminiSupportedFiles;
+    else if (GeminiModel().toJson().containsKey(modelV))
+      _spf = geminiSupportedFiles;
 
     result = await FilePicker.platform
         .pickFiles(type: FileType.custom, allowedExtensions: _spf);
@@ -482,7 +484,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Future<void> _uploadPickedFiles(selectedfile, String modelV) async {
     String? _file_id;
     String? _file_url;
-    if (modelV.startsWith("gpt")) {
+    if (GPTModel().toJson().containsKey(modelV)) {
       await assistant.uploadFile(selectedfile);
       _file_id = await assistant.fileUpload(selectedfile.files.first.name);
       attachments[selectedfile.files.first.name]!.file_id = _file_id;
@@ -490,10 +492,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
         {"type": "file_search"},
         {"type": "code_interpreter"},
       ];
-    } else if (modelV.startsWith("claude")) {
+    } else if (ClaudeModel().toJson().containsKey(modelV)) {
       _file_url = await chats.uploadFile(
           selectedfile.files.first.name, selectedfile.files.first.bytes);
-    } else if (modelV.startsWith("gemini")) {
+    } else if (GeminiModel().toJson().containsKey(modelV)) {
       _file_url = await chats.uploadFile(
           selectedfile.files.first.name, selectedfile.files.first.bytes);
     }

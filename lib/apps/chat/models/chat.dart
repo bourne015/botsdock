@@ -134,7 +134,7 @@ class Chat with ChangeNotifier {
         var _imgContent = anthropic.ImageBlock(type: "image", source: _source);
         content.add(_imgContent);
       });
-    } else if (model.startsWith("gpt")) {
+    } else if (GPTModel().toJson().containsKey(model)) {
       visionFiles.forEach((_filename, _visionFile) {
         var _imgData = "";
         if (_visionFile.url.isNotEmpty)
@@ -238,7 +238,7 @@ class Chat with ChangeNotifier {
         attachments: attachments,
         timestamp: timestamp,
       );
-    } else if (model.startsWith("gpt")) {
+    } else if (GPTModel().toJson().containsKey(model)) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = OpenAIMessage(
         id: id ?? _newid,
@@ -462,7 +462,7 @@ class Chat with ChangeNotifier {
         if (c["model"] is String) {
           if (c["model"].startsWith("claude")) {
             _msgs.add(ClaudeMessage.fromJson(m));
-          } else if (c["model"].startsWith("gpt")) {
+          } else if (GPTModel().toJson().containsKey(c["model"])) {
             _msgs.add(OpenAIMessage.fromJson(m));
           } else if (c["model"].startsWith("dall")) {
             _msgs.add(OpenAIMessage.fromJson(m));
@@ -570,7 +570,7 @@ class Chat with ChangeNotifier {
         for (var c in messages[0].content) if (c.type == 'text') _tx = c.text;
       if (_tx == Prompt.artifact) messages.removeAt(0);
     }
-    if (model.startsWith('gpt') || model.startsWith('deepseek'))
+    if (GPTModel().toJson().containsKey(model) || model.startsWith('deepseek'))
       tools.clear();
     else
       claudeTools.clear();
