@@ -305,7 +305,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         property.initModelVersion = value;
         gptDropdownValue = value;
       },
-      position: PopupMenuPosition.over,
+      position: PopupMenuPosition.under,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
         //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
@@ -379,7 +379,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         property.initModelVersion = value;
         claudeDropdownValue = value;
       },
-      position: PopupMenuPosition.over,
+      position: PopupMenuPosition.under,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         // _buildPopupMenuItem(context, claudeSub[0], "H", "Claude3 - Haiku",
         //     GalleryLocalizations.of(context)?.claude3HaikuDesc ?? ''),
@@ -435,7 +435,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         property.initModelVersion = value;
         geminiDropdownValue = value;
       },
-      position: PopupMenuPosition.over,
+      position: PopupMenuPosition.under,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
         //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
@@ -481,7 +481,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         property.initModelVersion = value;
         deepseekDropdownValue = value;
       },
-      position: PopupMenuPosition.over,
+      position: PopupMenuPosition.under,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
         //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
