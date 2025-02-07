@@ -309,27 +309,38 @@ class InitPageState extends State<InitPage> with RestorationMixin {
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
         //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
-        _buildPopupMenuItem(context, gptSub[3], "mini", "ChatGPT 4o mini",
-            GalleryLocalizations.of(context)?.chatGPT4oMiniDesc ?? ''),
-        _buildPopupMenuItem(context, gptSub[2], "4o", "ChatGPT 4o",
-            GalleryLocalizations.of(context)?.chatGPT4oDesc ?? ''),
-        _buildPopupMenuItem(context, gptSub[1], "4.0", "ChatGPT 4.0",
-            GalleryLocalizations.of(context)?.chatGPT40Desc ?? ''),
-        _buildPopupMenuItem(context, gptSub[4], "D·E", "DALL·E 3",
-            GalleryLocalizations.of(context)?.dallEDesc ?? ''),
+        _buildPopupMenuItem(
+          context: context,
+          value: gptSub[3],
+          inputType: "多模态",
+          title: "ChatGPT 4o mini",
+          description:
+              GalleryLocalizations.of(context)?.chatGPT4oMiniDesc ?? '',
+        ),
+        _buildPopupMenuItem(
+          context: context,
+          value: gptSub[2],
+          inputType: "多模态",
+          title: "ChatGPT 4o",
+          description: GalleryLocalizations.of(context)?.chatGPT4oDesc ?? '',
+        ),
+        _buildPopupMenuItem(
+          context: context,
+          value: gptSub[1],
+          inputType: "多模态",
+          title: "ChatGPT 4.0",
+          description: GalleryLocalizations.of(context)?.chatGPT40Desc ?? '',
+        ),
+        _buildPopupMenuItem(
+          context: context,
+          value: gptSub[4],
+          inputType: "文本",
+          title: "DALL·E 3",
+          description: GalleryLocalizations.of(context)?.dallEDesc ?? '',
+        ),
         PopupMenuDivider(),
         _buildArtifactSwitch(context),
       ],
-    );
-  }
-
-  Widget modelTabAvatar(BuildContext context, String t) {
-    return CircleAvatar(
-      backgroundColor: AppColors.chatPageBackground,
-      child: Text(
-        t,
-        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue[300]),
-      ),
     );
   }
 
@@ -360,12 +371,28 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         //     GalleryLocalizations.of(context)?.claude3HaikuDesc ?? ''),
         // _buildPopupMenuItem(context, claudeSub[1], "S", "Claude3 - Sonnet",
         //     GalleryLocalizations.of(context)?.claude3SonnetDesc ?? ''),
-        _buildPopupMenuItem(context, claudeSub[2], "O", "Claude3 - Opus",
-            GalleryLocalizations.of(context)?.claude3OpusDesc ?? ''),
-        _buildPopupMenuItem(context, claudeSub[4], "H", "Claude3.5 - Haiku",
-            GalleryLocalizations.of(context)?.claude3HaikuDesc ?? ''),
-        _buildPopupMenuItem(context, claudeSub[3], "S", "Claude3.5 - Sonnet",
-            GalleryLocalizations.of(context)?.claude35SonnetDesc ?? ''),
+        _buildPopupMenuItem(
+          context: context,
+          value: claudeSub[2],
+          inputType: "多模态",
+          title: "Claude3 - Opus",
+          description: GalleryLocalizations.of(context)?.claude3OpusDesc ?? '',
+        ),
+        _buildPopupMenuItem(
+          context: context,
+          value: claudeSub[4],
+          inputType: "多模态",
+          title: "Claude3.5 - Haiku",
+          description: GalleryLocalizations.of(context)?.claude3HaikuDesc ?? '',
+        ),
+        _buildPopupMenuItem(
+          context: context,
+          value: claudeSub[3],
+          inputType: "多模态",
+          title: "Claude3.5 - Sonnet",
+          description:
+              GalleryLocalizations.of(context)?.claude35SonnetDesc ?? '',
+        ),
         PopupMenuDivider(),
         _buildArtifactSwitch(context),
       ],
@@ -398,10 +425,20 @@ class InitPageState extends State<InitPage> with RestorationMixin {
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
         //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
-        _buildPopupMenuItem(context, geminiSub[1], "v1.5", "Gemini Pro 1.5",
-            GalleryLocalizations.of(context)?.geminiDesc ?? ''),
-        _buildPopupMenuItem(context, geminiSub[0], "v2.0", "Gemini Flash 2.0",
-            GalleryLocalizations.of(context)?.geminiDesc ?? ''),
+        _buildPopupMenuItem(
+          context: context,
+          value: geminiSub[1],
+          inputType: "多模态",
+          title: "Gemini Pro 1.5",
+          description: GalleryLocalizations.of(context)?.geminiDesc ?? '',
+        ),
+        _buildPopupMenuItem(
+          context: context,
+          value: geminiSub[0],
+          inputType: "多模态",
+          title: "Gemini Flash 2.0",
+          description: GalleryLocalizations.of(context)?.geminiDesc ?? '',
+        ),
         PopupMenuDivider(),
         // _buildArtifactSwitch(context),
       ],
@@ -434,18 +471,77 @@ class InitPageState extends State<InitPage> with RestorationMixin {
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
         //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
-        _buildPopupMenuItem(context, deepseekSub[0], "v3", "DeepSeek V3",
-            GalleryLocalizations.of(context)?.deepseekDesc ?? ''),
-        _buildPopupMenuItem(context, deepseekSub[1], "r1", "DeepSeek R1",
-            GalleryLocalizations.of(context)?.deepseekR1Desc ?? ''),
+        _buildPopupMenuItem(
+          context: context,
+          value: deepseekSub[0],
+          inputType: "文本",
+          title: "DeepSeek V3",
+          description: GalleryLocalizations.of(context)?.deepseekDesc ?? '',
+        ),
+        _buildPopupMenuItem(
+          context: context,
+          value: deepseekSub[1],
+          inputType: "文本",
+          title: "DeepSeek R1",
+          description: GalleryLocalizations.of(context)?.deepseekR1Desc ?? '',
+        ),
         PopupMenuDivider(),
         _buildArtifactSwitch(context),
       ],
     );
   }
 
-  PopupMenuItem<String> _buildPopupMenuItem(BuildContext context, String value,
-      String icon, String title, String description) {
+  Widget inputTypeIcon(String inputs) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        // gradient: const LinearGradient(
+        //   colors: [Colors.lightBlueAccent, Colors.blueAccent],
+        //   begin: Alignment.topLeft,
+        //   end: Alignment.bottomRight,
+        // ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withValues(alpha: 0.3),
+            blurRadius: 8,
+            spreadRadius: 2,
+            offset: const Offset(0, 3),
+          )
+        ],
+        border: Border.all(
+          color: Colors.yellowAccent,
+          width: 1.5,
+        ),
+      ),
+      child: CircleAvatar(
+        radius: 14,
+        backgroundColor: Colors.transparent, // 使用渐变背景
+        child: Text(
+          inputs,
+          style: TextStyle(
+            fontSize: 8,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+            shadows: [
+              Shadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 2,
+                offset: const Offset(1, 1),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  PopupMenuItem<String> _buildPopupMenuItem({
+    required BuildContext context,
+    required String value,
+    required String inputType,
+    required String title,
+    required String description,
+  }) {
     return PopupMenuItem<String>(
       padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       value: value,
@@ -466,7 +562,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
             //onHover: (hovering) {},
             child: ListTile(
               contentPadding: EdgeInsets.symmetric(horizontal: 5),
-              leading: modelTabAvatar(context, icon),
+              leading: inputTypeIcon(inputType),
               title: Text(title),
               subtitle: Text(description,
                   style: TextStyle(fontSize: 12.5, color: AppColors.subTitle)),
