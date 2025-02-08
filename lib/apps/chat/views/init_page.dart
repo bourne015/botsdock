@@ -186,7 +186,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                       "assets/images/openai.png",
                       height: 24,
                       width: 24,
-                      color: selected == "ChatGPT" ? Colors.green : Colors.grey,
+                      color: selected == "ChatGPT" ? Colors.teal : Colors.grey,
                     )),
                 if (selected == "ChatGPT")
                   Container(
