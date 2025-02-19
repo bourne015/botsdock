@@ -217,7 +217,10 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
               width: effectiveWidth,
               height: effectiveHeight,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(10),
+                  bottomRight: Radius.circular(10),
+                ),
               ),
               clipBehavior: Clip.hardEdge,
               child: _errorMessage != null
