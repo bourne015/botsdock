@@ -539,24 +539,32 @@ class MessageBoxState extends State<MessageBox> {
   Widget loadImage(BuildContext context,
       {filename, imageurl, imagebytes, height, width}) {
     if (imageurl != null && imageurl.isNotEmpty) {
-      return FadeInImage(
-        placeholder: MemoryImage(kTransparentImage),
-        height: height,
-        width: width,
-        image: NetworkImage(imageurl),
-        fadeInDuration: const Duration(milliseconds: 10),
-        imageErrorBuilder: (context, error, stackTrace) =>
-            Icon(Icons.broken_image_outlined),
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(10.0),
+        clipBehavior: Clip.hardEdge,
+        child: FadeInImage(
+          placeholder: MemoryImage(kTransparentImage),
+          image: NetworkImage(imageurl),
+          fit: BoxFit.fitWidth,
+          height: height,
+          width: width,
+          fadeInDuration: const Duration(milliseconds: 10),
+          imageErrorBuilder: (context, error, stackTrace) =>
+              Icon(Icons.broken_image_outlined),
+        ),
       );
     } else if (imagebytes != null && imagebytes.isNotEmpty) {
-      return FadeInImage(
-        placeholder: MemoryImage(kTransparentImage),
-        height: height,
-        width: width,
-        image: MemoryImage(imagebytes),
-        fadeOutDuration: const Duration(milliseconds: 10),
-        imageErrorBuilder: (context, error, stackTrace) =>
-            Icon(Icons.broken_image),
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(10.0),
+        child: FadeInImage(
+          placeholder: MemoryImage(kTransparentImage),
+          height: height,
+          width: width,
+          image: MemoryImage(imagebytes),
+          fadeOutDuration: const Duration(milliseconds: 10),
+          imageErrorBuilder: (context, error, stackTrace) =>
+              Icon(Icons.broken_image),
+        ),
       );
     } else
       return Text("load image failed");
