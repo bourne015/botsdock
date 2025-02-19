@@ -152,7 +152,7 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
     if (widget.contentType == ContentType.mermaid) {
       return '''
         $baseHtml
-        <script src="https://cdn.bootcdn.net/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+        <script src="/assets/assets/mermaid.min.js"></script>
         <script>
           document.addEventListener("DOMContentLoaded", function() {
             try {
@@ -224,7 +224,7 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
                   ? _buildErrorWidget()
                   : _buildContentView(),
             ),
-            if (_isLoading) _buildLoadingWidget(),
+            // if (_isLoading) _buildLoadingWidget(),
           ],
         );
       },
