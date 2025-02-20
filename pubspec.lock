@@ -222,18 +222,20 @@ packages:
   flutter_markdown_latex:
     dependency: "direct main"
     description:
-      name: flutter_markdown_latex
-      sha256: "839e76a84abb3632ffcebbd450cf93c7e9894af65622527d23f0084cee1bfd04"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: delete-fonts
+      resolved-ref: "4469e89d0f1e963c0f6fe793e771e478697edc37"
+      url: "https://github.com/bourne015/flutter_markdown_latex"
+    source: git
     version: "0.3.4"
   flutter_math_fork:
     dependency: transitive
     description:
-      name: flutter_math_fork
-      sha256: "284bab89b2fbf1bc3a0baf13d011c1dd324d004e35d177626b77f2fc056366ac"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: delete-fonts
+      resolved-ref: caab1a309691c1846c24005b2f91317c21b826bf
+      url: "https://github.com/bourne015/flutter_math"
+    source: git
     version: "0.7.3"
   flutter_oss_aliyun:
     dependency: "direct main"
@@ -721,10 +723,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: daf97c9d80197ed7b619040e86c8ab9a9dad285e7671ee7390f9180cc828a51e
+      sha256: b89e6e24d1454e149ab20fbb225af58660f0c0bf4475544650700d8e2da54aef
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "5.10.1"
+    version: "5.11.0"
   xdg_directories:
     dependency: transitive
     description:

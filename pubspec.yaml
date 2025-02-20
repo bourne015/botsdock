@@ -2,6 +2,8 @@ name: botsdock
 description: A gallery to list apps.
 version: 1.0.7
 
+publish_to: none
+
 environment:
   flutter: ^3.27.0
   sdk: ^3.6.0
@@ -25,7 +27,6 @@ dependencies:
   shared_preferences: ^2.5.2
   flutter_oss_aliyun: ^6.4.2
   fetch_client: ^1.1.2
-  flutter_markdown_latex: ^0.3.4
   file_saver: ^0.2.14
   flutter_image_compress: ^2.4.0
   custom_sliding_segmented_control: ^1.8.5
@@ -36,6 +37,10 @@ dependencies:
   anthropic_sdk_dart: ^0.2.0+1
   googleai_dart: ^0.1.0+3
   flutter_dotenv: ^5.2.1
+  flutter_markdown_latex:
+    git:
+      url: https://github.com/bourne015/flutter_markdown_latex
+      ref: delete-fonts
 
 
 flutter:
