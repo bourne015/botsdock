@@ -191,10 +191,10 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
   }
 
   String _sanitizeHtml(String html) {
-    // TODO: 实现更强的HTML清理措施
-    return html
-        .replaceAll('<script>', '&lt;script&gt;')
-        .replaceAll('</script>', '&lt;/script&gt;');
+    // return html
+    //     .replaceAll('<script>', '&lt;script&gt;')
+    //     .replaceAll('</script>', '&lt;/script&gt;');
+    return html;
   }
 
   @override
