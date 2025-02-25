@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 import 'package:openai_dart/openai_dart.dart' as openai;
 import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
-import 'package:googleai_dart/googleai_dart.dart' as gemini;
+import 'package:google_generative_ai/src/api.dart' as gemini;
 
 class AIResponse {
   static void Openai(Pages pages, Property property, User user,
@@ -178,17 +178,17 @@ class AIResponse {
 
   static void Gemini(Pages pages, Property property, User user,
       int handlePageID, Map<String, dynamic> j) {
-    var res = gemini.GenerateContentResponse.fromJson(j);
+    var res = gemini.parseGenerateContentResponse(j);
+    pages.getPage(handlePageID).appendMessage(msg: res.text);
 
-    pages.getPage(handlePageID).appendMessage(
-          msg: res.candidates?.first.content?.parts?.first.text,
-          // toolCalls: res.choices[0].delta.toolCalls,
-        );
-
-    // if (res.choices[0].finishReason ==
-    //     openai.ChatCompletionFinishReason.toolCalls) {
-    //   pages.getPage(handlePageID).setOpenaiToolInput();
-    //   ChatAPI().submitText(pages, property, handlePageID, user);
-    // }
+    //gemini function call response is one time, not stream
+    if (res.functionCalls.isNotEmpty) {
+      pages.getPage(handlePageID).setGeminiToolInput(res.functionCalls.first);
+      // pages.getPage(handlePageID).addMessage(
+      //       role: MessageTRole.tool,
+      //       text: "function response",
+      //     );
+      // ChatAPI().submitText(pages, property, handlePageID, user);
+    }
   }
 }

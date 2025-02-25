@@ -1,6 +1,6 @@
 name: botsdock
 description: A gallery to list apps.
-version: 1.0.7
+version: 1.0.8
 
 publish_to: none
 
@@ -34,7 +34,7 @@ dependencies:
   web: ^1.1.0
   openai_dart: ^0.4.5
   anthropic_sdk_dart: ^0.2.0+1
-  googleai_dart: ^0.1.0+3
+  google_generative_ai: ^0.4.6
   flutter_dotenv: ^5.2.1
   flutter_markdown_latex:
     git:

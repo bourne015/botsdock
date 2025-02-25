@@ -150,7 +150,9 @@ class MessageBoxState extends State<MessageBox> {
               if (GeminiModel.all.contains(widget.model!)) {
                 if (_content is GeminiTextContent)
                   return messageContent(context, msg.role, _content.text);
-                else if (_content is GeminiPart1) {
+                else if (_content is GeminiPart3) {
+                  return buildArtifact(context, _content.args);
+                } else if (_content is GeminiPart1) {
                   //inlineData
                   // return contentImage(context,
                   //     imageUrl: _content.inlineData?.data);

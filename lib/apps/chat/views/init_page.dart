@@ -454,7 +454,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
           description: GalleryLocalizations.of(context)?.geminiDesc ?? '',
         ),
         PopupMenuDivider(),
-        // _buildArtifactSwitch(context),
+        _buildArtifactSwitch(context),
       ],
     );
   }

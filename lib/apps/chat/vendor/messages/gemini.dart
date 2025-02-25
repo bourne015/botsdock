@@ -43,6 +43,26 @@ class GeminiPart2 {
   Map<String, dynamic> toJson() => {'file_data': fileData?.toJson()};
 }
 
+class GeminiPart3 {
+  final String? name;
+
+  /// The function parameters and values.
+  final Map<String, Object?>? args;
+
+  GeminiPart3({this.name, this.args});
+
+  factory GeminiPart3.fromJson(Map<String, dynamic> json) {
+    return GeminiPart3(
+      name: json['function_call']['name'],
+      args: json['function_call']['args'],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'function_call': {'name': name, 'args': args}
+      };
+}
+
 class GeminiData1 {
   String? mimeType;
   String? data;
@@ -79,8 +99,6 @@ class GeminiMessage extends Message {
     required String role,
     String? name,
     dynamic content,
-    // String? toolCallId,
-    // List<openai.RunToolCallObject>? toolCalls,
     Map<String, Attachment>? attachments,
     Map<String, VisionFile>? visionFiles,
     final int? timestamp,
@@ -91,8 +109,6 @@ class GeminiMessage extends Message {
           role: role,
           name: name,
           content: content,
-          // toolCallId: toolCallId,
-          // toolCalls: toolCalls,
           attachments: attachments,
           visionFiles: visionFiles,
           timestamp: timestamp,
@@ -138,9 +154,6 @@ class GeminiMessage extends Message {
           'parts': content is List<dynamic>
               ? content.map((p) => p.toJson()).toList()
               : content,
-        // if (toolCallId != null) 'tool_call_id': toolCallId,
-        // if (toolCalls.isNotEmpty)
-        //   'tool_calls': toolCalls.map((tc) => tc.toJson()).toList(),
       };
   @override
   Map<String, dynamic> toDBJson() => {
@@ -151,9 +164,6 @@ class GeminiMessage extends Message {
           'content': content is List<dynamic>
               ? content.map((e) => e.toJson()).toList()
               : content,
-        if (toolCallId != null) 'tool_call_id': toolCallId,
-        if (toolCalls.isNotEmpty)
-          'tool_calls': toolCalls.map((tc) => tc.toJson()).toList(),
         if (attachments.isNotEmpty)
           'attachments': attachments
               .map((key, attachment) => MapEntry(key, attachment.toJson())),
@@ -192,23 +202,19 @@ class GeminiMessage extends Message {
             return GeminiPart1.fromJson(contentPart);
           else if ((contentPart.containsKey("file_data")))
             return GeminiPart2.fromJson(contentPart);
+          else if ((contentPart.containsKey("function_call")))
+            return GeminiPart3.fromJson(contentPart);
         }).toList();
       } else if (json['content'] is String) {
         content = json['content'];
       }
     }
 
-    // var toolCalls = (json['tool_calls'] as List?)
-    //     ?.map((toolCall) => openai.RunToolCallObject.fromJson(toolCall))
-    //     .toList();
-
     return GeminiMessage(
       id: id,
       role: role,
       name: name,
       content: content,
-      // toolCallId: toolCallId,
-      // toolCalls: toolCalls,
       attachments: attachments,
       visionFiles: visionFile,
     );

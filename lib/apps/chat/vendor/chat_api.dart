@@ -416,13 +416,19 @@ void _initializeAssistantMessage(Pages pages, int handlePageID) {
 
 String _prepareChatData(Pages pages, int handlePageID) {
   var jsChat = pages.getPage(handlePageID).toJson();
+  var tools = [];
+  if (GPTModel.all.contains(pages.currentPage!.model) ||
+      DeepSeekModel.all.contains(pages.currentPage!.model))
+    tools = jsChat["tools"];
+  else if (ClaudeModel.all.contains(pages.currentPage!.model))
+    tools = jsChat["claude_tools"];
+  else if (GeminiModel.all.contains(pages.currentPage!.model))
+    tools = jsChat["gemini_tools"];
+
   var chatData = {
     "model": pages.currentPage?.model,
     "messages": jsChat["messages"],
-    "tools": (GPTModel.all.contains(pages.currentPage!.model) ||
-            DeepSeekModel.all.contains(pages.currentPage!.model))
-        ? jsChat["tools"]
-        : jsChat["claude_tools"],
+    "tools": tools,
   };
   return jsonEncode(chatData);
 }

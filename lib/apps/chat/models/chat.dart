@@ -27,6 +27,7 @@ class Chat with ChangeNotifier {
   // openai.CreateRunRequestToolChoice? _toolChoice;
   List<openai.ChatCompletionTool> tools = [];
   List<anthropic.Tool> claudeTools = []; //claude tools
+  List<Map> geminiTools = [];
   String toolInputDelta = "";
   List<String> openaiToolInputDelta = [];
   final StreamController<Message> _messageController =
@@ -55,6 +56,7 @@ class Chat with ChangeNotifier {
     // List<Tool>? tools,
     List<openai.ChatCompletionTool>? tools,
     List<anthropic.Tool>? claudeTools,
+    List<Map>? geminiTools,
     int? updated_at,
     bool? artifact,
   })  : _id = id,
@@ -68,6 +70,7 @@ class Chat with ChangeNotifier {
         // _toolChoice = toolChoice,
         tools = tools ?? [],
         claudeTools = claudeTools ?? [],
+        geminiTools = geminiTools ?? [],
         artifact = artifact ?? false,
         updated_at =
             updated_at ?? DateTime.now().millisecondsSinceEpoch ~/ 1000;
@@ -314,6 +317,7 @@ class Chat with ChangeNotifier {
 
   /**
    * save claude tool messages output from model to message
+   * claude save tool message inside message-content
    */
   void setClaudeToolInput(int index) {
     var id = (messages.last.content[index] as anthropic.ToolUseBlock).id;
@@ -329,8 +333,16 @@ class Chat with ChangeNotifier {
     toolInputDelta = "";
   }
 
+  void setGeminiToolInput(func) {
+    messages.last.content.last = GeminiPart3(
+      name: func.name,
+      args: func.args,
+    );
+  }
+
   /**
    * save openai tool messages output from model to message
+   * openai save tools message with the same level with content
    */
   void setOpenaiToolInput() {
     int _last = messages.length - 1;
@@ -495,6 +507,7 @@ class Chat with ChangeNotifier {
         'messages': messages.map((m) => m.toJson()).toList(),
         "tools": tools.map((e) => e.toJson()).toList(),
         "claude_tools": claudeTools.map((e) => e.toJson()).toList(),
+        "gemini_tools": geminiTools, //it's already json
       };
 
   /**
@@ -544,8 +557,13 @@ class Chat with ChangeNotifier {
         inputSchema: funcschema,
       );
       claudeTools.add(jsTool);
+    } else if (GeminiModel.all.contains(model) && tools.isEmpty) {
+      var func = Functions.artifact;
+      geminiTools.add({
+        'function_declarations': [func]
+      });
     } else {
-      debugPrint("not addArtifact");
+      debugPrint("${model} haven't support Artifact");
     }
     if (messages.isEmpty || messages.first.role != MessageTRole.system)
       addMessage(
@@ -572,8 +590,11 @@ class Chat with ChangeNotifier {
     }
     if (GPTModel.all.contains(model) || DeepSeekModel.all.contains(model))
       tools.clear();
-    else
+    else if (ClaudeModel.all.contains(model))
       claudeTools.clear();
+    else if (GeminiModel.all.contains(model) && tools.isEmpty)
+      geminiTools.clear();
+
     artifact = false;
   }
 }
