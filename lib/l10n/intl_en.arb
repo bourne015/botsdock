@@ -73,13 +73,17 @@
   "@claude3SonnetDesc": {
     "description": "claude3SonnetDesc"
   },
-  "claude3OpusDesc": "Most powerful model for highly complex tasks",
+  "claude3OpusDesc": "Powerful model for complex tasks",
   "@claude3OpusDesc": {
     "description": "claude3OpusDesc"
   },
-  "claude35SonnetDesc": "Most intelligent model",
+  "claude35SonnetDesc": "previous most intelligent claude model",
   "@claude35SonnetDesc": {
     "description": "claude35SonnetDesc"
+  },
+  "claude37SonnetDesc": "Most intelligent claude model",
+  "@claude37SonnetDesc": {
+    "description": "claude37SonnetDesc"
   },
   "geminiDesc": "New generation features, speed, and multimodal generation, suitable for a variety of tasks",
   "@geminiDesc": {

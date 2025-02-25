@@ -387,10 +387,19 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         //     GalleryLocalizations.of(context)?.claude3SonnetDesc ?? ''),
         _buildPopupMenuItem(
           context: context,
-          value: claudeSub[2],
+          value: claudeSub[5],
           inputType: "多模态",
-          title: "Claude3 - Opus",
-          description: GalleryLocalizations.of(context)?.claude3OpusDesc ?? '',
+          title: "Claude3.7 - Sonnet",
+          description:
+              GalleryLocalizations.of(context)?.claude37SonnetDesc ?? '',
+        ),
+        _buildPopupMenuItem(
+          context: context,
+          value: claudeSub[3],
+          inputType: "多模态",
+          title: "Claude3.5 - Sonnet",
+          description:
+              GalleryLocalizations.of(context)?.claude35SonnetDesc ?? '',
         ),
         _buildPopupMenuItem(
           context: context,
@@ -401,11 +410,10 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         ),
         _buildPopupMenuItem(
           context: context,
-          value: claudeSub[3],
+          value: claudeSub[2],
           inputType: "多模态",
-          title: "Claude3.5 - Sonnet",
-          description:
-              GalleryLocalizations.of(context)?.claude35SonnetDesc ?? '',
+          title: "Claude3 - Opus",
+          description: GalleryLocalizations.of(context)?.claude3OpusDesc ?? '',
         ),
         PopupMenuDivider(),
         _buildArtifactSwitch(context),

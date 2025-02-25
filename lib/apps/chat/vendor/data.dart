@@ -38,6 +38,7 @@ class ClaudeModel {
   static const String opus = "claude-3-opus-20240229";
   static const String sonnet_35 = "claude-3-5-sonnet-20241022";
   static const String haiku_35 = "claude-3-5-haiku-20241022";
+  static const String sonnet_37 = "claude-3-7-sonnet-20250219";
 
   static const List<String> all = [
     haiku,
@@ -45,6 +46,7 @@ class ClaudeModel {
     opus,
     sonnet_35,
     haiku_35,
+    sonnet_37,
   ];
   Map<String, String> toJson() {
     return {
@@ -53,6 +55,7 @@ class ClaudeModel {
       opus: 'opus',
       sonnet_35: "sonnet_35",
       haiku_35: 'haiku_35',
+      sonnet_37: "sonnet_37"
     };
   }
 }
@@ -86,7 +89,7 @@ class GeminiModel {
 }
 
 const DefaultModelVersion = GPTModel.gptv4omini;
-const DefaultClaudeModel = ClaudeModel.sonnet_35;
+const DefaultClaudeModel = ClaudeModel.sonnet_37;
 const DefaultDeepSeekModel = DeepSeekModel.dc_r;
 const DefaultGeminiModel = GeminiModel.flash_20;
 const ModelForTitleGen = GeminiModel.flash_20;
