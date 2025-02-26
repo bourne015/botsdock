@@ -104,11 +104,11 @@ class DeferredLoadingPlaceholder extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('$name is installing.',
+            Text('$name is loading.',
                 style: Theme.of(context).textTheme.headlineMedium),
             Container(height: 10),
             Text(
-                '$name is a deferred component which are downloaded and installed at runtime.',
+                '$name is a deferred component which are downloaded at runtime.',
                 style: Theme.of(context).textTheme.bodyLarge),
             Container(height: 20),
             const Center(child: CircularProgressIndicator()),
