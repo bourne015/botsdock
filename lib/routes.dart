@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:botsdock/deferred_widget.dart';
 import 'package:botsdock/home.dart';
 import 'package:dual_screen/dual_screen.dart';
 //import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:botsdock/apps/chat/main.dart' as chat;
+import 'package:botsdock/apps/chat/main.dart' deferred as chat;
 import 'package:botsdock/apps/chat/routes.dart' as chat_routes;
 
 typedef PathWidgetBuilder = Widget Function(BuildContext, String?);
@@ -98,7 +99,9 @@ class RouteConfiguration {
     */
     Path(
       r'^' + chat_routes.homeRoute,
-      (context, match) => const chat.ChatApp(),
+      (context, match) => DeferredWidget(chat.loadLibrary,
+          () => chat.ChatApp(), // ignore: prefer_const_constructors
+          placeholder: const DeferredLoadingPlaceholder(name: 'Chat')),
       openInSecondScreen: true,
     ),
     Path(
