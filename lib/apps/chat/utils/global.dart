@@ -61,11 +61,14 @@ class Global {
       property.initModelVersion = _prefs.getString("init_model");
     if (_prefs.getBool("artifact") != null)
       property.artifact = _prefs.getBool("artifact") ?? false;
+    if (_prefs.getBool("internet") != null)
+      property.internet = _prefs.getBool("internet") ?? false;
   }
 
-  static saveProperties({String? model, bool? artifact}) {
+  static saveProperties({String? model, bool? artifact, bool? internet}) {
     if (model != null) _prefs.setString("init_model", model);
     if (artifact != null) _prefs.setBool("artifact", artifact);
+    if (internet != null) _prefs.setBool("internet", internet);
   }
 
   static saveProfile(User user) {

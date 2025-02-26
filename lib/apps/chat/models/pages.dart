@@ -200,6 +200,7 @@ class Property with ChangeNotifier {
   bool _onInitPage = true;
   bool _isLoading = false;
   bool _artifact = false;
+  bool _internet = false;
 
   String get initModelVersion => _initModelVersion;
 
@@ -230,6 +231,12 @@ class Property with ChangeNotifier {
 
   set artifact(bool v) {
     _artifact = v;
+  }
+
+  bool get internet => _internet;
+
+  set internet(bool v) {
+    _internet = v;
   }
 
   void reset() {

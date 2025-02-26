@@ -41,12 +41,14 @@ class InitPageState extends State<InitPage> with RestorationMixin {
   final ChatAPI chats = ChatAPI();
   final dio = Dio();
   RestorableBool switchArtifact = RestorableBool(true);
+  RestorableBool switchInternet = RestorableBool(true);
 
   @override
   String get restorationId => 'switch_test';
   @override
   void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
     registerForRestoration(switchArtifact, 'switch_artifact');
+    registerForRestoration(switchInternet, 'switch_internet');
   }
 
   @override
@@ -54,6 +56,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
     super.initState();
     Property property = Provider.of<Property>(context, listen: false);
     switchArtifact = RestorableBool(property.artifact);
+    switchInternet = RestorableBool(property.internet);
   }
 
   @override
@@ -463,6 +466,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         ),
         PopupMenuDivider(),
         _buildArtifactSwitch(context),
+        _buildInternetSwitch(context),
       ],
     );
   }
@@ -622,7 +626,10 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                   child: ListTile(
                       dense: true,
                       contentPadding: EdgeInsets.symmetric(horizontal: 5),
-                      leading: Icon(Icons.visibility_outlined),
+                      leading: Icon(
+                        Icons.auto_graph,
+                        color: switchArtifact.value ? Colors.blue[700] : null,
+                      ),
                       title: Text("可视化(experimental)"),
                       subtitle: Text("提供图表、动画、地图、网页预览等可视化内容",
                           style: TextStyle(
@@ -638,6 +645,53 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                               property.artifact = switchArtifact.value;
                             });
                             Global.saveProperties(artifact: property.artifact);
+                          },
+                        ),
+                      )),
+                ),
+              ));
+        }));
+  }
+
+  PopupMenuItem<String> _buildInternetSwitch(BuildContext context) {
+    Property property = Provider.of<Property>(context, listen: false);
+    return PopupMenuItem<String>(
+        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+        // value: "value",
+        child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+          return Material(
+              //color: Colors.transparent,
+              color: AppColors.drawerBackground,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BORDERRADIUS15,
+                ),
+                child: InkWell(
+                  borderRadius: BORDERRADIUS15,
+                  // onTap: null,
+                  child: ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 5),
+                      leading: Icon(Icons.cloud,
+                          color:
+                              switchInternet.value ? Colors.yellow[800] : null),
+                      title: Text("联网功能"),
+                      subtitle: Text("获取Google搜索的结果",
+                          style: TextStyle(
+                              fontSize: 12.5, color: AppColors.subTitle)),
+                      trailing: Transform.scale(
+                        scale: 0.7,
+                        child: Switch(
+                          value: switchInternet.value,
+                          activeColor: Colors.blue[300],
+                          onChanged: (value) {
+                            setState(() {
+                              switchInternet.value = value;
+                              property.internet = switchInternet.value;
+                            });
+                            Global.saveProperties(internet: property.internet);
                           },
                         ),
                       )),

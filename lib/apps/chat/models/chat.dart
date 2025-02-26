@@ -41,6 +41,7 @@ class Chat with ChangeNotifier {
   bool _onGenerating = false;
   bool doStream = true;
   bool artifact;
+  bool internet;
   ItemPosition? position;
 
   Chat({
@@ -59,6 +60,7 @@ class Chat with ChangeNotifier {
     List<Map>? geminiTools,
     int? updated_at,
     bool? artifact,
+    bool? internet,
   })  : _id = id,
         _dbID = dbID,
         _botID = botID,
@@ -72,6 +74,7 @@ class Chat with ChangeNotifier {
         claudeTools = claudeTools ?? [],
         geminiTools = geminiTools ?? [],
         artifact = artifact ?? false,
+        internet = internet ?? false,
         updated_at =
             updated_at ?? DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
@@ -499,6 +502,7 @@ class Chat with ChangeNotifier {
       model: c["model"],
       messages: _msgs,
       artifact: c["artifact"] ?? false,
+      internet: c["internet"] ?? false,
     );
   }
 
@@ -537,6 +541,20 @@ class Chat with ChangeNotifier {
       messages.removeRange(1, messages.length);
     else
       messages.clear();
+  }
+
+  void enableInternet() {
+    if (GeminiModel.all.contains(model)) {
+      geminiTools.add({'google_search': {}});
+      internet = true;
+    }
+  }
+
+  void disableInternet() {
+    if (GeminiModel.all.contains(model) && geminiTools.isNotEmpty) {
+      geminiTools.removeWhere((gtool) => gtool.containsKey('google_search'));
+      internet = false;
+    }
   }
 
 /**

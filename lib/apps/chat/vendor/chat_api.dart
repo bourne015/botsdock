@@ -137,6 +137,7 @@ class ChatAPI {
       "thread_id": pages.getPage(handlePageID).threadID,
       "bot_id": pages.getPage(handlePageID).botID,
       "artifact": pages.getPage(handlePageID).artifact,
+      "internet": pages.getPage(handlePageID).internet,
     };
 
     try {
@@ -246,6 +247,10 @@ class ChatAPI {
           pages.getPage(handlePageID).addArtifact();
         else
           pages.getPage(handlePageID).removeArtifact();
+        if (property.internet)
+          pages.getPage(handlePageID).enableInternet();
+        else
+          pages.getPage(handlePageID).disableInternet();
 
         var chatData = _prepareChatData(pages, handlePageID);
         final stream = CreateChatStream(
@@ -367,7 +372,10 @@ class ChatAPI {
       pages.getPage(handlePageID).addArtifact();
     else
       pages.getPage(handlePageID).removeArtifact();
-
+    if (property.internet)
+      pages.getPage(handlePageID).enableInternet();
+    else
+      pages.getPage(handlePageID).disableInternet();
     pages.getPage(handlePageID).addMessage(
         role: MessageTRole.user,
         text: prompt,

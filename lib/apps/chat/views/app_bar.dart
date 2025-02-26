@@ -1,3 +1,5 @@
+import 'package:botsdock/apps/chat/utils/global.dart';
+import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,12 +18,14 @@ class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class MyAppBarState extends State<MyAppBar> with RestorationMixin {
   RestorableBool switchArtifact = RestorableBool(true);
+  RestorableBool switchInternet = RestorableBool(true);
 
   @override
   String get restorationId => 'switch_test';
   @override
   void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
     registerForRestoration(switchArtifact, 'switch_artifact');
+    registerForRestoration(switchInternet, 'switch_internet');
   }
 
   void initState() {
@@ -34,8 +38,10 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
     Pages pages = Provider.of<Pages>(context);
     if (property.onInitPage) {
       switchArtifact.value = property.artifact;
+      switchInternet.value = property.internet;
     } else {
       switchArtifact.value = pages.currentPage!.artifact;
+      switchInternet.value = pages.currentPage!.internet;
     }
     return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
       AppBar(
@@ -90,6 +96,8 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
         ),
         PopupMenuDivider(),
         _buildArtifactSwitch(context),
+        if (GeminiModel.all.contains(pages.currentPage!.model))
+          _buildInternetSwitch(context)
       ],
     );
   }
@@ -178,6 +186,55 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                               pages.currentPage!.artifact =
                                   switchArtifact.value;
                             });
+                          },
+                        ),
+                      )),
+                ),
+              ));
+        }));
+  }
+
+  PopupMenuItem<String> _buildInternetSwitch(BuildContext context) {
+    Property property = Provider.of<Property>(context, listen: false);
+    return PopupMenuItem<String>(
+        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+        // value: "value",
+        child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+          return Material(
+              //color: Colors.transparent,
+              color: AppColors.drawerBackground,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BORDERRADIUS15,
+                ),
+                child: InkWell(
+                  borderRadius: BORDERRADIUS15,
+                  onTap: () {
+                    // Navigator.pop(context, value);
+                  },
+                  child: ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 5),
+                      leading: Icon(Icons.cloud,
+                          color:
+                              switchInternet.value ? Colors.yellow[800] : null),
+                      title: Text("联网功能"),
+                      subtitle: Text("获取Google搜索的结果",
+                          style: TextStyle(
+                              fontSize: 12.5, color: AppColors.subTitle)),
+                      trailing: Transform.scale(
+                        scale: 0.7,
+                        child: Switch(
+                          value: switchInternet.value,
+                          activeColor: Colors.blue[300],
+                          onChanged: (value) {
+                            setState(() {
+                              switchInternet.value = value;
+                              property.internet = switchInternet.value;
+                            });
+                            Global.saveProperties(internet: property.internet);
                           },
                         ),
                       )),
