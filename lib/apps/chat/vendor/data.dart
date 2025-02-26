@@ -75,24 +75,26 @@ class DeepSeekModel {
 }
 
 class GeminiModel {
-  static const String flash_20 = "gemini-2.0-flash-001";
+  static const String flash_20 = "gemini-2.0-flash";
   static const String pro_15 = "gemini-1.5-pro";
+  static const String flash_20_lite = "gemini-2.0-flash-lite";
 
-  static const List<String> all = [flash_20, pro_15];
+  static const List<String> all = [flash_20, pro_15, flash_20_lite];
 
   Map<String, String> toJson() {
     return {
       flash_20: '2.0',
       pro_15: '1.5',
+      flash_20_lite: "2.0 lite",
     };
   }
 }
 
-const DefaultModelVersion = GPTModel.gptv4omini;
+const DefaultModelVersion = GPTModel.gptv4o;
 const DefaultClaudeModel = ClaudeModel.sonnet_37;
 const DefaultDeepSeekModel = DeepSeekModel.dc_r;
 const DefaultGeminiModel = GeminiModel.flash_20;
-const ModelForTitleGen = GeminiModel.flash_20;
+const ModelForTitleGen = GeminiModel.flash_20_lite;
 List<String> textmodels = [
   ...GPTModel.all,
   ...ClaudeModel.all,

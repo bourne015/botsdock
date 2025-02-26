@@ -309,14 +309,14 @@ class InitPageState extends State<InitPage> with RestorationMixin {
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
         //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
-        _buildPopupMenuItem(
-          context: context,
-          value: gptSub[3],
-          inputType: "多模态",
-          title: "ChatGPT 4o mini",
-          description:
-              GalleryLocalizations.of(context)?.chatGPT4oMiniDesc ?? '',
-        ),
+        // _buildPopupMenuItem(
+        //   context: context,
+        //   value: gptSub[3],
+        //   inputType: "多模态",
+        //   title: "ChatGPT 4o mini",
+        //   description:
+        //       GalleryLocalizations.of(context)?.chatGPT4oMiniDesc ?? '',
+        // ),
         // _buildPopupMenuItem(
         //   context: context,
         //   value: gptSub[5],
@@ -326,17 +326,17 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         // ),
         _buildPopupMenuItem(
           context: context,
-          value: gptSub[5],
-          inputType: "文本",
-          title: "ChatGPT o1-mini",
-          description: GalleryLocalizations.of(context)?.chatGPTo3mDesc ?? '',
+          value: gptSub[2],
+          inputType: "多模态",
+          title: "GPT 4o",
+          description: GalleryLocalizations.of(context)?.chatGPT4oDesc ?? '',
         ),
         _buildPopupMenuItem(
           context: context,
-          value: gptSub[2],
-          inputType: "多模态",
-          title: "ChatGPT 4o",
-          description: GalleryLocalizations.of(context)?.chatGPT4oDesc ?? '',
+          value: gptSub[5],
+          inputType: "文本",
+          title: "GPT o1-mini",
+          description: GalleryLocalizations.of(context)?.chatGPTo3mDesc ?? '',
         ),
         // _buildPopupMenuItem(
         //   context: context,
