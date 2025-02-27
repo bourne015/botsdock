@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart';
+import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:botsdock/data/adaptive.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -77,7 +79,18 @@ class MessageListViewState extends State<MessageListView> {
               bool isLast = index == 0; //_messageLength - 1;
               if (index >= _messageLength) return Offstage();
               var reindex = _messageLength - 1 - index;
-
+              bool sameRole = false;
+              // print("$reindex");
+              if (reindex <= _messageLength - 1 && reindex > 0) {
+                var upMsgRole = chat.messages[reindex - 1].role;
+                if (upMsgRole == MessageTRole.user &&
+                    chat.messages[reindex].role == MessageTRole.user)
+                  sameRole = true;
+                if (upMsgRole != MessageTRole.user &&
+                    chat.messages[reindex].role != MessageTRole.user)
+                  sameRole = true;
+                // print("up:${upMsgRole},  cur: ${chat.messages[reindex].role}");
+              }
               return AnimatedContainer(
                   duration: Duration(milliseconds: 270),
                   padding: isDisplayDesktop(context)
@@ -87,6 +100,7 @@ class MessageListViewState extends State<MessageListView> {
                     key: ValueKey(chat.messages[reindex].id),
                     msg: chat.messages[reindex],
                     isLast: isLast,
+                    isSameRole: sameRole,
                     pageId: chat.id,
                     model: chat.model,
                     messageStream: chat.messageStream,

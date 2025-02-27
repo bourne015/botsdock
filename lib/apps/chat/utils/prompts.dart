@@ -66,4 +66,19 @@ class Functions {
       "required": ["artifactName", "content", "type"]
     }
   };
+  static Map<String, dynamic> internet = {
+    "name": "google_search",
+    "description":
+        "search information from internet. Call this tool when you need realtime information",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "The content that need to query from internet."
+        },
+      },
+      "required": ["content"]
+    }
+  };
 }

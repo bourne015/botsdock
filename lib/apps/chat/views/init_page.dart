@@ -357,6 +357,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         ),
         PopupMenuDivider(),
         _buildArtifactSwitch(context),
+        _buildInternetSwitch(context, "Google"),
       ],
     );
   }
@@ -420,6 +421,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         ),
         PopupMenuDivider(),
         _buildArtifactSwitch(context),
+        _buildInternetSwitch(context, "Google"),
       ],
     );
   }
@@ -466,7 +468,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         ),
         PopupMenuDivider(),
         _buildArtifactSwitch(context),
-        _buildInternetSwitch(context),
+        _buildInternetSwitch(context, "Google"),
       ],
     );
   }
@@ -513,6 +515,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         ),
         PopupMenuDivider(),
         _buildArtifactSwitch(context),
+        _buildInternetSwitch(context, "Google"),
       ],
     );
   }
@@ -630,7 +633,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                         Icons.auto_graph,
                         color: switchArtifact.value ? Colors.blue[700] : null,
                       ),
-                      title: Text("可视化(experimental)"),
+                      title: Text("可视化(Beta)"),
                       subtitle: Text("提供图表、动画、地图、网页预览等可视化内容",
                           style: TextStyle(
                               fontSize: 12.5, color: AppColors.subTitle)),
@@ -653,7 +656,8 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         }));
   }
 
-  PopupMenuItem<String> _buildInternetSwitch(BuildContext context) {
+  PopupMenuItem<String> _buildInternetSwitch(
+      BuildContext context, String? engine) {
     Property property = Provider.of<Property>(context, listen: false);
     return PopupMenuItem<String>(
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
@@ -677,8 +681,8 @@ class InitPageState extends State<InitPage> with RestorationMixin {
                       leading: Icon(Icons.cloud,
                           color:
                               switchInternet.value ? Colors.yellow[800] : null),
-                      title: Text("联网功能"),
-                      subtitle: Text("获取Google搜索的结果",
+                      title: Text("联网功能(Beta)"),
+                      subtitle: Text("获取${engine}搜索的结果",
                           style: TextStyle(
                               fontSize: 12.5, color: AppColors.subTitle)),
                       trailing: Transform.scale(

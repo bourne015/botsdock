@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:botsdock/apps/chat/vendor/messages/deepseek.dart';
@@ -322,7 +323,7 @@ class Chat with ChangeNotifier {
    * save claude tool messages output from model to message
    * claude save tool message inside message-content
    */
-  void setClaudeToolInput(int index) {
+  Future<void> setClaudeToolInput(int index) async {
     var id = (messages.last.content[index] as anthropic.ToolUseBlock).id;
     var name = (messages.last.content[index] as anthropic.ToolUseBlock).name;
     var type = (messages.last.content[index] as anthropic.ToolUseBlock).type;
@@ -333,6 +334,21 @@ class Chat with ChangeNotifier {
       name: name,
       input: input,
     );
+
+    List res = [];
+    if (name == "google_search")
+      res = await google_search(query: input["content"], num_results: 5);
+    var _toolID = messages.last.content[index].id;
+    addMessage(role: MessageTRole.user);
+    addTool(
+      toolResult: anthropic.ToolResultBlock(
+        toolUseId: _toolID,
+        isError: false,
+        type: "tool_result",
+        content: anthropic.ToolResultBlockContent.text("$res"),
+      ),
+    );
+
     toolInputDelta = "";
   }
 
@@ -347,7 +363,7 @@ class Chat with ChangeNotifier {
    * save openai tool messages output from model to message
    * openai save tools message with the same level with content
    */
-  void setOpenaiToolInput() {
+  Future<void> setOpenaiToolInput() async {
     int _last = messages.length - 1;
     for (int index = 0; index < openaiToolInputDelta.length; index++) {
       //toolcall id
@@ -362,11 +378,22 @@ class Chat with ChangeNotifier {
           arguments: openaiToolInputDelta[index],
         ),
       );
-      addMessage(
-        role: MessageTRole.tool,
-        text: "function result",
-        toolCallId: id,
-      );
+      if (messages[_last].toolCalls[index].function.name == "google_search") {
+        var args =
+            jsonDecode(messages[_last].toolCalls[index].function.arguments);
+        List res = await google_search(query: args["content"], num_results: 5);
+        addMessage(
+          role: MessageTRole.tool,
+          text: "{Google search result: ${res}}", // + jsonEncode(res),
+          toolCallId: id,
+        );
+      } else {
+        addMessage(
+          role: MessageTRole.tool,
+          text: "function result",
+          toolCallId: id,
+        );
+      }
     }
 
     openaiToolInputDelta.clear();
@@ -545,16 +572,39 @@ class Chat with ChangeNotifier {
 
   void enableInternet() {
     if (GeminiModel.all.contains(model)) {
-      geminiTools.add({'google_search': {}});
-      internet = true;
+      bool _exist = geminiTools.any((x) => x.containsKey('google_search'));
+      if (!_exist) geminiTools.add({'google_search': {}});
+    } else if (GPTModel.all.contains(model) ||
+        DeepSeekModel.all.contains(model)) {
+      var func = {"type": "function", "function": Functions.internet};
+      bool _exist = tools.any((x) => x.function.name == 'google_search');
+      if (!_exist) tools.add(openai.ChatCompletionTool.fromJson(func));
+    } else if (ClaudeModel.all.contains(model)) {
+      var func = Functions.internet;
+      var funcschema = func['input_schema'] ?? func['parameters'];
+      var jsTool = anthropic.Tool.custom(
+        name: func['name'],
+        description: func['description'],
+        inputSchema: funcschema,
+      );
+      bool _exist = claudeTools.any((x) => x.name == 'google_search');
+      if (!_exist) claudeTools.add(jsTool);
     }
+    internet = true;
   }
 
   void disableInternet() {
     if (GeminiModel.all.contains(model) && geminiTools.isNotEmpty) {
       geminiTools.removeWhere((gtool) => gtool.containsKey('google_search'));
-      internet = false;
+    } else if (GPTModel.all.contains(model) ||
+        DeepSeekModel.all.contains(model)) {
+      tools.removeWhere((openai.ChatCompletionTool tool) =>
+          tool.function.name == 'google_search');
+    } else if (ClaudeModel.all.contains(model)) {
+      claudeTools
+          .removeWhere((anthropic.Tool tool) => tool.name == 'google_search');
     }
+    internet = false;
   }
 
 /**
@@ -565,7 +615,8 @@ class Chat with ChangeNotifier {
     if ((GPTModel.all.contains(model) || DeepSeekModel.all.contains(model)) &&
         tools.isEmpty) {
       var func = {"type": "function", "function": Functions.artifact};
-      tools.add(openai.ChatCompletionTool.fromJson(func));
+      bool _exist = tools.any((x) => x.function.name == 'save_artifact');
+      if (!_exist) tools.add(openai.ChatCompletionTool.fromJson(func));
     } else if (ClaudeModel.all.contains(model) && claudeTools.isEmpty) {
       var func = Functions.artifact;
       var funcschema = func['input_schema'] ?? func['parameters'];
@@ -574,12 +625,16 @@ class Chat with ChangeNotifier {
         description: func['description'],
         inputSchema: funcschema,
       );
-      claudeTools.add(jsTool);
+      bool _exist = claudeTools.any((x) => x.name == 'save_artifact');
+      if (!_exist) claudeTools.add(jsTool);
     } else if (GeminiModel.all.contains(model) && tools.isEmpty) {
       var func = Functions.artifact;
-      geminiTools.add({
-        'function_declarations': [func]
-      });
+      bool _exist =
+          geminiTools.any((x) => x.containsKey('function_declarations'));
+      if (!_exist)
+        geminiTools.add({
+          'function_declarations': [func]
+        });
     } else {
       debugPrint("${model} haven't support Artifact");
     }
@@ -606,13 +661,15 @@ class Chat with ChangeNotifier {
         for (var c in messages[0].content) if (c.type == 'text') _tx = c.text;
       if (_tx == Prompt.artifact) messages.removeAt(0);
     }
-    if (GPTModel.all.contains(model) || DeepSeekModel.all.contains(model))
-      tools.clear();
-    else if (ClaudeModel.all.contains(model))
-      claudeTools.clear();
-    else if (GeminiModel.all.contains(model) && tools.isEmpty)
-      geminiTools.clear();
-
+    if (GPTModel.all.contains(model) || DeepSeekModel.all.contains(model)) {
+      tools.removeWhere((openai.ChatCompletionTool tool) =>
+          tool.function.name == 'save_artifact');
+    } else if (ClaudeModel.all.contains(model)) {
+      claudeTools
+          .removeWhere((anthropic.Tool tool) => tool.name == 'save_artifact');
+    } else if (GeminiModel.all.contains(model) && tools.isEmpty) {
+      geminiTools.removeWhere((gtool) => gtool.containsKey('save_artifact'));
+    }
     artifact = false;
   }
 }

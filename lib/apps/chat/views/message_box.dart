@@ -27,6 +27,7 @@ import './htmlcontent.dart';
 class MessageBox extends StatefulWidget {
   final Message msg;
   final bool isLast;
+  final bool isSameRole;
   final int pageId;
   final String? model;
   final Stream<Message> messageStream;
@@ -35,6 +36,7 @@ class MessageBox extends StatefulWidget {
     Key? key,
     required this.msg,
     this.isLast = false,
+    this.isSameRole = false,
     required this.pageId,
     this.model,
     required this.messageStream,
@@ -85,7 +87,9 @@ class MessageBoxState extends State<MessageBox> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                roleIcon(context, widget.msg),
+                widget.isSameRole
+                    ? SizedBox(width: 32, height: 32)
+                    : roleIcon(context, widget.msg),
                 _msgBox(context)
               ],
             ),
@@ -190,6 +194,9 @@ class MessageBoxState extends State<MessageBox> {
               if (tool.function.name == "save_artifact")
                 return buildArtifact(
                     context, json.decode(tool.function.arguments));
+              else if (tool.function.name == "google_search") {
+                return SizedBox.shrink(); //TODO
+              }
               return SizedBox.shrink();
             }).toList(),
         ]),

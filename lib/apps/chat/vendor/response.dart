@@ -12,7 +12,7 @@ import 'package:google_generative_ai/src/api.dart' as gemini;
 
 class AIResponse {
   static void Openai(Pages pages, Property property, User user,
-      int handlePageID, Map<String, dynamic> j) {
+      int handlePageID, Map<String, dynamic> j) async {
     var res = openai.CreateChatCompletionStreamResponse.fromJson(j);
     pages.getPage(handlePageID).appendMessage(
           msg: res.choices[0].delta.content,
@@ -21,7 +21,7 @@ class AIResponse {
 
     if (res.choices[0].finishReason ==
         openai.ChatCompletionFinishReason.toolCalls) {
-      pages.getPage(handlePageID).setOpenaiToolInput();
+      await pages.getPage(handlePageID).setOpenaiToolInput();
       ChatAPI().submitText(pages, property, handlePageID, user);
     }
   }
@@ -132,22 +132,23 @@ class AIResponse {
                 toolUse: b.mapOrNull(inputJsonDelta: (x) => x.partialJson),
               );
         },
-        contentBlockStop: (int i, anthropic.MessageStreamEventType t) {
+        contentBlockStop: (int i, anthropic.MessageStreamEventType t) async {
           if (pages.getPage(handlePageID).messages.last.content is List &&
               pages.getPage(handlePageID).messages.last.content[i].type ==
                   "tool_use") {
-            pages.getPage(handlePageID).setClaudeToolInput(i);
-            var _toolID =
-                pages.getPage(handlePageID).messages.last.content[i].id;
-            pages.getPage(handlePageID).addMessage(role: MessageTRole.user);
-            pages.getPage(handlePageID).addTool(
-                  toolResult: anthropic.ToolResultBlock(
-                    toolUseId: _toolID,
-                    isError: false,
-                    content:
-                        anthropic.ToolResultBlockContent.text("tool result"),
-                  ),
-                );
+            await pages.getPage(handlePageID).setClaudeToolInput(i);
+            // var _toolID =
+            //     pages.getPage(handlePageID).messages.last.content[i].id;
+            // pages.getPage(handlePageID).addMessage(role: MessageTRole.user);
+            // pages.getPage(handlePageID).addTool(
+            //       toolResult: anthropic.ToolResultBlock(
+            //         toolUseId: _toolID,
+            //         isError: false,
+            //         type: "tool_result",
+            //         content:
+            //             anthropic.ToolResultBlockContent.text("tool result"),
+            //       ),
+            //     );
             ChatAPI().submitText(pages, property, handlePageID, user);
           }
         },

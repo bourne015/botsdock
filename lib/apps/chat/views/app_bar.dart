@@ -96,8 +96,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
         ),
         PopupMenuDivider(),
         _buildArtifactSwitch(context),
-        if (GeminiModel.all.contains(pages.currentPage!.model))
-          _buildInternetSwitch(context)
+        _buildInternetSwitch(context)
       ],
     );
   }
@@ -174,7 +173,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                         Icons.auto_graph,
                         color: switchArtifact.value ? Colors.blue[700] : null,
                       ),
-                      title: Text("可视化(experimental)"),
+                      title: Text("可视化(Beta)"),
                       subtitle: Text("提供图表、动画、地图、网页预览等可视化内容",
                           style: TextStyle(
                               fontSize: 12.5, color: AppColors.subTitle)),
@@ -199,6 +198,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
 
   PopupMenuItem<String> _buildInternetSwitch(BuildContext context) {
     Property property = Provider.of<Property>(context, listen: false);
+    Pages pages = Provider.of<Pages>(context, listen: false);
     return PopupMenuItem<String>(
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         // value: "value",
@@ -223,7 +223,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                       leading: Icon(Icons.cloud,
                           color:
                               switchInternet.value ? Colors.yellow[800] : null),
-                      title: Text("联网功能"),
+                      title: Text("联网功能(Beta)"),
                       subtitle: Text("获取Google搜索的结果",
                           style: TextStyle(
                               fontSize: 12.5, color: AppColors.subTitle)),
@@ -235,7 +235,8 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                           onChanged: (value) {
                             setState(() {
                               switchInternet.value = value;
-                              property.internet = switchInternet.value;
+                              pages.currentPage!.internet =
+                                  switchInternet.value;
                             });
                             // Global.saveProperties(internet: property.internet);
                           },
