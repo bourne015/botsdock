@@ -170,7 +170,10 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                   child: ListTile(
                       dense: true,
                       contentPadding: EdgeInsets.symmetric(horizontal: 5),
-                      leading: Icon(Icons.visibility_outlined, size: 18),
+                      leading: Icon(
+                        Icons.auto_graph,
+                        color: switchArtifact.value ? Colors.blue[700] : null,
+                      ),
                       title: Text("可视化(experimental)"),
                       subtitle: Text("提供图表、动画、地图、网页预览等可视化内容",
                           style: TextStyle(
@@ -234,7 +237,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                               switchInternet.value = value;
                               property.internet = switchInternet.value;
                             });
-                            Global.saveProperties(internet: property.internet);
+                            // Global.saveProperties(internet: property.internet);
                           },
                         ),
                       )),

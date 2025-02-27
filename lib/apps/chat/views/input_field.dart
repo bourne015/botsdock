@@ -404,6 +404,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
             title: "Chat 0",
             model: property.initModelVersion,
             artifact: property.artifact,
+            internet: property.internet,
           ),
           sort: true,
         );

@@ -247,7 +247,7 @@ class ChatAPI {
           pages.getPage(handlePageID).addArtifact();
         else
           pages.getPage(handlePageID).removeArtifact();
-        if (property.internet)
+        if (pages.getPage(handlePageID).internet)
           pages.getPage(handlePageID).enableInternet();
         else
           pages.getPage(handlePageID).disableInternet();
