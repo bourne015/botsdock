@@ -31,7 +31,7 @@
   "adminstrator": "管理",
   "modelDescription": "描述",
   "contextWindow": "上下文窗口",
-  "cost": "费用(输入/输出,每百万token)",
+  "price": "费用(每百万token)",
   "inputFormat": "输入格式",
   "inputFormat1": "文本",
   "inputFormat2": "文本和图像",

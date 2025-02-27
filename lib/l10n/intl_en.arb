@@ -137,9 +137,9 @@
   "@contextWindow": {
     "description": "Model Context window"
   },
-  "cost": "Cost",
-  "@cost": {
-    "description": "Model cost"
+  "price": "Price(per 1M tokens)",
+  "@price": {
+    "description": "Model price"
   },
   "inputFormat": "Input Format",
   "@inputFormat": {
