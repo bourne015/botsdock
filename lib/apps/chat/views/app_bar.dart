@@ -1,5 +1,3 @@
-import 'package:botsdock/apps/chat/utils/global.dart';
-import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -54,7 +52,14 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
             appbarTitle(context),
             SizedBox(width: 10),
             if (!property.onInitPage && pages.currentPage!.artifact)
-              Icon(Icons.visibility_outlined, size: 18)
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 5),
+                child: Icon(Icons.auto_graph, color: Colors.blue[700]),
+              ),
+            if (!property.onInitPage && pages.currentPage!.internet)
+              Container(
+                  margin: EdgeInsets.symmetric(horizontal: 5),
+                  child: Icon(Icons.cloud, color: Colors.yellow[800])),
           ],
         ),
         backgroundColor: AppColors.chatPageBackground,
@@ -187,6 +192,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                               switchArtifact.value = value;
                               pages.currentPage!.artifact =
                                   switchArtifact.value;
+                              pages.notifyListeners();
                             });
                           },
                         ),
@@ -197,7 +203,6 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
   }
 
   PopupMenuItem<String> _buildInternetSwitch(BuildContext context) {
-    Property property = Provider.of<Property>(context, listen: false);
     Pages pages = Provider.of<Pages>(context, listen: false);
     return PopupMenuItem<String>(
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
@@ -237,6 +242,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                               switchInternet.value = value;
                               pages.currentPage!.internet =
                                   switchInternet.value;
+                              pages.notifyListeners();
                             });
                             // Global.saveProperties(internet: property.internet);
                           },
