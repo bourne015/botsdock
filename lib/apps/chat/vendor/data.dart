@@ -78,14 +78,21 @@ class GeminiModel {
   static const String flash_20 = "gemini-2.0-flash";
   static const String pro_15 = "gemini-1.5-pro";
   static const String flash_20_lite = "gemini-2.0-flash-lite";
+  static const String flash_20_001 = "gemini-2.0-flash-001";
 
-  static const List<String> all = [flash_20, pro_15, flash_20_lite];
+  static const List<String> all = [
+    pro_15,
+    flash_20_lite,
+    flash_20,
+    flash_20_001
+  ];
 
   Map<String, String> toJson() {
     return {
-      flash_20: '2.0',
       pro_15: '1.5',
       flash_20_lite: "2.0 lite",
+      flash_20: '2.0',
+      flash_20_001: "2.0"
     };
   }
 }

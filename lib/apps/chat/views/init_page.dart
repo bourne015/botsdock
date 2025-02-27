@@ -452,14 +452,14 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
         _buildPopupMenuItem(
           context: context,
-          value: geminiSub[1],
+          value: geminiSub[0],
           inputType: "多模态",
           title: "Gemini Pro 1.5",
           description: GalleryLocalizations.of(context)?.geminiDesc ?? '',
         ),
         _buildPopupMenuItem(
           context: context,
-          value: geminiSub[0],
+          value: geminiSub[3],
           inputType: "多模态",
           title: "Gemini Flash 2.0",
           description: GalleryLocalizations.of(context)?.geminiDesc ?? '',
