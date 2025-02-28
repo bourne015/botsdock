@@ -133,10 +133,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: "9467b7c4eedf0bd4c9306b0ec12455b278f6366962be061d0978a446c103c111"
+      sha256: "7423298f08f6fc8cce05792bae329f9a93653fc9c08712831b1a55540127995d"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.0.1"
+    version: "9.0.2"
   file_saver:
     dependency: "direct main"
     description:
@@ -233,7 +233,7 @@ packages:
     description:
       path: "."
       ref: delete-fonts
-      resolved-ref: caab1a309691c1846c24005b2f91317c21b826bf
+      resolved-ref: "320716699bb3130ca8b044eae8c676f675fa740e"
       url: "https://github.com/bourne015/flutter_math"
     source: git
     version: "0.7.3"
@@ -249,10 +249,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_plugin_android_lifecycle
-      sha256: "615a505aef59b151b46bbeef55b36ce2b6ed299d160c51d84281946f0aa0ce0e"
+      sha256: "1f74d9bd071bd8ab661faf38f6c57028a953b182703cac4b60821b9b2af583e9"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.24"
+    version: "2.0.25"
   flutter_spinkit:
     dependency: "direct main"
     description:
@@ -715,10 +715,10 @@ packages:
     dependency: "direct main"
     description:
       name: web
-      sha256: cd3543bd5798f6ad290ea73d210f423502e71900302dde696f8bff84bf89a1cb
+      sha256: "868d88a33d8a87b18ffc05f9f030ba328ffefba92d6c127917a2ba740f9cfe4a"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1"
   win32:
     dependency: transitive
     description:
