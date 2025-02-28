@@ -1,3 +1,5 @@
+import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -99,6 +101,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
 
   Widget _appBarMenu(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
+    User user = Provider.of<User>(context, listen: false);
     return PopupMenuButton<String>(
       icon: Icon(Icons.more_vert_rounded, size: 20),
       color: AppColors.drawerBackground,
@@ -116,6 +119,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
           onTap: () {
             Navigator.of(context).pop();
             pages.clearCurrentPage();
+            ChatAPI().saveChats(user, pages, pages.currentPageID);
           },
         ),
         PopupMenuDivider(),
@@ -172,6 +176,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
 
   PopupMenuItem<String> _buildArtifactSwitch(BuildContext context) {
     Pages pages = Provider.of<Pages>(context, listen: false);
+    User user = Provider.of<User>(context, listen: false);
     return PopupMenuItem<String>(
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         // value: "value",
@@ -211,6 +216,8 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                               switchArtifact.value = value;
                               pages.set_artifact(pages.currentPageID, value);
                             });
+                            ChatAPI()
+                                .saveChats(user, pages, pages.currentPageID);
                           },
                         ),
                       )),
@@ -221,6 +228,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
 
   PopupMenuItem<String> _buildInternetSwitch(BuildContext context) {
     Pages pages = Provider.of<Pages>(context, listen: false);
+    User user = Provider.of<User>(context, listen: false);
     return PopupMenuItem<String>(
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         // value: "value",
@@ -259,6 +267,8 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                               switchInternet.value = value;
                               pages.set_internet(pages.currentPageID, value);
                             });
+                            ChatAPI()
+                                .saveChats(user, pages, pages.currentPageID);
                             // Global.saveProperties(internet: property.internet);
                           },
                         ),

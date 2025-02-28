@@ -539,6 +539,8 @@ class Chat with ChangeNotifier {
         "tools": tools.map((e) => e.toJson()).toList(),
         "claude_tools": claudeTools.map((e) => e.toJson()).toList(),
         "gemini_tools": geminiTools, //it's already json
+        "artifact": artifact,
+        "internet": internet,
       };
 
   /**

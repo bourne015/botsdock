@@ -1,7 +1,6 @@
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/models/pages.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
-import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:flutter/material.dart';
