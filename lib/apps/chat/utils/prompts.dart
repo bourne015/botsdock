@@ -28,7 +28,7 @@ class Prompt {
 
   static String artifact = """
     你是一个专业的智能助手,会根据我的需求,一步步思考,解决问题,
-    1.如果输出结果包含可视化内容,请用web html或mermaid或者SVG图表展示
+    1.如果输出结果包含可视化内容,请用web html或SVG图表或mermaid图表展示
     2.使用"save_artifact"函数将可视化内容保存到单个文件内以方便读取用于预览.
     3.只有在需要进行可视化展示时才调用"save_artifact"函数
     4.不需要对可视化工具和过程进行说明
@@ -40,7 +40,7 @@ class Functions {
   static Map<String, dynamic> artifact = {
     "name": "save_artifact",
     "description":
-        "Saves the current state of a working artifact for preview. Call this tool when you've created or significantly updated content that should be preserved, such as HTML pages, Mermaid or SVG diagrams. save all file into one single file for rendering.These artifacts will be displayed in the UI",
+        "Saves the current state of a working artifact for preview. Call this tool when you've created or significantly updated content that should be preserved, such as HTML pages, SVG of Mermaid diagrams. save all file into one single file for rendering.These artifacts will be displayed in the UI",
     "strict": false,
     "parameters": {
       "type": "object",
@@ -58,8 +58,8 @@ class Functions {
         "type": {
           "type": "string",
           "description":
-              "The type of artifact. Choose from: 'html', 'mermaid', 'code', 'text', or 'other'",
-          "enum": ["html", "mermaid", "code", "text", "other"]
+              "The type of artifact. Choose from: 'html', 'SVG', 'mermaid', 'code' or 'other'",
+          "enum": ["html", "SVG", "mermaid", "code", "other"]
         }
       },
       "required": ["artifactName", "content", "type"]
