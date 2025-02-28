@@ -163,7 +163,7 @@ class Administrator extends StatelessWidget {
                   context,
                   "Instructions",
                   Icons.settings_rounded,
-                  GalleryLocalizations.of(context)!.instructions),
+                  GalleryLocalizations.of(context)!.setting),
               _buildPopupMenuItem(context, "About", Icons.info,
                   GalleryLocalizations.of(context)!.about),
               PopupMenuDivider(),
@@ -211,6 +211,7 @@ class Administrator extends StatelessWidget {
     //     });
     showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return Dialog(
               child: ClipRRect(

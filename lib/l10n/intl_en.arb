@@ -113,9 +113,9 @@
   "@custmizeGPT": {
     "description": "custmizeGPT"
   },
-  "instructions": "Instructions",
-  "@instructions": {
-    "description": "Model instructions"
+  "setting": "Settings",
+  "@setting": {
+    "description": "Model setting"
   },
   "about": "About",
   "@about": {
@@ -137,7 +137,7 @@
   "@contextWindow": {
     "description": "Model Context window"
   },
-  "price": "Price(per 1M tokens)",
+  "price": "Price",
   "@price": {
     "description": "Model price"
   },
@@ -149,9 +149,9 @@
   "@inputFormat1": {
     "description": "Text input format"
   },
-  "inputFormat2": "Text and Image",
+  "inputFormat2": "Image",
   "@inputFormat2": {
-    "description": "Text and Image format"
+    "description": "Image format"
   },
   "selectModelTooltip": "select model",
   "@selectModelTooltip": {
