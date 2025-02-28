@@ -74,8 +74,12 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
 
   List<Widget> appbarIcons(Pages pages, Property property) {
     var res = [
-      Container(child: Icon(null, color: Colors.blue[700])),
-      Container(child: Icon(null, color: Colors.blue[700])),
+      Container(
+          margin: EdgeInsets.symmetric(horizontal: 5),
+          child: Icon(null, color: Colors.blue[700])),
+      Container(
+          margin: EdgeInsets.symmetric(horizontal: 5),
+          child: Icon(null, color: Colors.blue[700])),
     ];
     if (!property.onInitPage) {
       if (pages.currentPage!.artifact && pages.currentPage!.internet)
