@@ -51,15 +51,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
           children: [
             appbarTitle(context),
             SizedBox(width: 10),
-            if (!property.onInitPage && pages.currentPage!.artifact)
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 5),
-                child: Icon(Icons.auto_graph, color: Colors.blue[700]),
-              ),
-            if (!property.onInitPage && pages.currentPage!.internet)
-              Container(
-                  margin: EdgeInsets.symmetric(horizontal: 5),
-                  child: Icon(Icons.cloud, color: Colors.yellow[800])),
+            ...appbarIcons(pages, property),
           ],
         ),
         backgroundColor: AppColors.chatPageBackground,
@@ -76,6 +68,33 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
       //   color: AppColors.drawerDivider,
       // ),
     ]);
+  }
+
+  List<Widget> appbarIcons(Pages pages, Property property) {
+    var res = [
+      Container(child: Icon(null, color: Colors.blue[700])),
+      Container(child: Icon(null, color: Colors.blue[700])),
+    ];
+    if (!property.onInitPage) {
+      if (pages.currentPage!.artifact && pages.currentPage!.internet)
+        res = [
+          Container(
+              margin: EdgeInsets.symmetric(horizontal: 5),
+              child: Icon(Icons.auto_graph, color: Colors.blue[700])),
+          Container(
+              margin: EdgeInsets.symmetric(horizontal: 5),
+              child: Icon(Icons.cloud, color: Colors.yellow[800])),
+        ];
+      else if (pages.currentPage!.artifact)
+        res[0] = Container(
+            margin: EdgeInsets.symmetric(horizontal: 5),
+            child: Icon(Icons.auto_graph, color: Colors.blue[700]));
+      else if (pages.currentPage!.internet)
+        res[0] = Container(
+            margin: EdgeInsets.symmetric(horizontal: 5),
+            child: Icon(Icons.cloud, color: Colors.yellow[800]));
+    }
+    return res;
   }
 
   Widget _appBarMenu(BuildContext context) {
@@ -190,9 +209,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                           onChanged: (value) {
                             setState(() {
                               switchArtifact.value = value;
-                              pages.currentPage!.artifact =
-                                  switchArtifact.value;
-                              pages.notifyListeners();
+                              pages.set_artifact(pages.currentPageID, value);
                             });
                           },
                         ),
@@ -240,9 +257,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                           onChanged: (value) {
                             setState(() {
                               switchInternet.value = value;
-                              pages.currentPage!.internet =
-                                  switchInternet.value;
-                              pages.notifyListeners();
+                              pages.set_internet(pages.currentPageID, value);
                             });
                             // Global.saveProperties(internet: property.internet);
                           },

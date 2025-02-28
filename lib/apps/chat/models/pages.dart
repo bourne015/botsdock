@@ -16,6 +16,16 @@ class Pages with ChangeNotifier {
   int _currentPageID = -1;
   var chatApi = ChatAPI();
 
+  void set_artifact(int pid, bool v) {
+    getPage(pid).artifact = v;
+    notifyListeners();
+  }
+
+  void set_internet(int pid, bool v) {
+    getPage(pid).internet = v;
+    notifyListeners();
+  }
+
   set currentPageID(int cid) {
     _currentPageID = cid;
     notifyListeners();
