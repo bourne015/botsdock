@@ -55,15 +55,20 @@ flutter:
     # - family: GalleryIcons
     #   fonts:
     #     - asset: assets/fonts/GalleryIcons.ttf
-
+  deferred-components:
+    - name: chat
+      libraries:
+        # Only one library from the loading unit is necessary.
+        - 'package:botsdock/apps/chat/main.dart'
+      assets:
+        - assets/images/openai.png
+        - assets/images/anthropic.png
+        - assets/images/google.png
+        - assets/images/deepseek.png
+        - assets/images/avatar/
+        - assets/images/bot/
+        - assets/images/cat/
+        - assets/env.conf
+        - assets/mermaid.min.js
   assets:
-    - assets/images/openai.png
-    - assets/images/anthropic.png
-    - assets/images/google.png
-    - assets/images/deepseek.png
     - assets/images/chat/
-    - assets/images/avatar/
-    - assets/images/bot/
-    - assets/images/cat/
-    - assets/env.conf
-    - assets/mermaid.min.js
