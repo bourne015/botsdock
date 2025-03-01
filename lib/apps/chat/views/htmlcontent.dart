@@ -127,20 +127,10 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
             body {
               margin: 0;
               padding: 0;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 100vh;
-              width: 100vw;
             }
             .content-wrapper { 
               opacity: 0; 
               transition: opacity 0.3s ease-in-out;
-              width: 100%;
-              height: 100%;
-              display: flex;
-              justify-content: center;
-              align-items: center;
             }
             .content-wrapper.loaded { 
               opacity: 1; 
@@ -235,6 +225,15 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
   }
 
   String _sanitizeHtml(String html) {
+    // 使用正则表达式去除前后的```和可能存在的mermaid/svg/html
+    final pattern = r'^```(?:mermaid|svg|html)?\s*([\s\S]*?)\s*```$';
+    final regExp = RegExp(pattern, caseSensitive: false, multiLine: true);
+
+    final match = regExp.firstMatch(html);
+    if (match != null && match.groupCount >= 1) {
+      html = match.group(1) ?? '';
+    }
+
     // return html
     //     .replaceAll('<script>', '&lt;script&gt;')
     //     .replaceAll('</script>', '&lt;/script&gt;');

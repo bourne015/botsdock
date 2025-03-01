@@ -237,7 +237,7 @@ class MessageBoxState extends State<MessageBox> {
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           HtmlContentWidget(
             content: func["content"] ?? "",
-            contentType: func["type"],
+            contentType: func["type"].toLowerCase(),
           )
         ],
       ),
