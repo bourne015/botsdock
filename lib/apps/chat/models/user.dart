@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:botsdock/apps/chat/models/settings.dart';
 import 'package:flutter/widgets.dart';
 
 //all chat pages
@@ -13,6 +16,7 @@ class User with ChangeNotifier {
   double? _credit;
   bool _signUP = false;
   int _updated_at = 0;
+  Settings? _settings;
 
   User({
     bool? isLogedin,
@@ -26,6 +30,7 @@ class User with ChangeNotifier {
     double? credit,
     bool? signUP = true,
     int? updated_at = 0,
+    Settings? settings,
   })  : _isLogedin = isLogedin ?? false,
         _id = id ?? 0,
         _name = name,
@@ -36,6 +41,7 @@ class User with ChangeNotifier {
         _cat_id = cat_id,
         _credit = credit,
         _signUP = signUP ?? false,
+        _settings = settings ?? Settings(),
         _updated_at = updated_at ?? 0;
 
   int get id => _id;
@@ -102,6 +108,12 @@ class User with ChangeNotifier {
     notifyListeners();
   }
 
+  Settings? get settings => _settings;
+  set settings(Settings? value) {
+    _settings = value;
+    notifyListeners();
+  }
+
   Map<String, dynamic> toJson() => {
         'id': _id,
         'name': _name,
@@ -113,9 +125,23 @@ class User with ChangeNotifier {
         "credit": _credit,
         "isLogedin": _isLogedin,
         "updated_at": _updated_at,
+        "settings": settings?.toJson(),
       };
 
   static User fromJson(u) {
+    Map<String, dynamic> settingsJson = {};
+    if (u["settings"] != null) {
+      if (u["settings"] is Map) {
+        settingsJson = Map<String, dynamic>.from(u["settings"]);
+      } else if (u["settings"] is String) {
+        // 如果后端返回的是JSON字符串，需要解析
+        try {
+          settingsJson = jsonDecode(u["settings"]);
+        } catch (e) {
+          print('Error parsing settings JSON: $e');
+        }
+      }
+    }
     return User(
       id: u["id"] as int,
       name: u["name"],
@@ -127,6 +153,7 @@ class User with ChangeNotifier {
       credit: u["credit"],
       updated_at: u["updated_at"] as int,
       isLogedin: u["isLogedin"] ?? false,
+      settings: Settings.fromJson(settingsJson),
     );
   }
 
@@ -142,6 +169,7 @@ class User with ChangeNotifier {
     double? credit,
     bool? signUP,
     int? updated_at,
+    Settings? settings,
   }) {
     if (isLogedin != null) _isLogedin = isLogedin;
     if (id != null) _id = id;
@@ -154,6 +182,7 @@ class User with ChangeNotifier {
     if (credit != null) _credit = credit;
     if (signUP != null) _signUP = signUP;
     if (updated_at != null) _updated_at = updated_at;
+    if (settings != null) _settings = settings;
     notifyListeners();
   }
 
@@ -169,6 +198,7 @@ class User with ChangeNotifier {
     if (u.avatar_bot != null) _avatar_bot = u.avatar_bot;
     if (u.cat_id != null) _cat_id = u.cat_id;
     if (u.credit != null) _credit = u.credit;
+    if (u.settings != null) _settings = u.settings;
     notifyListeners();
   }
 }

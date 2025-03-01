@@ -388,7 +388,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
-  void _sendContent(pages, property, user) async {
+  void _sendContent(pages, property, User user) async {
     int newPageId = -1;
 
     if (property.onInitPage) {
@@ -403,8 +403,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
           Chat(
             title: "Chat 0",
             model: property.initModelVersion,
-            artifact: property.artifact,
-            internet: property.internet,
+            artifact: user.settings?.artifact ?? false,
+            internet: user.settings?.internet ?? false,
           ),
           sort: true,
         );

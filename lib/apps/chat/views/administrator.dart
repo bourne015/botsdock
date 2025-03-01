@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:botsdock/apps/chat/models/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
@@ -104,7 +105,7 @@ class Administrator extends StatelessWidget {
               //NewBotDialog(context);
               break;
             case 'Instructions':
-              InstructionsDialog(context);
+              InstructionsDialog(context, user);
               break;
             case 'About':
               aboutDialog(context);
@@ -200,7 +201,7 @@ class Administrator extends StatelessWidget {
     );
   }
 
-  void InstructionsDialog(BuildContext context) {
+  void InstructionsDialog(BuildContext context, User user) {
     // showDialog(
     //     context: context,
     //     builder: (BuildContext context) {
@@ -216,7 +217,7 @@ class Administrator extends StatelessWidget {
           return Dialog(
               child: ClipRRect(
             borderRadius: BORDERRADIUS15,
-            child: SettingsView(),
+            child: SettingsView(user: user),
           ));
         });
   }
@@ -519,6 +520,7 @@ class Administrator extends StatelessWidget {
         "avatar_bot": defaultUserBotAvatar,
         "credit": 0.2,
         "pwd": _pwdcontroller.text,
+        "settings": Settings().toJson(),
       };
       response = await dio.post(USER_URL, data: userdata);
       if (response.data["result"] == 'success') {
@@ -560,6 +562,7 @@ class Administrator extends StatelessWidget {
         user.credit = response.data["credit"];
         user.updated_at = response.data["updated_at"];
         user.isLogedin = true;
+        user.settings = Settings.fromJson(response.data["settings"] ?? {});
       } else {
         user.isLogedin = false;
       }

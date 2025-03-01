@@ -1,3 +1,5 @@
+import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -7,19 +9,48 @@ import 'package:url_launcher/url_launcher.dart';
 import '../utils/constants.dart';
 
 class SettingsView extends StatefulWidget {
-  const SettingsView({super.key});
+  final User user;
+  const SettingsView({super.key, required this.user});
 
   @override
   State<SettingsView> createState() => SettingsViewState();
 }
 
-class SettingsViewState extends State<SettingsView> {
+class SettingsViewState extends State<SettingsView> with RestorationMixin {
+  double temperature = 1;
+  RestorableBool internet = RestorableBool(false);
+  RestorableBool artifact = RestorableBool(false);
+
+  @override
+  String get restorationId => 'switch_demo';
+  @override
+  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
+    registerForRestoration(internet, 'model internet function');
+    registerForRestoration(artifact, 'model artifact function');
+  }
+
+  @override
+  void initState() {
+    print("init");
+    artifact = RestorableBool(widget.user.settings?.artifact ?? false);
+    internet = RestorableBool(widget.user.settings?.internet ?? false);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    print("dispose");
+    ChatAPI().updateUser(
+        widget.user.id, {"settings": widget.user.settings!.toJson()});
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
         borderRadius: BORDERRADIUS15,
         child: Container(
-          width: 500,
+          width: 400,
           child: DefaultTabController(
             initialIndex: 0,
             length: 2,
@@ -35,13 +66,17 @@ class SettingsViewState extends State<SettingsView> {
           title: Text(title),
           bottom: TabBar(
             tabs: <Widget>[
-              Tab(icon: Icon(Icons.description_outlined)),
               Tab(icon: Icon(Icons.settings)),
+              Tab(icon: Icon(Icons.description_outlined)),
             ],
           ),
         ),
         body: TabBarView(
           children: <Widget>[
+            SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+              child: settingItems(context),
+            ),
             SingleChildScrollView(
                 child: Container(
               // margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -49,9 +84,111 @@ class SettingsViewState extends State<SettingsView> {
               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
               child: modelDesc(context),
             )),
-            SingleChildScrollView(child: Text("todo")),
           ],
         ));
+  }
+
+  Widget settingItems(BuildContext context) {
+    return Column(
+      children: [
+        functionSwitch(
+          context,
+          artifact,
+          name: "可视化",
+          desc: "生成图表、动画、流程图、网页预览等可视化内容",
+          onChange: (v) {
+            widget.user.settings?.artifact = v;
+          },
+        ),
+        Divider(),
+        functionSwitch(
+          context,
+          internet,
+          name: "联网",
+          desc: "获取Google搜索的数据",
+          onChange: (v) {
+            widget.user.settings?.internet = v;
+          },
+        ),
+        Divider(),
+        ListTile(
+          leading: Text("Temperature",
+              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
+          title: temperatureSlide(context),
+          subtitle: Text("值越大模型思维越发散(暂时无效)",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 10.5, color: AppColors.subTitle)),
+          trailing: Text("${temperature.toStringAsFixed(1)}",
+              style: TextStyle(fontSize: 12.5)),
+        ),
+        Divider(),
+      ],
+    );
+  }
+
+  Widget functionSwitch(
+    BuildContext context,
+    RestorableBool v, {
+    required void Function(bool) onChange,
+    String? name,
+    String? desc,
+  }) {
+    return ListTile(
+      dense: true,
+      visualDensity: VisualDensity.compact,
+      title: Text(name ?? "",
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
+      // title: null,
+      subtitle: Text(desc ?? "",
+          style: TextStyle(fontSize: 10.5, color: AppColors.subTitle)),
+      trailing: Transform.scale(
+        scale: 0.7,
+        child: Switch(
+          value: v.value,
+          activeColor: Colors.blue[300],
+          onChanged: (value) {
+            setState(() {
+              v.value = value;
+              onChange(value);
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget temperatureSlide(BuildContext context) {
+    return Container(
+        // margin: EdgeInsets.fromLTRB(0, 0, 15, 10),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+          // Container(
+          //     margin: EdgeInsets.fromLTRB(45, 0, 45, 0),
+          //     child: Row(
+          //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //         children: [
+          //           Text("稳定", style: TextStyle(fontSize: 10.5)),
+          //           Text("随机", style: TextStyle(fontSize: 10.5)),
+          //         ])),
+          Transform.scale(
+            scale: 0.7,
+            child: Slider(
+              min: 0,
+              max: 2,
+              value: temperature,
+              onChanged: (value) {
+                setState(() {
+                  temperature = value;
+                });
+              },
+              onChangeEnd: (value) {
+                widget.user.settings?.temperature = value;
+              },
+            ),
+          ),
+        ]));
   }
 
   Widget modelDesc(BuildContext context) {

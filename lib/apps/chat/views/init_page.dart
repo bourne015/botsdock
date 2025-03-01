@@ -25,7 +25,7 @@ class InitPage extends StatefulWidget {
   State createState() => InitPageState();
 }
 
-class InitPageState extends State<InitPage> with RestorationMixin {
+class InitPageState extends State<InitPage> {
   List<String> gptSub = [
     ...GPTModel.all,
     GPTModel.gptv40Dall,
@@ -37,23 +37,23 @@ class InitPageState extends State<InitPage> with RestorationMixin {
   String? selected;
   final ChatAPI chats = ChatAPI();
   final dio = Dio();
-  RestorableBool switchArtifact = RestorableBool(true);
-  RestorableBool switchInternet = RestorableBool(true);
+  // RestorableBool switchArtifact = RestorableBool(true);
+  // RestorableBool switchInternet = RestorableBool(true);
 
-  @override
-  String get restorationId => 'switch_test';
-  @override
-  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    registerForRestoration(switchArtifact, 'switch_artifact');
-    registerForRestoration(switchInternet, 'switch_internet');
-  }
+  // @override
+  // String get restorationId => 'switch_test';
+  // @override
+  // void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
+  //   registerForRestoration(switchArtifact, 'switch_artifact');
+  //   registerForRestoration(switchInternet, 'switch_internet');
+  // }
 
   @override
   void initState() {
     super.initState();
-    Property property = Provider.of<Property>(context, listen: false);
-    switchArtifact = RestorableBool(property.artifact);
-    switchInternet = RestorableBool(property.internet);
+    // Property property = Provider.of<Property>(context, listen: false);
+    // switchArtifact = RestorableBool(property.artifact);
+    // switchInternet = RestorableBool(property.internet);
   }
 
   @override
@@ -352,9 +352,9 @@ class InitPageState extends State<InitPage> with RestorationMixin {
           title: "DALL·E 3",
           description: GalleryLocalizations.of(context)?.dallEDesc ?? '',
         ),
-        PopupMenuDivider(),
-        _buildArtifactSwitch(context),
-        _buildInternetSwitch(context, "Google"),
+        // PopupMenuDivider(),
+        // _buildArtifactSwitch(context),
+        // _buildInternetSwitch(context, "Google"),
       ],
     );
   }
@@ -416,9 +416,9 @@ class InitPageState extends State<InitPage> with RestorationMixin {
           title: "Claude3 - Opus",
           description: GalleryLocalizations.of(context)?.claude3OpusDesc ?? '',
         ),
-        PopupMenuDivider(),
-        _buildArtifactSwitch(context),
-        _buildInternetSwitch(context, "Google"),
+        // PopupMenuDivider(),
+        // _buildArtifactSwitch(context),
+        // _buildInternetSwitch(context, "Google"),
       ],
     );
   }
@@ -463,9 +463,9 @@ class InitPageState extends State<InitPage> with RestorationMixin {
           title: "Gemini Flash 2.0",
           description: GalleryLocalizations.of(context)?.geminiDesc ?? '',
         ),
-        PopupMenuDivider(),
-        _buildArtifactSwitch(context),
-        _buildInternetSwitch(context, "Google"),
+        // PopupMenuDivider(),
+        // _buildArtifactSwitch(context),
+        // _buildInternetSwitch(context, "Google"),
       ],
     );
   }
@@ -510,9 +510,9 @@ class InitPageState extends State<InitPage> with RestorationMixin {
           title: "DeepSeek R1",
           description: GalleryLocalizations.of(context)?.deepseekR1Desc ?? '',
         ),
-        PopupMenuDivider(),
-        _buildArtifactSwitch(context),
-        _buildInternetSwitch(context, "Google"),
+        // PopupMenuDivider(),
+        // _buildArtifactSwitch(context),
+        // _buildInternetSwitch(context, "Google"),
       ],
     );
   }
@@ -604,7 +604,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
       ),
     );
   }
-
+/*
   PopupMenuItem<String> _buildArtifactSwitch(BuildContext context) {
     Property property = Provider.of<Property>(context, listen: false);
     return PopupMenuItem<String>(
@@ -700,6 +700,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
               ));
         }));
   }
+  */
 }
 
 class CustomCard extends StatelessWidget {

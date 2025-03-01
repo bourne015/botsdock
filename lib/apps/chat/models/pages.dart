@@ -209,8 +209,8 @@ class Property with ChangeNotifier {
   bool _isDrawerOpen = true;
   bool _onInitPage = true;
   bool _isLoading = false;
-  bool _artifact = false;
-  bool _internet = false;
+  // bool _artifact = false;
+  // bool _internet = false;
 
   String get initModelVersion => _initModelVersion;
 
@@ -237,17 +237,17 @@ class Property with ChangeNotifier {
     notifyListeners();
   }
 
-  bool get artifact => _artifact;
+  // bool get artifact => _artifact;
 
-  set artifact(bool v) {
-    _artifact = v;
-  }
+  // set artifact(bool v) {
+  //   _artifact = v;
+  // }
 
-  bool get internet => _internet;
+  // bool get internet => _internet;
 
-  set internet(bool v) {
-    _internet = v;
-  }
+  // set internet(bool v) {
+  //   _internet = v;
+  // }
 
   void reset() {
     _initModelVersion = DefaultModelVersion;

@@ -36,9 +36,10 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
   Widget build(BuildContext context) {
     Property property = Provider.of<Property>(context);
     Pages pages = Provider.of<Pages>(context);
+    User user = Provider.of<User>(context);
     if (property.onInitPage) {
-      switchArtifact.value = property.artifact;
-      switchInternet.value = property.internet;
+      switchArtifact.value = user.settings?.artifact ?? false;
+      switchInternet.value = user.settings?.internet ?? false;
     } else {
       switchArtifact.value = pages.currentPage!.artifact;
       switchInternet.value = pages.currentPage!.internet;
