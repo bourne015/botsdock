@@ -30,9 +30,6 @@ class InitPageState extends State<InitPage> with RestorationMixin {
     ...GPTModel.all,
     GPTModel.gptv40Dall,
   ];
-  List<String> claudeSub = ClaudeModel().toJson().keys.toList();
-  List<String> deepseekSub = DeepSeekModel().toJson().keys.toList();
-  List<String> geminiSub = GeminiModel().toJson().keys.toList();
   String gptDropdownValue = DefaultModelVersion;
   String claudeDropdownValue = DefaultClaudeModel;
   String deepseekDropdownValue = DefaultDeepSeekModel;
@@ -70,13 +67,13 @@ class InitPageState extends State<InitPage> with RestorationMixin {
     if (gptSub.contains(property.initModelVersion)) {
       selected = 'ChatGPT';
       gptDropdownValue = property.initModelVersion;
-    } else if (claudeSub.contains(property.initModelVersion)) {
+    } else if (ClaudeModel.all.contains(property.initModelVersion)) {
       selected = 'Claude';
       claudeDropdownValue = property.initModelVersion;
-    } else if (deepseekSub.contains(property.initModelVersion)) {
+    } else if (DeepSeekModel.all.contains(property.initModelVersion)) {
       selected = 'DeepSeek';
       deepseekDropdownValue = property.initModelVersion;
-    } else if (geminiSub.contains(property.initModelVersion)) {
+    } else if (GeminiModel.all.contains(property.initModelVersion)) {
       selected = 'Gemini';
       geminiDropdownValue = property.initModelVersion;
     }
@@ -329,14 +326,14 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         // ),
         _buildPopupMenuItem(
           context: context,
-          value: gptSub[2],
+          value: GPTModel.gptv4o,
           inputType: "多模态",
           title: "GPT 4o",
           description: GalleryLocalizations.of(context)?.chatGPT4oDesc ?? '',
         ),
         _buildPopupMenuItem(
           context: context,
-          value: gptSub[5],
+          value: GPTModel.gptvo1mini,
           inputType: "文本",
           title: "GPT o1-mini",
           description: GalleryLocalizations.of(context)?.chatGPTo3mDesc ?? '',
@@ -350,7 +347,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         // ),
         _buildPopupMenuItem(
           context: context,
-          value: gptSub.last,
+          value: GPTModel.gptv40Dall,
           inputType: "文本",
           title: "DALL·E 3",
           description: GalleryLocalizations.of(context)?.dallEDesc ?? '',
@@ -391,7 +388,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         //     GalleryLocalizations.of(context)?.claude3SonnetDesc ?? ''),
         _buildPopupMenuItem(
           context: context,
-          value: claudeSub[5],
+          value: ClaudeModel.sonnet_37,
           inputType: "多模态",
           title: "Claude3.7 - Sonnet",
           description:
@@ -399,7 +396,7 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         ),
         _buildPopupMenuItem(
           context: context,
-          value: claudeSub[3],
+          value: ClaudeModel.sonnet_35,
           inputType: "多模态",
           title: "Claude3.5 - Sonnet",
           description:
@@ -407,14 +404,14 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         ),
         _buildPopupMenuItem(
           context: context,
-          value: claudeSub[4],
+          value: ClaudeModel.haiku_35,
           inputType: "多模态",
           title: "Claude3.5 - Haiku",
           description: GalleryLocalizations.of(context)?.claude3HaikuDesc ?? '',
         ),
         _buildPopupMenuItem(
           context: context,
-          value: claudeSub[2],
+          value: ClaudeModel.opus,
           inputType: "多模态",
           title: "Claude3 - Opus",
           description: GalleryLocalizations.of(context)?.claude3OpusDesc ?? '',
@@ -454,14 +451,14 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
         _buildPopupMenuItem(
           context: context,
-          value: geminiSub[0],
+          value: GeminiModel.pro_15,
           inputType: "多模态",
           title: "Gemini Pro 1.5",
           description: GalleryLocalizations.of(context)?.geminiDesc ?? '',
         ),
         _buildPopupMenuItem(
           context: context,
-          value: geminiSub[3],
+          value: GeminiModel.flash_20,
           inputType: "多模态",
           title: "Gemini Flash 2.0",
           description: GalleryLocalizations.of(context)?.geminiDesc ?? '',
@@ -501,14 +498,14 @@ class InitPageState extends State<InitPage> with RestorationMixin {
         //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
         _buildPopupMenuItem(
           context: context,
-          value: deepseekSub[0],
+          value: DeepSeekModel.dc,
           inputType: "文本",
           title: "DeepSeek V3",
           description: GalleryLocalizations.of(context)?.deepseekDesc ?? '',
         ),
         _buildPopupMenuItem(
           context: context,
-          value: deepseekSub[1],
+          value: DeepSeekModel.dc_r,
           inputType: "文本",
           title: "DeepSeek R1",
           description: GalleryLocalizations.of(context)?.deepseekR1Desc ?? '',
