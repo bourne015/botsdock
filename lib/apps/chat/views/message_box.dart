@@ -218,11 +218,13 @@ class MessageBoxState extends State<MessageBox> {
    */
   Widget buildArtifact(BuildContext context, dynamic func) {
     if (func["type"] == null) return SizedBox.shrink();
-    if (func["type"] != "html" && func["type"] != "mermaid")
-      return SelectableText(
-        func["type"] + func["content"],
-        style: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
-      );
+    if (!supportedContentType.contains(func["type"].toLowerCase())) {
+      // return SelectableText(
+      //   func["type"] + func["content"],
+      //   style: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
+      // );
+      return contentMarkdown(context, func["content"]);
+    }
     return Container(
       padding: EdgeInsets.only(top: 5),
       decoration: BoxDecoration(
@@ -231,13 +233,11 @@ class MessageBoxState extends State<MessageBox> {
       clipBehavior: Clip.hardEdge,
       child: Column(
         children: [
-          Text("Artifact: " + func["artifactName"],
+          Text(func["artifactName"],
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           HtmlContentWidget(
             content: func["content"] ?? "",
-            contentType: func["type"] == "mermaid"
-                ? ContentType.mermaid
-                : ContentType.html,
+            contentType: func["type"],
           )
         ],
       ),

@@ -7,12 +7,12 @@ import 'dart:js_interop';
 import 'dart:async';
 
 /// 内容类型枚举
-enum ContentType { html, mermaid }
+List<String> supportedContentType = ["html", "svg", "mermaid"];
 
 /// HTML内容显示组件
 class HtmlContentWidget extends StatefulWidget {
   final String content;
-  final ContentType contentType;
+  final String contentType;
   final double? width;
   final double? height;
   final String mermaidTheme;
@@ -124,13 +124,32 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1">
           <style>
-            body { margin: 0; padding: 0; }
+            body {
+              margin: 0;
+              padding: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              width: 100vw;
+            }
             .content-wrapper { 
               opacity: 0; 
-              transition: opacity 0.3s ease-in-out; 
+              transition: opacity 0.3s ease-in-out;
+              width: 100%;
+              height: 100%;
+              display: flex;
+              justify-content: center;
+              align-items: center;
             }
             .content-wrapper.loaded { 
               opacity: 1; 
+            }
+            svg {
+              max-width: 100%;
+              max-height: 100%;
+              height: auto;
+              width: auto;
             }
           </style>
           <script>
@@ -149,7 +168,7 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
           </script>
     ''';
 
-    if (widget.contentType == ContentType.mermaid) {
+    if (widget.contentType == "mermaid") {
       return '''
         $baseHtml
         <script src="/assets/assets/mermaid.min.js"></script>
@@ -176,6 +195,31 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
         </body>
       </html>
       ''';
+    } else if (widget.contentType == "svg") {
+      return '''
+        $baseHtml
+        <script>
+          document.addEventListener("DOMContentLoaded", function() {
+            // SVG特定的初始化代码(如需要)
+            try {
+              // 确保SVG正确加载
+              const svgElement = document.querySelector('svg');
+              if (svgElement) {
+                // 可以在这里添加SVG的事件监听或处理
+              }
+            } catch (error) {
+              notifyParent('error:' + error.message);
+            }
+          });
+        </script>
+        </head>
+        <body>
+          <div class="content-wrapper">
+            ${_sanitizeHtml(widget.content)}
+          </div>
+        </body>
+      </html>
+      ''';
     } else {
       return '''
         $baseHtml
@@ -194,6 +238,11 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
     // return html
     //     .replaceAll('<script>', '&lt;script&gt;')
     //     .replaceAll('</script>', '&lt;/script&gt;');
+    // 如果是SVG内容类型，并且内容不是以<svg开头，尝试添加SVG标签
+    if (widget.contentType == "svg" &&
+        !html.trim().toLowerCase().startsWith('<svg')) {
+      return '<svg xmlns="http://www.w3.org/2000/svg">${html}</svg>';
+    }
     return html;
   }
 
