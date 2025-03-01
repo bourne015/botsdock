@@ -614,12 +614,11 @@ class Chat with ChangeNotifier {
  * and add a system prompt message in messages's index 0
  */
   void addArtifact() {
-    if ((GPTModel.all.contains(model) || DeepSeekModel.all.contains(model)) &&
-        tools.isEmpty) {
+    if ((GPTModel.all.contains(model) || DeepSeekModel.all.contains(model))) {
       var func = {"type": "function", "function": Functions.artifact};
       bool _exist = tools.any((x) => x.function.name == 'save_artifact');
       if (!_exist) tools.add(openai.ChatCompletionTool.fromJson(func));
-    } else if (ClaudeModel.all.contains(model) && claudeTools.isEmpty) {
+    } else if (ClaudeModel.all.contains(model)) {
       var func = Functions.artifact;
       var funcschema = func['input_schema'] ?? func['parameters'];
       var jsTool = anthropic.Tool.custom(
@@ -629,7 +628,7 @@ class Chat with ChangeNotifier {
       );
       bool _exist = claudeTools.any((x) => x.name == 'save_artifact');
       if (!_exist) claudeTools.add(jsTool);
-    } else if (GeminiModel.all.contains(model) && tools.isEmpty) {
+    } else if (GeminiModel.all.contains(model)) {
       var func = Functions.artifact;
       bool _exist =
           geminiTools.any((x) => x.containsKey('function_declarations'));
@@ -640,13 +639,13 @@ class Chat with ChangeNotifier {
     } else {
       debugPrint("${model} haven't support Artifact");
     }
-    if (messages.isEmpty || messages.first.role != MessageTRole.system)
-      addMessage(
-        id: 0,
-        role: MessageTRole.system,
-        text: Prompt.artifact,
-        timestamp: DateTime.now().millisecondsSinceEpoch,
-      );
+    // if (messages.isEmpty || messages.first.role != MessageTRole.system)
+    //   addMessage(
+    //     id: 0,
+    //     role: MessageTRole.system,
+    //     text: Prompt.artifact,
+    //     timestamp: DateTime.now().millisecondsSinceEpoch,
+    //   );
     artifact = true;
   }
 
@@ -655,14 +654,14 @@ class Chat with ChangeNotifier {
  * remove messages's index 0 if it's a system message
  */
   void removeArtifact() {
-    if (messages.isNotEmpty && messages[0].role == MessageTRole.system) {
-      String _tx = '';
-      if (messages[0].content is String)
-        _tx = messages[0].content;
-      else if (messages[0].content is List)
-        for (var c in messages[0].content) if (c.type == 'text') _tx = c.text;
-      if (_tx == Prompt.artifact) messages.removeAt(0);
-    }
+    // if (messages.isNotEmpty && messages[0].role == MessageTRole.system) {
+    //   String _tx = '';
+    //   if (messages[0].content is String)
+    //     _tx = messages[0].content;
+    //   else if (messages[0].content is List)
+    //     for (var c in messages[0].content) if (c.type == 'text') _tx = c.text;
+    //   if (_tx == Prompt.artifact) messages.removeAt(0);
+    // }
     if (GPTModel.all.contains(model) || DeepSeekModel.all.contains(model)) {
       tools.removeWhere((openai.ChatCompletionTool tool) =>
           tool.function.name == 'save_artifact');
