@@ -11,8 +11,8 @@ class Settings with ChangeNotifier {
     bool? internet,
     bool? artifact,
   })  : _temperature = temperature ?? 1.0,
-        _internet = internet ?? false,
-        _artifact = artifact ?? false;
+        _internet = internet ?? true,
+        _artifact = artifact ?? true;
 
   double get temperature => _temperature;
   set temperature(double v) {
@@ -41,8 +41,8 @@ class Settings with ChangeNotifier {
   static Settings fromJson(u) {
     return Settings(
       temperature: u["temperature"] ?? 1.0,
-      internet: u["internet"] ?? false,
-      artifact: u["artifact"] ?? false,
+      internet: u["internet"] ?? true,
+      artifact: u["artifact"] ?? true,
     );
   }
 }
