@@ -39,8 +39,9 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
 
   @override
   void dispose() {
-    ChatAPI().updateUser(
-        widget.user.id, {"settings": widget.user.settings!.toJson()});
+    if (widget.user.isLogedin)
+      ChatAPI().updateUser(
+          widget.user.id, {"settings": widget.user.settings!.toJson()});
     super.dispose();
   }
 
