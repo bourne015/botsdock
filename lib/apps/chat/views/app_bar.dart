@@ -1,5 +1,6 @@
 import 'package:botsdock/apps/chat/models/user.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
+import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +18,7 @@ class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class MyAppBarState extends State<MyAppBar> with RestorationMixin {
+  double temperature = 1;
   RestorableBool switchArtifact = RestorableBool(true);
   RestorableBool switchInternet = RestorableBool(true);
 
@@ -28,8 +30,14 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
     registerForRestoration(switchInternet, 'switch_internet');
   }
 
+  @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -40,9 +48,11 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
     if (property.onInitPage) {
       switchArtifact.value = user.settings?.artifact ?? false;
       switchInternet.value = user.settings?.internet ?? false;
+      temperature = user.settings?.temperature ?? 1.0;
     } else {
       switchArtifact.value = pages.currentPage!.artifact;
       switchInternet.value = pages.currentPage!.internet;
+      temperature = pages.currentPage!.temperature ?? 1.0;
     }
     return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
       AppBar(
@@ -62,7 +72,9 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
         toolbarHeight: 44,
         centerTitle: true,
         actions: [
-          if (!property.onInitPage) _appBarMenu(context),
+          if (!property.onInitPage &&
+              pages.currentPage?.model != DeepSeekModel.dc_r)
+            _appBarMenu(context),
         ],
       ),
       // Divider(
@@ -129,7 +141,10 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
         ),
         PopupMenuDivider(),
         _buildArtifactSwitch(context),
-        _buildInternetSwitch(context)
+        PopupMenuDivider(),
+        _buildInternetSwitch(context),
+        PopupMenuDivider(),
+        _buildtemperatureSlide(context),
       ],
     );
   }
@@ -207,8 +222,8 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                         Icons.auto_graph,
                         color: switchArtifact.value ? Colors.blue[700] : null,
                       ),
-                      title: Text("可视化(Beta)"),
-                      subtitle: Text("提供图表、动画、地图、网页预览等可视化内容",
+                      title: Text("可视化"),
+                      subtitle: Text("提供图表、动画、地图、网页预览等可视化能力",
                           style: TextStyle(
                               fontSize: 12.5, color: AppColors.subTitle)),
                       trailing: Transform.scale(
@@ -258,8 +273,8 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                       leading: Icon(Icons.cloud,
                           color:
                               switchInternet.value ? Colors.yellow[800] : null),
-                      title: Text("联网功能(Beta)"),
-                      subtitle: Text("获取Google搜索的结果",
+                      title: Text("联网功能"),
+                      subtitle: Text("获取Google搜索的数据",
                           style: TextStyle(
                               fontSize: 12.5, color: AppColors.subTitle)),
                       trailing: Transform.scale(
@@ -280,6 +295,69 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                       )),
                 ),
               ));
+        }));
+  }
+
+  PopupMenuItem<String> _buildtemperatureSlide(BuildContext context) {
+    User user = Provider.of<User>(context, listen: false);
+    Pages pages = Provider.of<Pages>(context, listen: false);
+    return PopupMenuItem<String>(
+        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+        // value: "value",
+        child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+          return Material(
+            //color: Colors.transparent,
+            color: AppColors.drawerBackground,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                borderRadius: BORDERRADIUS15,
+              ),
+              child: InkWell(
+                borderRadius: BORDERRADIUS15,
+                onTap: null,
+                child: ListTile(
+                  dense: true,
+                  visualDensity: VisualDensity.compact,
+                  leading: Text("Temperature",
+                      style:
+                          TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
+                  title: Container(
+                      // margin: EdgeInsets.fromLTRB(0, 0, 15, 10),
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                        Transform.scale(
+                          scale: 0.7,
+                          child: Slider(
+                            min: 0,
+                            max: 2,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 0, vertical: 0),
+                            value: temperature,
+                            onChanged: (value) {
+                              setState(() {
+                                temperature = value;
+                              });
+                            },
+                            onChangeEnd: (value) {
+                              pages.currentPage?.temperature = value;
+                            },
+                          ),
+                        ),
+                      ])),
+                  subtitle: Text("值越大模型思维越发散",
+                      textAlign: TextAlign.center,
+                      style:
+                          TextStyle(fontSize: 10.5, color: AppColors.subTitle)),
+                  trailing: Text("${temperature.toStringAsFixed(1)}",
+                      style: TextStyle(fontSize: 12.5)),
+                ),
+              ),
+            ),
+          );
         }));
   }
 }

@@ -31,15 +31,14 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
 
   @override
   void initState() {
-    print("init");
     artifact = RestorableBool(widget.user.settings?.artifact ?? false);
     internet = RestorableBool(widget.user.settings?.internet ?? false);
+    temperature = widget.user.settings?.temperature ?? 1.0;
     super.initState();
   }
 
   @override
   void dispose() {
-    print("dispose");
     ChatAPI().updateUser(
         widget.user.id, {"settings": widget.user.settings!.toJson()});
     super.dispose();
@@ -95,7 +94,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
           context,
           artifact,
           name: "可视化",
-          desc: "生成图表、动画、流程图、网页预览等可视化内容",
+          desc: "生成图表、动画、流程图、网页预览等可视化能",
           onChange: (v) {
             widget.user.settings?.artifact = v;
           },
@@ -115,7 +114,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
           leading: Text("Temperature",
               style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
           title: temperatureSlide(context),
-          subtitle: Text("值越大模型思维越发散(暂时无效)",
+          subtitle: Text("值越大模型思维越发散",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 10.5, color: AppColors.subTitle)),
           trailing: Text("${temperature.toStringAsFixed(1)}",
@@ -177,6 +176,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
             child: Slider(
               min: 0,
               max: 2,
+              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
               value: temperature,
               onChanged: (value) {
                 setState(() {

@@ -124,7 +124,7 @@ class ChatAPI {
   }
 
   //save chats to DB and local cache
-  Future<void> saveChats(user, pages, handlePageID) async {
+  Future<void> saveChats(User user, Pages pages, handlePageID) async {
     if (user.id == 0) return;
     var chatdbUrl = "${USER_URL}/${user.id}/chat";
     var chatData = {
@@ -138,6 +138,7 @@ class ChatAPI {
       "bot_id": pages.getPage(handlePageID).botID,
       "artifact": pages.getPage(handlePageID).artifact,
       "internet": pages.getPage(handlePageID).internet,
+      "temperature": pages.getPage(handlePageID).temperature,
     };
 
     try {
@@ -243,15 +244,17 @@ class ChatAPI {
       if (property.initModelVersion == GPTModel.gptv40Dall) {
         _imageGeneration(pages, property, handlePageID, user);
       } else {
-        if (pages.getPage(handlePageID).artifact)
-          pages.getPage(handlePageID).addArtifact();
-        else
-          pages.getPage(handlePageID).removeArtifact();
-        if (pages.getPage(handlePageID).internet)
-          pages.getPage(handlePageID).enableInternet();
-        else
-          pages.getPage(handlePageID).disableInternet();
-
+        if (pages.getPage(handlePageID).model != DeepSeekModel.dc_r) {
+          //deepseek-reasoner does not support Function Calling
+          if (pages.getPage(handlePageID).artifact)
+            pages.getPage(handlePageID).addArtifact();
+          else
+            pages.getPage(handlePageID).removeArtifact();
+          if (pages.getPage(handlePageID).internet)
+            pages.getPage(handlePageID).enableInternet();
+          else
+            pages.getPage(handlePageID).disableInternet();
+        }
         var chatData = _prepareChatData(pages, handlePageID);
         final stream = CreateChatStream(
           "${SSE_CHAT_URL}?user_id=${user.id}",
@@ -362,20 +365,26 @@ class ChatAPI {
     String prompt,
   ) {
     int handlePageID = pages.addPage(
-        Chat(title: "Chat 0", model: property.initModelVersion),
+        Chat(
+          title: "Chat 0",
+          model: property.initModelVersion,
+          artifact: user.settings?.artifact ?? false,
+          internet: user.settings?.internet ?? false,
+          temperature: user.settings?.temperature,
+        ),
         sort: true);
     property.onInitPage = false;
     pages.currentPageID = handlePageID;
     pages.currentPage?.model = property.initModelVersion;
 
-    if (pages.getPage(handlePageID).artifact)
-      pages.getPage(handlePageID).addArtifact();
-    else
-      pages.getPage(handlePageID).removeArtifact();
-    if (pages.getPage(handlePageID).internet)
-      pages.getPage(handlePageID).enableInternet();
-    else
-      pages.getPage(handlePageID).disableInternet();
+    // if (pages.getPage(handlePageID).artifact)
+    //   pages.getPage(handlePageID).addArtifact();
+    // else
+    //   pages.getPage(handlePageID).removeArtifact();
+    // if (pages.getPage(handlePageID).internet)
+    //   pages.getPage(handlePageID).enableInternet();
+    // else
+    //   pages.getPage(handlePageID).disableInternet();
     pages.getPage(handlePageID).addMessage(
         role: MessageTRole.user,
         text: prompt,
@@ -437,6 +446,7 @@ String _prepareChatData(Pages pages, int handlePageID) {
     "model": pages.currentPage?.model,
     "messages": jsChat["messages"],
     "tools": tools,
+    "temperature": pages.getPage(handlePageID).temperature,
   };
   return jsonEncode(chatData);
 }

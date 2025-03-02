@@ -44,6 +44,7 @@ class Chat with ChangeNotifier {
   bool artifact;
   bool internet;
   ItemPosition? position;
+  double? _temperature;
 
   Chat({
     int id = -1,
@@ -62,6 +63,7 @@ class Chat with ChangeNotifier {
     int? updated_at,
     bool? artifact,
     bool? internet,
+    double? temperature,
   })  : _id = id,
         _dbID = dbID,
         _botID = botID,
@@ -76,6 +78,7 @@ class Chat with ChangeNotifier {
         geminiTools = geminiTools ?? [],
         artifact = artifact ?? false,
         internet = internet ?? false,
+        _temperature = temperature,
         updated_at =
             updated_at ?? DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
@@ -118,6 +121,12 @@ class Chat with ChangeNotifier {
   bool get onGenerating => _onGenerating;
   set onGenerating(bool v) {
     _onGenerating = v;
+  }
+
+  double? get temperature => _temperature;
+  set temperature(double? v) {
+    _temperature = v;
+    // notifyListeners();
   }
 
   dynamic getVisionFiles(Map<String, VisionFile> visionFiles, content) {
@@ -530,6 +539,7 @@ class Chat with ChangeNotifier {
       messages: _msgs,
       artifact: c["artifact"] ?? false,
       internet: c["internet"] ?? false,
+      temperature: c["temperature"],
     );
   }
 
@@ -541,6 +551,7 @@ class Chat with ChangeNotifier {
         "gemini_tools": geminiTools, //it's already json
         "artifact": artifact,
         "internet": internet,
+        "temperature": temperature,
       };
 
   /**

@@ -405,6 +405,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
             model: property.initModelVersion,
             artifact: user.settings?.artifact ?? false,
             internet: user.settings?.internet ?? false,
+            temperature: user.settings?.temperature,
           ),
           sort: true,
         );
