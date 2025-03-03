@@ -351,12 +351,14 @@ class Chat with ChangeNotifier {
       else if (name == "webpage_fetch") {
         var cont = await webpage_query(url: input["url"]);
         res.add(cont);
+      } else {
+        res.add("finished");
       }
     } catch (e) {
       debugPrint("setClaudeToolInput error: $e");
+      res.add("error: could not get result");
     }
     var _toolID = messages.last.content[index].id;
-    if (res.isEmpty) res.add("could not get result");
     addMessage(role: MessageTRole.user);
     addTool(
       toolResult: anthropic.ToolResultBlock(
@@ -406,11 +408,13 @@ class Chat with ChangeNotifier {
         } else if (messages[_last].toolCalls[index].function.name ==
             "webpage_fetch") {
           res = await webpage_query(url: args["url"]);
+        } else {
+          res = "finished";
         }
       } catch (e) {
         debugPrint("setOpenaiToolInput error: $e");
+        res = "error: could not get result";
       }
-      if (res == null) res = "could not get result";
       addMessage(
         role: MessageTRole.tool,
         text: res,
@@ -566,13 +570,6 @@ class Chat with ChangeNotifier {
         "internet": internet,
         "temperature": temperature,
       };
-
-  /**
-   * data for chat completetion
-   */
-  List<dynamic> jsonMessages() {
-    return messages.map((msg) => msg.toJson()).toList();
-  }
 
   /**
    * for assistant chat: only send last message
