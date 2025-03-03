@@ -1,15 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:botsdock/data/adaptive.dart';
 import 'package:web/web.dart' as web;
 import 'dart:ui_web' as ui;
 import 'dart:js_interop';
 import 'dart:async';
 
-/// 内容类型枚举
-List<String> supportedContentType = ["html", "svg", "mermaid"];
+final List<String> supportedContentType = ["html", "svg", "mermaid"];
 
-/// HTML内容显示组件
 class HtmlContentWidget extends StatefulWidget {
   final String content;
   final String contentType;
@@ -58,7 +55,7 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
   void _setupLoading() {
     _loadingTimer = Timer(widget.loadingTimeout, () {
       if (_isLoading) {
-        _handleLoadError('加载超时');
+        _handleLoadError('Loading timed out');
       }
     });
 
@@ -76,7 +73,7 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
           ..allowFullscreen = true
           ..style.width = '100%'
           ..style.height = '100%'
-          ..style.pointerEvents = isDisplayDesktop(context) ? 'auto' : 'none'
+          ..style.pointerEvents = 'auto'
           ..setAttribute('title', 'Content Viewer');
       });
       _registeredViewIds.add(viewId);
@@ -127,13 +124,22 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
             body {
               margin: 0;
               padding: 0;
+              // display: flex;
+              justify-content: center;
+              align-items: center;
+              background-color: #f0f0f0;
             }
-            .content-wrapper { 
-              opacity: 0; 
+            .content-wrapper {
+              width: 100%;
+              height: 100%;
+              // display: flex;
+              justify-content: center;
+              align-items: center;
+              opacity: 0;
               transition: opacity 0.3s ease-in-out;
             }
-            .content-wrapper.loaded { 
-              opacity: 1; 
+            .content-wrapper.loaded {
+              opacity: 1;
             }
             svg {
               max-width: 100%;
@@ -168,8 +174,9 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
               mermaid.initialize({
                 startOnLoad: true,
                 theme: '${widget.mermaidTheme}',
-                securityLevel: 'strict'
+                securityLevel: 'loose'
               });
+              mermaid.init(undefined, '.mermaid');
             } catch (error) {
               notifyParent('error:' + error.message);
             }
@@ -190,12 +197,10 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
         $baseHtml
         <script>
           document.addEventListener("DOMContentLoaded", function() {
-            // SVG特定的初始化代码(如需要)
             try {
-              // 确保SVG正确加载
               const svgElement = document.querySelector('svg');
               if (svgElement) {
-                // 可以在这里添加SVG的事件监听或处理
+                svgElement.style.backgroundColor = '#ffffff';
               }
             } catch (error) {
               notifyParent('error:' + error.message);
@@ -225,7 +230,6 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
   }
 
   String _sanitizeHtml(String html) {
-    // 使用正则表达式去除前后的```和可能存在的mermaid/svg/html
     final pattern = r'^```(?:mermaid|svg|html)?\s*([\s\S]*?)\s*```$';
     final regExp = RegExp(pattern, caseSensitive: false, multiLine: true);
 
@@ -234,10 +238,6 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
       html = match.group(1) ?? '';
     }
 
-    // return html
-    //     .replaceAll('<script>', '&lt;script&gt;')
-    //     .replaceAll('</script>', '&lt;/script&gt;');
-    // 如果是SVG内容类型，并且内容不是以<svg开头，尝试添加SVG标签
     if (widget.contentType == "svg" &&
         !html.trim().toLowerCase().startsWith('<svg')) {
       return '<svg xmlns="http://www.w3.org/2000/svg">${html}</svg>';
@@ -248,7 +248,10 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
   @override
   Widget build(BuildContext context) {
     if (!kIsWeb) {
-      return const Text('HtmlElementView 只在 Web 平台可用');
+      return const Center(
+          child: Text(
+        'HtmlElementView is only available on the web platform',
+      ));
     }
 
     return LayoutBuilder(
@@ -265,10 +268,18 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
               width: effectiveWidth,
               height: effectiveHeight,
               decoration: BoxDecoration(
+                color: Colors.white,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(10),
                   bottomRight: Radius.circular(10),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 10,
+                    spreadRadius: 5,
+                  ),
+                ],
               ),
               clipBehavior: Clip.hardEdge,
               child: _errorMessage != null
@@ -285,14 +296,18 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
   Widget _buildLoadingWidget() {
     return Center(
       child: Container(
-        // color: Colors.white.withValues(alpha: 0.7),
+        padding: EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: widget.loadingWidget ??
             Column(
               mainAxisSize: MainAxisSize.min,
               children: const [
                 CircularProgressIndicator(strokeWidth: 2.0),
                 SizedBox(height: 10),
-                Text('loading...'),
+                Text('Loading...', style: TextStyle(color: Colors.black54)),
               ],
             ),
       ),
@@ -301,17 +316,24 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
 
   Widget _buildErrorWidget() {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.error_outline, color: Colors.red, size: 48),
-          const SizedBox(height: 16),
-          Text(
-            '加载失败：$_errorMessage',
-            style: const TextStyle(color: Colors.red),
-            textAlign: TextAlign.center,
-          ),
-        ],
+      child: Container(
+        padding: EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.red, size: 48),
+            const SizedBox(height: 16),
+            Text(
+              'Failed to load: $_errorMessage',
+              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
