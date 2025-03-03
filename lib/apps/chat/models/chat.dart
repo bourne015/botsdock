@@ -345,13 +345,18 @@ class Chat with ChangeNotifier {
     );
 
     List res = [];
-    if (name == "google_search")
-      res = await google_search(query: input["content"], num_results: 5);
-    else if (name == "webpage_fetch") {
-      var cont = await webpage_query(url: input["url"]);
-      res.add(cont);
+    try {
+      if (name == "google_search")
+        res = await google_search(query: input["content"], num_results: 5);
+      else if (name == "webpage_fetch") {
+        var cont = await webpage_query(url: input["url"]);
+        res.add(cont);
+      }
+    } catch (e) {
+      debugPrint("setClaudeToolInput error: $e");
     }
     var _toolID = messages.last.content[index].id;
+    if (res.isEmpty) res.add("could not get result");
     addMessage(role: MessageTRole.user);
     addTool(
       toolResult: anthropic.ToolResultBlock(
@@ -394,16 +399,21 @@ class Chat with ChangeNotifier {
       var args =
           jsonDecode(messages[_last].toolCalls[index].function.arguments);
       var res = null;
-      if (messages[_last].toolCalls[index].function.name == "google_search") {
-        res = await google_search(query: args["content"], num_results: 5);
-        res = "{Google search result: ${res}}";
-      } else if (messages[_last].toolCalls[index].function.name ==
-          "webpage_fetch") {
-        res = await webpage_query(url: args["url"]);
+      try {
+        if (messages[_last].toolCalls[index].function.name == "google_search") {
+          res = await google_search(query: args["content"], num_results: 5);
+          res = "{Google search result: ${res}}";
+        } else if (messages[_last].toolCalls[index].function.name ==
+            "webpage_fetch") {
+          res = await webpage_query(url: args["url"]);
+        }
+      } catch (e) {
+        debugPrint("setOpenaiToolInput error: $e");
       }
+      if (res == null) res = "could not get result";
       addMessage(
         role: MessageTRole.tool,
-        text: res ?? "function result",
+        text: res,
         toolCallId: id,
       );
     }

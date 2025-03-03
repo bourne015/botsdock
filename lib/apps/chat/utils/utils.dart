@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:dual_screen/dual_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:highlight/languages/http.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:http/http.dart' as http;
 
@@ -134,7 +133,7 @@ Future<List> google_search(
 Future<String> webpage_query({required String url}) async {
   final request = http.Request(
     'GET',
-    Uri.parse('${BASE_URL}/v1/google_search/?url=$url'),
+    Uri.parse('${BASE_URL}/v1/fetch_webpage/?url=$url'),
   );
 
   // You can modify headers or other properties if needed
