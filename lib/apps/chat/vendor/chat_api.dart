@@ -245,15 +245,17 @@ class ChatAPI {
         _imageGeneration(pages, property, handlePageID, user);
       } else {
         if (pages.getPage(handlePageID).model != DeepSeekModel.dc_r) {
-          //deepseek-reasoner does not support Function Calling
           if (pages.getPage(handlePageID).artifact)
-            pages.getPage(handlePageID).addArtifact();
+            pages.getPage(handlePageID).enable_tool("save_artifact");
           else
-            pages.getPage(handlePageID).removeArtifact();
-          if (pages.getPage(handlePageID).internet)
-            pages.getPage(handlePageID).enableInternet();
-          else
-            pages.getPage(handlePageID).disableInternet();
+            pages.getPage(handlePageID).disable_tool("save_artifact");
+          if (pages.getPage(handlePageID).internet) {
+            pages.getPage(handlePageID).enable_tool("google_search");
+            pages.getPage(handlePageID).enable_tool("webpage_fetch");
+          } else {
+            pages.getPage(handlePageID).disable_tool("google_search");
+            pages.getPage(handlePageID).disable_tool("webpage_fetch");
+          }
         }
         var chatData = _prepareChatData(pages, handlePageID);
         final stream = CreateChatStream(

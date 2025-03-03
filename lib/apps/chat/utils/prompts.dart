@@ -37,6 +37,11 @@ class Prompt {
 }
 
 class Functions {
+  static Map all = {
+    "save_artifact": artifact,
+    "google_search": web_search,
+    "webpage_fetch": webpage_fetch,
+  };
   static Map<String, dynamic> artifact = {
     "name": "save_artifact",
     "description":
@@ -65,7 +70,7 @@ class Functions {
       "required": ["artifactName", "content", "type"]
     }
   };
-  static Map<String, dynamic> internet = {
+  static Map<String, dynamic> web_search = {
     "name": "google_search",
     "description":
         "search information from internet. Call this tool when you need realtime information",
@@ -78,6 +83,21 @@ class Functions {
         },
       },
       "required": ["content"]
+    }
+  };
+
+  static Map<String, dynamic> webpage_fetch = {
+    "name": "webpage_fetch",
+    "description": "从指定URL获取网页内容",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "要获取内容的网页URL",
+        },
+      },
+      "required": ["url"]
     }
   };
 }

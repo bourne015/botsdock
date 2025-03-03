@@ -127,6 +127,29 @@ Future<List> google_search(
     final data = jsonDecode(utf8.decode(response.bodyBytes));
     return data;
   }
-  print('请求失败，状态码: ${response.statusCode}');
+  debugPrint('请求失败，状态码: ${response.statusCode}');
   return [];
+}
+
+Future<String> webpage_query({required String url}) async {
+  final request = http.Request(
+    'GET',
+    Uri.parse('${BASE_URL}/v1/google_search/?url=$url'),
+  );
+
+  // You can modify headers or other properties if needed
+  request.headers.addAll({
+    'Accept': 'application/json',
+    // Add any other necessary headers here
+  });
+
+  final streamedResponse = await request.send();
+  final response = await http.Response.fromStream(streamedResponse);
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(utf8.decode(response.bodyBytes));
+    return data;
+  }
+  debugPrint('请求失败，状态码: ${response.statusCode}');
+  return "empty";
 }
