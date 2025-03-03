@@ -609,11 +609,42 @@ class Chat with ChangeNotifier {
     }
   }
 
+  void addFunctionToGeminiTools(String functionName) {
+    var functionToAdd = Functions.all[functionName];
+    bool functionDeclarationsExists = false;
+
+    for (var gtool in geminiTools) {
+      if (gtool is Map && gtool.containsKey("function_declarations")) {
+        functionDeclarationsExists = true;
+        List functionDeclarations = gtool["function_declarations"];
+        bool functionExists = false;
+        for (var existingFunction in functionDeclarations) {
+          if (existingFunction["name"] == functionName) {
+            functionExists = true;
+            break;
+          }
+        }
+        if (!functionExists) functionDeclarations.add(functionToAdd);
+        break;
+      }
+    }
+
+    if (!functionDeclarationsExists) {
+      geminiTools.add({
+        "function_declarations": [functionToAdd]
+      });
+    }
+  }
+
   void enable_tool(String name) {
     var funcSchema = Functions.all[name];
     if (GeminiModel.all.contains(model)) {
-      bool _exist = geminiTools.any((x) => x.containsKey(name));
-      if (!_exist) geminiTools.add({name: {}});
+      if (name == "google_search") {
+        bool _exist = geminiTools.any((x) => x.containsKey(name));
+        if (!_exist) geminiTools.add({name: {}});
+      } else {
+        addFunctionToGeminiTools(name);
+      }
     } else if (GPTModel.all.contains(model) ||
         DeepSeekModel.all.contains(model)) {
       var gptTool = openai.ChatCompletionTool.fromJson({
@@ -642,7 +673,15 @@ class Chat with ChangeNotifier {
     } else if (ClaudeModel.all.contains(model)) {
       claudeTools.removeWhere((anthropic.Tool tool) => tool.name == name);
     } else if (GeminiModel.all.contains(model) && tools.isEmpty) {
-      geminiTools.removeWhere((gtool) => gtool.containsKey(name));
+      if (name == "google_search") {
+        geminiTools.removeWhere((gtool) => gtool.containsKey(name));
+      } else {
+        for (var gtool in geminiTools) {
+          if (gtool.containsKey("function_declarations"))
+            gtool["function_declarations"]
+                .removeWhere((func) => func["name"] == name);
+        }
+      }
     }
   }
 }
