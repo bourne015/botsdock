@@ -155,11 +155,11 @@ class Administrator extends StatelessWidget {
                   : _buildPopupMenuItem(context, "Login", Icons.login,
                       GalleryLocalizations.of(context)!.login),
               PopupMenuDivider(),
-              _buildPopupMenuItem(
-                  context,
-                  "Customize ChatGPT",
-                  Icons.add_home_outlined,
-                  GalleryLocalizations.of(context)!.custmizeGPT),
+              // _buildPopupMenuItem(
+              //     context,
+              //     "Customize ChatGPT",
+              //     Icons.add_home_outlined,
+              //     GalleryLocalizations.of(context)!.custmizeGPT),
               _buildPopupMenuItem(
                   context,
                   "Instructions",
