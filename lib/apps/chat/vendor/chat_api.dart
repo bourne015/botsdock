@@ -264,8 +264,9 @@ class ChatAPI {
         );
         _initializeAssistantMessage(pages, handlePageID);
         stream.listen(
-          (data) =>
-              _handleChatStream(pages, handlePageID, property, user, data),
+          (String? data) {
+            _handleChatStream(pages, handlePageID, property, user, data);
+          },
           onError: (e) => _onStreamError(pages, handlePageID, e),
           onDone: () => _onStreamDone(pages, handlePageID, user),
           cancelOnError: true,
@@ -401,11 +402,11 @@ void _handleChatStream(
   int handlePageID,
   Property property,
   User user,
-  data,
+  String? data,
 ) {
   pages.getPage(handlePageID).messages.last.onProcessing = false;
-  if (isValidJson(data)) {
-    var res = json.decode(data) as Map<String, dynamic>;
+  if (data != null && isValidJson(data)) {
+    var res = json.decode(data);
     if (GPTModel.all.contains(pages.getPage(handlePageID).model)) {
       AIResponse.Openai(pages, property, user, handlePageID, res);
     } else if (DeepSeekModel.all.contains(pages.getPage(handlePageID).model)) {
