@@ -353,7 +353,7 @@ class Chat with ChangeNotifier {
         var res = await webpage_query(url: input["url"]);
         toolres = {"result": res};
       } else {
-        toolres = {"result": "finished"};
+        toolres = {"result": "true"};
       }
     } catch (e) {
       debugPrint("setClaudeToolInput error: $e");
@@ -385,13 +385,13 @@ class Chat with ChangeNotifier {
    * openai save tools message with the same level with content
    */
   Future<void> setOpenaiToolInput() async {
-    int _last = messages.length - 1;
+    // int _last = messages.length - 1;
     for (int index = 0; index < openaiToolInputDelta.length; index++) {
       //toolcall id
-      var id = (messages[_last].toolCalls[index]).id;
-      var type = (messages[_last].toolCalls[index]).type;
-      var func = (messages[_last].toolCalls[index]).function;
-      messages[_last].toolCalls[index] = openai.RunToolCallObject(
+      var id = (messages.last.toolCalls[index]).id;
+      var type = (messages.last.toolCalls[index]).type;
+      var func = (messages.last.toolCalls[index]).function;
+      messages.last.toolCalls[index] = openai.RunToolCallObject(
         id: id,
         type: type,
         function: openai.RunToolCallFunction(
@@ -399,19 +399,18 @@ class Chat with ChangeNotifier {
           arguments: openaiToolInputDelta[index],
         ),
       );
-      var args =
-          jsonDecode(messages[_last].toolCalls[index].function.arguments);
+      var args = jsonDecode(messages.last.toolCalls[index].function.arguments);
       Map toolres;
       try {
-        if (messages[_last].toolCalls[index].function.name == "google_search") {
+        if (messages.last.toolCalls[index].function.name == "google_search") {
           var res = await google_search(query: args["content"], num_results: 5);
           toolres = {"google_result": res};
-        } else if (messages[_last].toolCalls[index].function.name ==
+        } else if (messages.last.toolCalls[index].function.name ==
             "webpage_fetch") {
           var res = await webpage_query(url: args["url"]);
           toolres = {"result": res};
         } else {
-          toolres = {"result": "finished"};
+          toolres = {"result": "true"};
         }
       } catch (e) {
         debugPrint("setOpenaiToolInput error: $e");
