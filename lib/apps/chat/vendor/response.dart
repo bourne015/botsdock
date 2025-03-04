@@ -112,16 +112,24 @@ class AIResponse {
       anthropic.MessageStreamEvent res =
           anthropic.MessageStreamEvent.fromJson(j);
       res.whenOrNull(
+        messageDelta: (anthropic.MessageDelta delta, type, usage) async {
+          // if (delta.stopReason == anthropic.StopReason.toolUse) {
+          //   await pages.getPage(handlePageID).setClaudeToolInput(i);
+          // }
+        },
         contentBlockStart:
             (anthropic.Block b, int i, anthropic.MessageStreamEventType t) {
-          pages.getPage(handlePageID).addTool(
-                  toolUse: b.mapOrNull(
-                toolUse: (x) => anthropic.ToolUseBlock(
-                  id: x.id,
-                  name: x.name,
-                  input: x.input,
-                ),
-              ));
+          if (b.type == "tool_use") {
+            // add an empty msg in content
+            pages.getPage(handlePageID).addTool(
+                    toolUse: b.mapOrNull(
+                  toolUse: (x) => anthropic.ToolUseBlock(
+                    id: x.id,
+                    name: x.name,
+                    input: x.input,
+                  ),
+                ));
+          }
         },
         contentBlockDelta: (anthropic.BlockDelta b, int i,
             anthropic.MessageStreamEventType t) {
@@ -136,20 +144,11 @@ class AIResponse {
               pages.getPage(handlePageID).messages.last.content[i].type ==
                   "tool_use") {
             await pages.getPage(handlePageID).setClaudeToolInput(i);
-            // var _toolID =
-            //     pages.getPage(handlePageID).messages.last.content[i].id;
-            // pages.getPage(handlePageID).addMessage(role: MessageTRole.user);
-            // pages.getPage(handlePageID).addTool(
-            //       toolResult: anthropic.ToolResultBlock(
-            //         toolUseId: _toolID,
-            //         isError: false,
-            //         type: "tool_result",
-            //         content:
-            //             anthropic.ToolResultBlockContent.text("tool result"),
-            //       ),
-            //     );
             ChatAPI().submitText(pages, property, handlePageID, user);
           }
+        },
+        error: (anthropic.MessageStreamEventType type, error) {
+          debugPrint("errorororo: type: ${type}, err: $error");
         },
       );
     } catch (e) {

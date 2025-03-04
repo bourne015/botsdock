@@ -344,19 +344,20 @@ class Chat with ChangeNotifier {
       input: input,
     );
 
-    List res = [];
+    Map toolres;
     try {
-      if (name == "google_search")
-        res = await google_search(query: input["content"], num_results: 5);
-      else if (name == "webpage_fetch") {
-        var cont = await webpage_query(url: input["url"]);
-        res.add(cont);
+      if (name == "google_search") {
+        var res = await google_search(query: input["content"], num_results: 5);
+        toolres = {"google_result": res};
+      } else if (name == "webpage_fetch") {
+        var res = await webpage_query(url: input["url"]);
+        toolres = {"result": res};
       } else {
-        res.add("finished");
+        toolres = {"result": "finished"};
       }
     } catch (e) {
       debugPrint("setClaudeToolInput error: $e");
-      res.add("error: could not get result");
+      toolres = {"result": "error"};
     }
     var _toolID = messages.last.content[index].id;
     addMessage(role: MessageTRole.user);
@@ -365,7 +366,7 @@ class Chat with ChangeNotifier {
         toolUseId: _toolID,
         isError: false,
         type: "tool_result",
-        content: anthropic.ToolResultBlockContent.text("$res"),
+        content: anthropic.ToolResultBlockContent.text(jsonEncode(toolres)),
       ),
     );
 
@@ -400,24 +401,25 @@ class Chat with ChangeNotifier {
       );
       var args =
           jsonDecode(messages[_last].toolCalls[index].function.arguments);
-      var res = null;
+      Map toolres;
       try {
         if (messages[_last].toolCalls[index].function.name == "google_search") {
-          res = await google_search(query: args["content"], num_results: 5);
-          res = "{Google search result: ${res}}";
+          var res = await google_search(query: args["content"], num_results: 5);
+          toolres = {"google_result": res};
         } else if (messages[_last].toolCalls[index].function.name ==
             "webpage_fetch") {
-          res = await webpage_query(url: args["url"]);
+          var res = await webpage_query(url: args["url"]);
+          toolres = {"result": res};
         } else {
-          res = "finished";
+          toolres = {"result": "finished"};
         }
       } catch (e) {
         debugPrint("setOpenaiToolInput error: $e");
-        res = "error: could not get result";
+        toolres = {"result": "error"};
       }
       addMessage(
         role: MessageTRole.tool,
-        text: res,
+        text: jsonEncode(toolres),
         toolCallId: id,
       );
     }
