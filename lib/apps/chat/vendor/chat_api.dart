@@ -437,16 +437,16 @@ void _initializeAssistantMessage(Pages pages, int handlePageID) {
 String _prepareChatData(Pages pages, int handlePageID) {
   var jsChat = pages.getPage(handlePageID).toJson();
   var tools = [];
-  if (GPTModel.all.contains(pages.currentPage!.model) ||
-      DeepSeekModel.all.contains(pages.currentPage!.model))
+  if (GPTModel.all.contains(pages.getPage(handlePageID).model) ||
+      DeepSeekModel.all.contains(pages.getPage(handlePageID).model))
     tools = jsChat["tools"];
-  else if (ClaudeModel.all.contains(pages.currentPage!.model))
+  else if (ClaudeModel.all.contains(pages.getPage(handlePageID).model))
     tools = jsChat["claude_tools"];
-  else if (GeminiModel.all.contains(pages.currentPage!.model))
+  else if (GeminiModel.all.contains(pages.getPage(handlePageID).model))
     tools = jsChat["gemini_tools"];
 
   var chatData = {
-    "model": pages.currentPage?.model,
+    "model": pages.getPage(handlePageID).model,
     "messages": jsChat["messages"],
     "tools": tools,
     "temperature": pages.getPage(handlePageID).temperature,
