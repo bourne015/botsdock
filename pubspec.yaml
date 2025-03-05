@@ -40,6 +40,7 @@ dependencies:
     git:
       url: https://github.com/bourne015/flutter_markdown_latex
       ref: delete-fonts
+  ansicolor: ^2.0.3
 
 
 flutter:
