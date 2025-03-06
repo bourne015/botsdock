@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:fetch_client/fetch_client.dart';
@@ -180,6 +181,33 @@ Stream<openai.AssistantStreamEvent> CreateAssistantChatStream(
 //         .map((final item) => item.substring(6));
 //   }
 // }
+
+Future<Stream<String>> CreateChatStreamWithRetry(
+  String url, {
+  String method = "POST",
+  Map<String, String> headers = const {
+    'Content-Type': 'application/json',
+    'Accept': 'text/event-stream'
+  },
+  String? body,
+  int retryCount = 3,
+  Duration retryDelay = const Duration(seconds: 2),
+  Duration timeout = const Duration(seconds: 10),
+}) async {
+  for (int i = 0; i < retryCount; i++) {
+    try {
+      final responseStream = await CreateChatStream(url,
+              method: method, headers: headers, body: body)
+          .timeout(timeout);
+      return responseStream;
+    } catch (error) {
+      if (i == retryCount - 1) rethrow;
+      await Future.delayed(retryDelay); // delay and retry
+      Logger.warn("CreateChatStreamWithRetry error: $error");
+    }
+  }
+  throw Exception('Failed to create chat stream after $retryCount attempts');
+}
 
 Stream<String> CreateChatStream(
   String url, {

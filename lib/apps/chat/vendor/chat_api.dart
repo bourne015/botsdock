@@ -5,6 +5,7 @@ import 'package:botsdock/apps/chat/models/chat.dart';
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/models/pages.dart';
 import 'package:botsdock/apps/chat/utils/global.dart';
+import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/stream.dart';
@@ -30,7 +31,7 @@ class ChatAPI {
       if (await Client().doesObjectExist(path))
         await Client().deleteObject(path);
     } catch (e) {
-      debugPrint("deleteOSSObj error: $e");
+      Logger.error("deleteOSSObj error: $e");
     }
   }
 
@@ -42,7 +43,7 @@ class ChatAPI {
       var chatdbUrl = USER_URL + "/" + "$user_id" + "/chat/" + "$chat_id";
       await dio.delete(chatdbUrl);
     } catch (e) {
-      debugPrint("failed to delete chat ${chat_id}, error: $e");
+      Logger.error("failed to delete chat ${chat_id}, error: $e");
     }
   }
 
@@ -52,7 +53,7 @@ class ChatAPI {
       await dio.post(endpoint, data: userdata);
       // Global.saveProfile(user);
     } catch (e) {
-      debugPrint("failed to update user ${user_id}, error: $e");
+      Logger.error("failed to update user ${user_id}, error: $e");
     }
   }
 
@@ -67,7 +68,7 @@ class ChatAPI {
         return User.fromJson(response.data);
       }
     } catch (error) {
-      debugPrint('UserInfo error: $error');
+      Logger.error('UserInfo error: $error');
     }
     return null;
   }
@@ -83,7 +84,7 @@ class ChatAPI {
         return cres.data["chats"];
       }
     } catch (error) {
-      debugPrint('get chats error: $error');
+      Logger.error('get chats error: $error');
     }
     return [];
   }
@@ -95,7 +96,7 @@ class ChatAPI {
       var response = await dio.post(url);
       res = response.data["credentials"];
     } catch (e) {
-      debugPrint("get_creds error: $e");
+      Logger.error("get_creds error: $e");
       return {};
     }
     return res;
@@ -119,7 +120,7 @@ class ChatAPI {
       title = title.length > 20 ? title.substring(0, 20) : title;
       pages.setPageTitle(handlePageID, title);
     } catch (e) {
-      debugPrint("titleGenerate error: $e");
+      Logger.error("titleGenerate error: $e");
     }
   }
 
@@ -161,7 +162,7 @@ class ChatAPI {
         );
       }
     } catch (e) {
-      debugPrint("saveChats error: $e");
+      Logger.error("saveChats error: $e");
     }
   }
 
@@ -179,7 +180,7 @@ class ChatAPI {
       ossUrl = (resp.statusCode == 200) ? resp.realUri.toString() : null;
       //if (ossUrl != null) pages.updateFileUrl(pid, msg_id, filename, ossUrl);
     } catch (e) {
-      debugPrint("uploadImage to oss error: $e");
+      Logger.error("uploadImage to oss error: $e");
     }
     return ossUrl;
   }
@@ -218,12 +219,12 @@ class ChatAPI {
   }
 
   void _onStreamError(Pages pages, int handlePageID, dynamic error) {
-    debugPrint('SSE error: $error');
+    Logger.error('SSE error: $error');
     pages.setPageGenerateStatus(handlePageID, false);
   }
 
   Future<void> _onStreamDone(pages, handlePageID, user) async {
-    debugPrint('SSE complete');
+    Logger.info('SSE complete');
     pages.setPageGenerateStatus(handlePageID, false);
     var pageTitle = pages.getPage(handlePageID).title;
     if (pageTitle.length >= 6 && pageTitle.substring(0, 6) == "Chat 0") {
@@ -258,7 +259,7 @@ class ChatAPI {
           }
         }
         var chatData = _prepareChatData(pages, handlePageID);
-        final stream = CreateChatStream(
+        final stream = await CreateChatStreamWithRetry(
           "${SSE_CHAT_URL}?user_id=${user.id}",
           body: chatData,
         );
@@ -269,11 +270,11 @@ class ChatAPI {
           },
           onError: (e) => _onStreamError(pages, handlePageID, e),
           onDone: () => _onStreamDone(pages, handlePageID, user),
-          cancelOnError: true,
+          cancelOnError: false,
         );
       }
     } catch (e) {
-      debugPrint("gen error: $e");
+      Logger.error("gen error: $e");
       pages.setPageGenerateStatus(handlePageID, false);
     }
   }
@@ -301,10 +302,10 @@ class ChatAPI {
         (event) => AIResponse.openaiAssistant(pages, handlePageID, event),
         onError: (e) => _onStreamError(pages, handlePageID, e),
         onDone: () => _onStreamDone(pages, handlePageID, user),
-        cancelOnError: true,
+        cancelOnError: false,
       );
     } catch (e) {
-      debugPrint("gen error: $e");
+      Logger.error("gen error: $e");
       pages.setGeneratingState(handlePageID, false);
     }
   }
@@ -357,7 +358,7 @@ class ChatAPI {
           timestamp: DateTime.now().millisecondsSinceEpoch);
       submitText(pages, property, handlePageID, user);
     } catch (e) {
-      debugPrint("newBot error: $e");
+      Logger.error("newBot error: $e");
     }
   }
 
