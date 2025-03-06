@@ -309,14 +309,14 @@ class InitPageState extends State<InitPage> {
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
         //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
-        // _buildPopupMenuItem(
-        //   context: context,
-        //   value: gptSub[3],
-        //   inputType: "多模态",
-        //   title: "ChatGPT 4o mini",
-        //   description:
-        //       GalleryLocalizations.of(context)?.chatGPT4oMiniDesc ?? '',
-        // ),
+        _buildPopupMenuItem(
+          context: context,
+          value: GPTModel.gptv4omini,
+          inputType: "多模态",
+          title: "ChatGPT 4o mini",
+          description:
+              GalleryLocalizations.of(context)?.chatGPT4oMiniDesc ?? '',
+        ),
         // _buildPopupMenuItem(
         //   context: context,
         //   value: gptSub[5],
