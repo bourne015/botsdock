@@ -41,6 +41,7 @@ class MessageTRole {
   static const String user = "user";
   static const String assistant = "assistant";
   static const String tool = "tool";
+  static const String model = "model";
 }
 
 enum MsgType { text, image, file }

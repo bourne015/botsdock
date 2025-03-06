@@ -86,8 +86,8 @@ class MessageListViewState extends State<MessageListView> {
                 if (upMsgRole == MessageTRole.user &&
                     chat.messages[reindex].role == MessageTRole.user)
                   sameRole = true;
-                if (upMsgRole != MessageTRole.user &&
-                    chat.messages[reindex].role != MessageTRole.user)
+                if (upMsgRole == MessageTRole.assistant &&
+                    chat.messages[reindex].role == MessageTRole.assistant)
                   sameRole = true;
                 // print("up:${upMsgRole},  cur: ${chat.messages[reindex].role}");
               }
@@ -103,6 +103,7 @@ class MessageListViewState extends State<MessageListView> {
                     isSameRole: sameRole,
                     pageId: chat.id,
                     model: chat.model,
+                    onGenerating: widget.page.onGenerating,
                     messageStream: chat.messageStream,
                   ));
             },

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:botsdock/apps/chat/vendor/messages/deepseek.dart';
@@ -12,10 +13,10 @@ import 'package:flutter_markdown_latex/flutter_markdown_latex.dart';
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:markdown/markdown.dart' as md;
+import 'package:openai_dart/openai_dart.dart' as openai;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
 import '../models/user.dart';
 import '../utils/constants.dart';
 import '../utils/custom_widget.dart';
@@ -30,6 +31,7 @@ class MessageBox extends StatefulWidget {
   final bool isSameRole;
   final int pageId;
   final String? model;
+  final onGenerating;
   final Stream<Message> messageStream;
 
   MessageBox({
@@ -39,6 +41,7 @@ class MessageBox extends StatefulWidget {
     this.isSameRole = false,
     required this.pageId,
     this.model,
+    this.onGenerating,
     required this.messageStream,
   }) : super(key: ValueKey(msg.id));
 
@@ -53,6 +56,8 @@ class MessageBoxState extends State<MessageBox> {
   late final Stream<Message> _messageStream;
   bool isExpanded = true;
   bool isGoogleList = false;
+  String contentAll = '';
+  bool isNotEmpty = false;
 
   @override
   void initState() {
@@ -73,50 +78,28 @@ class MessageBoxState extends State<MessageBox> {
 
   @override
   Widget build(BuildContext context) {
-    isGoogleList = isGoogleResults();
-    //do not show tool result message
-    if (!isGoogleList &&
-        widget.msg.role == MessageTRole.user &&
-        (widget.msg.content is List &&
-            widget.msg.content[0] is anthropic.ToolResultBlock))
-      return Container();
+    messageContentLists(context, widget.msg);
+    if (!isNotEmpty && !widget.isLast) return SizedBox.shrink();
 
     return widget.msg.role == MessageTRole.user ||
             widget.msg.role == MessageTRole.assistant ||
-            (widget.msg.role == MessageTRole.tool && isGoogleList) ||
-            widget.msg.role == "model"
-        ? Container(
-            margin: const EdgeInsets.symmetric(vertical: 1.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                widget.isSameRole || isGoogleList
-                    ? SizedBox(width: 32, height: 32)
-                    : roleIcon(context, widget.msg),
-                isGoogleList ? googleResultList(context) : _msgBox(context)
-              ],
-            ),
+            widget.msg.role == MessageTRole.tool ||
+            widget.msg.role == MessageTRole.model
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              roleIcon(context, widget.msg),
+              _msgBox(context),
+            ],
           )
         : SizedBox.shrink();
   }
 
-  Widget googleResultList(BuildContext context) {
-    List results;
-
-    if (GPTModel.all.contains(widget.model!)) {
-      if (!isValidJson(widget.msg.content[0].text)) {
-        return SizedBox.shrink();
-      }
-      results = jsonDecode(widget.msg.content[0].text)["google_result"];
-    } else {
-      if (!isValidJson(widget.msg.content[0].content.value))
-        return SizedBox.shrink();
-      results =
-          jsonDecode(widget.msg.content[0].content.value)["google_result"];
-    }
+  Widget googleResultList(BuildContext context, List results) {
     return PopupMenuButton<String>(
       icon: Container(
+          width: 105,
           decoration: BoxDecoration(
             borderRadius: BORDERRADIUS15,
             color: AppColors.userMsgBox,
@@ -162,156 +145,188 @@ class MessageBoxState extends State<MessageBox> {
     );
   }
 
-  bool isGoogleResults() {
-    try {
-      if (GPTModel.all.contains(widget.model!) && widget.msg.role == "tool") {
-        if (widget.msg.content.length <= 0) return false;
-        if (widget.msg.content[0].text != null &&
-            widget.msg.content[0].text.startsWith("{\"google_result")) {
-          return true;
-        }
-      } else if (ClaudeModel.all.contains(widget.model) &&
-          widget.msg.content[0] is anthropic.ToolResultBlock) {
-        if (widget.msg.content[0].content != null &&
-            widget.msg.content[0].content.value
-                .startsWith("{\"google_result")) {
-          return true;
-        }
-      }
-    } catch (e) {
-      debugPrint("check google result error: $e");
-    }
-    return false;
-  }
-
   Widget _msgBox(BuildContext context) {
     return StreamBuilder<Message>(
       stream: _messageStream,
       initialData: widget.msg,
       builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data!.onProcessing && widget.isLast) {
-          return const ThinkingIndicator();
+        if (widget.onGenerating) {
+          if (!snapshot.hasData ||
+              snapshot.data!.onProcessing && widget.isLast) {
+            return const ThinkingIndicator();
+          }
         }
         if (snapshot.hasData) {
           return message(context, snapshot.data!);
         }
-        return const ThinkingIndicator();
+        return SizedBox.shrink();
       },
     );
   }
 
   Widget roleIcon(BuildContext context, Message msg) {
     User user = Provider.of<User>(context, listen: false);
+    if (widget.isSameRole || isGoogleList)
+      return SizedBox(width: 32, height: 32);
     if (msg.role == MessageTRole.assistant)
       return image_show(user.avatar_bot ?? defaultUserBotAvatar, 16);
     else if (msg.role == MessageTRole.user)
       return image_show(user.avatar!, 16);
     else
-      return SizedBox.shrink();
+      return SizedBox(width: 32, height: 32);
   }
 
   Widget message(BuildContext context, Message msg) {
     double bottom_v = 0;
+
     if (msg.role == MessageTRole.user) bottom_v = 20.0;
-    String _contentAll = '';
     return Flexible(
       // key: UniqueKey(),
       child: Container(
         margin: EdgeInsets.only(left: 8, bottom: bottom_v),
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-            color: msg.role == MessageTRole.user
+            color: msg.role == MessageTRole.user && !isGoogleList
                 ? AppColors.userMsgBox
                 : AppColors.aiMsgBox,
             borderRadius: const BorderRadius.all(Radius.circular(10))),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          // messageRoleName(context),
-          if (msg.visionFiles.isNotEmpty)
-            //Claude images url saved in visionFilesList
-            Container(
-                height: 250, child: visionFilesList(context, msg.visionFiles)),
-          if (msg.attachments.isNotEmpty)
-            Container(
-                height: 80, child: attachmentList(context, msg.attachments)),
-          if (widget.isLast &&
-              msg is DeepSeekMessage &&
-              msg.reasoning_content.isNotEmpty)
-            ThinkingContent(context, msg.role, msg.onThinking, msg),
-          if (msg.content is List)
-            ...msg.content.map((_content) {
-              if (GeminiModel.all.contains(widget.model!)) {
-                if (_content is GeminiTextContent) {
-                  _contentAll += _content.text ?? "";
-                  return messageContent(context, msg.role, _content.text);
-                } else if (_content is GeminiPart3) {
-                  return buildArtifact(context, _content.args);
-                } else if (_content is GeminiPart1) {
-                  //inlineData
-                  // return contentImage(context,
-                  //     imageUrl: _content.inlineData?.data);
-                  return SizedBox.shrink();
-                } else if (_content is GeminiPart2) {
-                  return SizedBox.shrink();
-                }
-              } else {
-                if (_content.type == "text") {
-                  _contentAll += _content.text ?? "";
-                  return messageContent(context, msg.role, _content.text);
-                }
-                // else if (_content.type == "image")
-                //   return contentImage(context, imageBytes: _content.source.data);
-                else if (_content.type == "image_url")
-                  // return contentImage(context, imageUrl: _content.imageUrl.url);
-                  return SizedBox.shrink();
-                else if (_content.type == "tool_use") {
-                  if (_content.name == "save_artifact")
-                    return buildArtifact(context, _content.input);
-                  else if (_content.name == "webpage_fetch") {
-                    _contentAll += _content.input["url"] ?? "";
-                    return messageContent(
-                        context, msg.role, _content.input["url"]);
-                  } else
-                    return SizedBox.shrink();
-                } else if (_content.type == "tool_result") {
-                  return messageContent(context, msg.role, "tool test");
-                } else
-                  return SizedBox.shrink();
-              }
-            }).toList()
-          else if (msg.content is String)
-            messageContent(context, msg.role, msg.content),
-          if (msg.toolCalls.isNotEmpty)
-            ...msg.toolCalls.map((tool) {
-              if (!isValidJson(tool.function.arguments))
-                return messageContent(
-                  context,
-                  msg.role,
-                  tool.function.arguments,
-                );
-              if (tool.function.name == "save_artifact")
-                return buildArtifact(
-                    context, json.decode(tool.function.arguments));
-              else if (tool.function.name == "google_search") {
-                return SizedBox.shrink(); //TODO
-              } else if (tool.function.name == "webpage_fetch") {
-                var arg = jsonDecode(tool.function.arguments);
-                _contentAll += arg["url"] ?? "";
-                return messageContent(context, msg.role, arg["url"]);
-              }
-              return SizedBox.shrink();
-            }).toList(),
-          if (_contentAll.isNotEmpty && msg.role != MessageTRole.user)
-            IconButton(
-              tooltip: "Copy",
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: _contentAll))
-                    .then((value) => showMessage(context, "Copied"));
-              },
-              icon: const Icon(Icons.copy, size: 15),
-            )
-        ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: messageContentLists(context, msg),
+        ),
       ),
     );
+  }
+
+  List<Widget> messageContentLists(BuildContext context, Message msg) {
+    List<Widget> contentWidgets = [];
+
+    try {
+      if (msg.visionFiles.isNotEmpty) {
+        //Claude images url saved in visionFilesList
+        contentWidgets.add(Container(
+          height: 250,
+          child: visionFilesList(context, msg.visionFiles),
+        ));
+      }
+      if (msg.attachments.isNotEmpty) {
+        contentWidgets.add(Container(
+          height: 80,
+          child: attachmentList(context, msg.attachments),
+        ));
+      }
+      if (widget.isLast &&
+          msg is DeepSeekMessage &&
+          msg.reasoning_content.isNotEmpty) {
+        contentWidgets
+            .add(ThinkingContent(context, msg.role, msg.onThinking, msg));
+      }
+      if (msg.content is String && msg.content.isNotEmpty) {
+        contentWidgets.add(messageContent(context, msg.role, msg.content));
+      } else if (msg.content is List)
+        for (var _content in msg.content) {
+          if (GeminiModel.all.contains(widget.model!)) {
+            if (_content is GeminiTextContent &&
+                _content.text != null &&
+                _content.text!.isNotEmpty) {
+              contentAll += _content.text ?? "";
+              contentWidgets
+                  .add(messageContent(context, msg.role, _content.text));
+            } else if (_content is GeminiPart3) {
+              contentWidgets.add(buildArtifact(context, _content.args));
+            } else if (_content is GeminiPart1) {
+            } else if (_content is GeminiPart2) {}
+          } else {
+            switch (_content.type) {
+              case "text":
+                if (_content.text != null && _content.text.isNotEmpty) {
+                  if (msg.role == MessageTRole.tool) {
+                    if (_content.text.startsWith("{\"google_result")) {
+                      //to list gpt google results
+                      var results = jsonDecode(_content.text)["google_result"];
+                      contentWidgets.add(googleResultList(context, results));
+                      isGoogleList = true;
+                    }
+                  } else {
+                    if (_content.text != null && _content.text.isNotEmpty) {
+                      contentAll += _content.text;
+                      contentWidgets.add(
+                          messageContent(context, msg.role, _content.text));
+                    }
+                  }
+                }
+                break;
+              case "image_url":
+                break;
+              case "tool_use":
+                if (_content.name == "save_artifact")
+                  contentWidgets.add(buildArtifact(context, _content.input));
+                if (_content.name == "webpage_fetch") {
+                  final url = _content.input?["url"];
+                  if (url?.isNotEmpty ?? false) {
+                    contentAll += url!;
+                    contentWidgets.add(messageContent(
+                        context, msg.role, _content.input["url"]));
+                  }
+                }
+                break;
+              case "tool_result": //only claude
+                if (_content.content != null &&
+                    _content.content.value.startsWith("{\"google_result")) {
+                  //to list claude google results
+                  List results =
+                      jsonDecode(_content.content.value)["google_result"];
+                  contentWidgets.add(googleResultList(context, results));
+                  isGoogleList = true;
+                } else {
+                  // contentWidgets
+                  //     .add(messageContent(context, msg.role, "tool test"));
+                }
+                break;
+            }
+          }
+        }
+
+      for (openai.RunToolCallObject tool in msg.toolCalls) {
+        if (!isValidJson(tool.function.arguments))
+          contentWidgets.add(messageContent(
+            context,
+            msg.role,
+            tool.function.arguments,
+          ));
+        switch (tool.function.name) {
+          case "save_artifact":
+            contentWidgets.add(
+                buildArtifact(context, jsonDecode(tool.function.arguments)));
+            break;
+          case "google_search":
+            break;
+          case "webpage_fetch":
+            var arg = jsonDecode(tool.function.arguments);
+            contentAll += arg["url"] ?? "";
+            contentWidgets.add(messageContent(context, msg.role, arg["url"]));
+            break;
+        }
+      }
+      if (contentAll.isNotEmpty && msg.role != MessageTRole.user)
+        contentWidgets.add(
+          IconButton(
+            tooltip: "Copy",
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: contentAll))
+                  .then((value) => showMessage(context, "Copied"));
+            },
+            icon: const Icon(Icons.copy, size: 15),
+          ),
+        );
+    } catch (e) {
+      // contentWidgets
+      //     .add(messageContent(context, msg.role, "parse msg error: $e"));
+      // isNotEmpty = true;
+      Logger.error("parse msg error: $e");
+    }
+    if (contentWidgets.isNotEmpty) isNotEmpty = true;
+    return contentWidgets;
   }
 
   bool isValidJson(String jsonString) {
