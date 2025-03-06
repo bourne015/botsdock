@@ -342,8 +342,8 @@ class MessageBoxState extends State<MessageBox> {
    * build Artifact: only support Html
    */
   Widget buildArtifact(BuildContext context, dynamic func) {
-    if (func["type"] == null) return SizedBox.shrink();
-    if (!supportedContentType.contains(func["type"].toLowerCase())) {
+    if (func["type"] == null ||
+        !supportedContentType.contains(func["type"].toLowerCase())) {
       // return SelectableText(
       //   func["type"] + func["content"],
       //   style: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
