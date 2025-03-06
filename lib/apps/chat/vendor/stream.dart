@@ -192,13 +192,13 @@ Future<Stream<String>> CreateChatStreamWithRetry(
   String? body,
   int retryCount = 3,
   Duration retryDelay = const Duration(seconds: 2),
-  Duration timeout = const Duration(seconds: 10),
+  //Duration timeout = const Duration(seconds: 10),
 }) async {
   for (int i = 0; i < retryCount; i++) {
     try {
       final responseStream = await CreateChatStream(url,
-              method: method, headers: headers, body: body)
-          .timeout(timeout);
+          method: method, headers: headers, body: body);
+      //.timeout(timeout);
       return responseStream;
     } catch (error) {
       if (i == retryCount - 1) rethrow;

@@ -270,6 +270,7 @@ class ChatAPI {
         _initializeAssistantMessage(pages, handlePageID);
         stream.listen(
           (String? data) {
+            pages.setPageGenerateStatus(handlePageID, true);
             _handleChatStream(pages, handlePageID, property, user, data);
           },
           onError: (e) => _onStreamError(pages, handlePageID, e),
@@ -303,7 +304,10 @@ class ChatAPI {
 
       _initializeAssistantMessage(pages, handlePageID);
       stream.listen(
-        (event) => AIResponse.openaiAssistant(pages, handlePageID, event),
+        (event) {
+          pages.setPageGenerateStatus(handlePageID, true);
+          AIResponse.openaiAssistant(pages, handlePageID, event);
+        },
         onError: (e) => _onStreamError(pages, handlePageID, e),
         onDone: () => _onStreamDone(pages, handlePageID, user),
         cancelOnError: false,

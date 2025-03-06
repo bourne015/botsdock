@@ -1,6 +1,7 @@
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/models/pages.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,10 @@ class AIResponse {
         openai.ChatCompletionFinishReason.toolCalls) {
       await pages.getPage(handlePageID).setOpenaiToolInput();
       ChatAPI().submitText(pages, property, handlePageID, user);
+    }
+    if (res.choices[0].finishReason != null) {
+      pages.setPageGenerateStatus(handlePageID, false);
+      Logger.info("stoped: ${res.choices[0].finishReason}");
     }
   }
 
@@ -93,10 +98,12 @@ class AIResponse {
           //});
         },
         errorEvent: (final event, final data) {
-          debugPrint("errorEvent: $data");
+          pages.setPageGenerateStatus(handlePageID, false);
+          Logger.error("errorEvent: $data");
         },
         doneEvent: (final event, final data) {
-          debugPrint("doneEvent");
+          pages.setPageGenerateStatus(handlePageID, false);
+          Logger.info("doneEvent");
         });
 
     pages.getPage(handlePageID).appendMessage(
@@ -147,11 +154,17 @@ class AIResponse {
             ChatAPI().submitText(pages, property, handlePageID, user);
           }
         },
+        messageStop: (type) {
+          pages.setPageGenerateStatus(handlePageID, false);
+          Logger.info("${type}");
+        },
         error: (anthropic.MessageStreamEventType type, error) {
-          debugPrint("errorororo: type: ${type}, err: $error");
+          pages.setPageGenerateStatus(handlePageID, false);
+          Logger.error("error: type: ${type}, err: $error");
         },
       );
     } catch (e) {
+      pages.setPageGenerateStatus(handlePageID, false);
       pages.getPage(handlePageID).appendMessage(
             msg: j.toString() + e.toString(),
           );
@@ -172,6 +185,9 @@ class AIResponse {
         openai.ChatCompletionFinishReason.toolCalls) {
       pages.getPage(handlePageID).setOpenaiToolInput();
       ChatAPI().submitText(pages, property, handlePageID, user);
+    }
+    if (res.choices[0].finishReason != null) {
+      pages.setPageGenerateStatus(handlePageID, false);
     }
   }
 
