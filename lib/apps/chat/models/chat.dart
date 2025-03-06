@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
@@ -399,27 +400,30 @@ class Chat with ChangeNotifier {
           arguments: openaiToolInputDelta[index],
         ),
       );
-      var args = jsonDecode(messages.last.toolCalls[index].function.arguments);
+    }
+
+    List<openai.RunToolCallObject> _toolcalls = messages.last.toolCalls;
+    for (int index = 0; index < _toolcalls.length; index++) {
+      var args = jsonDecode(_toolcalls[index].function.arguments);
       Map toolres;
       try {
-        if (messages.last.toolCalls[index].function.name == "google_search") {
+        if (_toolcalls[index].function.name == "google_search") {
           var res = await google_search(query: args["content"], num_results: 5);
           toolres = {"google_result": res};
-        } else if (messages.last.toolCalls[index].function.name ==
-            "webpage_fetch") {
+        } else if (_toolcalls[index].function.name == "webpage_fetch") {
           var res = await webpage_query(url: args["url"]);
           toolres = {"result": res};
         } else {
           toolres = {"result": "true"};
         }
       } catch (e) {
-        debugPrint("setOpenaiToolInput error: $e");
+        Logger.error("setOpenaiToolInput error: $e");
         toolres = {"result": "error"};
       }
       addMessage(
         role: MessageTRole.tool,
         text: jsonEncode(toolres),
-        toolCallId: id,
+        toolCallId: _toolcalls[index].id,
       );
     }
 
