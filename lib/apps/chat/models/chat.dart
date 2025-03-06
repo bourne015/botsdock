@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
@@ -348,7 +349,10 @@ class Chat with ChangeNotifier {
     Map toolres;
     try {
       if (name == "google_search") {
-        var res = await google_search(query: input["content"], num_results: 5);
+        var res = await google_search(
+          query: input["content"],
+          num_results: max(1, min(input["resultCount"], 20)),
+        );
         toolres = {"google_result": res};
       } else if (name == "webpage_fetch") {
         var res = await webpage_query(url: input["url"]);
@@ -408,7 +412,10 @@ class Chat with ChangeNotifier {
       Map toolres;
       try {
         if (_toolcalls[index].function.name == "google_search") {
-          var res = await google_search(query: args["content"], num_results: 5);
+          var res = await google_search(
+            query: args["content"],
+            num_results: max(1, min(args["resultCount"], 20)),
+          );
           toolres = {"google_result": res};
         } else if (_toolcalls[index].function.name == "webpage_fetch") {
           var res = await webpage_query(url: args["url"]);

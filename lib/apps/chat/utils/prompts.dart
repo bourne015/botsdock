@@ -81,6 +81,10 @@ class Functions {
           "type": "string",
           "description": "The content that need to query from internet."
         },
+        "resultCount": {
+          "type": "integer",
+          "description": "The number of search results to retrieve."
+        }
       },
       "required": ["content"]
     }
