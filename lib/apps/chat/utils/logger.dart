@@ -24,6 +24,7 @@ class Logger {
         debugPrint(_bluePen(message));
         break;
       case LogColor.none:
+        debugPrint(message);
         break;
     }
   }
