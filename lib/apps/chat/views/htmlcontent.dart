@@ -23,7 +23,7 @@ class HtmlContentWidget extends StatefulWidget {
     required this.content,
     required this.contentType,
     this.width = 800,
-    this.height = 500,
+    this.height = 450,
     this.mermaidTheme = 'default',
     this.loadingWidget,
     this.loadingTimeout = const Duration(seconds: 30),
@@ -319,7 +319,7 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
       child: Container(
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
+          color: Colors.white.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
