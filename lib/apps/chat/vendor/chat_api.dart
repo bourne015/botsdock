@@ -11,7 +11,7 @@ import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/stream.dart';
 import 'package:botsdock/apps/chat/vendor/response.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
+import 'package:retry/retry.dart';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
 import 'package:openai_dart/openai_dart.dart' as openai;
@@ -143,9 +143,13 @@ class ChatAPI {
     };
 
     try {
-      Response cres = await dio.post(
-        chatdbUrl,
-        data: chatData,
+      final cres = await retry(
+        () => dio.post(chatdbUrl, data: chatData).timeout(Duration(seconds: 3)),
+        retryIf: (e) => e is DioException || e is TimeoutException,
+        maxAttempts: 3,
+        onRetry: (e) {
+          Logger.warn('Retrying saveChats due to error: $e');
+        },
       );
       if (cres.data["result"] == "success") {
         pages.getPage(handlePageID).dbID = cres.data["id"];
