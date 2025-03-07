@@ -134,3 +134,11 @@ const double Artifact_MAX_W = 816;
 const double Artifact_MAX_H = 612;
 const double Artifact_MIN_W = 400;
 const double Artifact_MIN_H = 300;
+
+const double resultIcon_W = 80;
+const double resultIconExpand_W = 200;
+const double resultIcon_H = 50;
+
+const double resultCard_W = 180;
+const double resultCard_MIN_H = 70;
+const double resultCard_H = 120;

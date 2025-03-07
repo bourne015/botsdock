@@ -62,6 +62,7 @@ class MessageBoxState extends State<MessageBox> {
   bool isNotEmpty = false;
   double artifactWidth = Artifact_MIN_W;
   double artifactHight = Artifact_MIN_H;
+  bool expandedSearchResults = false;
 
   @override
   void initState() {
@@ -101,51 +102,141 @@ class MessageBoxState extends State<MessageBox> {
   }
 
   Widget googleResultList(BuildContext context, List results) {
-    return PopupMenuButton<String>(
-      icon: Container(
-          width: 105,
-          decoration: BoxDecoration(
-            borderRadius: BORDERRADIUS15,
-            color: AppColors.userMsgBox,
-            border: Border.all(width: 2, color: Colors.grey),
+    double card_w = expandedSearchResults ? resultCard_W * 4 : resultCard_W;
+    double card_h = expandedSearchResults ? resultCard_H : resultCard_H;
+
+    if (!isDisplayDesktop(context)) {
+      card_w = 250;
+    }
+    return Row(
+      children: [
+        AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          constraints: BoxConstraints(
+            maxHeight: resultIcon_H,
+            maxWidth: !isDisplayDesktop(context)
+                ? resultIcon_W
+                : expandedSearchResults
+                    ? resultIcon_W
+                    : resultIconExpand_W,
           ),
-          child: Row(children: [
-            Image.asset("assets/images/google.png", height: 18, width: 18),
-            Text("Google搜索结果",
-                style: TextStyle(fontSize: 10.5, color: AppColors.subTitle)),
-          ])),
-      // iconColor: Colors.blueGrey[500],
-      color: AppColors.appBarBackground,
-      position: PopupMenuPosition.over,
-      // padding: EdgeInsets.all(10),
-      itemBuilder: (BuildContext context) {
-        return results.map((x) {
-          return PopupMenuItem<String>(
-            // value: x["title"],
-            child: ListTile(
-              dense: true,
-              visualDensity: VisualDensity.compact,
-              contentPadding: EdgeInsets.symmetric(horizontal: 5),
-              leading: Icon(Icons.link_outlined),
-              onTap: () {
-                launchUrl(Uri.parse(x["link"]));
-                Navigator.of(context).pop();
-              },
-              title: Text(
-                x["title"] ?? "",
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+          // width: expandSearchResults ? resultIcon_W : resultIconExpand_W,
+          // height: resultIcon_H,
+          decoration: BoxDecoration(
+            color: AppColors.userMsgBox,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 10,
+                spreadRadius: 3,
               ),
-              subtitle: Text(
-                x["snippet"] ?? "",
-                style: TextStyle(fontSize: 10.5, color: AppColors.subTitle),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+            ],
+          ),
+          child: ListTile(
+            isThreeLine: isDisplayDesktop(context) && expandedSearchResults
+                ? true
+                : false,
+            dense: true,
+            leading: CircleAvatar(
+              backgroundImage: AssetImage("assets/images/google.png"),
+              radius: 12,
             ),
-          );
-        }).toList();
-      },
+            contentPadding: EdgeInsets.symmetric(horizontal: 5),
+            title: isDisplayDesktop(context)
+                ? Text(
+                    "搜索结果",
+                    overflow: TextOverflow.clip,
+                    maxLines: 1,
+                  )
+                : null,
+            titleTextStyle: TextStyle(
+              fontSize: 14,
+            ),
+            subtitle: isDisplayDesktop(context)
+                ? Text(
+                    "获得${results.length}条搜索结果",
+                    overflow: TextOverflow.clip,
+                    maxLines: 1,
+                  )
+                : null,
+            subtitleTextStyle: TextStyle(fontSize: 10.5, color: Colors.grey),
+            trailing: IconButton(
+                tooltip: expandedSearchResults ? "收起" : "展开",
+                visualDensity: VisualDensity.compact,
+                onPressed: () {
+                  setState(() {
+                    expandedSearchResults = !expandedSearchResults;
+                  });
+                },
+                icon: Icon(expandedSearchResults
+                    ? Icons.keyboard_double_arrow_right
+                    : Icons.keyboard_double_arrow_left)),
+          ),
+        ),
+        AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            width: card_w,
+            height: expandedSearchResults ? card_h : 1,
+            margin: EdgeInsets.symmetric(horizontal: 15),
+            decoration: BoxDecoration(
+              color: AppColors.userMsgBox,
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+            ),
+            child: Visibility(
+                visible: expandedSearchResults,
+                child: CarouselView(
+                  itemSnapping: true,
+                  shrinkExtent: 100,
+                  scrollDirection: Axis.horizontal,
+                  itemExtent: resultCard_W,
+                  backgroundColor: AppColors.userMsgBox,
+                  shape: RoundedRectangleBorder(borderRadius: BORDERRADIUS15),
+                  // padding: EdgeInsets.all(20),
+                  onTap: (i) {
+                    launchUrl(Uri.parse(results[i]["link"]));
+                  },
+                  children: results.map((x) {
+                    return Card(
+                      color: Colors.white,
+                      elevation: 2,
+                      shape:
+                          RoundedRectangleBorder(borderRadius: BORDERRADIUS15),
+                      child: Container(
+                        margin:
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                        child: Wrap(
+                          direction: Axis.horizontal,
+                          children: [
+                            Column(
+                              children: [
+                                Text(
+                                  "${results.indexOf(x) + 1}.${x["title"]}",
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: TextButton.icon(
+                                    label: Text(
+                                      "${Uri.parse(x["link"]).host.split('.')[1]}",
+                                      maxLines: 1,
+                                      overflow: TextOverflow.clip,
+                                      style: TextStyle(fontSize: 10.5),
+                                    ),
+                                    onPressed: null,
+                                    icon: Icon(Icons.cloud_done, size: 15),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                )))
+      ],
     );
   }
 
@@ -172,9 +263,15 @@ class MessageBoxState extends State<MessageBox> {
     User user = Provider.of<User>(context, listen: false);
     if (widget.isSameRole) return SizedBox(width: 32, height: 32);
     if (widget.role == MessageTRole.assistant)
-      return image_show(user.avatar_bot ?? defaultUserBotAvatar, 16);
+      return Container(
+        margin: EdgeInsets.only(top: 7),
+        child: image_show(user.avatar_bot ?? defaultUserBotAvatar, 16),
+      );
     else if (widget.role == MessageTRole.user)
-      return image_show(user.avatar!, 16);
+      return Container(
+        margin: EdgeInsets.only(top: 7),
+        child: image_show(user.avatar!, 16),
+      );
     else
       return SizedBox(width: 32, height: 32);
   }
