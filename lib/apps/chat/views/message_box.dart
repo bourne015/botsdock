@@ -58,11 +58,11 @@ class MessageBoxState extends State<MessageBox> {
   late final Stream<Message> _messageStream;
   bool isExpanded = true;
   bool isGoogleList = false;
-  String contentAll = '';
   bool isNotEmpty = false;
   double artifactWidth = Artifact_MIN_W;
   double artifactHight = Artifact_MIN_H;
   bool expandedSearchResults = false;
+  bool _hasCopyIcon = false;
 
   @override
   void initState() {
@@ -329,7 +329,6 @@ class MessageBoxState extends State<MessageBox> {
             if (_content is GeminiTextContent &&
                 _content.text != null &&
                 _content.text!.isNotEmpty) {
-              contentAll += _content.text ?? "";
               contentWidgets
                   .add(messageContent(context, msg.role, _content.text));
             } else if (_content is GeminiPart3) {
@@ -349,7 +348,6 @@ class MessageBoxState extends State<MessageBox> {
                     }
                   } else {
                     if (_content.text != null && _content.text.isNotEmpty) {
-                      contentAll += _content.text;
                       contentWidgets.add(
                           messageContent(context, msg.role, _content.text));
                     }
@@ -364,7 +362,6 @@ class MessageBoxState extends State<MessageBox> {
                 if (_content.name == "webpage_fetch") {
                   final url = _content.input?["url"];
                   if (url?.isNotEmpty ?? false) {
-                    contentAll += url!;
                     contentWidgets.add(messageContent(
                         context, msg.role, _content.input["url"]));
                   }
@@ -403,22 +400,10 @@ class MessageBoxState extends State<MessageBox> {
             break;
           case "webpage_fetch":
             var arg = jsonDecode(tool.function.arguments);
-            contentAll += arg["url"] ?? "";
             contentWidgets.add(messageContent(context, msg.role, arg["url"]));
             break;
         }
       }
-      if (contentAll.isNotEmpty && msg.role != MessageTRole.user)
-        contentWidgets.add(
-          IconButton(
-            tooltip: "Copy",
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: contentAll))
-                  .then((value) => showMessage(context, "Copied"));
-            },
-            icon: const Icon(Icons.copy, size: 15),
-          ),
-        );
     } catch (e) {
       // contentWidgets
       //     .add(messageContent(context, msg.role, "parse msg error: $e"));
@@ -652,6 +637,31 @@ class MessageBoxState extends State<MessageBox> {
         ));
   }
 
+  Widget visibilityCopyButton(BuildContext context, String? msg) {
+    return Visibility(
+        visible: isDisplayDesktop(context) ? _hasCopyIcon : true,
+        maintainSize: true,
+        maintainAnimation: true,
+        maintainState: true,
+        child: IconButton(
+          tooltip: "Copy",
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: msg ?? ""))
+                .then((value) => showMessage(context, "Copied"));
+          },
+          icon: const Icon(
+            Icons.copy,
+            size: 15,
+          ),
+        ));
+  }
+
+  void _setHovering(bool hovering) {
+    setState(() {
+      _hasCopyIcon = hovering;
+    });
+  }
+
   Widget messageContent(
       BuildContext context, String role, String? _textContent) {
     if (role == MessageTRole.user) {
@@ -663,21 +673,17 @@ class MessageBoxState extends State<MessageBox> {
         style: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
       );
     } else {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          contentMarkdown(context, _textContent ?? ""),
-          // if (_textContent != null && _textContent.isNotEmpty)
-          //   IconButton(
-          //     tooltip: "Copy",
-          //     onPressed: () {
-          //       Clipboard.setData(ClipboardData(text: _textContent))
-          //           .then((value) => showMessage(context, "Copied"));
-          //     },
-          //     icon: const Icon(Icons.copy, size: 15),
-          //   )
-        ],
+      return MouseRegion(
+        onEnter: (_) => _setHovering(true),
+        onExit: (_) => _setHovering(false),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            contentMarkdown(context, _textContent ?? ""),
+            visibilityCopyButton(context, _textContent),
+          ],
+        ),
       );
     }
   }
