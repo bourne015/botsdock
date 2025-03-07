@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart';
 import 'package:botsdock/apps/chat/utils/constants.dart';
+import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/data/adaptive.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -81,16 +81,46 @@ class MessageListViewState extends State<MessageListView> {
               var reindex = _messageLength - 1 - index;
               bool sameRole = false;
               // print("$reindex");
+              var currMsgRole = chat.messages[reindex].role;
               if (reindex <= _messageLength - 1 && reindex > 0) {
                 var upMsgRole = chat.messages[reindex - 1].role;
-                if (upMsgRole == MessageTRole.user &&
-                    chat.messages[reindex].role == MessageTRole.user)
-                  sameRole = true;
-                if (upMsgRole == MessageTRole.assistant &&
-                    chat.messages[reindex].role == MessageTRole.assistant)
-                  sameRole = true;
+
+                //treat tool message as assistant message
+                //openai: tool msg type is 'text', role is 'tool'
+                if (upMsgRole == MessageTRole.tool)
+                  upMsgRole = MessageTRole.assistant;
+
+                //claude: tool msg type is 'tool_result', role is 'user'
+                if (ClaudeModel.all.contains(chat.model)) {
+                  if (upMsgRole == MessageTRole.user) {
+                    var _c = chat.messages[reindex - 1].content;
+                    if (_c is List &&
+                        _c.isNotEmpty &&
+                        _c[0].type == "tool_result")
+                      upMsgRole = MessageTRole.assistant;
+                  }
+                  if (currMsgRole == MessageTRole.user) {
+                    var _c = chat.messages[reindex].content;
+                    if (_c is List &&
+                        _c.isNotEmpty &&
+                        _c[0].type == "tool_result")
+                      currMsgRole = MessageTRole.assistant;
+                  }
+                }
+                if (upMsgRole == currMsgRole &&
+                    currMsgRole == MessageTRole.user) sameRole = true;
+                if (upMsgRole == currMsgRole &&
+                    currMsgRole == MessageTRole.assistant) sameRole = true;
                 // print("up:${upMsgRole},  cur: ${chat.messages[reindex].role}");
               }
+              if (currMsgRole == MessageTRole.tool) {
+                //every tool msg must have a tool_calls msg upside
+                //and tool_calls msg won't display in most case
+                //so we need to display this tool msg's role-icon
+                currMsgRole = MessageTRole.assistant;
+                sameRole = false;
+              }
+
               return AnimatedContainer(
                   duration: Duration(milliseconds: 270),
                   padding: isDisplayDesktop(context)
@@ -103,6 +133,7 @@ class MessageListViewState extends State<MessageListView> {
                     isSameRole: sameRole,
                     pageId: chat.id,
                     model: chat.model,
+                    role: currMsgRole,
                     onGenerating: widget.page.onGenerating,
                     messageStream: chat.messageStream,
                   ));

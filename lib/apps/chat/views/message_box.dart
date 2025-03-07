@@ -31,6 +31,7 @@ class MessageBox extends StatefulWidget {
   final bool isSameRole;
   final int pageId;
   final String? model;
+  final String role;
   final onGenerating;
   final Stream<Message> messageStream;
 
@@ -41,6 +42,7 @@ class MessageBox extends StatefulWidget {
     this.isSameRole = false,
     required this.pageId,
     this.model,
+    required this.role,
     this.onGenerating,
     required this.messageStream,
   }) : super(key: ValueKey(msg.id));
@@ -81,10 +83,10 @@ class MessageBoxState extends State<MessageBox> {
     messageContentLists(context, widget.msg);
     if (!isNotEmpty && !widget.isLast) return SizedBox.shrink();
 
-    return widget.msg.role == MessageTRole.user ||
-            widget.msg.role == MessageTRole.assistant ||
-            widget.msg.role == MessageTRole.tool ||
-            widget.msg.role == MessageTRole.model
+    return widget.role == MessageTRole.user ||
+            widget.role == MessageTRole.assistant ||
+            widget.role == MessageTRole.tool ||
+            widget.role == MessageTRole.model
         ? Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,11 +168,10 @@ class MessageBoxState extends State<MessageBox> {
 
   Widget roleIcon(BuildContext context, Message msg) {
     User user = Provider.of<User>(context, listen: false);
-    if (widget.isSameRole || isGoogleList)
-      return SizedBox(width: 32, height: 32);
-    if (msg.role == MessageTRole.assistant)
+    if (widget.isSameRole) return SizedBox(width: 32, height: 32);
+    if (widget.role == MessageTRole.assistant)
       return image_show(user.avatar_bot ?? defaultUserBotAvatar, 16);
-    else if (msg.role == MessageTRole.user)
+    else if (widget.role == MessageTRole.user)
       return image_show(user.avatar!, 16);
     else
       return SizedBox(width: 32, height: 32);
