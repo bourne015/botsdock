@@ -60,6 +60,8 @@ class MessageBoxState extends State<MessageBox> {
   bool isGoogleList = false;
   String contentAll = '';
   bool isNotEmpty = false;
+  double artifactWidth = Artifact_MIN_W;
+  double artifactHight = Artifact_MIN_H;
 
   @override
   void initState() {
@@ -351,17 +353,72 @@ class MessageBoxState extends State<MessageBox> {
       // );
       return contentMarkdown(context, func["content"]);
     }
-    return Container(
-      padding: EdgeInsets.only(top: 5),
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 400),
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+      width: artifactWidth + 10,
+      height: artifactHight + 50,
       decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
+          // color: Colors.red,
+          // border: Border.all(color: ),
           borderRadius: BorderRadius.all(Radius.circular(10))),
       clipBehavior: Clip.hardEdge,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(func["artifactName"],
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(),
+              Text(func["artifactName"],
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    tooltip: "最小化",
+                    visualDensity: VisualDensity.compact,
+                    iconSize: 18,
+                    onPressed: () {
+                      setState(() {
+                        artifactWidth = Artifact_MIN_W;
+                        artifactHight = 5;
+                      });
+                    },
+                    icon: Icon(Icons.minimize),
+                  ),
+                  IconButton(
+                    tooltip: "恢复",
+                    visualDensity: VisualDensity.compact,
+                    iconSize: 18,
+                    onPressed: () {
+                      setState(() {
+                        artifactWidth = Artifact_MIN_W;
+                        artifactHight = Artifact_MIN_H;
+                      });
+                    },
+                    icon: Icon(Icons.refresh, size: 18),
+                  ),
+                  IconButton(
+                    tooltip: "最大化",
+                    visualDensity: VisualDensity.compact,
+                    iconSize: 18,
+                    onPressed: () {
+                      setState(() {
+                        artifactWidth = Artifact_MAX_W;
+                        artifactHight = Artifact_MAX_H;
+                      });
+                    },
+                    icon: Icon(Icons.maximize, size: 18),
+                  ),
+                ],
+              ),
+            ],
+          ),
           HtmlContentWidget(
+            width: artifactWidth,
+            height: artifactHight,
             content: func["content"] ?? "",
             contentType: func["type"].toLowerCase(),
           )

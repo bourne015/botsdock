@@ -22,8 +22,8 @@ class HtmlContentWidget extends StatefulWidget {
     Key? key,
     required this.content,
     required this.contentType,
-    this.width = 800,
-    this.height = 450,
+    this.width = 400,
+    this.height = 300,
     this.mermaidTheme = 'default',
     this.loadingWidget,
     this.loadingTimeout = const Duration(seconds: 30),
@@ -127,7 +127,7 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
               // display: flex;
               justify-content: center;
               align-items: center;
-              background-color: #f0f0f0;
+              // background-color: #f0f0f0;
             }
             .content-wrapper {
               width: 100%;
@@ -257,22 +257,23 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final effectiveWidth = widget.width?.clamp(0.0, constraints.maxWidth) ??
-            constraints.maxWidth.clamp(0.0, 800.0);
+            constraints.maxWidth.clamp(0.0, 1000.0);
         final effectiveHeight =
             widget.height?.clamp(0.0, constraints.maxHeight) ??
                 constraints.maxHeight.clamp(0.0, 800.0);
 
         return Stack(
           children: [
-            Container(
+            AnimatedContainer(
+              duration: Duration(milliseconds: 400),
               width: effectiveWidth,
               height: effectiveHeight,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
-                ),
+                borderRadius: BorderRadius.all(Radius.circular(10)
+                    // bottomLeft: Radius.circular(10),
+                    // bottomRight: Radius.circular(10),
+                    ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.1),

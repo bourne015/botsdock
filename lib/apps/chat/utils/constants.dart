@@ -129,3 +129,8 @@ const int maxAvatarSize = 10;
 
 BorderRadius BORDERRADIUS10 = BorderRadius.circular(10.0);
 BorderRadius BORDERRADIUS15 = BorderRadius.circular(15.0);
+
+const double Artifact_MAX_W = 816;
+const double Artifact_MAX_H = 612;
+const double Artifact_MIN_W = 400;
+const double Artifact_MIN_H = 300;
