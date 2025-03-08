@@ -313,16 +313,11 @@ class Administrator extends StatelessWidget {
   Widget buildLoginDialog(
       BuildContext context, User user, Pages pages, Property property) {
     return AlertDialog(
-      title: Text(
-        textAlign: TextAlign.center,
-        '登录/注册',
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      title: Text(textAlign: TextAlign.center, '登录/注册'),
+      titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       scrollable: true,
       backgroundColor: AppColors.chatPageBackground,
+      actionsAlignment: MainAxisAlignment.spaceAround,
       content: loginDialogContent(context),
       actions: loginDialogActions(context, user, pages, property),
     );
@@ -331,45 +326,36 @@ class Administrator extends StatelessWidget {
   List<Widget> loginDialogActions(
       context, User user, Pages pages, Property property) {
     return [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ElevatedButton(
-            child: Text('登录'),
-            onPressed: () async {
-              if (!(_signInformKey.currentState as FormState).validate()) {
-                //notifyBox(title: "warning", content: "内容不能为空");
-                return;
-              }
-              showLoading(context, text: "正在登录...");
-              var res = await checkLogin(user);
-              Navigator.of(context).pop();
-              if (user.isLogedin) {
-                ////fetch chat data from db
-                Navigator.of(context).maybePop().then((_) async {
-                  property.isLoading = true;
-                  await pages.fetch_pages(user.id);
-                  pages.flattenPages();
-                  property.isLoading = false;
-                  Global.saveProfile(user);
-                });
-              } else
-                notifyBox(
-                    context: context, title: "login status", content: res);
-            },
-          ),
-          SizedBox(
-            width: 80,
-          ),
-          ElevatedButton(
-            child: Text('注册'),
-            onPressed: () {
-              Navigator.of(context).pop();
-              signUpDialog(context, user);
-            },
-          ),
-        ],
-      )
+      ElevatedButton(
+        child: Text('登录'),
+        onPressed: () async {
+          if (!(_signInformKey.currentState as FormState).validate()) {
+            //notifyBox(title: "warning", content: "内容不能为空");
+            return;
+          }
+          showLoading(context, text: "正在登录...");
+          var res = await checkLogin(user);
+          Navigator.of(context).pop();
+          if (user.isLogedin) {
+            ////fetch chat data from db
+            Navigator.of(context).maybePop().then((_) async {
+              property.isLoading = true;
+              await pages.fetch_pages(user.id);
+              pages.flattenPages();
+              property.isLoading = false;
+              Global.saveProfile(user);
+            });
+          } else
+            notifyBox(context: context, title: "login status", content: res);
+        },
+      ),
+      ElevatedButton(
+        child: Text('注册'),
+        onPressed: () {
+          Navigator.of(context).pop();
+          signUpDialog(context, user);
+        },
+      ),
     ];
   }
 
@@ -417,14 +403,8 @@ class Administrator extends StatelessWidget {
     return AlertDialog(
       // titlePadding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
       // contentPadding: EdgeInsets.fromLTRB(50, 0, 50, 0),
-      title: Text(
-        textAlign: TextAlign.center,
-        '注册',
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      title: Text(textAlign: TextAlign.center, '注册'),
+      titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       scrollable: true,
       backgroundColor: AppColors.chatPageBackground,
       content: sigupDialogContent(context),

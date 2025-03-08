@@ -1,3 +1,4 @@
+import 'package:botsdock/data/adaptive.dart';
 import 'package:flutter/material.dart';
 import 'package:markdown/markdown.dart' as md;
 
@@ -83,19 +84,24 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
       // );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        codeTitleBar(context, language, element),
-        HighlightView(
-          element.textContent,
-          language: language,
-          theme: androidstudioTheme,
-          padding: EdgeInsets.only(left: 15, top: 10),
-          // textStyle: TextStyle(fontFamily: 'Courier'),
-          tabSize: 4,
-        ),
-      ],
+    return Container(
+      margin: isDisplayDesktop(context)
+          ? EdgeInsets.only(left: 30, right: 150)
+          : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          codeTitleBar(context, language, element),
+          HighlightView(
+            element.textContent,
+            language: language,
+            theme: androidstudioTheme,
+            padding: EdgeInsets.only(left: 15, top: 10),
+            // textStyle: TextStyle(fontFamily: 'Courier'),
+            tabSize: 4,
+          ),
+        ],
+      ),
     );
   }
 
