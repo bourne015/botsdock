@@ -305,13 +305,13 @@ class MessageBoxState extends State<MessageBox> {
       if (msg.visionFiles.isNotEmpty) {
         //Claude images url saved in visionFilesList
         contentWidgets.add(Container(
-          height: 250,
+          height: isDisplayDesktop(context) ? 250 : 150,
           child: visionFilesList(context, msg.visionFiles),
         ));
       }
       if (msg.attachments.isNotEmpty) {
         contentWidgets.add(Container(
-          height: 80,
+          height: 50,
           child: attachmentList(context, msg.attachments),
         ));
       }
@@ -453,7 +453,12 @@ class MessageBoxState extends State<MessageBox> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(),
-              Text(func["artifactName"],
+              Text(
+                  func["artifactName"].length > 16
+                      ? func["artifactName"].substring(0, 16)
+                      : func["artifactName"],
+                  maxLines: 1,
+                  overflow: TextOverflow.clip,
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -762,74 +767,172 @@ class MessageBoxState extends State<MessageBox> {
     return Container(
       alignment: Alignment.topCenter,
       decoration: BoxDecoration(
-          color: AppColors.inputBoxBackground,
-          borderRadius: const BorderRadius.all(Radius.circular(10))),
+        color: AppColors.inputBoxBackground,
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            spreadRadius: 3,
+          ),
+        ],
+      ),
       child: ListTile(
         dense: true,
         title: Text(attachedFileName, overflow: TextOverflow.ellipsis),
         leading: Icon(Icons.description_outlined, color: Colors.pink[300]),
-        onTap: () {
-          handleDownload(attachedFileName, attachFile);
-        },
+        // onTap: () {
+        //   handleDownload(attachedFileName, attachFile);
+        // },
         trailing: (attachFile.downloading!
-            ? CircularProgressIndicator()
+            ? CircularProgressIndicator(strokeWidth: 2)
             : Icon(Icons.download_for_offline_outlined)),
       ),
     );
   }
 
-  Widget attachmentList(BuildContext context, attachments) {
-    final width = MediaQuery.of(context).size.width;
-    final int crossAxisCount = (width ~/ 300).clamp(1, 3);
-    final double childAspectRatio = (width / crossAxisCount) / 80.0;
-    final hpaddng = isDisplayDesktop(context) ? 15.0 : 15.0;
-    return GridView.builder(
-      key: UniqueKey(),
-      controller: _attachmentscroll,
-      shrinkWrap: true,
-      padding: EdgeInsets.symmetric(horizontal: hpaddng, vertical: 5),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        mainAxisSpacing: 10.0,
-        crossAxisSpacing: 20.0,
-        childAspectRatio: childAspectRatio,
-        crossAxisCount: crossAxisCount,
-      ),
-      itemCount: attachments.entries.length,
-      itemBuilder: (BuildContext context, int index) {
-        MapEntry entry = attachments.entries.elementAt(index);
-        return attachedFileIcon(context, entry.key, entry.value);
+  // Widget attachmentList(BuildContext context, attachments) {
+  //   final width = MediaQuery.of(context).size.width;
+  //   final int crossAxisCount = (width ~/ 300).clamp(1, 3);
+  //   final double childAspectRatio = (width / crossAxisCount) / 80.0;
+  //   final hpaddng = isDisplayDesktop(context) ? 15.0 : 15.0;
+  //   return GridView.builder(
+  //     key: UniqueKey(),
+  //     controller: _attachmentscroll,
+  //     shrinkWrap: true,
+  //     padding: EdgeInsets.symmetric(horizontal: hpaddng, vertical: 5),
+  //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+  //       mainAxisSpacing: 10.0,
+  //       crossAxisSpacing: 20.0,
+  //       childAspectRatio: childAspectRatio,
+  //       crossAxisCount: crossAxisCount,
+  //     ),
+  //     itemCount: attachments.entries.length,
+  //     itemBuilder: (BuildContext context, int index) {
+  //       MapEntry entry = attachments.entries.elementAt(index);
+  //       return attachedFileIcon(context, entry.key, entry.value);
+  //     },
+  //   );
+  // }
+
+  Widget attachmentList(
+      BuildContext context, Map<String, Attachment> attachments) {
+    List<Map> _files = attachments.entries.map((x) {
+      return {
+        "filename": x.key,
+        "attachment": x.value,
+      };
+    }).toList();
+    return CarouselView(
+      itemExtent: isDisplayDesktop(context) ? 200 : 150,
+      backgroundColor: AppColors.chatPageBackground,
+      onTap: (i) {
+        handleDownload(_files[i]["filename"], _files[i]["attachment"]);
       },
+      children: _files.map((x) {
+        return attachedFileIcon(context, x["filename"], x["attachment"]);
+      }).toList(),
     );
   }
 
-  Widget visionFilesList(BuildContext context, visionFiles) {
-    final width = MediaQuery.of(context).size.width;
-    final int crossAxisCount = (width ~/ 300).clamp(1, 3);
-    final double childAspectRatio = (width / crossAxisCount) / 400.0;
-    final hpaddng = isDisplayDesktop(context) ? 15.0 : 15.0;
-    return GridView.builder(
-      key: UniqueKey(),
-      controller: _visionFilescroll,
-      shrinkWrap: true,
-      padding: EdgeInsets.symmetric(horizontal: hpaddng, vertical: 5),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        mainAxisSpacing: 10.0,
-        crossAxisSpacing: 20.0,
-        childAspectRatio: childAspectRatio,
-        crossAxisCount: crossAxisCount,
-      ),
-      itemCount: visionFiles.entries.length,
-      itemBuilder: (BuildContext context, int index) {
-        MapEntry entry = visionFiles.entries.elementAt(index);
-        return contentImage(
-          context,
-          filename: entry.key,
-          imageUrl: entry.value.url,
-          imageBytes: entry.value.bytes,
+  Widget visionFilesList(
+      BuildContext context, Map<String, VisionFile> visionFiles) {
+    List<Map> _imgs = visionFiles.entries.map((x) {
+      return {
+        "filename": x.key,
+        "imageUrl": x.value.url,
+        "imageBytes": x.value.bytes,
+      };
+    }).toList();
+    return CarouselView(
+      itemExtent: isDisplayDesktop(context) ? 300 : 150,
+      backgroundColor: AppColors.userMsgBox,
+      onTap: (i) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return Dialog(
+              child: Stack(
+                alignment: AlignmentDirectional.bottomCenter,
+                children: [
+                  loadImage(
+                    context,
+                    filename: _imgs[i]["filename"],
+                    imageurl: _imgs[i]["imageUrl"],
+                    imagebytes: _imgs[i]["imagebytes"],
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                    ),
+                    child: TextButton.icon(
+                      label: Text(
+                        "下载",
+                        maxLines: 1,
+                        overflow: TextOverflow.clip,
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      onPressed: () {
+                        downloadImage(
+                          fileUrl: _imgs[i]["imageUrl"],
+                          imageData: _imgs[i]["imagebytes"],
+                        );
+                      },
+                      icon: Icon(Icons.download, size: 26),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
+      children: _imgs.map((x) {
+        return loadImage(context,
+            filename: x["filename"],
+            imageurl: x["imageUrl"],
+            imagebytes: x["imageBytes"],
+            height: 250.0,
+            width: 200.0);
+        // return contentImage(
+        //   context,
+        //   filename: x["filename"],
+        //   imageUrl: x["imageUrl"],
+        //   imageBytes: x["imageBytes"],
+        // );
+      }).toList(),
     );
   }
+
+  // Widget visionFilesList(BuildContext context, visionFiles) {
+  //   final width = MediaQuery.of(context).size.width;
+  //   final int crossAxisCount = (width ~/ 300).clamp(1, 3);
+  //   final double childAspectRatio = (width / crossAxisCount) / 400.0;
+  //   final hpaddng = isDisplayDesktop(context) ? 15.0 : 15.0;
+  //   return GridView.builder(
+  //     key: UniqueKey(),
+  //     controller: _visionFilescroll,
+  //     shrinkWrap: true,
+  //     padding: EdgeInsets.symmetric(horizontal: hpaddng, vertical: 5),
+  //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+  //       mainAxisSpacing: 10.0,
+  //       crossAxisSpacing: 20.0,
+  //       childAspectRatio: childAspectRatio,
+  //       crossAxisCount: crossAxisCount,
+  //     ),
+  //     itemCount: visionFiles.entries.length,
+  //     itemBuilder: (BuildContext context, int index) {
+  //       MapEntry entry = visionFiles.entries.elementAt(index);
+  //       return contentImage(
+  //         context,
+  //         filename: entry.key,
+  //         imageUrl: entry.value.url,
+  //         imageBytes: entry.value.bytes,
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget loadImage(BuildContext context,
       {filename, imageurl, imagebytes, height, width}) {
