@@ -101,6 +101,20 @@ class MessageBoxState extends State<MessageBox> {
         : SizedBox.shrink();
   }
 
+  Widget resultExpandButton(BuildContext context) {
+    return IconButton(
+        tooltip: expandedSearchResults ? "收起" : "展开",
+        visualDensity: VisualDensity.compact,
+        onPressed: () {
+          setState(() {
+            expandedSearchResults = !expandedSearchResults;
+          });
+        },
+        icon: Icon(expandedSearchResults
+            ? Icons.keyboard_double_arrow_right
+            : Icons.keyboard_double_arrow_left));
+  }
+
   Widget googleResultList(BuildContext context, List results) {
     double card_w = expandedSearchResults ? resultCard_W * 4 : resultCard_W;
     double card_h = expandedSearchResults ? resultCard_H : resultCard_H;
@@ -114,9 +128,9 @@ class MessageBoxState extends State<MessageBox> {
           duration: Duration(milliseconds: 300),
           constraints: BoxConstraints(
             maxHeight: resultIcon_H,
-            maxWidth: !isDisplayDesktop(context)
-                ? resultIcon_W
-                : expandedSearchResults
+            maxWidth: expandedSearchResults
+                ? resultIcon_W / 1.5
+                : !isDisplayDesktop(context)
                     ? resultIcon_W
                     : resultIconExpand_W,
           ),
@@ -134,45 +148,32 @@ class MessageBoxState extends State<MessageBox> {
             ],
           ),
           child: ListTile(
-            isThreeLine: isDisplayDesktop(context) && expandedSearchResults
-                ? true
-                : false,
-            dense: true,
-            leading: CircleAvatar(
-              backgroundImage: AssetImage("assets/images/google.png"),
-              radius: 12,
-            ),
-            contentPadding: EdgeInsets.symmetric(horizontal: 5),
-            title: isDisplayDesktop(context)
-                ? Text(
-                    "搜索结果",
-                    overflow: TextOverflow.clip,
-                    maxLines: 1,
-                  )
-                : null,
-            titleTextStyle: TextStyle(
-              fontSize: 14,
-            ),
-            subtitle: isDisplayDesktop(context)
-                ? Text(
-                    "获得${results.length}条搜索结果",
-                    overflow: TextOverflow.clip,
-                    maxLines: 1,
-                  )
-                : null,
-            subtitleTextStyle: TextStyle(fontSize: 10.5, color: Colors.grey),
-            trailing: IconButton(
-                tooltip: expandedSearchResults ? "收起" : "展开",
-                visualDensity: VisualDensity.compact,
-                onPressed: () {
-                  setState(() {
-                    expandedSearchResults = !expandedSearchResults;
-                  });
-                },
-                icon: Icon(expandedSearchResults
-                    ? Icons.keyboard_double_arrow_right
-                    : Icons.keyboard_double_arrow_left)),
-          ),
+              // isThreeLine: isDisplayDesktop(context) && expandedSearchResults
+              //     ? true
+              //     : false,
+              dense: true,
+              leading: expandedSearchResults
+                  ? null
+                  : CircleAvatar(
+                      backgroundImage: AssetImage("assets/images/google.png"),
+                      radius: 12,
+                    ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 5),
+              title: isDisplayDesktop(context)
+                  ? Text("搜索结果", overflow: TextOverflow.clip, maxLines: 1)
+                  : null,
+              titleTextStyle: TextStyle(
+                fontSize: 14,
+              ),
+              subtitle: isDisplayDesktop(context)
+                  ? Text(
+                      "获得${results.length}条搜索结果",
+                      overflow: TextOverflow.clip,
+                      maxLines: 1,
+                    )
+                  : null,
+              subtitleTextStyle: TextStyle(fontSize: 10.5, color: Colors.grey),
+              trailing: resultExpandButton(context)),
         ),
         AnimatedContainer(
             duration: Duration(milliseconds: 300),
@@ -183,59 +184,55 @@ class MessageBoxState extends State<MessageBox> {
               color: AppColors.userMsgBox,
               borderRadius: BorderRadius.all(Radius.circular(15)),
             ),
-            child: Visibility(
-                visible: expandedSearchResults,
-                child: CarouselView(
-                  itemSnapping: true,
-                  shrinkExtent: 100,
-                  scrollDirection: Axis.horizontal,
-                  itemExtent: resultCard_W,
-                  backgroundColor: AppColors.userMsgBox,
+            child: CarouselView(
+              itemSnapping: true,
+              shrinkExtent: 100,
+              scrollDirection: Axis.horizontal,
+              itemExtent: resultCard_W,
+              backgroundColor: AppColors.userMsgBox,
+              shape: RoundedRectangleBorder(borderRadius: BORDERRADIUS15),
+              // padding: EdgeInsets.all(20),
+              onTap: (i) {
+                launchUrl(Uri.parse(results[i]["link"]));
+              },
+              children: results.map((x) {
+                return Card(
+                  color: Colors.white,
+                  elevation: 2,
                   shape: RoundedRectangleBorder(borderRadius: BORDERRADIUS15),
-                  // padding: EdgeInsets.all(20),
-                  onTap: (i) {
-                    launchUrl(Uri.parse(results[i]["link"]));
-                  },
-                  children: results.map((x) {
-                    return Card(
-                      color: Colors.white,
-                      elevation: 2,
-                      shape:
-                          RoundedRectangleBorder(borderRadius: BORDERRADIUS15),
-                      child: Container(
-                        margin:
-                            EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-                        child: Wrap(
-                          direction: Axis.horizontal,
+                  child: Container(
+                    margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                    child: Wrap(
+                      direction: Axis.horizontal,
+                      children: [
+                        Column(
                           children: [
-                            Column(
-                              children: [
-                                Text(
-                                  "${results.indexOf(x) + 1}.${x["title"]}",
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                            Text(
+                              "${results.indexOf(x) + 1}.${x["title"]}",
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: TextButton.icon(
+                                label: Text(
+                                  "${Uri.parse(x["link"]).host.split('.')[1]}",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.clip,
+                                  style: TextStyle(fontSize: 10.5),
                                 ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: TextButton.icon(
-                                    label: Text(
-                                      "${Uri.parse(x["link"]).host.split('.')[1]}",
-                                      maxLines: 1,
-                                      overflow: TextOverflow.clip,
-                                      style: TextStyle(fontSize: 10.5),
-                                    ),
-                                    onPressed: null,
-                                    icon: Icon(Icons.cloud_done, size: 15),
-                                  ),
-                                ),
-                              ],
+                                onPressed: null,
+                                icon: Icon(Icons.cloud_done, size: 15),
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    );
-                  }).toList(),
-                )))
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ))
       ],
     );
   }
