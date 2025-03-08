@@ -333,9 +333,9 @@ class InitPageState extends State<InitPage> {
         ),
         _buildPopupMenuItem(
           context: context,
-          value: GPTModel.gptvo1mini,
+          value: GPTModel.gptvo3mini,
           inputType: "文本",
-          title: "GPT o1-mini",
+          title: "GPT o3-mini",
           description: GalleryLocalizations.of(context)?.chatGPTo3mDesc ?? '',
         ),
         // _buildPopupMenuItem(

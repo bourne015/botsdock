@@ -323,7 +323,20 @@ class _ChatInputFieldState extends State<ChatInputField> {
     if (_modelV.startsWith('gpt-3')) return const SizedBox(width: 15);
     if (DeepSeekModel.all.contains(_modelV)) return const SizedBox(width: 15);
     if (_modelV == GPTModel.gptv40Dall) return const SizedBox(width: 15);
-    if (_modelV == GPTModel.gptvo1mini) return const SizedBox(width: 15);
+    if (_modelV == GPTModel.gptvo1mini)
+      return IconButton(
+          tooltip: "选择文件",
+          icon: Icon(Icons.attachment, size: 20),
+          onPressed: () {
+            _pickFile(_modelV);
+          });
+    if (_modelV == GPTModel.gptvo3mini)
+      return IconButton(
+          tooltip: "选择文件",
+          icon: Icon(Icons.attachment, size: 20),
+          onPressed: () {
+            _pickFile(_modelV);
+          });
     if (GPTModel.all.contains(_modelV) &&
         !property.onInitPage &&
         pages.currentPage!.assistantID == null) {

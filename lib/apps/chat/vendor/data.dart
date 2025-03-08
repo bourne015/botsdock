@@ -97,7 +97,7 @@ class GeminiModel {
   }
 }
 
-const DefaultModelVersion = GPTModel.gptv4o;
+const DefaultModelVersion = GPTModel.gptvo3mini;
 const DefaultClaudeModel = ClaudeModel.sonnet_37;
 const DefaultDeepSeekModel = DeepSeekModel.dc_r;
 const DefaultGeminiModel = GeminiModel.flash_20;
