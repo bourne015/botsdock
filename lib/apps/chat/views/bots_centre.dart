@@ -49,17 +49,19 @@ class BotsState extends State<BotsCentre> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(GalleryLocalizations.of(context)!.botCentreTitle,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          title: Text(
+            GalleryLocalizations.of(context)!.botCentreTitle,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
           centerTitle: true,
-          backgroundColor: AppColors.chatPageBackground,
-          surfaceTintColor: AppColors.chatPageBackground,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          surfaceTintColor: Theme.of(context).colorScheme.surface,
           actions: [
             createBotButton(context),
             SizedBox(width: 15),
           ],
         ),
-        backgroundColor: AppColors.chatPageBackground,
+        // backgroundColor: AppColors.chatPageBackground,
         body: BotsPage(context));
   }
 
@@ -75,8 +77,10 @@ class BotsState extends State<BotsCentre> {
             // SizedBox(height: 20),
             // createBotButton(context),
             // SizedBox(height: 30),
-            Text(GalleryLocalizations.of(context)!.exploreMore,
-                style: TextStyle(fontSize: 18)),
+            Text(
+              GalleryLocalizations.of(context)!.exploreMore,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             FutureBuilder(
                 future: _fetchBotsFuture,
                 builder: (context, snapshot) {
@@ -153,7 +157,7 @@ class BotsState extends State<BotsCentre> {
     return PopupMenuButton<String>(
       //initialValue: "edit",
       icon: Icon(Icons.edit_note_rounded, size: 20),
-      color: AppColors.drawerBackground,
+      // color: AppColors.drawerBackground,
       shadowColor: Colors.blue,
       elevation: 3,
       onSelected: (String value) {
@@ -194,8 +198,9 @@ class BotsState extends State<BotsCentre> {
     return Stack(alignment: Alignment.topRight, children: [
       RichText(
           text: TextSpan(
-              text: '${bot["likes"]}',
-              style: TextStyle(fontSize: 10, color: Colors.grey)),
+            text: '${bot["likes"]}',
+            style: TextStyle(fontSize: 10, color: Colors.grey),
+          ),
           maxLines: 1),
       IconButton(
           icon: Icon(Icons.favorite_border),
@@ -226,12 +231,12 @@ class BotsState extends State<BotsCentre> {
     String? creator = bot.author_name ?? "anonymous";
     User user = Provider.of<User>(context, listen: false);
     return Card(
-        color: Color.fromARGB(255, 244, 244, 244),
+        color: Theme.of(context).colorScheme.secondaryContainer,
         shape: RoundedRectangleBorder(borderRadius: BORDERRADIUS15),
         elevation: 0,
         child: InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(15)),
-          hoverColor: Color.fromARGB(255, 230, 227, 227).withValues(alpha: 0.3),
+          // hoverColor: Color.fromARGB(255, 230, 227, 227).withValues(alpha: 0.3),
           onTap: onTab,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -245,9 +250,10 @@ class BotsState extends State<BotsCentre> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title,
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     //SizedBox(height: 5),
                     Text(
                       description,
@@ -266,7 +272,7 @@ class BotsState extends State<BotsCentre> {
                             '创建者： $creator',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                            style: Theme.of(context).textTheme.labelMedium,
                           )),
                           if (user.id == bot.author_id)
                             Container(

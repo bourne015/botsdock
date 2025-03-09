@@ -1,3 +1,5 @@
+import 'package:botsdock/apps/chat/views/theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:botsdock/apps/chat/views/bots_centre.dart';
 import 'package:provider/provider.dart';
@@ -56,20 +58,26 @@ class _AppState extends State<ChatApp> {
           ChangeNotifierProvider(create: (context) => user),
           ChangeNotifierProvider(create: (context) => bots),
         ],
-        child: MaterialApp(
-          title: appTitle,
-          theme: ThemeData(
-            primarySwatch: AppColors.theme,
-          ),
-          initialRoute: ChatApp.homeRoute,
-          routes: {
-            ChatApp.homeRoute: (context) => const MainLayout(),
-            ChatApp.botCentre: (context) => const BotsCentre(),
-          },
-          localizationsDelegates: GalleryLocalizations.localizationsDelegates,
-          supportedLocales: [
-            Locale('zh'),
-          ],
-        ));
+        child: Consumer<User>(builder: (context, _user, _) {
+          return MaterialApp(
+            title: appTitle,
+            themeMode: _user.settings?.themeMode ?? ThemeMode.system,
+            theme: ChatThemeData.lightThemeData.copyWith(
+              platform: defaultTargetPlatform,
+            ),
+            darkTheme: ChatThemeData.darkThemeData.copyWith(
+              platform: defaultTargetPlatform,
+            ),
+            initialRoute: ChatApp.homeRoute,
+            routes: {
+              ChatApp.homeRoute: (context) => const MainLayout(),
+              ChatApp.botCentre: (context) => const BotsCentre(),
+            },
+            localizationsDelegates: GalleryLocalizations.localizationsDelegates,
+            supportedLocales: [
+              Locale('zh'),
+            ],
+          );
+        }));
   }
 }

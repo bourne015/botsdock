@@ -399,10 +399,10 @@ class _UserInfoTabState extends State<UserInfo> {
       title: Text(
         textAlign: TextAlign.center,
         '修改密码',
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
+        // style: TextStyle(
+        //   fontSize: 20,
+        //   fontWeight: FontWeight.bold,
+        // ),
       ),
       content: SingleChildScrollView(
           child: Form(
@@ -462,7 +462,10 @@ class _UserInfoTabState extends State<UserInfo> {
     return Expanded(
         child: TextFormField(
       decoration: InputDecoration(
-          icon: Text(prefix, style: TextStyle(fontSize: 16)),
+          icon: Text(
+            prefix,
+            // style: TextStyle(fontSize: 16),
+          ),
           //filled: true,
           //fillColor: AppColors.inputBoxBackground,
           //labelText: text,
@@ -488,7 +491,10 @@ class _UserInfoTabState extends State<UserInfo> {
           Expanded(
               child: TextFormField(
             decoration: InputDecoration(
-                icon: Text(prefix, style: TextStyle(fontSize: 16)),
+                icon: Text(
+                  prefix,
+                  // style: TextStyle(fontSize: 16),
+                ),
                 //filled: true,
                 //fillColor: AppColors.inputBoxBackground,
                 //labelText: text,

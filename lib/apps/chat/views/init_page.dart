@@ -89,10 +89,12 @@ class InitPageState extends State<InitPage> {
               alignment: Alignment.center,
               child: Text(
                 "Chat",
-                style: TextStyle(
-                    color: AppColors.initPageBackgroundText,
-                    fontSize: 55.0,
-                    fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.displayLarge,
+                // style: TextStyle(
+                //   // color: AppColors.initPageBackgroundText,
+                //   fontSize: 55.0,
+                //   fontWeight: FontWeight.bold,
+                // ),
               ),
             ),
             if (isDisplayDesktop(context) && constraints.maxHeight > 350)
@@ -148,7 +150,7 @@ class InitPageState extends State<InitPage> {
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(15.0))),
         child: InkWell(
-          splashColor: Colors.blue.withAlpha(30),
+          // splashColor: Colors.blue.withAlpha(30),
           onTap: () {
             chats.newBot(pages, property, user, name: name, prompt: prompt);
           },
@@ -162,7 +164,7 @@ class InitPageState extends State<InitPage> {
               child: Container(
                   alignment: Alignment.bottomCenter,
                   //width: double.infinity,
-                  color: Color.fromRGBO(128, 128, 128, 0.4),
+                  // color: Color.fromRGBO(128, 128, 128, 0.4),
                   child: Text(name,
                       style: TextStyle(
                         fontSize: 17,
@@ -247,9 +249,8 @@ class InitPageState extends State<InitPage> {
               ]),
             },
             decoration: BoxDecoration(
-              //color: CupertinoColors.lightBackgroundGray,
-              color: AppColors.modelSelectorBackground!,
               borderRadius: BORDERRADIUS10,
+              color: Theme.of(context).colorScheme.secondaryContainer,
             ),
             thumbDecoration: BoxDecoration(
               //color: Colors.white,
@@ -289,17 +290,20 @@ class InitPageState extends State<InitPage> {
       initialValue: gptDropdownValue,
       tooltip: GalleryLocalizations.of(context)!.selectModelTooltip,
       //icon: Icon(color: Colors.grey, size: 10, Icons.south),
-      color: AppColors.drawerBackground,
+      // color: AppColors.drawerBackground,
       shadowColor: Colors.blue,
       elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BORDERRADIUS10,
       ),
       icon: CircleAvatar(
-          radius: 12,
-          backgroundColor: AppColors.modelSelectorBackground,
-          child: Text(allModels[gptDropdownValue]!,
-              style: const TextStyle(fontSize: 10.5, color: Colors.grey))),
+        radius: 12,
+        backgroundColor: AppColors.modelSelectorBackground,
+        child: Text(
+          allModels[gptDropdownValue]!,
+          style: Theme.of(context).textTheme.labelSmall,
+        ),
+      ),
       padding: const EdgeInsets.only(left: 2),
       onSelected: (String value) {
         property.initModelVersion = value;
@@ -364,17 +368,20 @@ class InitPageState extends State<InitPage> {
     return PopupMenuButton<String>(
       initialValue: claudeDropdownValue,
       tooltip: GalleryLocalizations.of(context)!.selectModelTooltip,
-      color: AppColors.drawerBackground,
+      // color: AppColors.drawerBackground,
       shadowColor: Colors.blue,
       elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BORDERRADIUS10,
       ),
       icon: CircleAvatar(
-          radius: 12,
-          backgroundColor: AppColors.modelSelectorBackground,
-          child: Text(allModels[claudeDropdownValue]![0],
-              style: const TextStyle(fontSize: 10.5, color: Colors.grey))),
+        radius: 12,
+        backgroundColor: AppColors.modelSelectorBackground,
+        child: Text(
+          allModels[claudeDropdownValue]![0],
+          style: Theme.of(context).textTheme.labelSmall,
+        ),
+      ),
       padding: const EdgeInsets.only(left: 2),
       onSelected: (String value) {
         property.initModelVersion = value;
@@ -429,17 +436,20 @@ class InitPageState extends State<InitPage> {
       initialValue: geminiDropdownValue,
       tooltip: GalleryLocalizations.of(context)!.selectModelTooltip,
       //icon: Icon(color: Colors.grey, size: 10, Icons.south),
-      color: AppColors.drawerBackground,
+      // color: AppColors.drawerBackground,
       shadowColor: Colors.blue,
       elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BORDERRADIUS10,
       ),
       icon: CircleAvatar(
-          radius: 12,
-          backgroundColor: AppColors.modelSelectorBackground,
-          child: Text(allModels[geminiDropdownValue]!,
-              style: const TextStyle(fontSize: 10.5, color: Colors.grey))),
+        radius: 12,
+        backgroundColor: AppColors.modelSelectorBackground,
+        child: Text(
+          allModels[geminiDropdownValue]!,
+          style: Theme.of(context).textTheme.labelSmall,
+        ),
+      ),
       padding: const EdgeInsets.only(left: 2),
       onSelected: (String value) {
         property.initModelVersion = value;
@@ -476,17 +486,20 @@ class InitPageState extends State<InitPage> {
       initialValue: deepseekDropdownValue,
       tooltip: GalleryLocalizations.of(context)!.selectModelTooltip,
       //icon: Icon(color: Colors.grey, size: 10, Icons.south),
-      color: AppColors.drawerBackground,
+      // color: AppColors.drawerBackground,
       shadowColor: Colors.blue,
       elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BORDERRADIUS10,
       ),
       icon: CircleAvatar(
-          radius: 12,
-          backgroundColor: AppColors.modelSelectorBackground,
-          child: Text(allModels[deepseekDropdownValue]!,
-              style: const TextStyle(fontSize: 10.5, color: Colors.grey))),
+        radius: 12,
+        backgroundColor: AppColors.modelSelectorBackground,
+        child: Text(
+          allModels[deepseekDropdownValue]!,
+          style: Theme.of(context).textTheme.labelSmall,
+        ),
+      ),
       padding: const EdgeInsets.only(left: 2),
       onSelected: (String value) {
         property.initModelVersion = value;
@@ -573,7 +586,7 @@ class InitPageState extends State<InitPage> {
       value: value,
       child: Material(
         //color: Colors.transparent,
-        color: AppColors.drawerBackground,
+        // color: AppColors.drawerBackground,
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 5),
           decoration: BoxDecoration(
@@ -724,67 +737,61 @@ class CustomCard extends StatelessWidget {
     return Container(
         margin: EdgeInsets.symmetric(horizontal: 10),
         child: Card(
-            shape: OutlineInputBorder(
-              borderSide: BorderSide(
-                  style: BorderStyle.solid,
-                  width: 0.7,
-                  color: Color.fromARGB(255, 206, 204, 204)),
-              borderRadius: BORDERRADIUS15,
-            ),
-            elevation: 1,
-            child: Material(
-              child: Ink(
-                decoration: BoxDecoration(
-                    color: AppColors.chatPageBackground,
-                    borderRadius: const BorderRadius.all(Radius.circular(15))),
-                child: InkWell(
-                    borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    hoverColor: Color.fromARGB(255, 230, 227, 227)
-                        .withValues(alpha: 0.3),
-                    onTap: () {
-                      if (title == "使用说明")
-                        describe(
-                          context: context,
-                          title: title,
-                        );
-                      else if (user.isLogedin)
-                        chats.newTextChat(pages, property, user, prompt);
-                      else
-                        showMessage(context, "请登录");
-                    },
-                    child: Container(
-                        width: 150,
-                        height: 100,
-                        padding: EdgeInsets.all(10.0),
-                        decoration: BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(15))),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Align(
-                                alignment: Alignment.topLeft,
-                                child: Icon(
-                                  icon,
-                                  size: 20.0,
-                                  color: color,
-                                )),
-                            SizedBox(height: 8),
-                            Align(
-                                alignment: Alignment.topLeft,
-                                child:
-                                    Text(title, style: TextStyle(fontSize: 15)))
-                          ],
-                        ))),
-              ),
-            )));
+          // shape: OutlineInputBorder(
+          //   borderSide: BorderSide(
+          //     style: BorderStyle.solid,
+          //     width: 0.7,
+          //     // color: Color.fromARGB(255, 206, 204, 204),
+          //   ),
+          //   borderRadius: BORDERRADIUS15,
+          // ),
+          // elevation: 1,
+          child: InkWell(
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              // hoverColor: Color.fromARGB(255, 230, 227, 227)
+              //     .withValues(alpha: 0.3),
+              onTap: () {
+                if (title == "使用说明")
+                  describe(
+                    context: context,
+                    title: title,
+                  );
+                else if (user.isLogedin)
+                  chats.newTextChat(pages, property, user, prompt);
+                else
+                  showMessage(context, "请登录");
+              },
+              child: Container(
+                  width: 150,
+                  height: 100,
+                  padding: EdgeInsets.all(10.0),
+                  // decoration: BoxDecoration(
+                  //     borderRadius:
+                  //         const BorderRadius.all(Radius.circular(15))),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Align(
+                          alignment: Alignment.topLeft,
+                          child: Icon(
+                            icon,
+                            size: 20.0,
+                            color: color,
+                          )),
+                      SizedBox(height: 8),
+                      Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(title, style: TextStyle(fontSize: 15)))
+                    ],
+                  ))),
+        ));
   }
 
   void describe({context, var title}) {
     showDialog(
       context: context,
       builder: (BuildContext context) => Dialog(
-        backgroundColor: AppColors.chatPageBackground,
+        // backgroundColor: AppColors.chatPageBackground,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20))),
         child: ClipRRect(
@@ -795,16 +802,16 @@ class CustomCard extends StatelessWidget {
             child: SingleChildScrollView(
               child: MarkdownBody(
                 data: _describe,
-                styleSheetTheme: MarkdownStyleSheetBaseTheme.material,
-                styleSheet: MarkdownStyleSheet(
-                  h3: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                  h4: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
-                  strong: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.bold),
-                  p: const TextStyle(fontSize: 14.0, color: AppColors.msgText),
-                ),
+                // styleSheetTheme: MarkdownStyleSheetBaseTheme.material,
+                // styleSheet: MarkdownStyleSheet(
+                // h3: const TextStyle(
+                //     fontSize: 18, fontWeight: FontWeight.bold),
+                // h4: const TextStyle(
+                //     fontSize: 16, fontWeight: FontWeight.bold),
+                //   strong: const TextStyle(
+                //       fontSize: 14, fontWeight: FontWeight.bold),
+                //   p: const TextStyle(fontSize: 14.0, color: AppColors.msgText),
+                // ),
               ),
             ),
           ),

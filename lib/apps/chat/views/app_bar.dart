@@ -67,8 +67,8 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
             ...appbarIcons(pages, property),
           ],
         ),
-        backgroundColor: AppColors.chatPageBackground,
-        surfaceTintColor: AppColors.chatPageBackground,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        surfaceTintColor: Theme.of(context).colorScheme.surface,
         toolbarHeight: 44,
         centerTitle: true,
         actions: [
@@ -99,19 +99,19 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
         res = [
           Container(
               margin: EdgeInsets.symmetric(horizontal: 5),
-              child: Icon(Icons.auto_graph, color: Colors.blue[700])),
+              child: Icon(Icons.bar_chart, color: Colors.blue[400])),
           Container(
               margin: EdgeInsets.symmetric(horizontal: 5),
-              child: Icon(Icons.cloud, color: Colors.yellow[800])),
+              child: Icon(Icons.language, color: Colors.blue[400])),
         ];
       else if (pages.currentPage!.artifact)
         res[0] = Container(
             margin: EdgeInsets.symmetric(horizontal: 5),
-            child: Icon(Icons.auto_graph, color: Colors.blue[700]));
+            child: Icon(Icons.bar_chart, color: Colors.blue[400]));
       else if (pages.currentPage!.internet)
         res[0] = Container(
             margin: EdgeInsets.symmetric(horizontal: 5),
-            child: Icon(Icons.cloud, color: Colors.yellow[800]));
+            child: Icon(Icons.language, color: Colors.blue[400]));
     }
     return res;
   }
@@ -120,8 +120,8 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
     Pages pages = Provider.of<Pages>(context);
     User user = Provider.of<User>(context, listen: false);
     return PopupMenuButton<String>(
-      icon: Icon(Icons.more_vert_rounded, size: 20),
-      color: AppColors.drawerBackground,
+      icon: Icon(Icons.more_vert_rounded),
+      // color: AppColors.drawerBackground,
       shadowColor: Colors.blue,
       elevation: 5,
       position: PopupMenuPosition.under,
@@ -131,7 +131,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
         _buildPopupMenuItem(
           context,
           "clear",
-          icon: Icon(Icons.delete_outline, size: 18),
+          icon: Icon(Icons.delete_outline),
           title: "清空当前页面",
           onTap: () {
             Navigator.of(context).pop();
@@ -155,7 +155,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
       padding: EdgeInsets.all(0),
       value: value,
       child: Material(
-        color: AppColors.drawerBackground,
+        // color: AppColors.drawerBackground,
         child: Container(
             padding: EdgeInsets.symmetric(horizontal: 5),
             decoration: BoxDecoration(borderRadius: BORDERRADIUS15),
@@ -163,9 +163,13 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
               borderRadius: BORDERRADIUS15,
               onTap: onTap,
               child: ListTile(
-                  contentPadding: EdgeInsets.only(left: 5),
-                  leading: icon,
-                  title: Text(title ?? "")),
+                contentPadding: EdgeInsets.only(left: 5),
+                leading: icon,
+                title: Text(
+                  title ?? "",
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ),
             )),
       ),
     );
@@ -173,11 +177,11 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
 
   Widget appbarTitle(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
-    return RichText(
-        text: TextSpan(
-      text: pages.currentPageID > -1 ? pages.currentPage!.model : "",
-      style: const TextStyle(fontSize: 16, color: AppColors.appBarText),
-    ));
+    return Text(
+      pages.currentPageID > -1 ? pages.currentPage!.model : "",
+      // style: const TextStyle(fontSize: 16, color: AppColors.appBarText),
+      style: Theme.of(context).textTheme.bodyLarge,
+    );
   }
 
   Widget appbarLeading(BuildContext context, Property property) {
@@ -204,45 +208,46 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
             builder: (BuildContext context, StateSetter setState) {
           return Material(
               //color: Colors.transparent,
-              color: AppColors.drawerBackground,
+              // color: AppColors.drawerBackground,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 5),
-                decoration: BoxDecoration(
-                  borderRadius: BORDERRADIUS15,
-                ),
-                child: InkWell(
-                  borderRadius: BORDERRADIUS15,
-                  onTap: () {
-                    // Navigator.pop(context, value);
-                  },
-                  child: ListTile(
-                      dense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 5),
-                      leading: Icon(
-                        Icons.auto_graph,
-                        color: switchArtifact.value ? Colors.blue[700] : null,
-                      ),
-                      title: Text("可视化"),
-                      subtitle: Text("提供图表、动画、地图、网页预览等可视化能力",
-                          style: TextStyle(
-                              fontSize: 12.5, color: AppColors.subTitle)),
-                      trailing: Transform.scale(
-                        scale: 0.7,
-                        child: Switch(
-                          value: switchArtifact.value,
-                          activeColor: Colors.blue[300],
-                          onChanged: (value) {
-                            setState(() {
-                              switchArtifact.value = value;
-                              pages.set_artifact(pages.currentPageID, value);
-                            });
-                            ChatAPI()
-                                .saveChats(user, pages, pages.currentPageID);
-                          },
-                        ),
-                      )),
-                ),
-              ));
+            padding: EdgeInsets.symmetric(horizontal: 5),
+            decoration: BoxDecoration(
+              borderRadius: BORDERRADIUS15,
+            ),
+            child: InkWell(
+              borderRadius: BORDERRADIUS15,
+              onTap: () {
+                // Navigator.pop(context, value);
+              },
+              child: ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.symmetric(horizontal: 5),
+                  leading: Icon(
+                    Icons.bar_chart,
+                    color: switchArtifact.value ? Colors.blue[400] : null,
+                  ),
+                  title: Text("可视化",
+                      style: Theme.of(context).textTheme.titleSmall),
+                  subtitle: Text(
+                    "提供图表、动画、地图、网页预览等可视化能力",
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                  trailing: Transform.scale(
+                    scale: 0.7,
+                    child: Switch(
+                      value: switchArtifact.value,
+                      activeColor: Colors.blue[300],
+                      onChanged: (value) {
+                        setState(() {
+                          switchArtifact.value = value;
+                          pages.set_artifact(pages.currentPageID, value);
+                        });
+                        ChatAPI().saveChats(user, pages, pages.currentPageID);
+                      },
+                    ),
+                  )),
+            ),
+          ));
         }));
   }
 
@@ -256,50 +261,50 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
             builder: (BuildContext context, StateSetter setState) {
           return Material(
               //color: Colors.transparent,
-              color: AppColors.drawerBackground,
+              // color: AppColors.drawerBackground,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 5),
-                decoration: BoxDecoration(
-                  borderRadius: BORDERRADIUS15,
-                ),
-                child: InkWell(
-                  borderRadius: BORDERRADIUS15,
-                  onTap: () {
-                    // Navigator.pop(context, value);
-                  },
-                  child: ListTile(
-                      dense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 5),
-                      leading: Icon(Icons.cloud,
-                          color:
-                              switchInternet.value ? Colors.yellow[800] : null),
-                      title: Text("联网功能"),
-                      subtitle: Text("获取Google搜索的数据",
-                          style: TextStyle(
-                              fontSize: 12.5, color: AppColors.subTitle)),
-                      trailing: Transform.scale(
-                        scale: 0.7,
-                        child: Switch(
-                          value: switchInternet.value,
-                          activeColor: Colors.blue[300],
-                          onChanged: (value) {
-                            setState(() {
-                              switchInternet.value = value;
-                              pages.set_internet(pages.currentPageID, value);
-                            });
-                            ChatAPI()
-                                .saveChats(user, pages, pages.currentPageID);
-                            // Global.saveProperties(internet: property.internet);
-                          },
-                        ),
-                      )),
-                ),
-              ));
+            padding: EdgeInsets.symmetric(horizontal: 5),
+            decoration: BoxDecoration(
+              borderRadius: BORDERRADIUS15,
+            ),
+            child: InkWell(
+              borderRadius: BORDERRADIUS15,
+              onTap: () {
+                // Navigator.pop(context, value);
+              },
+              child: ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.symmetric(horizontal: 5),
+                  leading: Icon(Icons.language,
+                      color: switchInternet.value ? Colors.blue[400] : null),
+                  title: Text("联网功能",
+                      style: Theme.of(context).textTheme.titleSmall),
+                  subtitle: Text(
+                    "获取Google搜索的数据",
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                  trailing: Transform.scale(
+                    scale: 0.7,
+                    child: Switch(
+                      value: switchInternet.value,
+                      activeColor: Colors.blue[300],
+                      onChanged: (value) {
+                        setState(() {
+                          switchInternet.value = value;
+                          pages.set_internet(pages.currentPageID, value);
+                        });
+                        ChatAPI().saveChats(user, pages, pages.currentPageID);
+                        // Global.saveProperties(internet: property.internet);
+                      },
+                    ),
+                  )),
+            ),
+          ));
         }));
   }
 
   PopupMenuItem<String> _buildtemperatureSlide(BuildContext context) {
-    User user = Provider.of<User>(context, listen: false);
+    // User user = Provider.of<User>(context, listen: false);
     Pages pages = Provider.of<Pages>(context, listen: false);
     return PopupMenuItem<String>(
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
@@ -308,7 +313,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
             builder: (BuildContext context, StateSetter setState) {
           return Material(
             //color: Colors.transparent,
-            color: AppColors.drawerBackground,
+            // color: AppColors.drawerBackground,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
@@ -321,8 +326,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                   dense: true,
                   visualDensity: VisualDensity.compact,
                   leading: Text("Temperature",
-                      style:
-                          TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
+                      style: Theme.of(context).textTheme.titleSmall),
                   title: Container(
                       // margin: EdgeInsets.fromLTRB(0, 0, 15, 10),
                       child: Column(
@@ -348,12 +352,15 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                           ),
                         ),
                       ])),
-                  subtitle: Text("值越大模型思维越发散",
-                      textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontSize: 10.5, color: AppColors.subTitle)),
-                  trailing: Text("${temperature.toStringAsFixed(1)}",
-                      style: TextStyle(fontSize: 12.5)),
+                  subtitle: Text(
+                    "值越大模型思维越发散",
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                  trailing: Text(
+                    "${temperature.toStringAsFixed(1)}",
+                    // style: TextStyle(fontSize: 12.5),
+                  ),
                 ),
               ),
             ),

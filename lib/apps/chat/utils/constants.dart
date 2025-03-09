@@ -3,6 +3,16 @@ import 'package:flutter/material.dart';
 const String appTitle = 'Chat Bot';
 
 class AppColors {
+  static const Color gray = Color(0xFFD8D8D8);
+  static const Color gray60 = Color(0x99D8D8D8);
+  static const Color gray25 = Color(0x40D8D8D8);
+  static const Color white60 = Color(0x99FFFFFF);
+  static const Color primaryBackground = Color(0xFF33333D);
+  static const Color inputBackground = Color(0x08FFFFFF);
+  static const Color cardBackground = Color(0x03FEFEFE);
+  static const Color buttonColor = Color(0xFF09AF79);
+  static const Color focusColor = Color(0xCCFFFFFF);
+
   static const appBarText = Colors.black;
   static final appBarBackground = Colors.grey[50];
   static final initPageBackgroundText = Colors.grey[350];
@@ -15,7 +25,7 @@ class AppColors {
 
   static final drawerBackground = Colors.grey[100];
   static final drawerTabSelected = Colors.grey[350];
-  static final drawerDivider = Colors.grey[350];
+  static final divider = Colors.grey[350];
 
   static final chatPageBackground = Colors.grey[50];
   static final inputBoxBackground = Colors.grey[200];

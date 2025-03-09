@@ -33,7 +33,7 @@ class MainLayoutState extends State<MainLayout> {
 
   Widget mobilLayout(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.chatPageBackground,
+      // backgroundColor: AppColors.chatPageBackground,
       appBar: const MyAppBar(),
       drawer: const ChatDrawer(),
       body: _buildMainPageBody(context),
@@ -60,7 +60,7 @@ class MainLayoutState extends State<MainLayout> {
         CustomDrawerButton(),
         Expanded(
             child: Scaffold(
-          backgroundColor: AppColors.chatPageBackground,
+          // backgroundColor: AppColors.chatPageBackground,
           appBar: !property.onInitPage ? const MyAppBar() : null,
           body: AnimatedContainer(
             duration: _drawerAnimationDuration,
@@ -101,7 +101,7 @@ class CustomDrawerButton extends StatelessWidget {
     Property property = Provider.of<Property>(context);
     return Container(
         alignment: Alignment.center,
-        color: AppColors.chatPageBackground,
+        color: Theme.of(context).colorScheme.surface,
         child: MouseRegion(
           onEnter: (_) => _iconNotifier.value = Icons.chevron_left_rounded,
           onExit: (_) => _iconNotifier.value = Icons.more_vert_rounded,

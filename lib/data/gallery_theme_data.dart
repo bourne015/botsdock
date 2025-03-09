@@ -63,7 +63,7 @@ class GalleryThemeData {
     secondary: Color(0xFF4D1F7C),
     secondaryContainer: Color(0xFF451B6F),
     //background: Color(0xFF241E30),
-    surface: Color(0xFF1F1929),
+    surface: Color(0xFF292a2f),
     // onBackground: Color(0x0DFFFFFF), // White with 0.05 opacity
     error: _darkFillColor,
     onError: _darkFillColor,

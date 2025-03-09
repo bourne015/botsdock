@@ -49,14 +49,14 @@ class Administrator extends StatelessWidget {
     Property property = Provider.of<Property>(context, listen: false);
     return PopupMenuButton<String>(
         key: _popupMenuKey,
-        color: AppColors.drawerBackground,
+        // color: AppColors.drawerBackground,
         shadowColor: Colors.blue,
         elevation: 15,
         shape: RoundedRectangleBorder(
           borderRadius: BORDERRADIUS10,
         ),
         child: Material(
-            color: AppColors.drawerBackground,
+            color: Theme.of(context).colorScheme.secondaryContainer,
             child: Container(
                 // padding: EdgeInsets.symmetric(horizontal: 2),
                 decoration: BoxDecoration(
@@ -77,19 +77,14 @@ class Administrator extends StatelessWidget {
                       minLeadingWidth: 0,
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 1),
-                      title: RichText(
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          text: TextSpan(
-                            text: user.isLogedin
-                                ? user.name
-                                : GalleryLocalizations.of(context)!
-                                    .adminstrator,
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: AppColors.msgText,
-                            ),
-                          )),
+                      title: Text(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        user.isLogedin
+                            ? user.name!
+                            : GalleryLocalizations.of(context)!.adminstrator,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     )))),
         ////////
         padding: const EdgeInsets.only(left: 2),
@@ -127,7 +122,7 @@ class Administrator extends StatelessWidget {
                       padding: EdgeInsets.all(0),
                       value: "user",
                       child: Material(
-                          color: AppColors.drawerBackground,
+                          // color: AppColors.drawerBackground,
                           child: Container(
                               width: 400,
                               padding: EdgeInsets.only(left: 5, right: 5),
@@ -179,7 +174,7 @@ class Administrator extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       value: value,
       child: Material(
-        color: AppColors.drawerBackground,
+        // color: AppColors.drawerBackground,
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 5),
           decoration: BoxDecoration(
@@ -316,7 +311,7 @@ class Administrator extends StatelessWidget {
       title: Text(textAlign: TextAlign.center, '登录/注册'),
       titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       scrollable: true,
-      backgroundColor: AppColors.chatPageBackground,
+      // backgroundColor: AppColors.chatPageBackground,
       actionsAlignment: MainAxisAlignment.spaceAround,
       content: loginDialogContent(context),
       actions: loginDialogActions(context, user, pages, property),
@@ -362,7 +357,7 @@ class Administrator extends StatelessWidget {
   Widget loginDialogContent(BuildContext context) {
     return Container(
       width: 400,
-      height: 200,
+      height: 220,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -406,7 +401,7 @@ class Administrator extends StatelessWidget {
       title: Text(textAlign: TextAlign.center, '注册'),
       titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       scrollable: true,
-      backgroundColor: AppColors.chatPageBackground,
+      // backgroundColor: AppColors.chatPageBackground,
       content: sigupDialogContent(context),
       actions: signupDialogActions(context, user),
     );
@@ -445,7 +440,7 @@ class Administrator extends StatelessWidget {
   Widget sigupDialogContent(BuildContext context) {
     return Container(
       width: 400,
-      height: 370,
+      height: 400,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

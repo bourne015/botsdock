@@ -28,7 +28,8 @@ class ChatDrawerState extends State<ChatDrawer> {
     Property property = Provider.of<Property>(context);
     return Drawer(
       width: DRAWERWIDTH,
-      backgroundColor: AppColors.drawerBackground,
+      // backgroundColor: AppColors.drawerBackground,
+      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       shape: isDisplayDesktop(context)
           ? RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,
@@ -57,7 +58,7 @@ class _DrawerHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-        color: Color.fromARGB(255, 245, 244, 244),
+        color: Theme.of(context).colorScheme.secondaryContainer,
         child: Column(
           children: [
             newchatButton(context),
@@ -86,7 +87,10 @@ class _DrawerHeader extends StatelessWidget {
           if (!isDisplayDesktop(context)) Navigator.pop(context);
         },
         leading: const Icon(Icons.add),
-        title: Text(GalleryLocalizations.of(context)!.newChat),
+        title: Text(
+          GalleryLocalizations.of(context)!.newChat,
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
       ),
     );
   }
@@ -104,7 +108,10 @@ class _DrawerHeader extends StatelessWidget {
             Icons.view_compact_sharp,
             color: const Color.fromARGB(255, 78, 164, 235),
           ),
-          title: Text(GalleryLocalizations.of(context)!.botsCentre),
+          title: Text(
+            GalleryLocalizations.of(context)!.botsCentre,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
           onTap: () async {
             if (!isDisplayDesktop(context)) Navigator.pop(context);
             Navigator.pushNamed(context, ChatApp.botCentre);
@@ -119,16 +126,10 @@ class _DrawerFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.drawerBackground,
+      color: Theme.of(context).colorScheme.secondaryContainer,
       child: Column(
         children: [
-          const Divider(
-            height: 10,
-            thickness: 1,
-            indent: 10,
-            endIndent: 10,
-            color: Color.fromARGB(255, 212, 211, 211),
-          ),
+          const Divider(),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
             child: Administrator(),
@@ -184,10 +185,7 @@ class _ChatPageListState extends State<ChatPageList> {
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
       child: Text(
         dateLabel,
-        style: const TextStyle(
-          fontSize: 14,
-          color: Color.fromARGB(255, 163, 162, 162),
-        ),
+        style: Theme.of(context).textTheme.labelMedium,
       ),
     );
   }
@@ -237,7 +235,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
             shape: RoundedRectangleBorder(
               borderRadius: BORDERRADIUS10,
             ),
-            selectedTileColor: AppColors.drawerTabSelected,
+            // selectedTileColor: AppColors.drawerTabSelected,
             selected: widget.pages.currentPageID == widget.page.id,
             leading: bot_id != null
                 ? Icon(
@@ -247,13 +245,12 @@ class _ChatPageTabState extends State<ChatPageTab> {
                 : null,
             minLeadingWidth: 0,
             contentPadding: const EdgeInsets.fromLTRB(10, 0, 3, 0),
-            title: RichText(
-                text: TextSpan(
-                  text: widget.page.title,
-                  style: TextStyle(fontSize: 14.5, color: AppColors.msgText),
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1),
+            title: Text(
+              widget.page.title,
+              style: Theme.of(context).textTheme.bodyMedium,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
             onTap: () {
               widget.pages.currentPageID = widget.page.id;
               widget.property.onInitPage = false;

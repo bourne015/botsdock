@@ -269,7 +269,8 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
               width: effectiveWidth,
               height: effectiveHeight,
               decoration: BoxDecoration(
-                color: Colors.white,
+                // color: Colors.white,
+                color: Theme.of(context).colorScheme.secondaryContainer,
                 borderRadius: BorderRadius.all(Radius.circular(10)
                     // bottomLeft: Radius.circular(10),
                     // bottomRight: Radius.circular(10),

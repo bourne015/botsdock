@@ -74,19 +74,15 @@ Widget logTextFormField(
     padding: EdgeInsets.only(top: 15),
     child: TextFormField(
         decoration: InputDecoration(
-          filled: true,
-          fillColor: AppColors.inputBoxBackground,
+          // filled: true,
+          // fillColor: AppColors.inputBoxBackground,
           labelText: hintText,
-          prefixIcon: icon != null
-              ? Icon(
-                  icon,
-                  color: Colors.blue,
-                )
-              : null,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+          prefixIcon: icon != null ? Icon(icon, color: Colors.blue) : null,
+          // border: OutlineInputBorder(
+          //   borderRadius: BorderRadius.circular(10),
+          // ),
           hintText: hintText,
+          hintStyle: Theme.of(context!).textTheme.labelMedium,
         ),
         obscureText: obscure ?? false,
         maxLines: 1,
@@ -114,8 +110,8 @@ Widget botTextFormField(
         maxLength: maxLength,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(fontSize: 14),
-          border: OutlineInputBorder(borderRadius: BORDERRADIUS10),
+          hintStyle: Theme.of(context!).textTheme.labelMedium,
+          // border: OutlineInputBorder(borderRadius: BORDERRADIUS10),
         ),
         validator: (v) {
           return v == null || v.trim().isNotEmpty ? null : "不能为空";
@@ -129,12 +125,12 @@ PopupMenuItem<String> buildPopupMenuItem(BuildContext context,
     padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
     value: value,
     child: Material(
-      color: AppColors.drawerBackground,
+      // color: AppColors.drawerBackground,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10),
-        decoration: BoxDecoration(
-          borderRadius: BORDERRADIUS15,
-        ),
+        // decoration: BoxDecoration(
+        //   borderRadius: BORDERRADIUS15,
+        // ),
         child: InkWell(
           borderRadius: BORDERRADIUS15,
           onTap: () {
@@ -142,9 +138,13 @@ PopupMenuItem<String> buildPopupMenuItem(BuildContext context,
           },
           //onHover: (hovering) {},
           child: ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: 5),
-              leading: icon != null ? Icon(size: 20, icon) : null,
-              title: Text(title ?? "")),
+            contentPadding: EdgeInsets.symmetric(horizontal: 5),
+            leading: icon != null ? Icon(size: 20, icon) : null,
+            title: Text(
+              title ?? "",
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
         ),
       ),
     ),

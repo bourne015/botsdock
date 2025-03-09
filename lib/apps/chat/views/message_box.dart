@@ -137,13 +137,13 @@ class MessageBoxState extends State<MessageBox> {
           // width: expandSearchResults ? resultIcon_W : resultIconExpand_W,
           // height: resultIcon_H,
           decoration: BoxDecoration(
-            color: AppColors.userMsgBox,
+            // color: AppColors.userMsgBox,
             borderRadius: BorderRadius.all(Radius.circular(10)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 10,
-                spreadRadius: 3,
+                blurRadius: 4,
+                spreadRadius: 1,
               ),
             ],
           ),
@@ -155,6 +155,7 @@ class MessageBoxState extends State<MessageBox> {
               leading: expandedSearchResults
                   ? null
                   : CircleAvatar(
+                      backgroundColor: Colors.transparent,
                       backgroundImage: AssetImage("assets/images/google.png"),
                       radius: 12,
                     ),
@@ -181,7 +182,7 @@ class MessageBoxState extends State<MessageBox> {
             height: expandedSearchResults ? card_h : 1,
             margin: EdgeInsets.symmetric(horizontal: 15),
             decoration: BoxDecoration(
-              color: AppColors.userMsgBox,
+              // color: AppColors.userMsgBox,
               borderRadius: BorderRadius.all(Radius.circular(15)),
             ),
             child: CarouselView(
@@ -189,7 +190,7 @@ class MessageBoxState extends State<MessageBox> {
               shrinkExtent: 100,
               scrollDirection: Axis.horizontal,
               itemExtent: resultCard_W,
-              backgroundColor: AppColors.userMsgBox,
+              // backgroundColor: AppColors.userMsgBox,
               shape: RoundedRectangleBorder(borderRadius: BORDERRADIUS15),
               // padding: EdgeInsets.all(20),
               onTap: (i) {
@@ -197,7 +198,7 @@ class MessageBoxState extends State<MessageBox> {
               },
               children: results.map((x) {
                 return Card(
-                  color: Colors.white,
+                  // color: Colors.white,
                   elevation: 2,
                   shape: RoundedRectangleBorder(borderRadius: BORDERRADIUS15),
                   child: Container(
@@ -219,7 +220,8 @@ class MessageBoxState extends State<MessageBox> {
                                   "${Uri.parse(x["link"]).host.split('.')[1]}",
                                   maxLines: 1,
                                   overflow: TextOverflow.clip,
-                                  style: TextStyle(fontSize: 10.5),
+                                  // style: TextStyle(fontSize: 10.5),
+                                  style: Theme.of(context).textTheme.labelSmall,
                                 ),
                                 onPressed: null,
                                 icon: Icon(Icons.cloud_done, size: 15),
@@ -284,8 +286,8 @@ class MessageBoxState extends State<MessageBox> {
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
             color: msg.role == MessageTRole.user && !isGoogleList
-                ? AppColors.userMsgBox
-                : AppColors.aiMsgBox,
+                ? Theme.of(context).colorScheme.tertiary
+                : Theme.of(context).colorScheme.surface,
             borderRadius: const BorderRadius.all(Radius.circular(10))),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -535,7 +537,7 @@ class MessageBoxState extends State<MessageBox> {
           padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
           margin: const EdgeInsets.only(bottom: 10),
           decoration: BoxDecoration(
-            color: AppColors.thinkingMsgBox,
+            // color: AppColors.thinkingMsgBox,
             borderRadius: BORDERRADIUS15,
           ),
           constraints: const BoxConstraints(minWidth: double.infinity),
@@ -672,7 +674,10 @@ class MessageBoxState extends State<MessageBox> {
         //overflow: TextOverflow.ellipsis,
         //showCursor: false,
         maxLines: null,
-        style: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
+        // style: const TextStyle(
+        //   fontSize: 16.0,
+        //   color: AppColors.msgText,
+        // ),
       );
     } else {
       return MouseRegion(
@@ -712,14 +717,17 @@ class MessageBoxState extends State<MessageBox> {
             ...[LatexInlineSyntax()],
           ],
         ),
-        styleSheetTheme: MarkdownStyleSheetBaseTheme.platform,
+        // styleSheetTheme: MarkdownStyleSheetBaseTheme.platform,
         styleSheet: MarkdownStyleSheet(
           //h1: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           //h2: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          p: TextStyle(fontSize: pSize ?? 16.0, color: AppColors.msgText),
+          // p: TextStyle(
+          //   fontSize: pSize ?? 16.0,
+          //   // color: AppColors.msgText,
+          // ),
           code: const TextStyle(
             inherit: false,
-            color: AppColors.msgText,
+            // color: AppColors.msgText,
             fontWeight: FontWeight.bold,
           ),
           codeblockPadding: const EdgeInsets.all(10),
@@ -731,10 +739,11 @@ class MessageBoxState extends State<MessageBox> {
         builders: {
           'code': CodeBlockBuilder(context),
           'latex': LatexElementBuilder(
-              textStyle: const TextStyle(
-                fontWeight: FontWeight.w100,
+              // textStyle: const TextStyle(
+              //   fontWeight: FontWeight.w100,
+              // ),
+              // textScaleFactor: 1.2,
               ),
-              textScaleFactor: 1.2),
         },
       ));
     } catch (e, stackTrace) {
@@ -764,7 +773,7 @@ class MessageBoxState extends State<MessageBox> {
     return Container(
       alignment: Alignment.topCenter,
       decoration: BoxDecoration(
-        color: AppColors.inputBoxBackground,
+        // color: AppColors.inputBoxBackground,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
         boxShadow: [
           BoxShadow(
@@ -822,7 +831,7 @@ class MessageBoxState extends State<MessageBox> {
     }).toList();
     return CarouselView(
       itemExtent: isDisplayDesktop(context) ? 200 : 150,
-      backgroundColor: AppColors.chatPageBackground,
+      // backgroundColor: AppColors.chatPageBackground,
       onTap: (i) {
         handleDownload(_files[i]["filename"], _files[i]["attachment"]);
       },
@@ -843,7 +852,7 @@ class MessageBoxState extends State<MessageBox> {
     }).toList();
     return CarouselView(
       itemExtent: isDisplayDesktop(context) ? 300 : 150,
-      backgroundColor: AppColors.userMsgBox,
+      // backgroundColor: AppColors.userMsgBox,
       onTap: (i) {
         showDialog(
           context: context,
@@ -860,7 +869,7 @@ class MessageBoxState extends State<MessageBox> {
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.2),
+                      // color: Colors.black.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.all(Radius.circular(15)),
                     ),
                     child: TextButton.icon(

@@ -20,6 +20,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
   double temperature = 1;
   RestorableBool internet = RestorableBool(false);
   RestorableBool artifact = RestorableBool(false);
+  ThemeMode theme = ThemeMode.system;
 
   @override
   String get restorationId => 'switch_demo';
@@ -34,6 +35,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
     artifact = RestorableBool(widget.user.settings?.artifact ?? false);
     internet = RestorableBool(widget.user.settings?.internet ?? false);
     temperature = widget.user.settings?.temperature ?? 1.0;
+    theme = widget.user.settings?.themeMode ?? ThemeMode.system;
     super.initState();
   }
 
@@ -112,16 +114,28 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
         ),
         Divider(),
         ListTile(
-          leading: Text("Temperature",
-              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
+          leading: Text(
+            "Temperature",
+            // style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
           title: temperatureSlide(context),
-          subtitle: Text("值越大模型思维越发散",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 10.5, color: AppColors.subTitle)),
-          trailing: Text("${temperature.toStringAsFixed(1)}",
-              style: TextStyle(fontSize: 12.5)),
+          subtitle: Text(
+            "值越大模型思维越发散",
+            textAlign: TextAlign.center,
+            // style: TextStyle(fontSize: 10.5, color: AppColors.subTitle),
+            style: Theme.of(context).textTheme.labelMedium,
+          ),
+          trailing: Text(
+            "${temperature.toStringAsFixed(1)}",
+            // style: TextStyle(fontSize: 12.5),
+          ),
         ),
         Divider(),
+        Container(
+          margin: EdgeInsets.only(top: 10),
+          child: ThemeSetting(context),
+        ),
       ],
     );
   }
@@ -136,11 +150,16 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
     return ListTile(
       dense: true,
       visualDensity: VisualDensity.compact,
-      title: Text(name ?? "",
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
+      title: Text(
+        name ?? "",
+        style: Theme.of(context).textTheme.titleSmall,
+      ),
       // title: null,
-      subtitle: Text(desc ?? "",
-          style: TextStyle(fontSize: 10.5, color: AppColors.subTitle)),
+      subtitle: Text(
+        desc ?? "",
+        // style: TextStyle(fontSize: 10.5, color: AppColors.subTitle),
+        style: Theme.of(context).textTheme.labelMedium,
+      ),
       trailing: Transform.scale(
         scale: 0.7,
         child: Switch(
@@ -192,6 +211,47 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
         ]));
   }
 
+  Widget ThemeSetting(BuildContext context) {
+    return SegmentedButton<ThemeMode>(
+      segments: <ButtonSegment<ThemeMode>>[
+        ButtonSegment<ThemeMode>(
+          value: ThemeMode.light,
+          label: Text(
+            '浅色',
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
+          icon: Icon(Icons.light_mode_outlined),
+        ),
+        ButtonSegment<ThemeMode>(
+          value: ThemeMode.dark,
+          label: Text(
+            '深色',
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
+          icon: Icon(Icons.dark_mode_outlined),
+        ),
+        ButtonSegment<ThemeMode>(
+          value: ThemeMode.system,
+          label: Text(
+            '跟随系统',
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
+          icon: Icon(Icons.computer_outlined),
+        ),
+      ],
+      selected: <ThemeMode>{theme},
+      onSelectionChanged: (Set<ThemeMode> newSelection) {
+        setState(() {
+          // By default there is only a single segment that can be
+          // selected at one time, so its value is always the first
+          // item in the selected set.
+          theme = newSelection.first;
+          widget.user.themeMode = theme;
+        });
+      },
+    );
+  }
+
   Widget modelDesc(BuildContext context) {
     return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -203,7 +263,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
             SizedBox(height: 10),
             DataTable(
               decoration: BoxDecoration(
-                color: Colors.white,
+                // color: Colors.white,
                 border: Border.all(color: Colors.blue),
                 borderRadius: BORDERRADIUS10,
               ),

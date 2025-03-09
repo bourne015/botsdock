@@ -45,7 +45,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
     Property property = Provider.of<Property>(context);
-    bool _userReady = isUserReady(user);
+    Pages pages = Provider.of<Pages>(context, listen: false);
     double _hmargin =
         isDisplayDesktop(context) ? (property.isDrawerOpen ? 100 : 180) : 50;
 
@@ -53,58 +53,32 @@ class _ChatInputFieldState extends State<ChatInputField> {
       curve: Curves.easeInOut,
       duration: Duration(milliseconds: 270),
       decoration: BoxDecoration(
-          color: AppColors.inputBoxBackground,
+          color: Theme.of(context).inputDecorationTheme.focusColor,
           border: Border.all(color: Colors.grey[350]!, width: 1.0),
-          borderRadius: const BorderRadius.all(Radius.circular(15))),
-      margin: EdgeInsets.fromLTRB(_hmargin, 5, _hmargin, 25),
-      child: Row(
+          borderRadius: BORDERRADIUS10),
+      margin: EdgeInsets.fromLTRB(_hmargin, 5, _hmargin, 30),
+      child: Column(
         children: [
-          _userReady
-              ? pickButton(context)
-              : IconButton(
-                  onPressed: null, icon: Icon(Icons.attachment, size: 20)),
-          inputField(context),
-          _userReady
-              ? Selector<Pages, bool>(
-                  selector: (_, pages) =>
-                      pages.getPageGenerateStatus(pages.currentPageID),
-                  builder: (context, isGenerating, child) {
-                    if (isGenerating) return generatingAnimation(context);
-                    return sendButton(context);
-                  },
-                )
-              : lockButton(context, user),
+          if (attachments.isNotEmpty)
+            Container(height: 70, child: attachmentsList(context)),
+          if (visionFiles.isNotEmpty)
+            Container(height: 70, child: visionFilesList(context)),
+          KeyboardListener(
+            focusNode: FocusNode(),
+            onKeyEvent: (event) {
+              if (event is KeyDownEvent &&
+                  event.logicalKey == LogicalKeyboardKey.enter &&
+                  HardwareKeyboard.instance.isControlPressed &&
+                  isUserReady(user) &&
+                  isContentReady(pages, property)) {
+                _sendContent(pages, property, user);
+              }
+            },
+            child: textField(context),
+          )
         ],
       ),
     );
-  }
-
-  Widget inputField(BuildContext context) {
-    Pages pages = Provider.of<Pages>(context, listen: false);
-    Property property = Provider.of<Property>(context);
-    User user = Provider.of<User>(context);
-    return Expanded(
-        child: Column(children: [
-      if (attachments.isNotEmpty)
-        Container(height: 70, child: attachmentsList(context)),
-      if (visionFiles.isNotEmpty)
-        Container(height: 70, child: visionFilesList(context)),
-      isDisplayDesktop(context)
-          ? KeyboardListener(
-              focusNode: FocusNode(),
-              onKeyEvent: (event) {
-                if (event is KeyDownEvent) {
-                  if (event.logicalKey == LogicalKeyboardKey.enter &&
-                      HardwareKeyboard.instance.isControlPressed &&
-                      isUserReady(user) &&
-                      isContentReady(pages, property))
-                    _sendContent(pages, property, user);
-                }
-              },
-              child: textField(context),
-            )
-          : textField(context),
-    ]));
   }
 
   Widget attachedFileIcon(
@@ -112,7 +86,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     return Container(
       alignment: Alignment.topCenter,
       decoration: BoxDecoration(
-          color: AppColors.chatPageBackground,
+          // color: AppColors.chatPageBackground,
           borderRadius: const BorderRadius.all(Radius.circular(10))),
       child: ListTile(
         dense: true,
@@ -215,7 +189,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Widget textField(BuildContext context) {
     Pages pages = Provider.of<Pages>(context, listen: false);
     Property property = Provider.of<Property>(context, listen: false);
+    User user = Provider.of<User>(context);
     String hintText = "text, image, file";
+    bool _userReady = isUserReady(user);
     var _modelV;
     if (property.onInitPage)
       _modelV = property.initModelVersion;
@@ -242,10 +218,18 @@ class _ChatInputFieldState extends State<ChatInputField> {
         }
       },
       decoration: InputDecoration(
-          //filled: true,
-          //fillColor: AppColors.inputBoxBackground,
-          border: InputBorder.none,
-          hintText: hintText),
+        hintText: hintText,
+        border: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        prefixIcon: _userReady
+            ? pickButton(context)
+            : IconButton(
+                onPressed: null,
+                icon: Icon(Icons.attachment, size: 20),
+              ),
+        suffixIcon:
+            _userReady ? sendButton(context) : lockButton(context, user),
+      ),
       minLines: 1,
       maxLines: 10,
       textInputAction: TextInputAction.newline,
@@ -259,7 +243,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       padding: EdgeInsets.all(0),
       value: value,
       child: Material(
-        color: AppColors.drawerBackground,
+        // color: AppColors.drawerBackground,
         child: Container(
             padding: EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(borderRadius: BORDERRADIUS15),
@@ -278,7 +262,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Widget _pickMenu(BuildContext context, String modelV) {
     return PopupMenuButton<String>(
       icon: Icon(Icons.attachment, size: 20),
-      color: AppColors.drawerBackground,
+      // color: AppColors.drawerBackground,
+      // color: Theme.of(context).inputDecorationTheme.fillColor,
       shadowColor: Colors.blue,
       elevation: 5,
       position: PopupMenuPosition.over,
@@ -351,6 +336,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Widget generatingAnimation(BuildContext context) {
     return Container(
         margin: const EdgeInsets.only(right: 7),
+        alignment: Alignment.centerRight,
         child: const SpinKitDoubleBounce(
           color: AppColors.generatingAnimation,
           size: AppSize.generatingAnimation,
@@ -366,7 +352,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     return IconButton(
       icon: const Icon(Icons.lock_person_outlined),
       tooltip: _tooltip,
-      color: Colors.grey,
+      // color: Colors.grey,
       onPressed: null,
     );
   }
@@ -389,15 +375,30 @@ class _ChatInputFieldState extends State<ChatInputField> {
     User user = Provider.of<User>(context);
     bool _enabled = isContentReady(pages, property);
 
-    return IconButton(
-      icon: const Icon(Icons.send),
-      color: _enabled ? Colors.blue : Colors.grey,
-      tooltip: _enabled ? "Ctrl+Enter发送" : "",
-      onPressed: _enabled
-          ? () async {
-              _sendContent(pages, property, user);
-            }
-          : () {},
+    return Selector<Pages, bool>(
+      selector: (_, pages) => pages.getPageGenerateStatus(pages.currentPageID),
+      builder: (context, isGenerating, child) {
+        return isGenerating
+            ? Container(
+                width: 30,
+                height: 30,
+                alignment: Alignment.centerRight,
+                child: SpinKitDoubleBounce(
+                  color: AppColors.generatingAnimation,
+                  size: AppSize.generatingAnimation,
+                ),
+              )
+            : IconButton(
+                icon: const Icon(Icons.send),
+                color: _enabled ? Colors.blue : Colors.grey,
+                tooltip: _enabled ? "Ctrl+Enter发送" : "",
+                onPressed: _enabled
+                    ? () async {
+                        _sendContent(pages, property, user);
+                      }
+                    : null,
+              );
+      },
     );
   }
 

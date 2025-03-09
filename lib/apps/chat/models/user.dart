@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:botsdock/apps/chat/models/settings.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 //all chat pages
@@ -111,6 +112,11 @@ class User with ChangeNotifier {
   Settings? get settings => _settings;
   set settings(Settings? value) {
     _settings = value;
+    notifyListeners();
+  }
+
+  set themeMode(ThemeMode v) {
+    _settings?.themeMode = v;
     notifyListeners();
   }
 

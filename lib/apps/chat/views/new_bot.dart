@@ -214,10 +214,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       padding: EdgeInsets.symmetric(vertical: 5, horizontal: hpadding),
       //margin: EdgeInsets.symmetric(vertical: 20, horizontal: 100),
       decoration: BoxDecoration(
-          color: AppColors.chatPageBackground,
+          // color: AppColors.chatPageBackground,
           borderRadius: const BorderRadius.all(Radius.circular(15))),
       child: Scaffold(
-        backgroundColor: AppColors.chatPageBackground,
+        // backgroundColor: AppColors.chatPageBackground,
         appBar: AppBar(
           //shadowColor: Colors.red,
           centerTitle: true,
@@ -227,8 +227,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
           shape: RoundedRectangleBorder(
             borderRadius: BORDERRADIUS10,
           ),
-          title: Text(GalleryLocalizations.of(context)!.botCreateTitle,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.5)),
+          title: Text(
+            GalleryLocalizations.of(context)!.botCreateTitle,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
         ),
         body: Column(
           mainAxisSize: MainAxisSize.min,
@@ -246,34 +248,51 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                           alignment: Alignment.center,
                           child: chooseLogo(context),
                         ),
-                        Text('名称', style: TextStyle(fontSize: 15)),
+                        Text(
+                          '名称',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
                         botTextFormField(
+                          context: context,
                           hintText: '输入智能体名字',
                           maxLength: 50,
                           ctr: _nameController,
                         ),
-                        Text('简介', style: TextStyle(fontSize: 15)),
+                        Text(
+                          '简介',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
                         botTextFormField(
+                          context: context,
                           hintText: '用一句话介绍该智能体',
                           maxLength: 200,
                           ctr: _introController,
                         ),
-                        Text('配置信息', style: TextStyle(fontSize: 15)),
+                        Text(
+                          '配置信息',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
                         botTextFormField(
+                          context: context,
                           hintText: '输入prompt',
                           ctr: _configInfoController,
                           maxLines: 5,
                         ),
                         SizedBox(height: 20),
-                        Text('模型', style: TextStyle(fontSize: 15)),
+                        Text(
+                          '模型',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
                         modelSelecter(context),
                         if (GPTModel.all.contains(_model))
                           assistantTools(context),
                         functions(context),
                         listFunctions(context),
                         Divider(),
-                        Text("Temperature  ${temperature.toStringAsFixed(1)}",
-                            style: TextStyle(fontSize: 15)),
+                        Text(
+                          "Temperature  ${temperature.toStringAsFixed(1)}",
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
                         temperatureSlide(context),
                         publicTo(context),
                         Divider(),
@@ -359,10 +378,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
     return Container(
         margin: EdgeInsets.fromLTRB(0, 10, 0, 20),
         decoration: BoxDecoration(
-            color: AppColors.inputBoxBackground,
+            // color: AppColors.inputBoxBackground,
             borderRadius: const BorderRadius.all(Radius.circular(15))),
         child: ListTile(
-            title: Text(_model),
+            title: Text(_model, style: Theme.of(context).textTheme.bodyMedium),
             trailing: PopupMenuButton<String>(
               initialValue: _model,
               icon: const Icon(Icons.keyboard_arrow_down_rounded),
@@ -432,7 +451,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: AppColors.chatPageBackground,
+              // backgroundColor: AppColors.chatPageBackground,
               title: Text("Vector Store: ${_vectorStoreId.keys.first}",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
               titlePadding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
@@ -534,9 +553,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
             margin: EdgeInsets.only(left: 10),
             child: Row(children: [
               Text(
-                  textAlign: TextAlign.center,
-                  GalleryLocalizations.of(context)!.fileSearch,
-                  style: TextStyle(fontSize: 14)),
+                textAlign: TextAlign.center,
+                GalleryLocalizations.of(context)!.fileSearch,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
               if (isDisplayDesktop(context))
                 IconButton(
                   onPressed: null,
@@ -549,7 +569,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       FilledButton.tonalIcon(
           icon: Icon(Icons.add, size: 15),
           onPressed: switchFileSearch.value ? uploadFileSearchDialod : null,
-          label: Text("Files", style: TextStyle(fontSize: 14)))
+          label: Text("Files"))
     ]);
   }
 
@@ -564,7 +584,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: AppColors.chatPageBackground,
+              // backgroundColor: AppColors.chatPageBackground,
               title: Text(GalleryLocalizations.of(context)!.fileSearchTitle),
               titlePadding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
               content: Column(
@@ -680,9 +700,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
               margin: EdgeInsets.only(left: 10, right: 10),
               child: Row(children: [
                 Text(
-                    textAlign: TextAlign.center,
-                    GalleryLocalizations.of(context)!.codeInterpreter,
-                    style: TextStyle(fontSize: 14)),
+                  textAlign: TextAlign.center,
+                  GalleryLocalizations.of(context)!.codeInterpreter,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 if (isDisplayDesktop(context))
                   IconButton(
                     onPressed: null,
@@ -699,7 +720,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
           onPressed: switchCodeInterpreter.value
               ? uploadCodeInterpreterFileDialog
               : null,
-          label: Text("Files", style: TextStyle(fontSize: 14)))
+          label: Text("Files"))
     ]);
   }
 
@@ -737,7 +758,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: AppColors.chatPageBackground,
+              // backgroundColor: AppColors.chatPageBackground,
               title:
                   Text(GalleryLocalizations.of(context)!.codeInterpreterTitle),
               titlePadding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
@@ -897,7 +918,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         barrierDismissible: false,
         builder: (BuildContext context) => AlertDialog(
               title: Text(GalleryLocalizations.of(context)!.functionsDialog),
-              backgroundColor: AppColors.chatPageBackground,
+              // backgroundColor: AppColors.chatPageBackground,
               content: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -913,7 +934,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                                 controller: _functionController,
                                 decoration: InputDecoration(
                                   hintText: function_sample1,
-                                  hintStyle: TextStyle(fontSize: 14),
+                                  // hintStyle: TextStyle(fontSize: 14),
                                   border: OutlineInputBorder(
                                     borderRadius: BORDERRADIUS15,
                                   ),
@@ -1037,8 +1058,10 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         },
       ),
       Container(
-          margin: EdgeInsets.only(left: 10, right: 75),
-          child: Text('是否共享其他人使用?', style: TextStyle(fontSize: 14))),
+        margin: EdgeInsets.only(left: 10, right: 75),
+        child:
+            Text('是否共享其他人使用?', style: Theme.of(context).textTheme.bodyMedium),
+      ),
     ]);
   }
 
@@ -1059,7 +1082,9 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
             width: sz,
             height: sz,
             decoration: BoxDecoration(
-                color: Colors.grey, borderRadius: BorderRadius.circular(80)),
+              // color: Colors.grey,
+              borderRadius: BorderRadius.circular(80),
+            ),
           );
         },
       );
