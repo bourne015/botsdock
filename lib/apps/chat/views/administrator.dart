@@ -309,7 +309,7 @@ class Administrator extends StatelessWidget {
       BuildContext context, User user, Pages pages, Property property) {
     return AlertDialog(
       title: Text(textAlign: TextAlign.center, '登录/注册'),
-      titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      // titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       scrollable: true,
       // backgroundColor: AppColors.chatPageBackground,
       actionsAlignment: MainAxisAlignment.spaceAround,
@@ -399,7 +399,7 @@ class Administrator extends StatelessWidget {
       // titlePadding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
       // contentPadding: EdgeInsets.fromLTRB(50, 0, 50, 0),
       title: Text(textAlign: TextAlign.center, '注册'),
-      titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      // titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       scrollable: true,
       // backgroundColor: AppColors.chatPageBackground,
       content: sigupDialogContent(context),

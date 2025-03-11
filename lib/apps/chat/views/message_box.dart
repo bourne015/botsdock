@@ -453,8 +453,8 @@ class MessageBoxState extends State<MessageBox> {
             children: [
               SizedBox(),
               Text(
-                  func["artifactName"].length > 16
-                      ? func["artifactName"].substring(0, 16)
+                  func["artifactName"].length > 25
+                      ? func["artifactName"].substring(0, 25)
                       : func["artifactName"],
                   maxLines: 1,
                   overflow: TextOverflow.clip,

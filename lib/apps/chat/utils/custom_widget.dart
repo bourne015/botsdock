@@ -17,8 +17,8 @@ void notifyBox({context, var title, var content}) {
               ),
             ),
             actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
+              FilledButton.tonalIcon(
+                label: const Text('OK'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },

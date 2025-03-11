@@ -54,7 +54,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       duration: Duration(milliseconds: 270),
       decoration: BoxDecoration(
           color: Theme.of(context).inputDecorationTheme.focusColor,
-          border: Border.all(color: Colors.grey[350]!, width: 1.0),
+          border: Border.all(color: AppColors.gray60, width: 1.0),
           borderRadius: BORDERRADIUS10),
       margin: EdgeInsets.fromLTRB(_hmargin, 5, _hmargin, 30),
       child: Column(
@@ -219,8 +219,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
       },
       decoration: InputDecoration(
         hintText: hintText,
-        border: InputBorder.none,
-        focusedBorder: InputBorder.none,
+        border: OutlineInputBorder(
+            borderSide: BorderSide.none, borderRadius: BORDERRADIUS10),
+        focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide.none, borderRadius: BORDERRADIUS10),
         prefixIcon: _userReady
             ? pickButton(context)
             : IconButton(

@@ -223,7 +223,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
           centerTitle: true,
           automaticallyImplyLeading: false,
           forceMaterialTransparency: true,
-          backgroundColor: AppColors.chatPageBackground,
+          // backgroundColor: AppColors.chatPageBackground,
           shape: RoundedRectangleBorder(
             borderRadius: BORDERRADIUS10,
           ),
