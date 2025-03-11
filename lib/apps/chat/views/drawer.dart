@@ -232,6 +232,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
           margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
           child: ListTile(
             dense: true,
+            selectedTileColor: Theme.of(context).colorScheme.secondaryFixed,
             shape: RoundedRectangleBorder(
               borderRadius: BORDERRADIUS10,
             ),

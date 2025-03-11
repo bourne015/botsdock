@@ -63,7 +63,8 @@ class ChatThemeData {
   static const ColorScheme lightColorScheme = ColorScheme(
     primary: Color.fromARGB(255, 108, 159, 247), //Color(0xffbb86fc),
     primaryContainer: Color(0xFF117378),
-    secondary: Colors.blue, //Color(0xFFEFF3F3),
+    secondary: Color.fromARGB(255, 228, 242, 242),
+    secondaryFixed: Color.fromARGB(255, 223, 223, 223),
     secondaryContainer: Color.fromARGB(255, 244, 244, 244),
     // background: Color(0xFFE6EBEB),
     surface: Color(0xFFFAFBFB),
@@ -81,6 +82,7 @@ class ChatThemeData {
     primary: Colors.blueAccent, //Color(0xFF33333D),
     primaryContainer: Color(0xFF1CDEC9),
     secondary: Color(0xFFc3c5dd),
+    secondaryFixed: Color(0xff38393f), //chat tab selected
     secondaryContainer: Color(0xFF292a2f), // draw, bottab, modelseltab
     surface: Color(0xff38393f), // chat, init page
     tertiary: Color(0xFF292a2f),
