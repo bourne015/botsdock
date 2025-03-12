@@ -201,9 +201,9 @@ Future<Stream<String>> CreateChatStreamWithRetry(
       //.timeout(timeout);
       return responseStream;
     } catch (error) {
-      if (i == retryCount - 1) rethrow;
-      await Future.delayed(retryDelay); // delay and retry
       Logger.warn("CreateChatStreamWithRetry error: $error");
+      await Future.delayed(retryDelay); // delay and retry
+      if (i == retryCount - 1) rethrow;
     }
   }
   throw Exception('Failed to create chat stream after $retryCount attempts');
@@ -251,8 +251,10 @@ Stream<String> CreateChatStream(
       client.close();
     });
     yield* controller.stream;
-  } catch (e) {
+  } catch (e, s) {
+    Logger.error("CreateChatStream catch error: $e, stack: $s");
     controller.addError(e);
     controller.close();
+    rethrow;
   }
 }
