@@ -4,63 +4,6 @@ import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:dio/dio.dart';
 
-class RetryInterceptor extends Interceptor {
-  final Dio dio;
-  final int _maxRetries;
-
-  RetryInterceptor({required this.dio, int maxRetries = 3})
-      : _maxRetries = maxRetries;
-
-  @override
-  Future onError(DioException err, ErrorInterceptorHandler handler) async {
-    if (_shouldRetry(err)) {
-      return _retry(err.requestOptions, handler, _maxRetries);
-    }
-    super.onError(err, handler);
-  }
-
-  Future<dynamic> _retry(
-    RequestOptions requestOptions,
-    ErrorInterceptorHandler handler,
-    int remainingRetries,
-  ) async {
-    try {
-      Logger.warn(
-        'Retrying $remainingRetries,${requestOptions.method} ${requestOptions.path}',
-      );
-      final response = await dio.request(
-        requestOptions.path,
-        data: requestOptions.data,
-        queryParameters: requestOptions.queryParameters,
-        options: Options(
-          method: requestOptions.method,
-          headers: requestOptions.headers,
-          contentType: requestOptions.contentType,
-          responseType: requestOptions.responseType,
-          extra: requestOptions.extra,
-        ),
-        cancelToken: requestOptions.cancelToken,
-      );
-
-      return handler.resolve(response);
-    } on DioException catch (e) {
-      if (remainingRetries > 0 && _shouldRetry(e)) {
-        await Future.delayed(Duration(seconds: 3));
-        return _retry(requestOptions, handler, remainingRetries - 1);
-      }
-      return handler.reject(e);
-    }
-  }
-
-  bool _shouldRetry(DioException err) {
-    return err.type == DioExceptionType.connectionTimeout ||
-        err.type == DioExceptionType.receiveTimeout ||
-        err.type == DioExceptionType.sendTimeout ||
-        err.type == DioExceptionType.connectionError ||
-        err.error is SocketException;
-  }
-}
-
 class DioClient {
   static final DioClient _instance = DioClient._internal();
   late final Dio dio;
@@ -167,5 +110,62 @@ class DioClient {
       Logger.error("dio delete error: $e, stack:$s");
       throw _handleError(e);
     }
+  }
+}
+
+class RetryInterceptor extends Interceptor {
+  final Dio dio;
+  final int _maxRetries;
+
+  RetryInterceptor({required this.dio, int maxRetries = 3})
+      : _maxRetries = maxRetries;
+
+  @override
+  Future onError(DioException err, ErrorInterceptorHandler handler) async {
+    if (_shouldRetry(err)) {
+      return _retry(err.requestOptions, handler, _maxRetries);
+    }
+    super.onError(err, handler);
+  }
+
+  Future<dynamic> _retry(
+    RequestOptions requestOptions,
+    ErrorInterceptorHandler handler,
+    int remainingRetries,
+  ) async {
+    try {
+      Logger.warn(
+        'Retrying $remainingRetries,${requestOptions.method} ${requestOptions.path}',
+      );
+      final response = await dio.request(
+        requestOptions.path,
+        data: requestOptions.data,
+        queryParameters: requestOptions.queryParameters,
+        options: Options(
+          method: requestOptions.method,
+          headers: requestOptions.headers,
+          contentType: requestOptions.contentType,
+          responseType: requestOptions.responseType,
+          extra: requestOptions.extra,
+        ),
+        cancelToken: requestOptions.cancelToken,
+      );
+
+      return handler.resolve(response);
+    } on DioException catch (e) {
+      if (remainingRetries > 0 && _shouldRetry(e)) {
+        await Future.delayed(Duration(seconds: 3));
+        return _retry(requestOptions, handler, remainingRetries - 1);
+      }
+      return handler.reject(e);
+    }
+  }
+
+  bool _shouldRetry(DioException err) {
+    return err.type == DioExceptionType.connectionTimeout ||
+        err.type == DioExceptionType.receiveTimeout ||
+        err.type == DioExceptionType.sendTimeout ||
+        err.type == DioExceptionType.connectionError ||
+        err.error is SocketException;
   }
 }

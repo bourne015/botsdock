@@ -5,12 +5,12 @@ import 'package:botsdock/apps/chat/models/chat.dart';
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/models/pages.dart';
 import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
+import 'package:botsdock/apps/chat/utils/client/http_client.dart';
 import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:botsdock/apps/chat/utils/global.dart';
 import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
-import 'package:botsdock/apps/chat/vendor/stream.dart';
 import 'package:botsdock/apps/chat/vendor/response.dart';
 
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
@@ -228,6 +228,8 @@ class ChatAPI {
   ) async {
     // StreamSubscription? subscription;
     try {
+      // if (pages.getPage(handlePageID).streamSubscription != null)
+      //   pages.getPage(handlePageID).streamSubscription!.cancel();
       if (property.initModelVersion == GPTModel.gptv40Dall) {
         _imageGeneration(pages, property, handlePageID, user);
       } else {
@@ -244,20 +246,31 @@ class ChatAPI {
             pages.getPage(handlePageID).disable_tool("webpage_fetch");
           }
         }
-        var chatData = _prepareChatData(pages, handlePageID);
-        final stream = await CreateChatStreamWithRetry(
-          "${SSE_CHAT_URL}?user_id=${user.id}",
-          body: chatData,
+        final stream = await HttpClient.createStream(
+          baseUrl: ChatPath.base,
+          path: ChatPath.completion,
+          queryParams: {"user_id": user.id},
+          body: _prepareChatData(pages, handlePageID),
         );
         _initializeAssistantMessage(pages, handlePageID);
-        stream.listen(
+        pages.getPage(handlePageID).streamSubscription = stream.listen(
           (String? data) async {
             pages.setPageGenerateStatus(handlePageID, true);
             await _handleChatStream(pages, handlePageID, property, user, data);
           },
-          onError: (e) async => await _onStreamError(pages, handlePageID, e),
-          onDone: () async => await _onStreamDone(pages, handlePageID, user),
-          cancelOnError: false,
+          onError: (e) async {
+            await _onStreamError(pages, handlePageID, e);
+            // if (pages.getPage(handlePageID).streamSubscription != null)
+            //   pages.getPage(handlePageID).streamSubscription!.cancel();
+            // pages.getPage(handlePageID).streamSubscription = null;
+          },
+          onDone: () async {
+            await _onStreamDone(pages, handlePageID, user);
+            // if (pages.getPage(handlePageID).streamSubscription != null)
+            //   pages.getPage(handlePageID).streamSubscription!.cancel();
+            // pages.getPage(handlePageID).streamSubscription = null;
+          },
+          cancelOnError: true,
         );
       }
     } catch (e) {
@@ -277,22 +290,25 @@ class ChatAPI {
     var threadId = pages.getPage(handlePageID).threadID;
 
     try {
-      var chatData = _prepareAssistantData(pages, handlePageID, attachments);
+      if (pages.getPage(handlePageID).streamSubscription != null)
+        pages.getPage(handlePageID).streamSubscription!.cancel();
 
-      final stream = CreateAssistantChatStream(
-        "${BASE_URL}/v1/assistant/vs/${assistantId}/threads/${threadId}/messages?user_id=${user.id}",
-        body: chatData,
+      final stream = HttpClient.CreateAssistantStream(
+        baseUrl: ChatPath.base,
+        path: ChatPath.asstMessages(assistantId!, threadId!),
+        queryParams: {"user_id": user.id},
+        body: _prepareAssistantData(pages, handlePageID, attachments),
       );
 
       _initializeAssistantMessage(pages, handlePageID);
-      stream.listen(
+      pages.getPage(handlePageID).streamSubscription = stream.listen(
         (event) {
           pages.setPageGenerateStatus(handlePageID, true);
           AIResponse.openaiAssistant(pages, handlePageID, event);
         },
         onError: (e) => _onStreamError(pages, handlePageID, e),
         onDone: () => _onStreamDone(pages, handlePageID, user),
-        cancelOnError: false,
+        cancelOnError: true,
       );
     } catch (e) {
       Logger.error("gen error: $e");
@@ -425,7 +441,7 @@ void _initializeAssistantMessage(Pages pages, int handlePageID) {
   pages.setPageGenerateStatus(handlePageID, true);
 }
 
-String _prepareChatData(Pages pages, int handlePageID) {
+Object _prepareChatData(Pages pages, int handlePageID) {
   var jsChat = pages.getPage(handlePageID).toJson();
   var tools = [];
   if (GPTModel.all.contains(pages.getPage(handlePageID).model) ||
@@ -442,15 +458,15 @@ String _prepareChatData(Pages pages, int handlePageID) {
     "tools": tools,
     "temperature": pages.getPage(handlePageID).temperature,
   };
-  return jsonEncode(chatData);
+  return chatData;
 }
 
-String _prepareAssistantData(Pages pages, int handlePageID, attachments) {
+Object _prepareAssistantData(Pages pages, int handlePageID, attachments) {
   var chatData = {
     "role": "user",
     "content": pages.getPage(handlePageID).jsonThreadContent(),
     "attachments":
         attachments.values.map((attachment) => attachment.toJson()).toList()
   };
-  return jsonEncode(chatData);
+  return chatData;
 }

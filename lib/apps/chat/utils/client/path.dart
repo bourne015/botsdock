@@ -16,4 +16,8 @@ class ChatPath {
   static String chat(int userId) => "/v1/chat?user_id=${userId}";
 
   static String imageGen(int userId) => "${image}?user_id=${userId}";
+
+  //assistant
+  static String asstMessages(String assistantId, String threadId) =>
+      "/v1/assistant/vs/${assistantId}/threads/${threadId}/messages";
 }

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:botsdock/apps/chat/utils/logger.dart';
-import 'package:botsdock/apps/chat/utils/utils.dart';
+import 'package:botsdock/apps/chat/utils/tools.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:botsdock/apps/chat/vendor/messages/deepseek.dart';
@@ -47,6 +47,7 @@ class Chat with ChangeNotifier {
   bool internet;
   ItemPosition? position;
   double? _temperature;
+  StreamSubscription? streamSubscription;
 
   Chat({
     int id = -1,
@@ -349,13 +350,13 @@ class Chat with ChangeNotifier {
     Map toolres;
     try {
       if (name == "google_search") {
-        var res = await google_search(
+        var res = await Tools.google_search(
           query: input["content"],
           num_results: max(1, min(input["resultCount"], 20)),
         );
         toolres = {"google_result": res};
       } else if (name == "webpage_fetch") {
-        var res = await webpage_query(url: input["url"]);
+        var res = await Tools.webpage_query(url: input["url"]);
         toolres = {"result": res};
       } else {
         toolres = {"result": "true"};
@@ -412,13 +413,13 @@ class Chat with ChangeNotifier {
       Map toolres;
       try {
         if (_toolcalls[index].function.name == "google_search") {
-          var res = await google_search(
+          var res = await Tools.google_search(
             query: args["content"],
             num_results: max(1, min(args["resultCount"], 20)),
           );
           toolres = {"google_result": res};
         } else if (_toolcalls[index].function.name == "webpage_fetch") {
-          var res = await webpage_query(url: args["url"]);
+          var res = await Tools.webpage_query(url: args["url"]);
           toolres = {"result": res};
         } else {
           toolres = {"result": "true"};
