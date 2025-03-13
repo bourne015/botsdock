@@ -72,9 +72,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
         toolbarHeight: 44,
         centerTitle: true,
         actions: [
-          if (!property.onInitPage &&
-              pages.currentPage?.model != DeepSeekModel.dc_r)
-            _appBarMenu(context),
+          if (!property.onInitPage) _appBarMenu(context),
         ],
       ),
       // Divider(
@@ -94,7 +92,8 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
           margin: EdgeInsets.symmetric(horizontal: 5),
           child: Icon(null, color: Colors.blue[700])),
     ];
-    if (!property.onInitPage) {
+    if (!property.onInitPage &&
+        !DeepSeekModel.all.contains(pages.currentPage?.model)) {
       if (pages.currentPage!.artifact && pages.currentPage!.internet)
         res = [
           Container(
@@ -140,10 +139,14 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
           },
         ),
         PopupMenuDivider(),
-        _buildArtifactSwitch(context),
-        PopupMenuDivider(),
-        _buildInternetSwitch(context),
-        PopupMenuDivider(),
+        if (!DeepSeekModel.all.contains(pages.currentPage?.model))
+          _buildArtifactSwitch(context),
+        if (!DeepSeekModel.all.contains(pages.currentPage?.model))
+          PopupMenuDivider(),
+        if (!DeepSeekModel.all.contains(pages.currentPage?.model))
+          _buildInternetSwitch(context),
+        if (!DeepSeekModel.all.contains(pages.currentPage?.model))
+          PopupMenuDivider(),
         _buildtemperatureSlide(context),
       ],
     );
