@@ -297,7 +297,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
-  Widget pickButton(BuildContext context) {
+  Widget? pickButton(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
     Property property = Provider.of<Property>(context);
 
@@ -307,9 +307,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
     else
       _modelV = pages.currentPage!.model;
 
-    if (_modelV.startsWith('gpt-3')) return const SizedBox(width: 15);
-    if (DeepSeekModel.all.contains(_modelV)) return const SizedBox(width: 15);
-    if (_modelV == GPTModel.gptv40Dall) return const SizedBox(width: 15);
+    if (_modelV.startsWith('gpt-3')) return null;
+    if (DeepSeekModel.all.contains(_modelV)) return null;
+    if (_modelV == GPTModel.gptv40Dall) return null;
     if (_modelV == GPTModel.gptvo1mini)
       return IconButton(
           tooltip: "选择文件",
