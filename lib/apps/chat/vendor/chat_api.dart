@@ -4,14 +4,15 @@ import 'dart:convert';
 import 'package:botsdock/apps/chat/models/chat.dart';
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/models/pages.dart';
+import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
+import 'package:botsdock/apps/chat/utils/client/http_client.dart';
+import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:botsdock/apps/chat/utils/global.dart';
 import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
-import 'package:botsdock/apps/chat/vendor/stream.dart';
 import 'package:botsdock/apps/chat/vendor/response.dart';
-import 'package:dio/dio.dart';
-import 'package:retry/retry.dart';
+
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
 import 'package:openai_dart/openai_dart.dart' as openai;
@@ -20,7 +21,7 @@ import '../models/user.dart';
 import '../utils/constants.dart';
 
 class ChatAPI {
-  final dio = Dio();
+  final dio = DioClient();
 
   static Future<void> deleteOSSObj(String url) async {
     try {
@@ -49,8 +50,7 @@ class ChatAPI {
 
   Future<void> updateUser(int user_id, Map userdata) async {
     try {
-      String endpoint = USER_URL + "/" + "${user_id}";
-      await dio.post(endpoint, data: userdata);
+      await dio.post(ChatPath.userUpdate(user_id), data: userdata);
       // Global.saveProfile(user);
     } catch (e) {
       Logger.error("failed to update user ${user_id}, error: $e");
@@ -62,11 +62,8 @@ class ChatAPI {
    */
   Future<User?> userInfo(userId) async {
     try {
-      String url = "${USER_URL}/${userId}/info";
-      Response response = await dio.post(url);
-      if (response.statusCode == 200) {
-        return User.fromJson(response.data);
-      }
+      var _user = await dio.post(ChatPath.userInfo(userId));
+      return User.fromJson(_user);
     } catch (error) {
       Logger.error('UserInfo error: $error');
     }
@@ -78,11 +75,8 @@ class ChatAPI {
    */
   Future<dynamic> chats(userId) async {
     try {
-      String url = "${USER_URL}/${userId}/chats";
-      Response cres = await dio.post(url);
-      if (cres.statusCode == 200) {
-        return cres.data["chats"];
-      }
+      var _data = await dio.post(ChatPath.allChats(userId));
+      return _data["chats"];
     } catch (error) {
       Logger.error('get chats error: $error');
     }
@@ -92,9 +86,8 @@ class ChatAPI {
   Future<Map> get_creds() async {
     var res = {};
     try {
-      var url = USER_URL + "/23" + "/oss_credentials";
-      var response = await dio.post(url);
-      res = response.data["credentials"];
+      var _data = await dio.post(ChatPath.creds(23));
+      res = _data["credentials"];
     } catch (e) {
       Logger.error("get_creds error: $e");
       return {};
@@ -111,11 +104,11 @@ class ChatAPI {
         "model": ModelForTitleGen,
         "question": "为下面段话写一个5个字左右的标题,只需给出最终的标题内容,不要输出其他信息:$q"
       };
-      final response = await dio.post(
-        "${CHAT_URL}?user_id=${user.id}",
+      final _data = await dio.post(
+        ChatPath.chat(user.id),
         data: chatData1,
       );
-      var title = response.data;
+      var title = _data;
       // in case title too long
       title = title.length > 20 ? title.substring(0, 20) : title;
       pages.setPageTitle(handlePageID, title);
@@ -127,7 +120,6 @@ class ChatAPI {
   //save chats to DB and local cache
   Future<void> saveChats(User user, Pages pages, handlePageID) async {
     if (user.id == 0) return;
-    var chatdbUrl = "${USER_URL}/${user.id}/chat";
     var chatData = {
       "id": pages.getPage(handlePageID).dbID,
       "page_id": handlePageID,
@@ -143,26 +135,20 @@ class ChatAPI {
     };
 
     try {
-      final cres = await retry(
-        () => dio.post(chatdbUrl, data: chatData).timeout(Duration(seconds: 3)),
-        retryIf: (e) => e is DioException || e is TimeoutException,
-        maxAttempts: 3,
-        onRetry: (e) {
-          Logger.warn('Retrying saveChats due to error: $e');
-        },
-      );
-      if (cres.data["result"] == "success") {
-        pages.getPage(handlePageID).dbID = cres.data["id"];
-        pages.getPage(handlePageID).updated_at = cres.data["updated_at"];
+      final _data = await dio.post(ChatPath.saveChat(user.id), data: chatData);
 
-        chatData["id"] = cres.data["id"];
-        chatData["dbID"] = cres.data["id"];
-        chatData["updated_at"] = cres.data["updated_at"];
+      if (_data["result"] == "success") {
+        pages.getPage(handlePageID).dbID = _data["id"];
+        pages.getPage(handlePageID).updated_at = _data["updated_at"];
+
+        chatData["id"] = _data["id"];
+        chatData["dbID"] = _data["id"];
+        chatData["updated_at"] = _data["updated_at"];
         Global.saveChats(
           user.id,
           chatData["id"],
           jsonEncode(chatData),
-          cres.data["updated_at"],
+          _data["updated_at"],
         );
       }
     } catch (e) {
@@ -170,11 +156,9 @@ class ChatAPI {
     }
   }
 
-  void updateCredit(User user) async {
-    var url = USER_URL + "/${user.id}" + "/info";
-    var response = await dio.post(url);
-    if (response.data["result"] == "success")
-      user.credit = response.data["credit"];
+  Future<void> updateCredit(User user) async {
+    var _data = await dio.post(ChatPath.userInfo(user.id));
+    if (_data["result"] == "success") user.credit = _data["credit"];
   }
 
   Future<String?> uploadFile(filename, imgData) async {
@@ -203,18 +187,15 @@ class ChatAPI {
         .getPage(handlePageID)
         .addMessage(role: MessageTRole.assistant, text: "", timestamp: mt);
     pages.getPage(handlePageID).messages.last.onProcessing = true;
-    final response =
-        await dio.post("${IMAGE_URL}?user_id=${user.id}", data: chatData1);
+    final _data = await dio.post(ChatPath.imageGen(user.id), data: chatData1);
     pages.getPage(handlePageID).messages.last.onProcessing = false;
     pages.setPageGenerateStatus(handlePageID, false);
     String _aiImageName = "ai${user.id}_${handlePageID}_${mt}.png";
     pages.getPage(handlePageID).messages.last.visionFiles = {
-      _aiImageName:
-          VisionFile(name: "ai_file", bytes: base64Decode(response.data))
+      _aiImageName: VisionFile(name: "ai_file", bytes: base64Decode(_data))
     };
 
-    String? ossURL =
-        await uploadFile(_aiImageName, base64Decode(response.data));
+    String? ossURL = await uploadFile(_aiImageName, base64Decode(_data));
     pages.getPage(handlePageID).messages[msg_id].updateVisionFiles(
           _aiImageName,
           ossURL ?? "",
@@ -222,7 +203,8 @@ class ChatAPI {
     _onStreamDone(pages, handlePageID, user);
   }
 
-  void _onStreamError(Pages pages, int handlePageID, dynamic error) {
+  Future<void> _onStreamError(
+      Pages pages, int handlePageID, dynamic error) async {
     Logger.error('SSE error: $error');
     pages.setPageGenerateStatus(handlePageID, false);
   }
@@ -234,8 +216,8 @@ class ChatAPI {
     if (pageTitle.length >= 6 && pageTitle.substring(0, 6) == "Chat 0") {
       await titleGenerate(pages, handlePageID, user);
     }
-    saveChats(user, pages, handlePageID);
-    updateCredit(user);
+    await saveChats(user, pages, handlePageID);
+    await updateCredit(user);
   }
 
   void submitText(
@@ -246,6 +228,8 @@ class ChatAPI {
   ) async {
     // StreamSubscription? subscription;
     try {
+      // if (pages.getPage(handlePageID).streamSubscription != null)
+      //   pages.getPage(handlePageID).streamSubscription!.cancel();
       if (property.initModelVersion == GPTModel.gptv40Dall) {
         _imageGeneration(pages, property, handlePageID, user);
       } else {
@@ -262,20 +246,31 @@ class ChatAPI {
             pages.getPage(handlePageID).disable_tool("webpage_fetch");
           }
         }
-        var chatData = _prepareChatData(pages, handlePageID);
-        final stream = await CreateChatStreamWithRetry(
-          "${SSE_CHAT_URL}?user_id=${user.id}",
-          body: chatData,
+        final stream = await HttpClient.createStream(
+          baseUrl: ChatPath.base,
+          path: ChatPath.completion,
+          queryParams: {"user_id": user.id},
+          body: _prepareChatData(pages, handlePageID),
         );
         _initializeAssistantMessage(pages, handlePageID);
-        stream.listen(
-          (String? data) {
+        pages.getPage(handlePageID).streamSubscription = stream.listen(
+          (String? data) async {
             pages.setPageGenerateStatus(handlePageID, true);
-            _handleChatStream(pages, handlePageID, property, user, data);
+            await _handleChatStream(pages, handlePageID, property, user, data);
           },
-          onError: (e) => _onStreamError(pages, handlePageID, e),
-          onDone: () => _onStreamDone(pages, handlePageID, user),
-          cancelOnError: false,
+          onError: (e) async {
+            await _onStreamError(pages, handlePageID, e);
+            // if (pages.getPage(handlePageID).streamSubscription != null)
+            //   pages.getPage(handlePageID).streamSubscription!.cancel();
+            // pages.getPage(handlePageID).streamSubscription = null;
+          },
+          onDone: () async {
+            await _onStreamDone(pages, handlePageID, user);
+            // if (pages.getPage(handlePageID).streamSubscription != null)
+            //   pages.getPage(handlePageID).streamSubscription!.cancel();
+            // pages.getPage(handlePageID).streamSubscription = null;
+          },
+          cancelOnError: true,
         );
       }
     } catch (e) {
@@ -295,22 +290,25 @@ class ChatAPI {
     var threadId = pages.getPage(handlePageID).threadID;
 
     try {
-      var chatData = _prepareAssistantData(pages, handlePageID, attachments);
+      if (pages.getPage(handlePageID).streamSubscription != null)
+        pages.getPage(handlePageID).streamSubscription!.cancel();
 
-      final stream = CreateAssistantChatStream(
-        "${BASE_URL}/v1/assistant/vs/${assistantId}/threads/${threadId}/messages?user_id=${user.id}",
-        body: chatData,
+      final stream = HttpClient.CreateAssistantStream(
+        baseUrl: ChatPath.base,
+        path: ChatPath.asstMessages(assistantId!, threadId!),
+        queryParams: {"user_id": user.id},
+        body: _prepareAssistantData(pages, handlePageID, attachments),
       );
 
       _initializeAssistantMessage(pages, handlePageID);
-      stream.listen(
+      pages.getPage(handlePageID).streamSubscription = stream.listen(
         (event) {
           pages.setPageGenerateStatus(handlePageID, true);
           AIResponse.openaiAssistant(pages, handlePageID, event);
         },
         onError: (e) => _onStreamError(pages, handlePageID, e),
         onDone: () => _onStreamDone(pages, handlePageID, user),
-        cancelOnError: false,
+        cancelOnError: true,
       );
     } catch (e) {
       Logger.error("gen error: $e");
@@ -406,13 +404,13 @@ class ChatAPI {
   }
 }
 
-void _handleChatStream(
+Future<void> _handleChatStream(
   Pages pages,
   int handlePageID,
   Property property,
   User user,
   String? data,
-) {
+) async {
   pages.getPage(handlePageID).messages.last.onProcessing = false;
   if (data != null && isValidJson(data)) {
     var res = json.decode(data);
@@ -443,7 +441,7 @@ void _initializeAssistantMessage(Pages pages, int handlePageID) {
   pages.setPageGenerateStatus(handlePageID, true);
 }
 
-String _prepareChatData(Pages pages, int handlePageID) {
+Object _prepareChatData(Pages pages, int handlePageID) {
   var jsChat = pages.getPage(handlePageID).toJson();
   var tools = [];
   if (GPTModel.all.contains(pages.getPage(handlePageID).model) ||
@@ -460,15 +458,15 @@ String _prepareChatData(Pages pages, int handlePageID) {
     "tools": tools,
     "temperature": pages.getPage(handlePageID).temperature,
   };
-  return jsonEncode(chatData);
+  return chatData;
 }
 
-String _prepareAssistantData(Pages pages, int handlePageID, attachments) {
+Object _prepareAssistantData(Pages pages, int handlePageID, attachments) {
   var chatData = {
     "role": "user",
     "content": pages.getPage(handlePageID).jsonThreadContent(),
     "attachments":
         attachments.values.map((attachment) => attachment.toJson()).toList()
   };
-  return jsonEncode(chatData);
+  return chatData;
 }

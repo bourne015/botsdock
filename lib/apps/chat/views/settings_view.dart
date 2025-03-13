@@ -127,7 +127,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
             style: Theme.of(context).textTheme.labelMedium,
           ),
           trailing: Text(
-            "${temperature.toStringAsFixed(1)}",
+            "${temperature.toStringAsFixed(2)}",
             // style: TextStyle(fontSize: 12.5),
           ),
         ),
@@ -194,8 +194,9 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
           Transform.scale(
             scale: 0.7,
             child: Slider(
-              min: 0,
+              min: -0.1,
               max: 2,
+              divisions: 100,
               padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
               value: temperature,
               onChanged: (value) {

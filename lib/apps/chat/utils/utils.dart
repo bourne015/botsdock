@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:dual_screen/dual_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:http/http.dart' as http;
 
 import 'dart:async';
 import 'package:web/web.dart' as web;
@@ -103,52 +101,4 @@ void downloadImage({String? fileName, String? fileUrl, Uint8List? imageData}) {
     ..setAttribute('download', fileName ?? 'ai')
     ..click();
   if (imageData != null) web.URL.revokeObjectURL(url);
-}
-
-Future<List> google_search(
-    {required String query, int num_results = 10}) async {
-  final request = http.Request(
-    'GET',
-    Uri.parse(
-        '${BASE_URL}/v1/google_search/?query=$query&num_results=$num_results'),
-  );
-
-  // You can modify headers or other properties if needed
-  request.headers.addAll({
-    'Accept': 'application/json',
-    // Add any other necessary headers here
-  });
-
-  final streamedResponse = await request.send();
-  final response = await http.Response.fromStream(streamedResponse);
-
-  if (response.statusCode == 200) {
-    final data = jsonDecode(utf8.decode(response.bodyBytes));
-    return data;
-  }
-  debugPrint('请求失败，状态码: ${response.statusCode}');
-  return [];
-}
-
-Future<String> webpage_query({required String url}) async {
-  final request = http.Request(
-    'GET',
-    Uri.parse('${BASE_URL}/v1/fetch_webpage/?url=$url'),
-  );
-
-  // You can modify headers or other properties if needed
-  request.headers.addAll({
-    'Accept': 'application/json',
-    // Add any other necessary headers here
-  });
-
-  final streamedResponse = await request.send();
-  final response = await http.Response.fromStream(streamedResponse);
-
-  if (response.statusCode == 200) {
-    final data = jsonDecode(utf8.decode(response.bodyBytes));
-    return data;
-  }
-  debugPrint('请求失败，状态码: ${response.statusCode}');
-  return "empty";
 }

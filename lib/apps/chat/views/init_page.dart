@@ -803,15 +803,10 @@ class CustomCard extends StatelessWidget {
               child: MarkdownBody(
                 data: _describe,
                 // styleSheetTheme: MarkdownStyleSheetBaseTheme.material,
-                // styleSheet: MarkdownStyleSheet(
-                // h3: const TextStyle(
-                //     fontSize: 18, fontWeight: FontWeight.bold),
-                // h4: const TextStyle(
-                //     fontSize: 16, fontWeight: FontWeight.bold),
-                //   strong: const TextStyle(
-                //       fontSize: 14, fontWeight: FontWeight.bold),
-                //   p: const TextStyle(fontSize: 14.0, color: AppColors.msgText),
-                // ),
+                styleSheet: MarkdownStyleSheet(
+                  tableColumnWidth: FixedColumnWidth(150),
+                  tablePadding: EdgeInsets.symmetric(horizontal: 50),
+                ),
               ),
             ),
           ),
@@ -849,12 +844,23 @@ String _describe = """
 - Gemini不支持可视化输出
 
 ### 3.文档生成
-- 新建智能体中开启'代码解释器(Code Interpreter)'后即支持生成文档，'Data Analyst'智能体已开启code Interpreter
-- 新会话选择GPT模型并添加附件文档后, 会自动开启Code Interpreter和File Search功能
+- 仅GPT系列模型支持生成文档, 有两种方式:
+- **方式1**: 新建智能体中开启'代码解释器(Code Interpreter)'后即支持生成文档，'Data Analyst'智能体已开启code Interpreter
+- **方式2**: 新会话选择GPT模型并添加附件文档后, 会自动开启Code Interpreter和File Search功能
 
-### 4.下载
-- 长按下载图片
-- 点击图标下载文档附件，超链接无效
+### 4.temperature设置
+- Claude系列模型的范围是: [0.0, 1.0], 其余模型范围: [0.0, 2.0]
+- 较低的值(例如0.2)将使其更加集中和确定, 适合对于分析/解题/多项选择
+- 较高的值(如1.5)将使输出更加随机,适合对于创造性和生成性任务
+- 如不确定怎么设置,可将值设置到最小(-0.1), 此时后端将缺省设置, 模型端会使用默认值
+
+| 场景 | temperature |
+| --- | --- |
+| 代码生成/数学解题| 0.1 |
+| 数据分析 |  1.0|
+| 通用对话 |  1.3|
+| 翻译| 1.3 |
+| 创意类写作| 1.5 |
 
 ### 5.tips
 - 手机端, 在浏览器中将页面添加到主屏幕, 可将网站作为PWA应用
