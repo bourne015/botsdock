@@ -122,43 +122,40 @@ class RetryInterceptor extends Interceptor {
 
   @override
   Future onError(DioException err, ErrorInterceptorHandler handler) async {
-    if (_shouldRetry(err)) {
-      return _retry(err.requestOptions, handler, _maxRetries);
-    }
-    super.onError(err, handler);
-  }
+    RequestOptions requestOptions = err.requestOptions;
 
-  Future<dynamic> _retry(
-    RequestOptions requestOptions,
-    ErrorInterceptorHandler handler,
-    int remainingRetries,
-  ) async {
-    try {
+    int retriesRemaining =
+        requestOptions.extra["retriesRemaining"] ?? _maxRetries;
+
+    if (_shouldRetry(err) && retriesRemaining > 0) {
+      requestOptions.extra["retriesRemaining"] = retriesRemaining - 1;
       Logger.warn(
-        'Retrying $remainingRetries,${requestOptions.method} ${requestOptions.path}',
-      );
-      final response = await dio.request(
-        requestOptions.path,
-        data: requestOptions.data,
-        queryParameters: requestOptions.queryParameters,
-        options: Options(
-          method: requestOptions.method,
-          headers: requestOptions.headers,
-          contentType: requestOptions.contentType,
-          responseType: requestOptions.responseType,
-          extra: requestOptions.extra,
-        ),
-        cancelToken: requestOptions.cancelToken,
-      );
-
-      return handler.resolve(response);
-    } on DioException catch (e) {
-      if (remainingRetries > 0 && _shouldRetry(e)) {
-        await Future.delayed(Duration(seconds: 3));
-        return _retry(requestOptions, handler, remainingRetries - 1);
+          'Retrying request: ${requestOptions.method} ${requestOptions.path}, remaining retries: ${retriesRemaining - 1}');
+      await Future.delayed(Duration(seconds: 2));
+      try {
+        final response = await dio.request(
+          requestOptions.path,
+          data: requestOptions.data,
+          queryParameters: requestOptions.queryParameters,
+          options: Options(
+            method: requestOptions.method,
+            headers: requestOptions.headers,
+            contentType: requestOptions.contentType,
+            responseType: requestOptions.responseType,
+            extra: requestOptions.extra,
+          ),
+          cancelToken: requestOptions.cancelToken,
+        );
+        return handler.resolve(response);
+      } on DioException catch (e) {
+        int currentRetries = requestOptions.extra["retriesRemaining"] ?? 0;
+        if (_shouldRetry(e) && currentRetries > 0) {
+          return onError(e, handler);
+        }
+        return handler.reject(e);
       }
-      return handler.reject(e);
     }
+    return super.onError(err, handler);
   }
 
   bool _shouldRetry(DioException err) {
