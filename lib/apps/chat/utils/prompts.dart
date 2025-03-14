@@ -45,7 +45,7 @@ class Functions {
   static Map<String, dynamic> artifact = {
     "name": "save_artifact",
     "description":
-        "Saves the current state of a working artifact for preview. Call this tool when you've created or significantly updated content that should be preserved, such as HTML pages, SVG or Mermaid diagrams. save all file into one single file for rendering. Prioritize using SVG, prioritize cartoon style, if it's mermaid, ensure to use the latest version of mermaid syntax",
+        "Saves the current state of a working artifact for preview. Call this tool when you've created or significantly updated content that should be preserved, such as HTML pages, SVG or Mermaid diagrams. Prioritize using SVG, prioritize cartoon style. save all file into one single file for rendering.",
     "strict": false,
     "parameters": {
       "type": "object",

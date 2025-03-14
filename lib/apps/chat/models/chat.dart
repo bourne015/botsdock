@@ -25,12 +25,11 @@ class Chat with ChangeNotifier {
   String? _assistantID;
   String? _threadID;
   List<Message> messages = [];
-  // dynamic _toolChoice;
-  // List<Tool> tools = []; //openai tools
-  // openai.CreateRunRequestToolChoice? _toolChoice;
-  List<openai.ChatCompletionTool> tools = [];
-  List<anthropic.Tool> claudeTools = []; //claude tools
-  List<Map> geminiTools = [];
+
+  //tools-gpt: List<openai.ChatCompletionTool>
+  //tools-claude: List<anthropic.Tool>
+  //tools-claude: List<Map<String, dynamic>>
+  List<dynamic> tools = [];
   String toolInputDelta = "";
   List<String> openaiToolInputDelta = [];
   final StreamController<Message> _messageController =
@@ -58,11 +57,7 @@ class Chat with ChangeNotifier {
     String title = "Chat 0",
     required String model,
     List<Message>? messages,
-    dynamic toolChoice,
-    // List<Tool>? tools,
-    List<openai.ChatCompletionTool>? tools,
-    List<anthropic.Tool>? claudeTools,
-    List<Map>? geminiTools,
+    List<dynamic>? tools,
     int? updated_at,
     bool? artifact,
     bool? internet,
@@ -75,10 +70,7 @@ class Chat with ChangeNotifier {
         _title = title,
         _model = model,
         messages = messages ?? [],
-        // _toolChoice = toolChoice,
         tools = tools ?? [],
-        claudeTools = claudeTools ?? [],
-        geminiTools = geminiTools ?? [],
         artifact = artifact ?? false,
         internet = internet ?? false,
         _temperature = temperature,
@@ -231,6 +223,8 @@ class Chat with ChangeNotifier {
     Map<String, Attachment>? attachments,
     int? timestamp,
     String? toolCallId,
+    anthropic.ToolUseBlock? toolUse,
+    anthropic.ToolResultBlock? toolResult,
   }) {
     var _msg;
     var _content = [];
@@ -246,6 +240,19 @@ class Chat with ChangeNotifier {
     }
     if (attachments != null) {
       getAttachments(attachments, _content);
+    }
+    if (toolUse != null) {
+      //claude case:save function arguments into the last assistant msg content
+      //if the last msg isn't assistant role, add a new assistant msg
+      if (messages.last.role == MessageTRole.assistant) {
+        (messages.last.content as List).add(toolUse);
+        return messages.last.id;
+      } else {
+        _content.add(toolUse);
+      }
+    }
+    if (toolResult != null) {
+      _content.add(toolResult);
     }
     if (ClaudeModel.all.contains(model)) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
@@ -313,29 +320,45 @@ class Chat with ChangeNotifier {
     return messages.length - 1;
   }
 
-//add claude tool_use
-  void addTool({
-    List? toolCalls,
-    anthropic.ToolUseBlock? toolUse,
-    anthropic.ToolResultBlock? toolResult,
-  }) {
-    if (toolCalls != null) {
-      //openai tool
+  /**
+   * excute tools
+   */
+  Future<dynamic> excuteFunctionCalling({
+    required String name,
+    Map<String, dynamic>? kwargs,
+  }) async {
+    late final toolres;
+    try {
+      switch (name) {
+        case "google_search":
+          var res = await Tools.google_search(
+            query: kwargs?["query"] ?? "",
+            num_results: max(1, min(kwargs?["num_results"], 20)),
+          );
+          toolres = {"google_result": res};
+          break;
+        case "webpage_fetch":
+          var res = await Tools.webpage_query(url: kwargs?["url"] ?? "");
+          toolres = {"result": res};
+          break;
+        default:
+          Logger.warn("not run tools: ${name}");
+          toolres = {"result": "true"};
+          break;
+      }
+    } catch (e, s) {
+      Logger.error("run tools failed: ${name}, stack: $s");
+      toolres = {"result": "error"};
     }
-    if (toolUse != null) {
-      //claude tool
-      (messages.last.content as List).add(toolUse);
-    }
-    if (toolResult != null) {
-      (messages.last.content as List).add(toolResult);
-    }
+    return toolres;
   }
 
   /**
-   * save claude tool messages output from model to message
-   * claude save tool message inside message-content
+   * 1. save function arguments from model into messages
+   * 2. excetu function calling
+   * 3. save function calling result to tool message inside message-content
    */
-  Future<void> setClaudeToolInput(int index) async {
+  Future<void> handleClaudeToolCall(int index) async {
     var id = (messages.last.content[index] as anthropic.ToolUseBlock).id;
     var name = (messages.last.content[index] as anthropic.ToolUseBlock).name;
     var type = (messages.last.content[index] as anthropic.ToolUseBlock).type;
@@ -347,39 +370,34 @@ class Chat with ChangeNotifier {
       input: input,
     );
 
-    Map toolres;
-    try {
-      if (name == "google_search") {
-        var res = await Tools.google_search(
-          query: input["content"],
-          num_results: max(1, min(input["resultCount"], 20)),
-        );
-        toolres = {"google_result": res};
-      } else if (name == "webpage_fetch") {
-        var res = await Tools.webpage_query(url: input["url"]);
-        toolres = {"result": res};
-      } else {
-        toolres = {"result": "true"};
-      }
-    } catch (e) {
-      debugPrint("setClaudeToolInput error: $e");
-      toolres = {"result": "error"};
-    }
-    var _toolID = messages.last.content[index].id;
-    addMessage(role: MessageTRole.user);
-    addTool(
-      toolResult: anthropic.ToolResultBlock(
-        toolUseId: _toolID,
-        isError: false,
-        type: "tool_result",
-        content: anthropic.ToolResultBlockContent.text(jsonEncode(toolres)),
-      ),
+    Map toolres = await excuteFunctionCalling(
+      name: name,
+      kwargs: {
+        "query": input["content"],
+        "num_results": input["resultCount"],
+        "url": input["url"],
+      },
     );
+
+    var _toolID = messages.last.content[index].id;
+    addMessage(
+        role: MessageTRole.user,
+        toolResult: anthropic.ToolResultBlock(
+          toolUseId: _toolID,
+          isError: false,
+          type: "tool_result",
+          content: anthropic.ToolResultBlockContent.text(jsonEncode(toolres)),
+        ));
 
     toolInputDelta = "";
   }
 
-  void setGeminiToolInput(func) {
+  /**
+   * save function arguments from model into messages
+   * current tools(web search & query) are integrated in Gemini
+   * it's no need to excute those tools
+   */
+  void handleGeminiToolCall(func) {
     messages.last.content.last = GeminiPart3(
       name: func.name,
       args: func.args,
@@ -387,10 +405,11 @@ class Chat with ChangeNotifier {
   }
 
   /**
-   * save openai tool messages output from model to message
-   * openai save tools message with the same level with content
+   * 1. save function arguments from model into messages
+   * 2. excetu function calling
+   * 3. save function calling result into the same level with message content
    */
-  Future<void> setOpenaiToolInput() async {
+  Future<void> handleOpenaiToolCall() async {
     // int _last = messages.length - 1;
     for (int index = 0; index < openaiToolInputDelta.length; index++) {
       //toolcall id
@@ -410,24 +429,15 @@ class Chat with ChangeNotifier {
     List<openai.RunToolCallObject> _toolcalls = messages.last.toolCalls;
     for (int index = 0; index < _toolcalls.length; index++) {
       var args = jsonDecode(_toolcalls[index].function.arguments);
-      Map toolres;
-      try {
-        if (_toolcalls[index].function.name == "google_search") {
-          var res = await Tools.google_search(
-            query: args["content"],
-            num_results: max(1, min(args["resultCount"], 20)),
-          );
-          toolres = {"google_result": res};
-        } else if (_toolcalls[index].function.name == "webpage_fetch") {
-          var res = await Tools.webpage_query(url: args["url"]);
-          toolres = {"result": res};
-        } else {
-          toolres = {"result": "true"};
-        }
-      } catch (e) {
-        Logger.error("setOpenaiToolInput error: $e");
-        toolres = {"result": "error"};
-      }
+      Map toolres = await excuteFunctionCalling(
+        name: _toolcalls[index].function.name,
+        kwargs: {
+          "query": args["content"],
+          "num_results": args["resultCount"],
+          "url": args["url"],
+        },
+      );
+
       addMessage(
         role: MessageTRole.tool,
         text: jsonEncode(toolres),
@@ -576,9 +586,9 @@ class Chat with ChangeNotifier {
   Map<String, dynamic> toJson() => {
         'model': model,
         'messages': messages.map((m) => m.toJson()).toList(),
-        "tools": tools.map((e) => e.toJson()).toList(),
-        "claude_tools": claudeTools.map((e) => e.toJson()).toList(),
-        "gemini_tools": geminiTools, //it's already json
+        "tools": GeminiModel.all.contains(model)
+            ? tools
+            : tools.map((e) => e.toJson()).toList(),
         "artifact": artifact,
         "internet": internet,
         "temperature": temperature,
@@ -626,7 +636,7 @@ class Chat with ChangeNotifier {
     var functionToAdd = Functions.all[functionName];
     bool functionDeclarationsExists = false;
 
-    for (var gtool in geminiTools) {
+    for (var gtool in tools) {
       if (gtool is Map && gtool.containsKey("function_declarations")) {
         functionDeclarationsExists = true;
         List functionDeclarations = gtool["function_declarations"];
@@ -643,7 +653,7 @@ class Chat with ChangeNotifier {
     }
 
     if (!functionDeclarationsExists) {
-      geminiTools.add({
+      tools.add({
         "function_declarations": [functionToAdd]
       });
     }
@@ -653,8 +663,8 @@ class Chat with ChangeNotifier {
     var funcSchema = Functions.all[name];
     if (GeminiModel.all.contains(model)) {
       if (name == "google_search") {
-        bool _exist = geminiTools.any((x) => x.containsKey(name));
-        if (!_exist) geminiTools.add({name: {}});
+        bool _exist = tools.any((x) => x.containsKey(name));
+        if (!_exist) tools.add({name: {}});
       } else {
         addFunctionToGeminiTools(name);
       }
@@ -672,8 +682,8 @@ class Chat with ChangeNotifier {
         description: funcSchema['description'],
         inputSchema: funcSchema['input_schema'] ?? funcSchema['parameters'],
       );
-      bool _exist = claudeTools.any((x) => x.name == name);
-      if (!_exist) claudeTools.add(claudeTool);
+      bool _exist = tools.any((x) => x.name == name);
+      if (!_exist) tools.add(claudeTool);
     }
     set_function_status(name, true);
   }
@@ -681,15 +691,14 @@ class Chat with ChangeNotifier {
   void disable_tool(String name) {
     set_function_status(name, false);
     if (GPTModel.all.contains(model) || DeepSeekModel.all.contains(model)) {
-      tools.removeWhere(
-          (openai.ChatCompletionTool tool) => tool.function.name == name);
+      tools.removeWhere((_tool) => _tool.function.name == name);
     } else if (ClaudeModel.all.contains(model)) {
-      claudeTools.removeWhere((anthropic.Tool tool) => tool.name == name);
+      tools.removeWhere((_tool) => _tool.name == name);
     } else if (GeminiModel.all.contains(model) && tools.isEmpty) {
       if (name == "google_search") {
-        geminiTools.removeWhere((gtool) => gtool.containsKey(name));
+        tools.removeWhere((gtool) => gtool.containsKey(name));
       } else {
-        for (var gtool in geminiTools) {
+        for (var gtool in tools) {
           if (gtool.containsKey("function_declarations"))
             gtool["function_declarations"]
                 .removeWhere((func) => func["name"] == name);

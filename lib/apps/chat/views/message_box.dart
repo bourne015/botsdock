@@ -416,7 +416,7 @@ class MessageBoxState extends State<MessageBox> {
       json.decode(jsonString);
       return true;
     } on FormatException catch (e) {
-      Logger.error("invalid json: $e");
+      Logger.warn("invalid json: $e");
       return false;
     }
   }

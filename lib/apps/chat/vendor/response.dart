@@ -1,6 +1,7 @@
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/models/pages.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
@@ -21,7 +22,7 @@ class AIResponse {
 
     if (res.choices[0].finishReason ==
         openai.ChatCompletionFinishReason.toolCalls) {
-      await pages.getPage(handlePageID).setOpenaiToolInput();
+      await pages.getPage(handlePageID).handleOpenaiToolCall();
       ChatAPI().submitText(pages, property, handlePageID, user);
     }
     if (res.choices[0].finishReason != null) {
@@ -128,14 +129,16 @@ class AIResponse {
             (anthropic.Block b, int i, anthropic.MessageStreamEventType t) {
           if (b.type == "tool_use") {
             // add an empty msg in content
-            pages.getPage(handlePageID).addTool(
-                    toolUse: b.mapOrNull(
-                  toolUse: (x) => anthropic.ToolUseBlock(
-                    id: x.id,
-                    name: x.name,
-                    input: x.input,
+            pages.getPage(handlePageID).addMessage(
+                  role: MessageTRole.assistant,
+                  toolUse: b.mapOrNull(
+                    toolUse: (x) => anthropic.ToolUseBlock(
+                      id: x.id,
+                      name: x.name,
+                      input: x.input,
+                    ),
                   ),
-                ));
+                );
           }
         },
         contentBlockDelta: (anthropic.BlockDelta b, int i,
@@ -150,7 +153,7 @@ class AIResponse {
           if (pages.getPage(handlePageID).messages.last.content is List &&
               pages.getPage(handlePageID).messages.last.content[i].type ==
                   "tool_use") {
-            await pages.getPage(handlePageID).setClaudeToolInput(i);
+            await pages.getPage(handlePageID).handleClaudeToolCall(i);
             ChatAPI().submitText(pages, property, handlePageID, user);
           }
         },
@@ -183,7 +186,7 @@ class AIResponse {
 
     if (res.choices[0].finishReason ==
         openai.ChatCompletionFinishReason.toolCalls) {
-      pages.getPage(handlePageID).setOpenaiToolInput();
+      pages.getPage(handlePageID).handleOpenaiToolCall();
       ChatAPI().submitText(pages, property, handlePageID, user);
     }
     if (res.choices[0].finishReason != null) {
@@ -198,7 +201,7 @@ class AIResponse {
 
     //gemini function call response is one time, not stream
     if (res.functionCalls.isNotEmpty) {
-      pages.getPage(handlePageID).setGeminiToolInput(res.functionCalls.first);
+      pages.getPage(handlePageID).handleGeminiToolCall(res.functionCalls.first);
       // pages.getPage(handlePageID).addMessage(
       //       role: MessageTRole.tool,
       //       text: "function response",

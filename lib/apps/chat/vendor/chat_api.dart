@@ -273,8 +273,8 @@ class ChatAPI {
           cancelOnError: true,
         );
       }
-    } catch (e) {
-      Logger.error("gen error: $e");
+    } catch (e, s) {
+      Logger.error("gen error: $e, $s");
       pages.setPageGenerateStatus(handlePageID, false);
     }
   }
@@ -351,7 +351,7 @@ class ChatAPI {
               "description": func['description'],
               "input_schema": funcschema
             };
-            pages.getPage(handlePageID).claudeTools.add(
+            pages.getPage(handlePageID).tools.add(
                   anthropic.Tool.fromJson(jsfunc),
                 );
           });
@@ -443,19 +443,11 @@ void _initializeAssistantMessage(Pages pages, int handlePageID) {
 
 Object _prepareChatData(Pages pages, int handlePageID) {
   var jsChat = pages.getPage(handlePageID).toJson();
-  var tools = [];
-  if (GPTModel.all.contains(pages.getPage(handlePageID).model) ||
-      DeepSeekModel.all.contains(pages.getPage(handlePageID).model))
-    tools = jsChat["tools"];
-  else if (ClaudeModel.all.contains(pages.getPage(handlePageID).model))
-    tools = jsChat["claude_tools"];
-  else if (GeminiModel.all.contains(pages.getPage(handlePageID).model))
-    tools = jsChat["gemini_tools"];
 
   var chatData = {
     "model": pages.getPage(handlePageID).model,
     "messages": jsChat["messages"],
-    "tools": tools,
+    "tools": jsChat["tools"] ?? [],
     "temperature": pages.getPage(handlePageID).temperature,
   };
   return chatData;
