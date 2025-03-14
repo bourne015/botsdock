@@ -331,7 +331,8 @@ class MessageBoxState extends State<MessageBox> {
               contentWidgets
                   .add(messageContent(context, msg.role, _content.text));
             } else if (_content is GeminiPart3) {
-              contentWidgets.add(buildArtifact(context, _content.args));
+              if (_content.name == "save_artifact")
+                contentWidgets.add(buildArtifact(context, _content.args));
             } else if (_content is GeminiPart1) {
             } else if (_content is GeminiPart2) {}
           } else {
@@ -384,12 +385,9 @@ class MessageBoxState extends State<MessageBox> {
         }
 
       for (openai.RunToolCallObject tool in msg.toolCalls) {
-        if (!isValidJson(tool.function.arguments))
-          contentWidgets.add(messageContent(
-            context,
-            msg.role,
-            tool.function.arguments,
-          ));
+        if (!isValidJson(tool.function.arguments)) {
+          continue;
+        }
         switch (tool.function.name) {
           case "save_artifact":
             contentWidgets.add(
@@ -403,11 +401,11 @@ class MessageBoxState extends State<MessageBox> {
             break;
         }
       }
-    } catch (e) {
+    } catch (e, s) {
       // contentWidgets
       //     .add(messageContent(context, msg.role, "parse msg error: $e"));
       // isNotEmpty = true;
-      Logger.error("parse msg error: $e");
+      Logger.error("parse msg error: $e, $s");
     }
     if (contentWidgets.isNotEmpty) isNotEmpty = true;
     return contentWidgets;
@@ -417,7 +415,8 @@ class MessageBoxState extends State<MessageBox> {
     try {
       json.decode(jsonString);
       return true;
-    } on FormatException catch (_) {
+    } on FormatException catch (e) {
+      Logger.error("invalid json: $e");
       return false;
     }
   }
@@ -432,7 +431,8 @@ class MessageBoxState extends State<MessageBox> {
       //   func["type"] + func["content"],
       //   style: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
       // );
-      return contentMarkdown(context, func["content"]);
+      Logger.warn("Artifact err: ct: ${func["content"]}, type:${func["type"]}");
+      return contentMarkdown(context, func["content"] ?? "");
     }
     return AnimatedContainer(
       duration: Duration(milliseconds: 400),
