@@ -253,9 +253,9 @@ class ChatAPI {
           body: _prepareChatData(pages, handlePageID),
         );
         _initializeAssistantMessage(pages, handlePageID);
+        pages.setPageGenerateStatus(handlePageID, true);
         pages.getPage(handlePageID).streamSubscription = stream.listen(
           (String? data) async {
-            pages.setPageGenerateStatus(handlePageID, true);
             await _handleChatStream(pages, handlePageID, property, user, data);
           },
           onError: (e) async {
@@ -301,9 +301,9 @@ class ChatAPI {
       );
 
       _initializeAssistantMessage(pages, handlePageID);
+      pages.setPageGenerateStatus(handlePageID, true);
       pages.getPage(handlePageID).streamSubscription = stream.listen(
         (event) {
-          pages.setPageGenerateStatus(handlePageID, true);
           AIResponse.openaiAssistant(pages, handlePageID, event);
         },
         onError: (e) => _onStreamError(pages, handlePageID, e),
