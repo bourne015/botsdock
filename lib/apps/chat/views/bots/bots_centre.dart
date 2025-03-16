@@ -5,15 +5,15 @@ import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
-import '../models/bot.dart';
+import 'package:botsdock/apps/chat/models/bot.dart';
 
-import '../models/pages.dart';
-import '../models/user.dart';
-import "../utils/constants.dart";
-import '../utils/custom_widget.dart';
-import '../utils/utils.dart';
-import './new_bot.dart';
-import '../vendor/assistants_api.dart';
+import 'package:botsdock/apps/chat/models/pages.dart';
+import 'package:botsdock/apps/chat/models/user.dart';
+import "package:botsdock/apps/chat/utils/constants.dart";
+import 'package:botsdock/apps/chat/utils/custom_widget.dart';
+import 'package:botsdock/apps/chat/utils/utils.dart';
+import 'package:botsdock/apps/chat/views/bots/new_bot.dart';
+import 'package:botsdock/apps/chat/vendor/assistants_api.dart';
 
 class BotsCentre extends StatefulWidget {
   const BotsCentre({

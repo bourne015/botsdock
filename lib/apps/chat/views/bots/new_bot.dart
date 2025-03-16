@@ -10,11 +10,11 @@ import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
-import '../models/bot.dart';
-import "../utils/constants.dart";
-import '../utils/custom_widget.dart';
-import '../utils/utils.dart';
-import '../vendor/assistants_api.dart';
+import 'package:botsdock/apps/chat/models/bot.dart';
+import "package:botsdock/apps/chat/utils/constants.dart";
+import 'package:botsdock/apps/chat/utils/custom_widget.dart';
+import 'package:botsdock/apps/chat/utils/utils.dart';
+import 'package:botsdock/apps/chat/vendor/assistants_api.dart';
 
 class CreateBot extends StatefulWidget {
   final User user;

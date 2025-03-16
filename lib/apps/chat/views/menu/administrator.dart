@@ -7,14 +7,14 @@ import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
-import '../utils/constants.dart';
-import '../utils/custom_widget.dart';
-import '../utils/utils.dart';
-import '../models/user.dart';
-import '../models/pages.dart';
-import '../utils/global.dart';
-import './user_info.dart';
-import './settings_view.dart';
+import 'package:botsdock/apps/chat/utils/constants.dart';
+import 'package:botsdock/apps/chat/utils/custom_widget.dart';
+import 'package:botsdock/apps/chat/utils/utils.dart';
+import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/apps/chat/models/pages.dart';
+import 'package:botsdock/apps/chat/utils/global.dart';
+import 'package:botsdock/apps/chat/views/menu/user_info.dart';
+import 'package:botsdock/apps/chat/views/menu/settings_view.dart';
 
 class Administrator extends StatelessWidget {
   Administrator({Key? key}) : super(key: key);

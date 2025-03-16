@@ -17,13 +17,13 @@ import 'package:openai_dart/openai_dart.dart' as openai;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../models/user.dart';
-import '../utils/constants.dart';
-import '../utils/custom_widget.dart';
-import '../utils/markdown_extentions.dart';
-import '../utils/utils.dart';
-import '../vendor/assistants_api.dart';
-import './htmlcontent.dart';
+import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/apps/chat/utils/constants.dart';
+import 'package:botsdock/apps/chat/utils/custom_widget.dart';
+import 'package:botsdock/apps/chat/utils/markdown_extentions.dart';
+import 'package:botsdock/apps/chat/utils/utils.dart';
+import 'package:botsdock/apps/chat/vendor/assistants_api.dart';
+import 'package:botsdock/apps/chat/views/messages/htmlcontent.dart';
 
 class MessageBox extends StatefulWidget {
   final Message msg;

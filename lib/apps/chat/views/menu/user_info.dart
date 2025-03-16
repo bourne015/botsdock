@@ -8,11 +8,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 
-import '../models/user.dart';
-import '../utils/custom_widget.dart';
-import '../utils/utils.dart';
-import '../utils/constants.dart';
-import '../utils/global.dart';
+import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/apps/chat/utils/custom_widget.dart';
+import 'package:botsdock/apps/chat/utils/utils.dart';
+import 'package:botsdock/apps/chat/utils/constants.dart';
+import 'package:botsdock/apps/chat/utils/global.dart';
 import 'users_manage.dart';
 
 class UserInfo extends StatefulWidget {
