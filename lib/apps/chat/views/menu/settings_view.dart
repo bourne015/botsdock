@@ -6,7 +6,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:url_launcher/url_launcher.dart';
 
-import '../utils/constants.dart';
+import 'package:botsdock/apps/chat/utils/constants.dart';
 
 class SettingsView extends StatefulWidget {
   final User user;

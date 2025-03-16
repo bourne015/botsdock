@@ -6,14 +6,14 @@ import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
-import '../models/chat.dart';
-import '../vendor/assistants_api.dart';
-import '../utils/constants.dart';
-import '../utils/utils.dart';
-import '../models/pages.dart';
-import '../models/user.dart';
-import 'administrator.dart';
-import '../utils/global.dart';
+import 'package:botsdock/apps/chat/models/chat.dart';
+import 'package:botsdock/apps/chat/vendor/assistants_api.dart';
+import 'package:botsdock/apps/chat/utils/constants.dart';
+import 'package:botsdock/apps/chat/utils/utils.dart';
+import 'package:botsdock/apps/chat/models/pages.dart';
+import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/apps/chat/views/menu/administrator.dart';
+import 'package:botsdock/apps/chat/utils/global.dart';
 
 class ChatDrawer extends StatefulWidget {
   const ChatDrawer({super.key});

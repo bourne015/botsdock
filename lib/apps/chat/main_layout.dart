@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'views/message_list_view.dart';
-import './utils/utils.dart';
-import './utils/constants.dart';
-import './views/app_bar.dart';
-import './views/drawer.dart';
-import './models/pages.dart';
-import './views/init_page.dart';
+import 'package:botsdock/apps/chat/views/messages/message_list_view.dart';
+import 'package:botsdock/apps/chat/utils/utils.dart';
+import 'package:botsdock/apps/chat/utils/constants.dart';
+import 'package:botsdock/apps/chat/views/app_bar.dart';
+import 'package:botsdock/apps/chat/views/drawer.dart';
+import 'package:botsdock/apps/chat/models/pages.dart';
+import 'package:botsdock/apps/chat/views/init_page.dart';
 import 'views/input_field.dart';
 
 class MainLayout extends StatefulWidget {

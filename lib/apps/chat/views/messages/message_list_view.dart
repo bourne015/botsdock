@@ -7,9 +7,9 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../models/chat.dart';
+import 'package:botsdock/apps/chat/models/chat.dart';
 import 'message_box.dart';
-import 'scrollable_positioned_list/lazy_load_scroll_view.dart';
+import 'package:botsdock/apps/chat/views/messages/lazy_load_scroll_view.dart';
 
 class MessageListView extends StatefulWidget {
   final Chat page;
