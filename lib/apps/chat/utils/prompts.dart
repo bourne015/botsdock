@@ -73,7 +73,7 @@ class Functions {
   static Map<String, dynamic> web_search = {
     "name": "google_search",
     "description":
-        "search information from internet. Call this tool when you need realtime information",
+        "search information from internet. only call this tool when you need realtime information or there's something that you unfamiliar with. For one question, use this tool no more than twice",
     "parameters": {
       "type": "object",
       "properties": {
@@ -92,7 +92,7 @@ class Functions {
 
   static Map<String, dynamic> webpage_fetch = {
     "name": "webpage_fetch",
-    "description": "从指定URL获取网页内容",
+    "description": "从指定URL获取网页内容, 当你需要从特定的网址获取信息时，调用此工具",
     "parameters": {
       "type": "object",
       "properties": {

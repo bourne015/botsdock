@@ -3,7 +3,6 @@ import 'package:botsdock/apps/chat/utils/custom_widget.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/vendor/assistants_api.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
-import 'package:botsdock/constants.dart';
 import 'package:flutter/material.dart';
 
 class ChatfileMessage extends StatefulWidget {
