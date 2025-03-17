@@ -43,6 +43,8 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
   StreamSubscription? _messageSubscription;
   static final Set<String> _registeredViewIds = {};
   late final String viewId;
+  late double effectiveWidth;
+  late double effectiveHeight;
 
   @override
   void initState() {
@@ -142,8 +144,8 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
               opacity: 1;
             }
             svg {
-              max-width: 100%;
-              max-height: 100%;
+              max-width: $effectiveWidth;
+              max-height: $effectiveHeight;
               height: auto;
               width: auto;
             }
@@ -256,11 +258,10 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final effectiveWidth = widget.width?.clamp(0.0, constraints.maxWidth) ??
+        effectiveWidth = widget.width?.clamp(0.0, constraints.maxWidth) ??
             constraints.maxWidth.clamp(0.0, 1000.0);
-        final effectiveHeight =
-            widget.height?.clamp(0.0, constraints.maxHeight) ??
-                constraints.maxHeight.clamp(0.0, 800.0);
+        effectiveHeight = widget.height?.clamp(0.0, constraints.maxHeight) ??
+            constraints.maxHeight.clamp(0.0, 800.0);
 
         return Stack(
           children: [
@@ -295,26 +296,26 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
     );
   }
 
-  Widget _buildLoadingWidget() {
-    return Center(
-      child: Container(
-        padding: EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.9),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: widget.loadingWidget ??
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                CircularProgressIndicator(strokeWidth: 2.0),
-                SizedBox(height: 10),
-                Text('Loading...', style: TextStyle(color: Colors.black54)),
-              ],
-            ),
-      ),
-    );
-  }
+  // Widget _buildLoadingWidget() {
+  //   return Center(
+  //     child: Container(
+  //       padding: EdgeInsets.all(20),
+  //       decoration: BoxDecoration(
+  //         color: Colors.white.withValues(alpha: 0.9),
+  //         borderRadius: BorderRadius.circular(10),
+  //       ),
+  //       child: widget.loadingWidget ??
+  //           Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: const [
+  //               CircularProgressIndicator(strokeWidth: 2.0),
+  //               SizedBox(height: 10),
+  //               Text('Loading...', style: TextStyle(color: Colors.black54)),
+  //             ],
+  //           ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildErrorWidget() {
     return Center(
