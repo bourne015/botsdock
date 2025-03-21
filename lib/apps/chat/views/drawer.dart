@@ -1,9 +1,10 @@
+import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
+import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:botsdock/apps/chat/main.dart';
 import 'package:provider/provider.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
 import 'package:botsdock/apps/chat/models/chat.dart';
@@ -294,9 +295,8 @@ class _ChatPageTabState extends State<ChatPageTab> {
         property.onInitPage = true;
       }
       if (user.isLogedin) {
-        var chatdbUrl = USER_URL + "/" + "${user.id}" + "/chat/" + "$did";
-        var cres = await Dio().delete(chatdbUrl);
-        Global.deleteChat(user.id, did, cres.data["updated_at"]);
+        var cres = await DioClient().delete(ChatPath.chatDelete(user.id, did!));
+        Global.deleteChat(user.id, did, cres["updated_at"]);
       }
       for (var m in msgs) {
         m.visionFiles.forEach((_filename, _content) async {

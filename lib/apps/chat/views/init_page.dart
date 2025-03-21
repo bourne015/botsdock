@@ -2,7 +2,6 @@ import 'package:botsdock/apps/chat/utils/global.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:botsdock/apps/chat/utils/prompts.dart';
 import 'package:botsdock/apps/chat/views/spirit_cat.dart';
@@ -36,7 +35,6 @@ class InitPageState extends State<InitPage> {
   String geminiDropdownValue = DefaultGeminiModel;
   String? selected;
   final ChatAPI chats = ChatAPI();
-  final dio = Dio();
   // RestorableBool switchArtifact = RestorableBool(true);
   // RestorableBool switchInternet = RestorableBool(true);
 

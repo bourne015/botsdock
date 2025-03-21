@@ -1,6 +1,7 @@
+import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
+import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,7 +37,7 @@ class _UserInfoTabState extends State<UserInfo> {
   //bool _editPwd = false;
   //bool _editAvatar = false;
   GlobalKey _editPwdformKey = GlobalKey<FormState>();
-  final dio = Dio();
+  final dio = DioClient();
   List<int>? _userAvatarBytes;
   List<int>? _botAvatarBytes;
   String? _userAvatarUrl;
@@ -251,7 +252,7 @@ class _UserInfoTabState extends State<UserInfo> {
   }
 
   Widget UserInfoPage(BuildContext context, String title) {
-    var editUser = USER_URL + "/" + "${widget.user.id}";
+    var editUser = ChatPath.userUpdate(widget.user.id);
     return Column(
       children: [
         SizedBox(height: 40),
@@ -312,11 +313,11 @@ class _UserInfoTabState extends State<UserInfo> {
                   TextButton(
                       onPressed: () async {
                         var userdata = {"name": _namecontroller.text};
-                        var response = await dio.post(editUser, data: userdata);
+                        var _data = await dio.post(editUser, data: userdata);
                         setState(() {
                           _editName = false;
                         });
-                        if (response.data["result"] == 'success') {
+                        if (_data["result"] == 'success') {
                           widget.user.name = userdata['name'];
                           Global.saveProfile(widget.user);
                         }
@@ -354,11 +355,11 @@ class _UserInfoTabState extends State<UserInfo> {
                   TextButton(
                       onPressed: () async {
                         var userdata = {"phone": _phonecontroller.text};
-                        var response = await dio.post(editUser, data: userdata);
+                        var _data = await dio.post(editUser, data: userdata);
                         setState(() {
                           _editPhone = false;
                         });
-                        if (response.data["result"] == 'success') {
+                        if (_data["result"] == 'success') {
                           widget.user.phone = userdata['phone'];
                           Global.saveProfile(widget.user);
                         }
@@ -429,20 +430,18 @@ class _UserInfoTabState extends State<UserInfo> {
             if (!(_editPwdformKey.currentState as FormState).validate()) {
               return;
             }
-            var editUser = USER_URL + "/${widget.user.id}/security";
             var userdata = {
               "current_password": _pwdcontroller.text,
               "new_password": _newpwdcontroller.text,
             };
-            var res = await dio.post(editUser, data: userdata);
-            if (res.data["result"] == 'success') {
+            var _data = await dio.post(ChatPath.usersecurity(widget.user.id),
+                data: userdata);
+            if (_data["result"] == 'success') {
               Navigator.of(context).pop();
               notifyBox(context: context, title: "success", content: "修改成功");
             } else {
               notifyBox(
-                  context: context,
-                  title: "warning",
-                  content: res.data["result"]);
+                  context: context, title: "warning", content: _data["result"]);
             }
             (_editPwdformKey.currentState as FormState).reset();
           },
@@ -623,13 +622,13 @@ class _UserInfoTabState extends State<UserInfo> {
 
   void onClickImage(String imagePath) async {
     var oldAvatar = widget.user.avatar;
-    var editUser = USER_URL + "/" + "${widget.user.id}";
     var userdata = {"avatar": imagePath};
-    var response = await dio.post(editUser, data: userdata);
+    var _data =
+        await dio.post(ChatPath.userUpdate(widget.user.id), data: userdata);
     //selectAvatar((index + 1).toString());
 
     //Navigator.of(context).pop();
-    if (response.data["result"] == 'success') {
+    if (_data["result"] == 'success') {
       if (oldAvatar != null && oldAvatar.startsWith("http"))
         ChatAPI.deleteOSSObj(oldAvatar);
       setState(() {
@@ -643,11 +642,11 @@ class _UserInfoTabState extends State<UserInfo> {
 
   void onClickBotAvatar(String imagePath) async {
     var oldAvatar = widget.user.avatar_bot;
-    var editUser = USER_URL + "/" + "${widget.user.id}";
     var userdata = {"avatar_bot": imagePath};
-    var response = await dio.post(editUser, data: userdata);
+    var _data =
+        await dio.post(ChatPath.userUpdate(widget.user.id), data: userdata);
 
-    if (response.data["result"] == 'success') {
+    if (_data["result"] == 'success') {
       if (oldAvatar != null && oldAvatar.startsWith("http"))
         ChatAPI.deleteOSSObj(oldAvatar);
       setState(() {

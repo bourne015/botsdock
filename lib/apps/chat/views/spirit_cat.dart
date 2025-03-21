@@ -8,7 +8,6 @@ import 'package:botsdock/apps/chat/utils/global.dart';
 import 'package:botsdock/apps/chat/vendor/assistants_api.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -40,7 +39,6 @@ class SpiritCatState extends State<SpiritCat>
   double rightPosition = 240.0;
   final assistant = AssistantsAPI();
   final ChatAPI chats = ChatAPI();
-  final dio = Dio();
 
   @override
   void initState() {
