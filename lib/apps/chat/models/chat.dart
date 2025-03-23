@@ -225,6 +225,7 @@ class Chat with ChangeNotifier {
     String? toolCallId,
     anthropic.ToolUseBlock? toolUse,
     anthropic.ToolResultBlock? toolResult,
+    GeminiFunctionResponse? geminiFunctionResponse,
   }) {
     var _msg;
     var _content = [];
@@ -253,6 +254,9 @@ class Chat with ChangeNotifier {
     }
     if (toolResult != null) {
       _content.add(toolResult);
+    }
+    if (geminiFunctionResponse != null) {
+      _content.add(geminiFunctionResponse);
     }
     if (ClaudeModel.all.contains(model)) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
@@ -341,8 +345,11 @@ class Chat with ChangeNotifier {
           var res = await Tools.webpage_query(url: kwargs?["url"] ?? "");
           toolres = {"result": res};
           break;
+        case "save_artifact":
+          toolres = {"result": "done"};
+          break;
         default:
-          Logger.warn("not run tools: ${name}");
+          Logger.warn("tools: ${name} is unsupported");
           toolres = {"result": "true"};
           break;
       }
@@ -397,10 +404,27 @@ class Chat with ChangeNotifier {
    * current tools(web search & query) are integrated in Gemini
    * it's no need to excute those tools
    */
-  void handleGeminiToolCall(func) {
+  Future<void> handleGeminiToolCall(func) async {
     messages.last.content.last = GeminiPart3(
       name: func.name,
       args: func.args,
+    );
+
+    Map toolres = await excuteFunctionCalling(
+      name: func.name,
+      kwargs: {
+        "query": func.args["content"],
+        "num_results": func.args["resultCount"],
+        "url": func.args["url"],
+      },
+    );
+
+    addMessage(
+      role: MessageTRole.tool,
+      geminiFunctionResponse: GeminiFunctionResponse(
+        name: func.name,
+        response: {"result": toolres["google_result"] ?? toolres["result"]},
+      ),
     );
   }
 
@@ -662,12 +686,12 @@ class Chat with ChangeNotifier {
   void enable_tool(String name) {
     var funcSchema = Functions.all[name];
     if (GeminiModel.all.contains(model)) {
-      if (name == "google_search") {
-        bool _exist = tools.any((x) => x.containsKey(name));
-        if (!_exist) tools.add({name: {}});
-      } else {
-        addFunctionToGeminiTools(name);
-      }
+      // if (name == "google_search") {
+      //   bool _exist = tools.any((x) => x.containsKey(name));
+      //   if (!_exist) tools.add({name: {}});
+      // } else {
+      addFunctionToGeminiTools(name);
+      // }
     } else if (GPTModel.all.contains(model) ||
         DeepSeekModel.all.contains(model)) {
       var gptTool = openai.ChatCompletionTool.fromJson({
@@ -695,15 +719,15 @@ class Chat with ChangeNotifier {
     } else if (ClaudeModel.all.contains(model)) {
       tools.removeWhere((_tool) => _tool.name == name);
     } else if (GeminiModel.all.contains(model) && tools.isEmpty) {
-      if (name == "google_search") {
-        tools.removeWhere((gtool) => gtool.containsKey(name));
-      } else {
-        for (var gtool in tools) {
-          if (gtool.containsKey("function_declarations"))
-            gtool["function_declarations"]
-                .removeWhere((func) => func["name"] == name);
-        }
+      // if (name == "google_search") {
+      //   tools.removeWhere((gtool) => gtool.containsKey(name));
+      // } else {
+      for (var gtool in tools) {
+        if (gtool.containsKey("function_declarations"))
+          gtool["function_declarations"]
+              .removeWhere((func) => func["name"] == name);
       }
+      // }
     }
   }
 }

@@ -195,13 +195,16 @@ class AIResponse {
   }
 
   static void Gemini(Pages pages, Property property, User user,
-      int handlePageID, Map<String, dynamic> j) {
+      int handlePageID, Map<String, dynamic> j) async {
     var res = gemini.parseGenerateContentResponse(j);
     pages.getPage(handlePageID).appendMessage(msg: res.text);
 
     //gemini function call response is one time, not stream
-    if (res.functionCalls.isNotEmpty) {
-      pages.getPage(handlePageID).handleGeminiToolCall(res.functionCalls.first);
+    if (res.functionCalls.isNotEmpty && res.functionCalls.isNotEmpty) {
+      await pages
+          .getPage(handlePageID)
+          .handleGeminiToolCall(res.functionCalls.first);
+      ChatAPI().submitText(pages, property, handlePageID, user);
       // pages.getPage(handlePageID).addMessage(
       //       role: MessageTRole.tool,
       //       text: "function response",

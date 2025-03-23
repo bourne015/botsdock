@@ -321,7 +321,14 @@ class MessageBoxState extends State<MessageBox> {
                 contentWidgets
                     .add(ChatArtifactMessage(function: _content.args));
             } else if (_content is GeminiPart1) {
-            } else if (_content is GeminiPart2) {}
+            } else if (_content is GeminiPart2) {
+            } else if (_content is GeminiFunctionResponse) {
+              if (_content.name == "google_search") {
+                var results = _content.response?["result"];
+                contentWidgets.add(googleResultList(context, results));
+                isGoogleList = true;
+              }
+            }
           } else {
             switch (_content.type) {
               case "text":
