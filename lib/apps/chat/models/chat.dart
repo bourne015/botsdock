@@ -46,7 +46,7 @@ class Chat with ChangeNotifier {
   bool internet;
   ItemPosition? position;
   double? _temperature;
-  StreamSubscription? streamSubscription;
+  List<StreamSubscription> streamSubscription = [];
 
   Chat({
     int id = -1,
