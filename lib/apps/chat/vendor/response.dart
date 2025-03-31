@@ -1,7 +1,6 @@
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/models/pages.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
-import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
@@ -128,10 +127,9 @@ class AIResponse {
         contentBlockStart:
             (anthropic.Block b, int i, anthropic.MessageStreamEventType t) {
           if (b.type == "tool_use") {
-            // add an empty msg in content
-            pages.getPage(handlePageID).addMessage(
-                  role: MessageTRole.assistant,
-                  toolUse: b.mapOrNull(
+            pages.getPage(handlePageID).addMessageContent(
+                  b.mapOrNull(
+                    text: (x) => TextContent(text: x.text),
                     toolUse: (x) => anthropic.ToolUseBlock(
                       id: x.id,
                       name: x.name,
@@ -139,6 +137,17 @@ class AIResponse {
                     ),
                   ),
                 );
+            // add an empty msg in content
+            // pages.getPage(handlePageID).addMessage(
+            //       role: MessageTRole.assistant,
+            //       toolUse: b.mapOrNull(
+            //         toolUse: (x) => anthropic.ToolUseBlock(
+            //           id: x.id,
+            //           name: x.name,
+            //           input: x.input,
+            //         ),
+            //       ),
+            //     );
           }
         },
         contentBlockDelta: (anthropic.BlockDelta b, int i,

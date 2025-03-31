@@ -472,6 +472,14 @@ class Chat with ChangeNotifier {
     openaiToolInputDelta.clear();
   }
 
+  void addMessageContent(dynamic cont) {
+    if (messages.last.content is String) {
+      ;
+    } else if (messages.last.content is List) {
+      messages.last.content.add(cont);
+    }
+  }
+
   void appendMessage({
     int? index,
     String? msg,
