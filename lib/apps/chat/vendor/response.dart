@@ -184,7 +184,7 @@ class AIResponse {
   }
 
   static void DeepSeek(Pages pages, Property property, User user,
-      int handlePageID, Map<String, dynamic> j) {
+      int handlePageID, Map<String, dynamic> j) async {
     var res = openai.CreateChatCompletionStreamResponse.fromJson(j);
     pages.getPage(handlePageID).appendMessage(
           msg: res.choices[0].delta.content,
@@ -195,7 +195,7 @@ class AIResponse {
 
     if (res.choices[0].finishReason ==
         openai.ChatCompletionFinishReason.toolCalls) {
-      pages.getPage(handlePageID).handleOpenaiToolCall();
+      await pages.getPage(handlePageID).handleOpenaiToolCall();
       ChatAPI().submitText(pages, property, handlePageID, user);
     }
     if (res.choices[0].finishReason != null) {
