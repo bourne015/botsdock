@@ -7,7 +7,7 @@ import 'package:botsdock/apps/chat/utils/prompts.dart';
 import 'package:botsdock/apps/chat/views/spirit_cat.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
+import 'package:botsdock/l10n/gallery_localizations.dart';
 
 import '../models/pages.dart';
 import '../models/user.dart';

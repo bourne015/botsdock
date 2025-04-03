@@ -7,7 +7,7 @@ import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
+import 'package:botsdock/l10n/gallery_localizations.dart';
 
 import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:botsdock/apps/chat/utils/custom_widget.dart';

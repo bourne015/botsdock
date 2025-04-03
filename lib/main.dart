@@ -6,7 +6,7 @@ import 'package:dual_screen/dual_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
-import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
+import 'package:botsdock/l10n/gallery_localizations.dart';
 import 'package:botsdock/constants.dart';
 import 'package:botsdock/data/gallery_options.dart';
 import 'package:botsdock/routes.dart';

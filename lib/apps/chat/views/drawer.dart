@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:botsdock/apps/chat/main.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
+import 'package:botsdock/l10n/gallery_localizations.dart';
 
 import 'package:botsdock/apps/chat/models/chat.dart';
 import 'package:botsdock/apps/chat/vendor/assistants_api.dart';

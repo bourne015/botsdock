@@ -9,7 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
-import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
+import 'package:botsdock/l10n/gallery_localizations.dart';
 
 import 'package:botsdock/apps/chat/models/bot.dart';
 import "package:botsdock/apps/chat/utils/constants.dart";

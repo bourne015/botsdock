@@ -5,7 +5,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
+import 'package:botsdock/l10n/gallery_localizations.dart';
 import 'package:botsdock/constants.dart';
 import 'package:botsdock/data/demos.dart';
 import 'package:botsdock/data/gallery_options.dart';
