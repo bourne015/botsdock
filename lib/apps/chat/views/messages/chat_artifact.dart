@@ -1,7 +1,8 @@
 import 'package:botsdock/apps/chat/utils/constants.dart';
+import 'package:botsdock/apps/chat/views/messages/htmlcontent.dart';
+import 'package:flutter/foundation.dart';
 import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/views/messages/common.dart';
-import 'package:botsdock/apps/chat/views/messages/htmlcontent.dart';
 import 'package:flutter/material.dart';
 
 class ChatArtifactMessage extends StatefulWidget {
@@ -32,12 +33,7 @@ class ChatArtifactMessageState extends State<ChatArtifactMessage> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.function["type"] == null ||
-        !supportedContentType.contains(widget.function["type"].toLowerCase())) {
-      // return SelectableText(
-      //   func["type"] + func["content"],
-      //   style: const TextStyle(fontSize: 16.0, color: AppColors.msgText),
-      // );
+    if (widget.function["type"] == null) {
       Logger.warn(
           "Artifact err: ct: ${widget.function["content"]}, type:${widget.function["type"]}");
       return contentMarkdown(context, widget.function["content"] ?? "");

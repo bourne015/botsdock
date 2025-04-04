@@ -1,13 +1,13 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:dual_screen/dual_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import "package:botsdock/apps/chat/utils/implement_mobile.dart"
+    if (kIsWeb) 'package:botsdock/apps/chat/utils/implement_web.dart';
 import 'dart:async';
-import 'package:web/web.dart' as web;
-import 'dart:js_interop';
 
 import '../models/data.dart';
 
@@ -84,21 +84,9 @@ Future<String> getVersionNumber() async {
 }
 
 void downloadImage({String? fileName, String? fileUrl, Uint8List? imageData}) {
-  String url;
-  if (fileUrl != null) {
-    url = fileUrl;
-    debugPrint("download from url: $url");
-  } else if (imageData != null) {
-    final blob = web.Blob([imageData.toJS].toJS);
-    url = web.URL.createObjectURL(blob as JSObject);
-    debugPrint("download from asset");
-  } else {
-    debugPrint("empty image to download");
-    return;
-  }
-  web.HTMLAnchorElement()
-    ..href = url
-    ..setAttribute('download', fileName ?? 'ai')
-    ..click();
-  if (imageData != null) web.URL.revokeObjectURL(url);
+  downloadImageFile(
+    fileName: fileName,
+    fileUrl: fileUrl,
+    imageData: imageData,
+  );
 }

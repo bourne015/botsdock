@@ -6,6 +6,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:botsdock/apps/chat/main.dart';
 import 'package:provider/provider.dart';
 import 'package:botsdock/l10n/gallery_localizations.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 import 'package:botsdock/apps/chat/models/chat.dart';
 import 'package:botsdock/apps/chat/vendor/assistants_api.dart';
@@ -27,29 +28,31 @@ class ChatDrawerState extends State<ChatDrawer> {
   @override
   Widget build(BuildContext context) {
     Property property = Provider.of<Property>(context);
-    return Drawer(
-      width: DRAWERWIDTH,
-      // backgroundColor: AppColors.drawerBackground,
-      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-      shape: isDisplayDesktop(context)
-          ? RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero,
-            )
-          : null,
-      child: LayoutBuilder(builder: (context, constraints) {
-        return Column(
-          children: [
-            const _DrawerHeader(),
-            property.isLoading
-                ? const Expanded(
-                    child: SpinKitThreeBounce(
-                        color: AppColors.generatingAnimation,
-                        size: AppSize.generatingAnimation))
-                : const ChatPageList(),
-            const _DrawerFooter(),
-          ],
-        );
-      }),
+    return PointerInterceptor(
+      child: Drawer(
+        width: DRAWERWIDTH,
+        // backgroundColor: AppColors.drawerBackground,
+        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+        shape: isDisplayDesktop(context)
+            ? RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              )
+            : null,
+        child: LayoutBuilder(builder: (context, constraints) {
+          return Column(
+            children: [
+              const _DrawerHeader(),
+              property.isLoading
+                  ? const Expanded(
+                      child: SpinKitThreeBounce(
+                          color: AppColors.generatingAnimation,
+                          size: AppSize.generatingAnimation))
+                  : const ChatPageList(),
+              const _DrawerFooter(),
+            ],
+          );
+        }),
+      ),
     );
   }
 }
