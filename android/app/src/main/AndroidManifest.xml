@@ -7,7 +7,7 @@
   <application
       android:name="io.flutter.embedding.android.FlutterPlayStoreSplitApplication"
       android:icon="@mipmap/ic_launcher"
-      android:label="Flutter Gallery">
+      android:label="Bots Dock">
     <activity
         android:name=".MainActivity"
         android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
