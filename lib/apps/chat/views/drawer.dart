@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
 import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:botsdock/apps/chat/main.dart';
@@ -45,8 +48,10 @@ class ChatDrawerState extends State<ChatDrawer> {
               property.isLoading
                   ? const Expanded(
                       child: SpinKitThreeBounce(
-                          color: AppColors.generatingAnimation,
-                          size: AppSize.generatingAnimation))
+                        color: AppColors.generatingAnimation,
+                        size: AppSize.generatingAnimation,
+                      ),
+                    )
                   : const ChatPageList(),
               const _DrawerFooter(),
             ],
@@ -65,10 +70,31 @@ class _DrawerHeader extends StatelessWidget {
         color: Theme.of(context).colorScheme.secondaryContainer,
         child: Column(
           children: [
-            newchatButton(context),
+            _head(context),
             botsCentre(context),
           ],
         ));
+  }
+
+  Widget _head(BuildContext context) {
+    return Row(
+      children: [
+        if (!kIsWeb &&
+            (Platform.isMacOS || Platform.isWindows || Platform.isLinux))
+          Container(
+            margin: EdgeInsets.only(left: 17),
+            child: IconButton(
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+              icon: Icon(Icons.home_outlined),
+            ),
+          ),
+        Expanded(
+          child: newchatButton(context),
+        ),
+      ],
+    );
   }
 
   Widget newchatButton(BuildContext context) {
