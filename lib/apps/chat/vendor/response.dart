@@ -14,19 +14,22 @@ class AIResponse {
   static void Openai(Pages pages, Property property, User user,
       int handlePageID, Map<String, dynamic> j) async {
     var res = openai.CreateChatCompletionStreamResponse.fromJson(j);
-    pages.getPage(handlePageID).appendMessage(
-          msg: res.choices[0].delta.content,
-          toolCalls: res.choices[0].delta.toolCalls,
-        );
 
-    if (res.choices[0].finishReason ==
-        openai.ChatCompletionFinishReason.toolCalls) {
-      await pages.getPage(handlePageID).handleOpenaiToolCall();
-      ChatAPI().submitText(pages, property, handlePageID, user);
-    }
-    if (res.choices[0].finishReason != null) {
-      pages.setPageGenerateStatus(handlePageID, false);
-      Logger.info("stoped: ${res.choices[0].finishReason}");
+    if (res.choices.isNotEmpty) {
+      pages.getPage(handlePageID).appendMessage(
+            msg: res.choices[0].delta.content,
+            toolCalls: res.choices[0].delta.toolCalls,
+          );
+
+      if (res.choices[0].finishReason ==
+          openai.ChatCompletionFinishReason.toolCalls) {
+        await pages.getPage(handlePageID).handleOpenaiToolCall();
+        ChatAPI().submitText(pages, property, handlePageID, user);
+      }
+      if (res.choices[0].finishReason != null) {
+        pages.setPageGenerateStatus(handlePageID, false);
+        Logger.info("stoped: ${res.choices[0].finishReason}");
+      }
     }
   }
 
@@ -186,20 +189,22 @@ class AIResponse {
   static void DeepSeek(Pages pages, Property property, User user,
       int handlePageID, Map<String, dynamic> j) async {
     var res = openai.CreateChatCompletionStreamResponse.fromJson(j);
-    pages.getPage(handlePageID).appendMessage(
-          msg: res.choices[0].delta.content,
-          reasoning_content: j["choices"][0]["delta"]["reasoning_content"] ??
-              null, //res.choices[0].delta.reasoning_content,
-          toolCalls: res.choices[0].delta.toolCalls,
-        );
+    if (res.choices.isNotEmpty) {
+      pages.getPage(handlePageID).appendMessage(
+            msg: res.choices[0].delta.content,
+            reasoning_content: j["choices"][0]["delta"]["reasoning_content"] ??
+                null, //res.choices[0].delta.reasoning_content,
+            toolCalls: res.choices[0].delta.toolCalls,
+          );
 
-    if (res.choices[0].finishReason ==
-        openai.ChatCompletionFinishReason.toolCalls) {
-      await pages.getPage(handlePageID).handleOpenaiToolCall();
-      ChatAPI().submitText(pages, property, handlePageID, user);
-    }
-    if (res.choices[0].finishReason != null) {
-      pages.setPageGenerateStatus(handlePageID, false);
+      if (res.choices[0].finishReason ==
+          openai.ChatCompletionFinishReason.toolCalls) {
+        await pages.getPage(handlePageID).handleOpenaiToolCall();
+        ChatAPI().submitText(pages, property, handlePageID, user);
+      }
+      if (res.choices[0].finishReason != null) {
+        pages.setPageGenerateStatus(handlePageID, false);
+      }
     }
   }
 
