@@ -75,6 +75,6 @@ flutter:
         - assets/images/bot/
         - assets/images/cat/
         - assets/env.conf
-        - assets/mermaid.min.js
+
   assets:
     - assets/images/chat/

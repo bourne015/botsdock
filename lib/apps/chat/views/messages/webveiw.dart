@@ -1,3 +1,4 @@
+import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -32,8 +33,6 @@ class HtmlContentWidget extends StatefulWidget {
 }
 
 class _HtmlContentWidgetState extends State<HtmlContentWidget> {
-  bool _isLoading = true;
-
   late double effectiveWidth;
   late double effectiveHeight;
 
@@ -89,6 +88,18 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
                   accessibilityIgnoresInvertColors: false,
                   supportZoom: true,
                 ),
+                onConsoleMessage: (controller, consoleMessage) {
+                  print("WebView Console: ${consoleMessage.message}");
+                },
+                onLoadStop: (controller, url) {
+                  Logger.info("WebView loaded");
+                },
+                onReceivedError: (controller, req, message) {
+                  Logger.info("WebView load error: ${message.description}");
+                  if (widget.onLoadError != null) {
+                    widget.onLoadError!(message.description);
+                  }
+                },
               ),
             ),
           ],
@@ -121,8 +132,8 @@ String _generateHtmlContent(
               // background-color: #f0f0f0;
             }
             .content-wrapper {
-              width: 100%;
-              height: 100%;
+              width: 90%;
+              height: 90%;
               // display: flex;
               justify-content: center;
               align-items: center;
@@ -158,10 +169,11 @@ String _generateHtmlContent(
   if (contentType == "mermaid") {
     return '''
         $baseHtml
-        <script src="/assets/assets/mermaid.min.js"></script>
+        <script src="https://unpkg.zhimg.com/mermaid@11.6.0/dist/mermaid.min.js"></script>
         <script>
           document.addEventListener("DOMContentLoaded", function() {
             try {
+              console.log("Initializing mermaid...");
               mermaid.initialize({
                 startOnLoad: true,
                 theme: '${mermaidTheme}',
@@ -169,6 +181,7 @@ String _generateHtmlContent(
               });
               mermaid.init(undefined, '.mermaid');
             } catch (error) {
+              console.error("Mermaid error:" + error);
               notifyParent('error:' + error.message);
             }
           });

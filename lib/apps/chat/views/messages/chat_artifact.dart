@@ -1,8 +1,7 @@
 import 'package:botsdock/apps/chat/utils/constants.dart';
-import 'package:botsdock/apps/chat/views/messages/htmlcontent.dart';
-import 'package:flutter/foundation.dart';
 import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/views/messages/common.dart';
+import 'package:botsdock/apps/chat/views/messages/webveiw.dart';
 import 'package:flutter/material.dart';
 
 class ChatArtifactMessage extends StatefulWidget {
