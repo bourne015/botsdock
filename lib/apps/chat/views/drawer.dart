@@ -1,19 +1,20 @@
+import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
+import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:botsdock/apps/chat/main.dart';
 import 'package:provider/provider.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
-import '../models/chat.dart';
-import '../vendor/assistants_api.dart';
-import '../utils/constants.dart';
-import '../utils/utils.dart';
-import '../models/pages.dart';
-import '../models/user.dart';
-import 'administrator.dart';
-import '../utils/global.dart';
+import 'package:botsdock/apps/chat/models/chat.dart';
+import 'package:botsdock/apps/chat/vendor/assistants_api.dart';
+import 'package:botsdock/apps/chat/utils/constants.dart';
+import 'package:botsdock/apps/chat/utils/utils.dart';
+import 'package:botsdock/apps/chat/models/pages.dart';
+import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/apps/chat/views/menu/administrator.dart';
+import 'package:botsdock/apps/chat/utils/global.dart';
 
 class ChatDrawer extends StatefulWidget {
   const ChatDrawer({super.key});
@@ -294,9 +295,8 @@ class _ChatPageTabState extends State<ChatPageTab> {
         property.onInitPage = true;
       }
       if (user.isLogedin) {
-        var chatdbUrl = USER_URL + "/" + "${user.id}" + "/chat/" + "$did";
-        var cres = await Dio().delete(chatdbUrl);
-        Global.deleteChat(user.id, did, cres.data["updated_at"]);
+        var cres = await DioClient().delete(ChatPath.chatDelete(user.id, did!));
+        Global.deleteChat(user.id, did, cres["updated_at"]);
       }
       for (var m in msgs) {
         m.visionFiles.forEach((_filename, _content) async {

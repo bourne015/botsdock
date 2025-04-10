@@ -1,8 +1,9 @@
 import 'dart:convert';
 
+import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
+import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
-import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,11 +11,11 @@ import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
-import '../models/bot.dart';
-import "../utils/constants.dart";
-import '../utils/custom_widget.dart';
-import '../utils/utils.dart';
-import '../vendor/assistants_api.dart';
+import 'package:botsdock/apps/chat/models/bot.dart';
+import "package:botsdock/apps/chat/utils/constants.dart";
+import 'package:botsdock/apps/chat/utils/custom_widget.dart';
+import 'package:botsdock/apps/chat/utils/utils.dart';
+import 'package:botsdock/apps/chat/vendor/assistants_api.dart';
 
 class CreateBot extends StatefulWidget {
   final User user;
@@ -48,7 +49,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   RestorableBool switchPublic = RestorableBool(true);
   RestorableBool switchFileSearch = RestorableBool(false);
   RestorableBool switchCodeInterpreter = RestorableBool(false);
-  final dio = Dio();
+  final dio = DioClient();
   final assistant = AssistantsAPI();
   String? _fileName;
   List<int>? _fileBytes;
@@ -340,9 +341,9 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   }
 
   Future<bool> saveToDB() async {
-    var _botsURL = BOT_URL;
+    var _botsURL = ChatPath.bot;
     try {
-      if (widget.bot != null) _botsURL = BOT_URL + "/${widget.bot!.id}";
+      if (widget.bot != null) _botsURL = ChatPath.botid(widget.bot!.id);
       var botData = {
         "model": _model,
         "name": _nameController.text,
@@ -360,14 +361,12 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
         "functions": functionsBody,
         "temperature": temperature,
       };
-      Response resp = await dio.post(_botsURL, data: botData);
-      if (resp.statusCode == 200) {
-        if (widget.bot != null)
-          widget.bots!.updateBot(resp.data, widget.bot!.id);
-        else
-          widget.bots!.addBot(widget.user.id, resp.data);
-        return true;
-      }
+      var botdata = await dio.post(_botsURL, data: botData);
+      if (widget.bot != null)
+        widget.bots!.updateBot(botdata, widget.bot!.id);
+      else
+        widget.bots!.addBot(widget.user.id, botdata);
+      return true;
     } catch (e) {
       debugPrint('saveToDB error: $e');
     }

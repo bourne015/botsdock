@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 
+import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:fetch_client/fetch_client.dart';
 import 'package:file_saver/file_saver.dart';
 
 import '../models/bot.dart';
@@ -14,7 +13,7 @@ import '../models/user.dart';
 import '../utils/constants.dart';
 
 class AssistantsAPI {
-  final dio = Dio();
+  final dio = DioClient();
 
   /**
    * upload file to backend
@@ -45,25 +44,22 @@ class AssistantsAPI {
    * download file from backend
    */
   Future<String> downloadFile(String file_id, String? file_name) async {
-    Response response;
+    var _data;
     try {
       var url = "${BASE_URL}/v1/assistant/files/${file_id}";
       var _param = {"file_name": file_name};
-      response = await dio.get(
+      _data = await dio.get(
         url,
         queryParameters: _param,
         options: Options(
           responseType: ResponseType.bytes,
         ),
       );
-      if (response.statusCode == 200) {
-        final Uint8List bytes = Uint8List.fromList(response.data);
-        await FileSaver.instance
-            .saveFile(name: file_name ?? file_id, bytes: bytes);
-        return "success";
-      } else {
-        print('Failed to download file: ${response}');
-      }
+
+      final Uint8List bytes = Uint8List.fromList(_data);
+      await FileSaver.instance
+          .saveFile(name: file_name ?? file_id, bytes: bytes);
+      return "success";
     } catch (error) {
       debugPrint('downloadFile from backend error: $error');
     }
@@ -80,8 +76,8 @@ class AssistantsAPI {
         return pfile.files.first.name;
       }).toList();
       var vs_data = {"vs_name": "", "files": files};
-      final response = await dio.post(url, data: vs_data);
-      if (response.statusCode == 200) return response.data["vs_id"];
+      final _data = await dio.post(url, data: vs_data);
+      return _data["vs_id"];
     } catch (error) {
       debugPrint('createVectorStore error: $error');
     }
@@ -98,8 +94,8 @@ class AssistantsAPI {
       'file_name': fileName,
     };
     try {
-      final response = await dio.post(url, queryParameters: vs_data);
-      if (response.statusCode == 200) return response.data["id"];
+      final _data = await dio.post(url, queryParameters: vs_data);
+      return _data["id"];
     } catch (error) {
       debugPrint('fileUpload error: $error');
     }
@@ -112,8 +108,8 @@ class AssistantsAPI {
   Future<bool> filedelete(fileID) async {
     var url = '${BASE_URL}/v1/assistant/files/${fileID}';
     try {
-      final response = await dio.delete(url);
-      if (response.statusCode == 200) return true;
+      await dio.delete(url);
+      return true;
     } catch (error) {
       debugPrint('filedelete error: $error');
     }
@@ -130,8 +126,8 @@ class AssistantsAPI {
       'file_name': fileName,
     };
     try {
-      final response = await dio.post(url, queryParameters: vs_data);
-      if (response.statusCode == 200) return response.data;
+      final _data = await dio.post(url, queryParameters: vs_data);
+      return _data;
     } catch (error) {
       debugPrint('vectorStoreFile error: $error');
     }
@@ -145,8 +141,8 @@ class AssistantsAPI {
     var url = '${BASE_URL}/v1/assistant/vs/${vid}/files/${fileID}';
 
     try {
-      final response = await dio.delete(url);
-      if (response.statusCode == 200) return true;
+      await dio.delete(url);
+      return true;
     } catch (error) {
       debugPrint('vectorStoreFileDelete error: $error');
     }
@@ -160,8 +156,8 @@ class AssistantsAPI {
     var url = '${BASE_URL}/v1/assistant/vs/${vid}';
 
     try {
-      final response = await dio.delete(url);
-      if (response.statusCode == 200) return true;
+      await dio.delete(url);
+      return true;
     } catch (error) {
       debugPrint('vectorStoreDelete error: $error');
     }
@@ -175,16 +171,13 @@ class AssistantsAPI {
     try {
       var vid = vectorStoreId.keys.first;
       var url = '${BASE_URL}/v1/assistant/vs/${vid}/files';
-      final response = await dio.get(url);
-      if (response.statusCode == 200) {
-        print("get files: ${response.data["files"]}");
-        //setState(() {
-        // vectoreStoreFiles = response.data["files"];
-        //});
-        return response.data["files"];
-      } else {
-        print("error: ${response.data["result"]}");
-      }
+      final _data = await dio.get(url);
+
+      print("get files: ${_data["files"]}");
+      //setState(() {
+      // vectoreStoreFiles = response.data["files"];
+      //});
+      return _data["files"];
     } catch (error) {
       print("error: $error");
     }
@@ -197,8 +190,8 @@ class AssistantsAPI {
   Future<String?> createThread() async {
     var url = '${BASE_URL}/v1/assistant/threads';
     try {
-      final response = await dio.post(url);
-      if (response.statusCode == 200) return response.data["id"];
+      final _data = await dio.post(url);
+      return _data["id"];
     } catch (error) {
       debugPrint('createThread error: $error');
     }
@@ -208,11 +201,8 @@ class AssistantsAPI {
   Future<bool> retriveThread(String thread_id) async {
     var url = '${BASE_URL}/v1/assistant/threads/${thread_id}';
     try {
-      var response = await dio.post(url);
-      if (response.statusCode == 200)
-        return true;
-      else
-        debugPrint('retriveThread ${thread_id} failed: ${response.data}');
+      await dio.post(url);
+      return true;
     } catch (e) {
       debugPrint('retriveThread error: $e');
     }
@@ -225,8 +215,8 @@ class AssistantsAPI {
   Future<bool> deleteThread(String thread_id) async {
     var url = '${BASE_URL}/v1/assistant/threads/${thread_id}';
     try {
-      final response = await dio.delete(url);
-      if (response.statusCode == 200) return true;
+      await dio.delete(url);
+      return true;
     } catch (error) {
       debugPrint('deleteThread error: $error');
     }
@@ -258,46 +248,5 @@ class AssistantsAPI {
     pages.getPage(handlePageID).botID = (bot != null ? bot.id : null);
     debugPrint("test bot: $bot, thread:$thread_id");
     return handlePageID;
-  }
-
-  Stream<String> SSE(
-    String url,
-    String method, {
-    Map<String, String>? headers,
-    String? body,
-  }) async* {
-    var request = http.Request(method, Uri.parse(url));
-    if (headers != null) request.headers.addAll(headers);
-    if (body != null) request.body = body;
-
-    var client;
-    if (kIsWeb)
-      client = FetchClient(mode: RequestMode.cors);
-    else
-      client = http.Client();
-    var response = await client.send(request);
-    var stream = response.stream.transform<String>(utf8.decoder);
-    final controller = StreamController<String>();
-
-    try {
-      stream.transform(const LineSplitter()).listen((String line) {
-        if (line.isNotEmpty) {
-          var data = line.substring(5).replaceFirst(' ', '');
-          data = data.length > 0 ? data : '\n';
-          controller.add(data);
-        }
-      }, onDone: () {
-        controller.close();
-        client.close();
-      }, onError: (error) {
-        controller.addError(error);
-        controller.close();
-        client.close();
-      });
-      yield* controller.stream;
-    } catch (e) {
-      controller.addError(e);
-      controller.close();
-    }
   }
 }

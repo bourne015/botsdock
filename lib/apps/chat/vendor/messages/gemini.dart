@@ -63,6 +63,29 @@ class GeminiPart3 {
       };
 }
 
+class GeminiFunctionResponse {
+  //The id of the function call this response is for
+  final String? id;
+  final String? name;
+
+  /// The function call raw response
+  final Map<String, dynamic>? response;
+
+  GeminiFunctionResponse({this.id, this.name, this.response});
+
+  factory GeminiFunctionResponse.fromJson(Map<String, dynamic> json) {
+    return GeminiFunctionResponse(
+      id: json["id"],
+      name: json["name"],
+      response: json["response"],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "function_response": {"id": id, "name": name, "response": response}
+      };
+}
+
 class GeminiData1 {
   String? mimeType;
   String? data;

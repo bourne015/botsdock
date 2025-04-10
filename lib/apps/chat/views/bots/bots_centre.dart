@@ -1,19 +1,20 @@
+import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
+import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
-import '../models/bot.dart';
+import 'package:botsdock/apps/chat/models/bot.dart';
 
-import '../models/pages.dart';
-import '../models/user.dart';
-import "../utils/constants.dart";
-import '../utils/custom_widget.dart';
-import '../utils/utils.dart';
-import './new_bot.dart';
-import '../vendor/assistants_api.dart';
+import 'package:botsdock/apps/chat/models/pages.dart';
+import 'package:botsdock/apps/chat/models/user.dart';
+import "package:botsdock/apps/chat/utils/constants.dart";
+import 'package:botsdock/apps/chat/utils/custom_widget.dart';
+import 'package:botsdock/apps/chat/utils/utils.dart';
+import 'package:botsdock/apps/chat/views/bots/new_bot.dart';
+import 'package:botsdock/apps/chat/vendor/assistants_api.dart';
 
 class BotsCentre extends StatefulWidget {
   const BotsCentre({
@@ -25,7 +26,6 @@ class BotsCentre extends StatefulWidget {
 }
 
 class BotsState extends State<BotsCentre> {
-  final dio = Dio();
   final ChatAPI chats = ChatAPI();
   var user_likes = [];
   var botsPublicMe = [];
@@ -135,13 +135,12 @@ class BotsState extends State<BotsCentre> {
   }
 
   void deleteBot(Bots bots, Bot bot) async {
-    var _delBotURL = BOT_URL + "/${bot.id}";
     var assistant_id;
     String? _avartar = bot.avatar;
     if (bot.assistant_id != null) assistant_id = bot.assistant_id!;
-    var resp = await Dio()
-        .delete(_delBotURL, queryParameters: {"assistant_id": assistant_id});
-    if (resp.data["result"] == "success") {
+    var resp = await DioClient().delete(ChatPath.botid(bot.id),
+        queryParameters: {"assistant_id": assistant_id});
+    if (resp["result"] == "success") {
       //setState(() {
       //widget.bots
       bots.deleteBot(bot.id);

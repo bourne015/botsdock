@@ -1,5 +1,6 @@
+import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
+import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
 
 class UsersManage extends StatefulWidget {
   const UsersManage();
@@ -9,10 +10,9 @@ class UsersManage extends StatefulWidget {
 }
 
 class _UsersManageState extends State<UsersManage> {
-  var dio = Dio();
+  final dio = DioClient();
   List users = [];
   final _chargecontroller = TextEditingController();
-  String userUrl = "https://botsdock.com:8443/v1/users";
 
   @override
   void initState() {
@@ -22,10 +22,10 @@ class _UsersManageState extends State<UsersManage> {
 
   Future<void> _initData() async {
     try {
-      var response = await dio.post(userUrl);
-      if (response.data["result"] == "success") {
+      var _data = await dio.post(ChatPath.allUsers);
+      if (_data["result"] == "success") {
         // setState(() {
-        users = response.data["users"];
+        users = _data["users"];
         // });
       }
     } catch (e) {
@@ -35,10 +35,10 @@ class _UsersManageState extends State<UsersManage> {
 
   Future _charge(int userID, double amount) async {
     try {
-      String chargeUrl = "https://botsdock.com:8443/v1/user/charge/$userID";
       var chargeData = {"account": amount};
-      var response = await dio.post(chargeUrl, queryParameters: chargeData);
-      if (response.data["result"] == "success") {
+      var _data =
+          await dio.post(ChatPath.charge(userID), queryParameters: chargeData);
+      if (_data["result"] == "success") {
         setState(() {
           _initData();
         });

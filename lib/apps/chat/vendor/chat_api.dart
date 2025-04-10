@@ -220,6 +220,15 @@ class ChatAPI {
     await updateCredit(user);
   }
 
+  void _cleanupSubscription(Pages page, int handlePageID) {
+    int _subscriptionLen = page.getPage(handlePageID).streamSubscription.length;
+    for (int i = 1; i < _subscriptionLen; i++) {
+      Logger.info("cancel streamSubscription: $i");
+      page.getPage(handlePageID).streamSubscription[0].cancel();
+      page.getPage(handlePageID).streamSubscription.removeAt(0);
+    }
+  }
+
   void submitText(
     Pages pages,
     Property property,
@@ -254,7 +263,7 @@ class ChatAPI {
         );
         _initializeAssistantMessage(pages, handlePageID);
         pages.setPageGenerateStatus(handlePageID, true);
-        pages.getPage(handlePageID).streamSubscription = stream.listen(
+        var _streamSubscription = stream.listen(
           (String? data) async {
             await _handleChatStream(pages, handlePageID, property, user, data);
           },
@@ -263,15 +272,18 @@ class ChatAPI {
             // if (pages.getPage(handlePageID).streamSubscription != null)
             //   pages.getPage(handlePageID).streamSubscription!.cancel();
             // pages.getPage(handlePageID).streamSubscription = null;
+            _cleanupSubscription(pages, handlePageID);
           },
           onDone: () async {
             await _onStreamDone(pages, handlePageID, user);
             // if (pages.getPage(handlePageID).streamSubscription != null)
             //   pages.getPage(handlePageID).streamSubscription!.cancel();
             // pages.getPage(handlePageID).streamSubscription = null;
+            _cleanupSubscription(pages, handlePageID);
           },
           cancelOnError: true,
         );
+        pages.getPage(handlePageID).streamSubscription.add(_streamSubscription);
       }
     } catch (e, s) {
       Logger.error("gen error: $e, $s");
@@ -290,9 +302,6 @@ class ChatAPI {
     var threadId = pages.getPage(handlePageID).threadID;
 
     try {
-      if (pages.getPage(handlePageID).streamSubscription != null)
-        pages.getPage(handlePageID).streamSubscription!.cancel();
-
       final stream = HttpClient.CreateAssistantStream(
         baseUrl: ChatPath.base,
         path: ChatPath.asstMessages(assistantId!, threadId!),
@@ -302,14 +311,21 @@ class ChatAPI {
 
       _initializeAssistantMessage(pages, handlePageID);
       pages.setPageGenerateStatus(handlePageID, true);
-      pages.getPage(handlePageID).streamSubscription = stream.listen(
+      var _streamSubscription = stream.listen(
         (event) {
           AIResponse.openaiAssistant(pages, handlePageID, event);
         },
-        onError: (e) => _onStreamError(pages, handlePageID, e),
-        onDone: () => _onStreamDone(pages, handlePageID, user),
+        onError: (e) async {
+          _onStreamError(pages, handlePageID, e);
+          _cleanupSubscription(pages, handlePageID);
+        },
+        onDone: () async {
+          _onStreamDone(pages, handlePageID, user);
+          _cleanupSubscription(pages, handlePageID);
+        },
         cancelOnError: true,
       );
+      pages.getPage(handlePageID).streamSubscription.add(_streamSubscription);
     } catch (e) {
       Logger.error("gen error: $e");
       pages.setGeneratingState(handlePageID, false);

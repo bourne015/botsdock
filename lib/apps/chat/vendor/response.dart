@@ -1,7 +1,6 @@
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/models/pages.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
-import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
@@ -128,10 +127,9 @@ class AIResponse {
         contentBlockStart:
             (anthropic.Block b, int i, anthropic.MessageStreamEventType t) {
           if (b.type == "tool_use") {
-            // add an empty msg in content
-            pages.getPage(handlePageID).addMessage(
-                  role: MessageTRole.assistant,
-                  toolUse: b.mapOrNull(
+            pages.getPage(handlePageID).addMessageContent(
+                  b.mapOrNull(
+                    text: (x) => TextContent(text: x.text),
                     toolUse: (x) => anthropic.ToolUseBlock(
                       id: x.id,
                       name: x.name,
@@ -139,6 +137,17 @@ class AIResponse {
                     ),
                   ),
                 );
+            // add an empty msg in content
+            // pages.getPage(handlePageID).addMessage(
+            //       role: MessageTRole.assistant,
+            //       toolUse: b.mapOrNull(
+            //         toolUse: (x) => anthropic.ToolUseBlock(
+            //           id: x.id,
+            //           name: x.name,
+            //           input: x.input,
+            //         ),
+            //       ),
+            //     );
           }
         },
         contentBlockDelta: (anthropic.BlockDelta b, int i,
@@ -175,7 +184,7 @@ class AIResponse {
   }
 
   static void DeepSeek(Pages pages, Property property, User user,
-      int handlePageID, Map<String, dynamic> j) {
+      int handlePageID, Map<String, dynamic> j) async {
     var res = openai.CreateChatCompletionStreamResponse.fromJson(j);
     pages.getPage(handlePageID).appendMessage(
           msg: res.choices[0].delta.content,
@@ -186,7 +195,7 @@ class AIResponse {
 
     if (res.choices[0].finishReason ==
         openai.ChatCompletionFinishReason.toolCalls) {
-      pages.getPage(handlePageID).handleOpenaiToolCall();
+      await pages.getPage(handlePageID).handleOpenaiToolCall();
       ChatAPI().submitText(pages, property, handlePageID, user);
     }
     if (res.choices[0].finishReason != null) {
@@ -195,13 +204,16 @@ class AIResponse {
   }
 
   static void Gemini(Pages pages, Property property, User user,
-      int handlePageID, Map<String, dynamic> j) {
+      int handlePageID, Map<String, dynamic> j) async {
     var res = gemini.parseGenerateContentResponse(j);
     pages.getPage(handlePageID).appendMessage(msg: res.text);
 
     //gemini function call response is one time, not stream
-    if (res.functionCalls.isNotEmpty) {
-      pages.getPage(handlePageID).handleGeminiToolCall(res.functionCalls.first);
+    if (res.functionCalls.isNotEmpty && res.functionCalls.isNotEmpty) {
+      await pages
+          .getPage(handlePageID)
+          .handleGeminiToolCall(res.functionCalls.first);
+      ChatAPI().submitText(pages, property, handlePageID, user);
       // pages.getPage(handlePageID).addMessage(
       //       role: MessageTRole.tool,
       //       text: "function response",

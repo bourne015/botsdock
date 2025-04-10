@@ -1,7 +1,7 @@
 import 'package:botsdock/apps/chat/views/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:botsdock/apps/chat/views/bots_centre.dart';
+import 'package:botsdock/apps/chat/views/bots/bots_centre.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';

@@ -1,4 +1,5 @@
-import 'package:dio/dio.dart';
+import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
+import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/constants.dart';
@@ -9,32 +10,32 @@ class Bots with ChangeNotifier {
   List<Bot> get bots => _bots;
   List<Bot> _bots_public = [];
   List<Bot> get bots_public => _bots_public;
-  final dio = Dio();
+  final dio = DioClient();
 
   Future<void> fetchBots(int? user_id) async {
-    final responseSh = await dio.get('${BASE_URL}/v1/shares');
-    if (Global.botsCheck(responseSh.data["bot_updated"])) {
-      if (_bots.isEmpty) {
-        debugPrint("restore from local");
-        restoreBots(bots);
-        if (_bots_public.isEmpty) classify(user_id: user_id);
-        return;
+    try {
+      final _data = await dio.get(ChatPath.share);
+      if (Global.botsCheck(_data["bot_updated"])) {
+        if (_bots.isEmpty) {
+          debugPrint("restore from local");
+          restoreBots(bots);
+          if (_bots_public.isEmpty) classify(user_id: user_id);
+          return;
+        }
+        if (_bots.isNotEmpty) {
+          debugPrint("no need restore data");
+          if (_bots_public.isEmpty) classify(user_id: user_id);
+          return;
+        }
       }
-      if (_bots.isNotEmpty) {
-        debugPrint("no need restore data");
-        if (_bots_public.isEmpty) classify(user_id: user_id);
-        return;
-      }
-    }
-    debugPrint("need update from db");
-    final response = await dio.post('${BASE_URL}/v1/bot/bots');
-    if (response.statusCode == 200) {
-      List<dynamic> data = response.data["bots"];
+      debugPrint("need update from db");
+      final resp = await dio.post(ChatPath.bots);
+      List<dynamic> data = resp["bots"];
       _bots = data.map((item) => Bot.fromJson(item)).toList();
       notifyListeners();
-      cacheBots(response.data["date"]);
+      cacheBots(resp["date"]);
       classify(user_id: user_id);
-    } else {
+    } catch (e) {
       throw Exception('Failed to load bots');
     }
   }

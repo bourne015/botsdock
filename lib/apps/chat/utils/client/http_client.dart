@@ -84,9 +84,9 @@ class HttpClient {
       );
       // Handle user response middleware
       response = await onStreamedResponse(response);
-    } catch (e) {
+    } catch (e, s) {
       // Handle request and response errors
-      throw Exception('_request error');
+      throw Exception('_request error: $e, stack: $s');
     }
 
     // Check for successful response

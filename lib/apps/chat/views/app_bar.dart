@@ -93,7 +93,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
           child: Icon(null, color: Colors.blue[700])),
     ];
     if (!property.onInitPage &&
-        !DeepSeekModel.all.contains(pages.currentPage?.model)) {
+        pages.currentPage!.model != DeepSeekModel.dc_r) {
       if (pages.currentPage!.artifact && pages.currentPage!.internet)
         res = [
           Container(
@@ -139,14 +139,12 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
           },
         ),
         PopupMenuDivider(),
-        if (!DeepSeekModel.all.contains(pages.currentPage?.model))
+        if (pages.currentPage!.model != DeepSeekModel.dc_r)
           _buildArtifactSwitch(context),
-        if (!DeepSeekModel.all.contains(pages.currentPage?.model))
-          PopupMenuDivider(),
-        if (!DeepSeekModel.all.contains(pages.currentPage?.model))
+        if (pages.currentPage!.model != DeepSeekModel.dc_r) PopupMenuDivider(),
+        if (pages.currentPage!.model != DeepSeekModel.dc_r)
           _buildInternetSwitch(context),
-        if (!DeepSeekModel.all.contains(pages.currentPage?.model))
-          PopupMenuDivider(),
+        if (pages.currentPage!.model != DeepSeekModel.dc_r) PopupMenuDivider(),
         _buildtemperatureSlide(context),
       ],
     );

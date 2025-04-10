@@ -2,19 +2,21 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:botsdock/apps/chat/models/settings.dart';
+import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
+import 'package:botsdock/apps/chat/utils/client/path.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
 
-import '../utils/constants.dart';
-import '../utils/custom_widget.dart';
-import '../utils/utils.dart';
-import '../models/user.dart';
-import '../models/pages.dart';
-import '../utils/global.dart';
-import './user_info.dart';
-import './settings_view.dart';
+import 'package:botsdock/apps/chat/utils/constants.dart';
+import 'package:botsdock/apps/chat/utils/custom_widget.dart';
+import 'package:botsdock/apps/chat/utils/utils.dart';
+import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/apps/chat/models/pages.dart';
+import 'package:botsdock/apps/chat/utils/global.dart';
+import 'package:botsdock/apps/chat/views/menu/user_info.dart';
+import 'package:botsdock/apps/chat/views/menu/settings_view.dart';
 
 class Administrator extends StatelessWidget {
   Administrator({Key? key}) : super(key: key);
@@ -25,7 +27,7 @@ class Administrator extends StatelessWidget {
   final _pwdconfirmcontroller = TextEditingController();
   final _newBotController1 = TextEditingController();
   final _newBotController2 = TextEditingController();
-  final dio = Dio();
+  final dio = DioClient();
   final Random random = Random();
   final GlobalKey _signInformKey = GlobalKey<FormState>();
   final GlobalKey _signUpformKey = GlobalKey<FormState>();
@@ -485,7 +487,7 @@ class Administrator extends StatelessWidget {
 
   Future<String?> checkSingUp(User user) async {
     int avatarNum = random.nextInt(15);
-    Response response;
+    var _data;
     try {
       var userdata = {
         "name": user.name,
@@ -497,10 +499,10 @@ class Administrator extends StatelessWidget {
         "pwd": _pwdcontroller.text,
         "settings": Settings().toJson(),
       };
-      response = await dio.post(USER_URL, data: userdata);
-      if (response.data["result"] == 'success') {
+      _data = await dio.post(ChatPath.user, data: userdata);
+      if (_data["result"] == 'success') {
         user.signUP = true;
-        user.id = response.data["id"];
+        user.id = _data["id"];
         user.avatar = avatarImages[avatarNum];
         user.avatar_bot = defaultUserBotAvatar;
       } else {
@@ -509,35 +511,34 @@ class Administrator extends StatelessWidget {
     } catch (e) {
       return e.toString();
     }
-    return response.data["result"];
+    return _data["result"];
   }
 
   Future<String?> checkLogin(User user) async {
-    var url = USER_URL + "/login";
-    Response response;
+    var _data;
     try {
       var userdata = {
         "username": _emailcontroller.text,
         "password": _pwdcontroller.text
       };
-      response = await dio.post(
-        url,
+      _data = await dio.post(
+        ChatPath.login,
         data: userdata,
         options: Options(
           contentType: 'application/x-www-form-urlencoded',
         ),
       );
-      if (response.data["result"] == 'success') {
-        user.id = response.data["id"];
-        user.name = response.data["name"];
-        user.email = response.data["email"];
-        user.phone = response.data["phone"];
-        user.avatar = response.data["avatar"];
-        user.avatar_bot = response.data["avatar_bot"];
-        user.credit = response.data["credit"];
-        user.updated_at = response.data["updated_at"];
+      if (_data["result"] == 'success') {
+        user.id = _data["id"];
+        user.name = _data["name"];
+        user.email = _data["email"];
+        user.phone = _data["phone"];
+        user.avatar = _data["avatar"];
+        user.avatar_bot = _data["avatar_bot"];
+        user.credit = _data["credit"];
+        user.updated_at = _data["updated_at"];
         user.isLogedin = true;
-        user.settings = Settings.fromJson(response.data["settings"] ?? {});
+        user.settings = Settings.fromJson(_data["settings"] ?? {});
       } else {
         user.isLogedin = false;
       }
@@ -545,6 +546,6 @@ class Administrator extends StatelessWidget {
       user.isLogedin = false;
       return e.toString();
     }
-    return response.data["result"];
+    return _data["result"];
   }
 }

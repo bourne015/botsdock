@@ -46,7 +46,6 @@ class Functions {
     "name": "save_artifact",
     "description":
         "Saves the current state of a working artifact for preview. Call this tool when you've created or significantly updated content that should be preserved, such as HTML pages, SVG or Mermaid diagrams. Prioritize using SVG, prioritize cartoon style. save all file into one single file for rendering.",
-    "strict": false,
     "parameters": {
       "type": "object",
       "properties": {
@@ -73,7 +72,7 @@ class Functions {
   static Map<String, dynamic> web_search = {
     "name": "google_search",
     "description":
-        "search information from internet. Call this tool when you need realtime information",
+        "search information from internet. only call this tool when you need realtime information or there's something that you unfamiliar with.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -92,7 +91,7 @@ class Functions {
 
   static Map<String, dynamic> webpage_fetch = {
     "name": "webpage_fetch",
-    "description": "从指定URL获取网页内容",
+    "description": "从指定URL或链接获取网页内容, 当你需要从特定的网址获取信息时，调用此工具",
     "parameters": {
       "type": "object",
       "properties": {
