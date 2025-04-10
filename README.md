@@ -2,8 +2,22 @@
 
 A project integrated models from OpenAI and Claude, based on [Flutter Gallery](https://github.com/flutter/gallery) for first page.
 
-this repo is the UI part, and depends on [chat](https://github.com/bourne015/chat) backend.
+Frontend developed based on Flutter, and depends on [chat](https://github.com/bourne015/chat) backend.
 
+**Home Page: [botsdock](https://botsdock.com)**
+
+### supported model
+ - GPT
+ - Claude
+ - Gemini
+ - Deepseek
+
+### supported platform
+ - Web
+ - Macos
+ - IOS
+ - Windows (untested)
+ - Linux (untested)
 
 ### Running
 
@@ -15,7 +29,7 @@ flutter run -d chrome
 
 ### build
 ```bash
-flutter build web --release --pwa-strategy none --web-renderer=canvaskit
+flutter build web --release --pwa-strategy none
 ```
 ### UI
 <p align="center">
