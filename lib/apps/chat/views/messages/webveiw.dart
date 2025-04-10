@@ -1,4 +1,5 @@
 import 'package:botsdock/apps/chat/utils/logger.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -10,10 +11,6 @@ class HtmlContentWidget extends StatefulWidget {
   final double? width;
   final double? height;
   final String mermaidTheme;
-  final Widget? loadingWidget;
-  final Duration loadingTimeout;
-  final Function()? onLoadComplete;
-  final Function(String)? onLoadError;
 
   const HtmlContentWidget({
     Key? key,
@@ -22,10 +19,6 @@ class HtmlContentWidget extends StatefulWidget {
     this.width = 400,
     this.height = 300,
     this.mermaidTheme = 'default',
-    this.loadingWidget,
-    this.loadingTimeout = const Duration(seconds: 30),
-    this.onLoadComplete,
-    this.onLoadError,
   }) : super(key: key);
 
   @override
@@ -35,6 +28,7 @@ class HtmlContentWidget extends StatefulWidget {
 class _HtmlContentWidgetState extends State<HtmlContentWidget> {
   late double effectiveWidth;
   late double effectiveHeight;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -48,6 +42,8 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         effectiveWidth = widget.width?.clamp(0.0, constraints.maxWidth) ??
@@ -56,6 +52,7 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
             constraints.maxHeight.clamp(0.0, 800.0);
 
         return Stack(
+          alignment: AlignmentDirectional.center,
           children: [
             AnimatedContainer(
               duration: Duration(milliseconds: 400),
@@ -80,6 +77,7 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
                     widget.contentType,
                     effectiveWidth: effectiveWidth,
                     effectiveHeight: effectiveHeight,
+                    isDarkMode: isDarkMode,
                   ),
                   // mimeType: 'text/html',
                   encoding: 'utf8',
@@ -88,23 +86,57 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
                   accessibilityIgnoresInvertColors: false,
                   supportZoom: true,
                 ),
-                onConsoleMessage: (controller, consoleMessage) {
-                  print("WebView Console: ${consoleMessage.message}");
+                onLoadStart: (controller, url) {
+                  _loadingStatus(true);
+                  Logger.info("WebView load start");
+                },
+                onWebViewCreated: (controller) {
+                  Logger.info("WebView created");
                 },
                 onLoadStop: (controller, url) {
+                  // Future.delayed(Duration(milliseconds: 200), () {
+                  _loadingStatus(false);
+                  // });
                   Logger.info("WebView loaded");
                 },
                 onReceivedError: (controller, req, message) {
                   Logger.info("WebView load error: ${message.description}");
-                  if (widget.onLoadError != null) {
-                    widget.onLoadError!(message.description);
-                  }
+                  _loadingStatus(false);
+                },
+                onConsoleMessage: (controller, consoleMessage) {
+                  Logger.info("WebView Console: ${consoleMessage.message}");
                 },
               ),
             ),
+            if (!kIsWeb && widget.contentType == "mermaid" && _isLoading)
+              _loadingContent(),
           ],
         );
       },
+    );
+  }
+
+  void _loadingStatus(bool loading) {
+    setState(() {
+      _isLoading = loading;
+    });
+  }
+
+  Widget _loadingContent() {
+    return Container(
+      // padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.transparent, //Colors.white.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        // mainAxisSize: MainAxisSize.min,
+        children: const [
+          CircularProgressIndicator(strokeWidth: 4.0),
+          SizedBox(height: 10),
+          Text('Loading...', style: TextStyle(color: Colors.black54)),
+        ],
+      ),
     );
   }
 }
@@ -115,6 +147,7 @@ String _generateHtmlContent(
   String mermaidTheme = "default",
   double? effectiveWidth,
   double? effectiveHeight,
+  bool isDarkMode = false,
 }) {
   final baseHtml = '''
       <!DOCTYPE html>
@@ -129,8 +162,21 @@ String _generateHtmlContent(
               // display: flex;
               justify-content: center;
               align-items: center;
-              // background-color: #f0f0f0;
+              background-color: var(--background-color); /* 使用 CSS 变量 */
+              color: var(--text-color);
             }
+            /* 定义浅色模式和深色模式的 CSS 变量 */
+            :root {
+              --background-color: #FAFBFB; /* 浅色模式背景 */
+              --text-color: #000000; /* 浅色模式文字 */
+            }
+
+            /* 深色模式 */
+            body.dark-mode {
+              --background-color: #292a2f; /* 深色模式背景 */
+              --text-color: #ffffff; /* 深色模式文字 */
+            }
+
             .content-wrapper {
               width: 90%;
               height: 90%;
@@ -165,7 +211,7 @@ String _generateHtmlContent(
             });
           </script>
     ''';
-
+  final bodyClass = isDarkMode ? 'dark-mode' : '';
   if (contentType == "mermaid") {
     return '''
         $baseHtml
@@ -179,7 +225,13 @@ String _generateHtmlContent(
                 theme: '${mermaidTheme}',
                 securityLevel: 'loose'
               });
-              mermaid.init(undefined, '.mermaid');
+              mermaid.init(undefined, '.mermaid').then(function() {
+                console.log("Mermaid rendering complete");
+                notifyParent('loaded');
+              }).catch(function(error) {
+                console.error("Mermaid rendering error:", error);
+                notifyParent('error:' + error.message);
+              });
             } catch (error) {
               console.error("Mermaid error:" + error);
               notifyParent('error:' + error.message);
@@ -187,7 +239,7 @@ String _generateHtmlContent(
           });
         </script>
         </head>
-        <body>
+        <body  class="$bodyClass">
           <div class="content-wrapper">
             <div class="mermaid">
               ${_sanitizeHtml(content, contentType)}
@@ -204,7 +256,7 @@ String _generateHtmlContent(
             try {
               const svgElement = document.querySelector('svg');
               if (svgElement) {
-                svgElement.style.backgroundColor = '#ffffff';
+                svgElement.style.backgroundColor = 'transparent';
               }
             } catch (error) {
               notifyParent('error:' + error.message);
@@ -212,7 +264,7 @@ String _generateHtmlContent(
           });
         </script>
         </head>
-        <body>
+        <body  class="$bodyClass">
           <div class="content-wrapper">
             ${_sanitizeHtml(content, contentType)}
           </div>
@@ -223,7 +275,7 @@ String _generateHtmlContent(
     return '''
         $baseHtml
         </head>
-        <body>
+        <body  class="$bodyClass">
           <div class="content-wrapper">
             ${_sanitizeHtml(content, contentType)}
           </div>
