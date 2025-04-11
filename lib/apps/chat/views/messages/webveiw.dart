@@ -1,5 +1,4 @@
 import 'package:botsdock/apps/chat/utils/logger.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -87,11 +86,11 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
                   supportZoom: true,
                 ),
                 onLoadStart: (controller, url) {
-                  _loadingStatus(true);
                   Logger.info("WebView load start");
                 },
                 onWebViewCreated: (controller) {
                   Logger.info("WebView created");
+                  _loadingStatus(true);
                 },
                 onLoadStop: (controller, url) {
                   // Future.delayed(Duration(milliseconds: 200), () {
@@ -108,7 +107,7 @@ class _HtmlContentWidgetState extends State<HtmlContentWidget> {
                 },
               ),
             ),
-            if (!kIsWeb && widget.contentType == "mermaid" && _isLoading)
+            if (widget.contentType == "mermaid" && _isLoading)
               _loadingContent(),
           ],
         );
