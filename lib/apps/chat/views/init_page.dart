@@ -47,7 +47,7 @@ class InitPageState extends State<InitPage> {
         org: Models.getOrganizationModels(org)
             .map((x) => _PopupMenuModelItem(
                   value: x,
-                  inputType: x.isTextOnly ? "仅文本" : "多模态",
+                  price: x.price,
                   modelName: x.name,
                 ))
             .toList()
@@ -223,7 +223,9 @@ class InitPageState extends State<InitPage> {
     });
   }
 
-  Widget inputTypeIcon(String inputs, bool selected) {
+  Widget inputTypeIcon(Map<String, double> price, bool selected) {
+    String _inputPrice = price["input"]!.toStringAsFixed(2);
+    String _outputPrice = price["output"]!.toStringAsFixed(2);
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
@@ -241,30 +243,44 @@ class InitPageState extends State<InitPage> {
         ),
       ),
       child: CircleAvatar(
-        radius: 14,
-        backgroundColor: Colors.transparent, // 使用渐变背景
-        child: Text(
-          inputs,
-          style: TextStyle(
-            fontSize: 7,
-            fontWeight: FontWeight.w400,
-            color: Colors.white,
-            shadows: [
-              Shadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 2,
-                offset: const Offset(1, 1),
-              )
+          radius: 14,
+          backgroundColor: Colors.transparent, // 使用渐变背景
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (price["input"] != 0)
+                Text("\$$_inputPrice",
+                    style: TextStyle(fontSize: 6.0, color: Colors.white)),
+              if (price["output"] != 0)
+                Text("\$$_outputPrice",
+                    style: TextStyle(fontSize: 6.0, color: Colors.white)),
+              if (price["input"] == 0 && price["output"] == 0)
+                Text("free",
+                    style: TextStyle(fontSize: 7.5, color: Colors.white)),
             ],
+          )
+          // Text(
+          //   inputs,
+          //   style: TextStyle(
+          //     fontSize: 7,
+          //     fontWeight: FontWeight.w400,
+          //     color: Colors.white,
+          //     shadows: [
+          //       Shadow(
+          //         color: Colors.black.withValues(alpha: 0.2),
+          //         blurRadius: 2,
+          //         offset: const Offset(1, 1),
+          //       )
+          //     ],
+          //   ),
+          // ),
           ),
-        ),
-      ),
     );
   }
 
   PopupMenuItem<AIModel> _PopupMenuModelItem({
     required AIModel value,
-    required String inputType,
+    required Map<String, double> price,
     required String modelName,
   }) {
     bool isSelected = currentModels[value.organization] == value;
@@ -289,7 +305,7 @@ class InitPageState extends State<InitPage> {
             //onHover: (hovering) {},
             child: ListTile(
               contentPadding: EdgeInsets.symmetric(horizontal: 5),
-              leading: inputTypeIcon(inputType, isSelected),
+              leading: inputTypeIcon(price, isSelected),
               title: Text(modelName, overflow: TextOverflow.ellipsis),
               subtitle: Container(
                   width: 150,
@@ -298,7 +314,7 @@ class InitPageState extends State<InitPage> {
                     lineHeight: 12,
                     padding: EdgeInsets.all(0),
                     animation: true,
-                    animationDuration: 800,
+                    animationDuration: 1000,
                     barRadius: Radius.circular(5.0),
                     percent: value.score / 100,
                     center: Text(

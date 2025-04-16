@@ -36,8 +36,9 @@ class AIModel {
   final Organization organization;
   final bool isDefault; //default model in its org
   final bool visibleInUI;
-  final bool isTextOnly; //only support text input
+  final String modelType; //modalities
   final double score; // Global average data from https://livebench.ai/
+  final Map<String, double> price;
 
   const AIModel({
     required this.id,
@@ -46,8 +47,9 @@ class AIModel {
     required this.organization,
     this.isDefault = false,
     this.visibleInUI = true,
-    this.isTextOnly = false,
+    this.modelType = "多模态",
     this.score = 0,
+    this.price = const {"input": 0, "output": 0},
   });
 }
 
@@ -59,7 +61,8 @@ class Models {
     abbrev: "3.5",
     organization: Organization.openai,
     visibleInUI: false,
-    isTextOnly: true,
+    price: {"input": 0.50, "output": 1.50},
+    modelType: "仅文本",
   );
   static const AIModel gpt40 = AIModel(
     id: "gpt-4-turbo",
@@ -67,13 +70,14 @@ class Models {
     abbrev: "4.0",
     organization: Organization.openai,
     visibleInUI: false,
+    price: {"input": 10.0, "output": 30.0},
   );
   static const AIModel gpt41 = AIModel(
     id: "gpt-4.1",
     name: "GPT 4.1",
     abbrev: "4.1",
     organization: Organization.openai,
-    isDefault: true,
+    price: {"input": 2.00, "output": 8.00},
     score: 58.41,
   );
   static const AIModel gpt41Mini = AIModel(
@@ -82,6 +86,7 @@ class Models {
     abbrev: "41m",
     organization: Organization.openai,
     isDefault: true,
+    price: {"input": 0.4, "output": 1.6},
     score: 55.55,
   );
   static const AIModel gpt4o = AIModel(
@@ -89,7 +94,7 @@ class Models {
     name: "GPT 4o",
     abbrev: "4o",
     organization: Organization.openai,
-    isDefault: true,
+    price: {"input": 2.5, "output": 10.0},
     score: 49.21,
   );
   static const AIModel gpt4oMini = AIModel(
@@ -97,41 +102,52 @@ class Models {
     name: "GPT 4o mini",
     abbrev: "4m",
     organization: Organization.openai,
+    price: {"input": 0.15, "output": 0.60},
     score: 37.63,
   );
   static const AIModel o1 = AIModel(
     id: "o1",
-    name: "GPT o1",
+    name: "o1",
     abbrev: "o1",
     organization: Organization.openai,
     visibleInUI: false,
-    isTextOnly: true,
+    price: {"input": 15.0, "output": 60.0},
     score: 72.18,
   );
   static const AIModel o1Mini = AIModel(
     id: "o1-mini",
-    name: "GPT o1 mini",
+    name: "o1 mini",
     abbrev: "o1m",
     organization: Organization.openai,
     visibleInUI: false,
-    isTextOnly: true,
+    modelType: "仅文本",
+    price: {"input": 1.10, "output": 4.40},
     score: 53.43,
   );
   static const AIModel o3Mini = AIModel(
     id: "o3-mini",
-    name: "GPT o3 mini",
+    name: "o3 mini",
     abbrev: "o3m",
     organization: Organization.openai,
-    isDefault: true,
-    isTextOnly: true,
+    modelType: "仅文本",
+    price: {"input": 1.10, "output": 4.40},
     score: 71.37,
+  );
+  static const AIModel o4Mini = AIModel(
+    id: "o4-mini",
+    name: "o4 mini",
+    abbrev: "o4m",
+    organization: Organization.openai,
+    price: {"input": 1.10, "output": 4.40},
+    score: 78.13,
   );
   static const AIModel dalle3 = AIModel(
     id: "dall-e-3",
     name: "DALL·E 3",
     abbrev: "D·E",
     organization: Organization.openai,
-    isTextOnly: true,
+    price: {"input": 0, "output": 0.04},
+    modelType: "文生图",
   );
 
   // Anthropic models
@@ -161,6 +177,7 @@ class Models {
     name: "Claude3.5 - sonnet",
     abbrev: "s",
     organization: Organization.anthropic,
+    price: {"input": 3.0, "output": 15.0},
     score: 50.81,
   );
   static const AIModel claudeHaiku35 = AIModel(
@@ -168,6 +185,7 @@ class Models {
     name: "Claude3.5 - haiku",
     abbrev: "h",
     organization: Organization.anthropic,
+    price: {"input": 0.8, "output": 4.0},
     score: 38.49,
   );
   static const AIModel claudeSonnet37 = AIModel(
@@ -176,6 +194,7 @@ class Models {
     abbrev: "s",
     organization: Organization.anthropic,
     isDefault: true,
+    price: {"input": 3.0, "output": 15.0},
     score: 70.57,
   );
 
@@ -185,6 +204,7 @@ class Models {
     name: "DeepSeek V3",
     abbrev: "v3",
     organization: Organization.deepseek,
+    price: {"input": 0.27, "output": 1.10},
     score: 57.48,
   );
   static const AIModel deepseekReasoner = AIModel(
@@ -193,6 +213,7 @@ class Models {
     abbrev: "r1",
     organization: Organization.deepseek,
     isDefault: true,
+    price: {"input": 0.55, "output": 2.19},
     score: 67.47,
   );
 
@@ -200,31 +221,38 @@ class Models {
   static const AIModel geminiPro15 = AIModel(
     id: "gemini-1.5-pro",
     name: "Gemini 1.5 Pro",
-    abbrev: "1.5",
+    abbrev: "15p",
     organization: Organization.google,
     score: 47.77,
   );
   static const AIModel geminiFlash20Lite = AIModel(
     id: "gemini-2.0-flash-lite",
     name: "Gemini 2.0 Flash lite",
-    abbrev: "2.0 lite",
+    abbrev: "20fl",
     organization: Organization.google,
     visibleInUI: false,
   );
   static const AIModel geminiFlash20 = AIModel(
     id: "gemini-2.0-flash",
     name: "Gemini 2.0 Flash",
-    abbrev: "2.0",
+    abbrev: "20f",
+    organization: Organization.google,
+    score: 54.89,
+  );
+  static const AIModel geminiPro25 = AIModel(
+    id: "gemini-2.5-pro-exp-03-25",
+    name: "Gemini 2.5 Pro",
+    abbrev: "25p",
     organization: Organization.google,
     isDefault: true,
-    score: 54.89,
+    score: 77.43,
   );
 
   // All models list
   static const List<AIModel> all = [
     // OpenAI
     gpt35, gpt40,
-    gpt41, gpt41Mini, gpt4o, gpt4oMini, o1, o1Mini, o3Mini,
+    o4Mini, gpt41, gpt41Mini, gpt4o, gpt4oMini, o1, o1Mini, o3Mini,
     dalle3,
     // Claude
     claudeHaiku, claudeSonnet, claudeOpus, claudeSonnet35, claudeHaiku35,
@@ -232,13 +260,15 @@ class Models {
     // DeepSeek
     deepseekChat, deepseekReasoner,
     // Gemini
-    geminiPro15, geminiFlash20Lite, geminiFlash20,
+    geminiPro15, geminiFlash20Lite, geminiFlash20, geminiPro25
   ];
 
   //get default model of an organization
   static AIModel getDefaultModel(Organization org) {
-    return all.firstWhere((m) => m.organization == org && m.isDefault,
-        orElse: () => all.firstWhere((m) => m.organization == org));
+    return all.firstWhere(
+        (m) => m.visibleInUI && m.organization == org && m.isDefault,
+        orElse: () =>
+            all.firstWhere((m) => m.visibleInUI && m.organization == org));
   }
 
   //get all models of an organization
@@ -272,13 +302,13 @@ class Models {
   }
 }
 
-const DefaultModelVersion = Models.gpt41Mini;
-const ModelForTitleGen = Models.geminiFlash20Lite;
+final DefaultModelVersion = Models.getDefaultModel(Organization.openai);
+final ModelForTitleGen = Models.geminiFlash20Lite;
 Map<Organization, AIModel> currentModels = {
-  Organization.openai: DefaultModelVersion,
-  Organization.anthropic: Models.claudeSonnet37,
-  Organization.google: Models.geminiFlash20,
-  Organization.deepseek: Models.deepseekReasoner,
+  Organization.openai: Models.getDefaultModel(Organization.openai),
+  Organization.anthropic: Models.getDefaultModel(Organization.anthropic),
+  Organization.google: Models.getDefaultModel(Organization.google),
+  Organization.deepseek: Models.getDefaultModel(Organization.deepseek),
 };
 
 const claudeSupportedFiles = ['pdf'];
