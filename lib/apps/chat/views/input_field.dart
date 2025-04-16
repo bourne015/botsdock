@@ -310,20 +310,22 @@ class _ChatInputFieldState extends State<ChatInputField> {
     if (_modelV.startsWith('gpt-3')) return null;
     if (Models.checkORG(_modelV, Organization.deepseek)) return null;
     if (_modelV == Models.dalle3.id) return null;
-    if (_modelV == Models.o1Mini.id)
-      return IconButton(
-          tooltip: "选择文件",
-          icon: Icon(Icons.attachment, size: 20),
-          onPressed: () {
-            _pickFile(_modelV);
-          });
-    if (_modelV == Models.o3Mini.id)
-      return IconButton(
-          tooltip: "选择文件",
-          icon: Icon(Icons.attachment, size: 20),
-          onPressed: () {
-            _pickFile(_modelV);
-          });
+    if (_modelV == Models.o1Mini.id) return null;
+    if (_modelV == Models.o3Mini.id) return null;
+    // if (_modelV == Models.o1Mini.id)
+    //   return IconButton(
+    //       tooltip: "选择文件",
+    //       icon: Icon(Icons.attachment, size: 20),
+    //       onPressed: () {
+    //         _pickFile(_modelV);
+    //       });
+    // if (_modelV == Models.o3Mini.id)
+    //   return IconButton(
+    //       tooltip: "选择文件",
+    //       icon: Icon(Icons.attachment, size: 20),
+    //       onPressed: () {
+    //         _pickFile(_modelV);
+    //       });
     if (Models.checkORG(_modelV, Organization.openai) &&
         !property.onInitPage &&
         pages.currentPage!.assistantID == null) {
