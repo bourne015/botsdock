@@ -145,7 +145,7 @@ class InitPageState extends State<InitPage> {
             duration: Duration(milliseconds: 300),
             curve: Curves.linear,
             onValueChanged: (orgName) {
-              _handleModelChange(orgName, property);
+              _handleOrgChange(orgName, property);
             },
           )),
       SpiritCat(),
@@ -211,7 +211,7 @@ class InitPageState extends State<InitPage> {
     );
   }
 
-  void _handleModelChange(String orgName, Property property) {
+  void _handleOrgChange(String orgName, Property property) {
     final org = Organization.values
         .firstWhere((o) => o.name.toLowerCase() == orgName.toLowerCase());
     final currentORGModel = currentModels[org]!;
@@ -219,7 +219,6 @@ class InitPageState extends State<InitPage> {
     setState(() {
       property.initModelVersion = currentORGModel.id;
       selectedORG = orgName;
-      currentModels[org] = currentORGModel;
       Global.saveProperties(model: currentORGModel.id);
     });
   }
@@ -296,7 +295,7 @@ class InitPageState extends State<InitPage> {
                   width: 150,
                   child: LinearPercentIndicator(
                     width: 150,
-                    lineHeight: 11.5,
+                    lineHeight: 12,
                     padding: EdgeInsets.all(0),
                     animation: true,
                     animationDuration: 800,
@@ -306,7 +305,7 @@ class InitPageState extends State<InitPage> {
                       value.score > 0 ? "score ${value.score}" : "",
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
-                        fontSize: 9,
+                        fontSize: 8.5,
                         color: Colors.grey,
                       ),
                     ),
