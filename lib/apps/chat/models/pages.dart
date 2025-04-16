@@ -205,7 +205,7 @@ class Pages with ChangeNotifier {
 }
 
 class Property with ChangeNotifier {
-  String _initModelVersion = DefaultModelVersion;
+  String _initModelVersion = DefaultModelVersion.id;
   bool _isDrawerOpen = true;
   bool _onInitPage = true;
   bool _isLoading = false;
@@ -250,7 +250,7 @@ class Property with ChangeNotifier {
   // }
 
   void reset() {
-    _initModelVersion = DefaultModelVersion;
+    _initModelVersion = DefaultModelVersion.id;
     _isDrawerOpen = true;
     _onInitPage = true;
     _isLoading = false;

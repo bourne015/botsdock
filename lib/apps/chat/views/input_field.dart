@@ -197,11 +197,11 @@ class _ChatInputFieldState extends State<ChatInputField> {
       _modelV = property.initModelVersion;
     else
       _modelV = pages.currentPage?.model;
-    if (_modelV == GPTModel.gptv35 ||
-        _modelV == DeepSeekModel.dc ||
-        _modelV == DeepSeekModel.dc_r) {
+    if (_modelV == Models.gpt35.id ||
+        _modelV == Models.deepseekChat.id ||
+        _modelV == Models.deepseekReasoner.id) {
       hintText = "send a message";
-    } else if (_modelV == GPTModel.gptv40Dall) {
+    } else if (_modelV == Models.dalle3.id) {
       hintText = "describe the image";
     }
 
@@ -308,23 +308,23 @@ class _ChatInputFieldState extends State<ChatInputField> {
       _modelV = pages.currentPage!.model;
 
     if (_modelV.startsWith('gpt-3')) return null;
-    if (DeepSeekModel.all.contains(_modelV)) return null;
-    if (_modelV == GPTModel.gptv40Dall) return null;
-    if (_modelV == GPTModel.gptvo1mini)
+    if (Models.checkORG(_modelV, Organization.deepseek)) return null;
+    if (_modelV == Models.dalle3.id) return null;
+    if (_modelV == Models.o1Mini.id)
       return IconButton(
           tooltip: "选择文件",
           icon: Icon(Icons.attachment, size: 20),
           onPressed: () {
             _pickFile(_modelV);
           });
-    if (_modelV == GPTModel.gptvo3mini)
+    if (_modelV == Models.o3Mini.id)
       return IconButton(
           tooltip: "选择文件",
           icon: Icon(Icons.attachment, size: 20),
           onPressed: () {
             _pickFile(_modelV);
           });
-    if (GPTModel.all.contains(_modelV) &&
+    if (Models.checkORG(_modelV, Organization.openai) &&
         !property.onInitPage &&
         pages.currentPage!.assistantID == null) {
       return IconButton(
@@ -409,7 +409,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
     if (property.onInitPage) {
       String? thread_id = null;
-      if (GPTModel.all.contains(property.initModelVersion) &&
+      if (Models.checkORG(property.initModelVersion, Organization.openai) &&
           attachments.isNotEmpty) thread_id = await assistant.createThread();
       if (thread_id != null) {
         newPageId = assistant.newassistant(pages, property, user, thread_id,
@@ -474,9 +474,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Future<void> _pickFile(String modelV) async {
     var result;
     var _spf = supportedFilesAll;
-    if (ClaudeModel().toJson().containsKey(modelV))
+    if (Models.checkORG(modelV, Organization.anthropic))
       _spf = claudeSupportedFiles;
-    else if (GeminiModel().toJson().containsKey(modelV))
+    else if (Models.checkORG(modelV, Organization.google))
       _spf = geminiSupportedFiles;
 
     result = await FilePicker.platform
@@ -503,7 +503,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Future<void> _uploadPickedFiles(selectedfile, String modelV) async {
     String? _file_id;
     String? _file_url;
-    if (GPTModel.all.contains(modelV)) {
+    if (Models.checkORG(modelV, Organization.openai)) {
       await assistant.uploadFile(selectedfile);
       _file_id = await assistant.fileUpload(selectedfile.files.first.name);
       attachments[selectedfile.files.first.name]!.file_id = _file_id;
@@ -511,10 +511,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
         {"type": "file_search"},
         {"type": "code_interpreter"},
       ];
-    } else if (ClaudeModel().toJson().containsKey(modelV)) {
+    } else if (Models.checkORG(modelV, Organization.anthropic)) {
       _file_url = await chats.uploadFile(
           selectedfile.files.first.name, selectedfile.files.first.bytes);
-    } else if (GeminiModel().toJson().containsKey(modelV)) {
+    } else if (Models.checkORG(modelV, Organization.google)) {
       _file_url = await chats.uploadFile(
           selectedfile.files.first.name, selectedfile.files.first.bytes);
     }

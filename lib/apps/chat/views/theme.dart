@@ -136,7 +136,7 @@ class ChatThemeData {
     ),
     labelSmall: TextStyle(
       fontWeight: _regular,
-      fontSize: 11,
+      fontSize: 10.5,
       color: Colors.grey,
     ),
   );

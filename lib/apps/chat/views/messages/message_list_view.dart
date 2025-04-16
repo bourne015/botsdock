@@ -91,7 +91,7 @@ class MessageListViewState extends State<MessageListView> {
                   upMsgRole = MessageTRole.assistant;
 
                 //claude: tool msg type is 'tool_result', role is 'user'
-                if (ClaudeModel.all.contains(chat.model)) {
+                if (Models.checkORG(chat.model, Organization.anthropic)) {
                   if (upMsgRole == MessageTRole.user) {
                     var _c = chat.messages[reindex - 1].content;
                     if (_c is List &&

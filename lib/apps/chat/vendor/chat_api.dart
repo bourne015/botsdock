@@ -101,7 +101,7 @@ class ChatAPI {
       q = pages.getPage(handlePageID).contentforTitle();
       if (q.isEmpty) return;
       var chatData1 = {
-        "model": ModelForTitleGen,
+        "model": ModelForTitleGen.id,
         "question": "为下面段话写一个5个字左右的标题,只需给出最终的标题内容,不要输出其他信息:$q"
       };
       final _data = await dio.post(
@@ -177,7 +177,7 @@ class ChatAPI {
       Pages pages, Property property, int handlePageID, user) async {
     var q = pages.getMessages(handlePageID)!.last.content;
     var chatData1 = {
-      "model": GPTModel.gptv40Dall,
+      "model": Models.dalle3.id,
       "question": q,
     };
 
@@ -239,10 +239,10 @@ class ChatAPI {
     try {
       // if (pages.getPage(handlePageID).streamSubscription != null)
       //   pages.getPage(handlePageID).streamSubscription!.cancel();
-      if (property.initModelVersion == GPTModel.gptv40Dall) {
+      if (property.initModelVersion == Models.dalle3.id) {
         _imageGeneration(pages, property, handlePageID, user);
       } else {
-        if (pages.getPage(handlePageID).model != DeepSeekModel.dc_r) {
+        if (pages.getPage(handlePageID).model != Models.deepseekReasoner.id) {
           if (pages.getPage(handlePageID).artifact)
             pages.getPage(handlePageID).enable_tool("save_artifact");
           else
@@ -350,8 +350,8 @@ class ChatAPI {
       pages.getPage(handlePageID).botID = botID;
       pages.currentPage?.model = model ?? property.initModelVersion;
       if (functions != null && functions.isNotEmpty) {
-        if (GPTModel.all.contains(pages.currentPage!.model) ||
-            DeepSeekModel.all.contains(pages.currentPage!.model)) {
+        if (Models.checkORG(pages.currentPage!.model, Organization.openai) ||
+            Models.checkORG(pages.currentPage!.model, Organization.deepseek)) {
           functions.forEach((name, body) {
             var func = {"type": "function", "function": json.decode(body)};
             pages.getPage(handlePageID).tools.add(
@@ -430,13 +430,14 @@ Future<void> _handleChatStream(
   pages.getPage(handlePageID).messages.last.onProcessing = false;
   if (data != null && isValidJson(data)) {
     var res = json.decode(data);
-    if (GPTModel.all.contains(pages.getPage(handlePageID).model)) {
+    String modelID = pages.getPage(handlePageID).model;
+    if (Models.getOrgByModelId(modelID) == Organization.openai) {
       AIResponse.Openai(pages, property, user, handlePageID, res);
-    } else if (DeepSeekModel.all.contains(pages.getPage(handlePageID).model)) {
+    } else if (Models.getOrgByModelId(modelID) == Organization.deepseek) {
       AIResponse.DeepSeek(pages, property, user, handlePageID, res);
-    } else if (GeminiModel.all.contains(pages.getPage(handlePageID).model)) {
+    } else if (Models.getOrgByModelId(modelID) == Organization.google) {
       AIResponse.Gemini(pages, property, user, handlePageID, res);
-    } else if (ClaudeModel.all.contains(pages.getPage(handlePageID).model)) {
+    } else if (Models.getOrgByModelId(modelID) == Organization.anthropic) {
       AIResponse.Claude(pages, property, user, handlePageID, res);
     }
   } else {

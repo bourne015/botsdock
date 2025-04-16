@@ -125,7 +125,7 @@ class Chat with ChangeNotifier {
   }
 
   dynamic getVisionFiles(Map<String, VisionFile> visionFiles, content) {
-    if (ClaudeModel.all.contains(model)) {
+    if (Models.checkORG(model, Organization.anthropic)) {
       visionFiles.forEach((_filename, _visionFile) {
         String _fileType = _filename.split('.').last.toLowerCase();
         String _fileBase64 = base64Encode(_visionFile.bytes);
@@ -145,7 +145,7 @@ class Chat with ChangeNotifier {
         var _imgContent = anthropic.ImageBlock(type: "image", source: _source);
         content.add(_imgContent);
       });
-    } else if (GPTModel.all.contains(model)) {
+    } else if (Models.checkORG(model, Organization.openai)) {
       visionFiles.forEach((_filename, _visionFile) {
         var _imgData = "";
         if (_visionFile.url.isNotEmpty)
@@ -160,7 +160,7 @@ class Chat with ChangeNotifier {
             imageUrl: openai.MessageContentImageUrl(url: _imgData));
         content.add(_imgContent);
       });
-    } else if (GeminiModel.all.contains(model)) {
+    } else if (Models.checkORG(model, Organization.google)) {
       visionFiles.forEach((_filename, _visionFile) {
         String _fileType = _filename.split('.').last.toLowerCase();
         var _imgPart = GeminiPart1(
@@ -174,7 +174,7 @@ class Chat with ChangeNotifier {
   }
 
   void getAttachments(Map<String, Attachment> attachments, content) {
-    if (GeminiModel.all.contains(model)) {
+    if (Models.checkORG(model, Organization.google)) {
       attachments.forEach((_filename, _attachment) {
         String _fileType = _filename.split('.').last.toLowerCase();
         var mtype = switch (_fileType) {
@@ -197,7 +197,7 @@ class Chat with ChangeNotifier {
         ));
         content.add(_filePart);
       });
-    } else if (ClaudeModel.all.contains(model)) {
+    } else if (Models.checkORG(model, Organization.anthropic)) {
       attachments.forEach((_filename, _attachment) {
         String _fileType = _filename.split('.').last.toLowerCase();
         var mtype = switch (_fileType) {
@@ -231,7 +231,7 @@ class Chat with ChangeNotifier {
     var _content = [];
 
     if (text != null) {
-      if (GeminiModel.all.contains(model))
+      if (Models.checkORG(model, Organization.google))
         _content.add(GeminiTextContent(text: text));
       else
         _content.add(TextContent(text: text));
@@ -258,7 +258,7 @@ class Chat with ChangeNotifier {
     if (geminiFunctionResponse != null) {
       _content.add(geminiFunctionResponse);
     }
-    if (ClaudeModel.all.contains(model)) {
+    if (Models.checkORG(model, Organization.anthropic)) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = ClaudeMessage(
         id: id ?? _newid,
@@ -268,7 +268,7 @@ class Chat with ChangeNotifier {
         attachments: attachments,
         timestamp: timestamp,
       );
-    } else if (GPTModel.all.contains(model)) {
+    } else if (Models.checkORG(model, Organization.openai)) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = OpenAIMessage(
         id: id ?? _newid,
@@ -279,7 +279,7 @@ class Chat with ChangeNotifier {
         timestamp: timestamp,
         toolCallId: toolCallId,
       );
-    } else if (GeminiModel.all.contains(model)) {
+    } else if (Models.checkORG(model, Organization.google)) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = GeminiMessage(
         id: id ?? _newid,
@@ -289,7 +289,7 @@ class Chat with ChangeNotifier {
         attachments: attachments,
         timestamp: timestamp,
       );
-    } else if (DeepSeekModel.all.contains(model)) {
+    } else if (Models.checkORG(model, Organization.deepseek)) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = DeepSeekMessage(
         id: id ?? _newid,
@@ -301,7 +301,7 @@ class Chat with ChangeNotifier {
         timestamp: timestamp,
         toolCallId: toolCallId,
       );
-    } else if (model == GPTModel.gptv40Dall) {
+    } else if (model == Models.dalle3.id) {
       int _newid = messages.isNotEmpty ? (1 + messages.last.id) : 0;
       _msg = OpenAIMessage(
         id: id ?? _newid,
@@ -501,10 +501,10 @@ class Chat with ChangeNotifier {
         messages.last.content += msg;
       else if (msg != null && messages.last.content is List) {
         for (var x in messages.last.content) {
-          if (GeminiModel.all.contains(model) && x.text != null)
+          if (Models.checkORG(model, Organization.google) && x.text != null)
             x.text += msg;
-          else if (!GeminiModel.all.contains(model) && x.type == "text")
-            x.text += msg;
+          else if (!Models.checkORG(model, Organization.google) &&
+              x.type == "text") x.text += msg;
         }
       }
       //openai use toolscalls
@@ -547,7 +547,7 @@ class Chat with ChangeNotifier {
   }
 
   String contentforTitle() {
-    if (model == GPTModel.gptv40Dall) {
+    if (model == Models.dalle3.id) {
       if (messages.first.content is String)
         return messages.first.content;
       else if (messages.first.content is List)
@@ -583,15 +583,15 @@ class Chat with ChangeNotifier {
     if (c["contents"] is List) {
       for (var m in c["contents"]) {
         if (c["model"] is String) {
-          if (ClaudeModel.all.contains(c["model"])) {
+          if (Models.checkORG(c["model"], Organization.anthropic)) {
             _msgs.add(ClaudeMessage.fromJson(m));
-          } else if (GPTModel.all.contains(c["model"])) {
+          } else if (Models.checkORG(c["model"], Organization.openai)) {
             _msgs.add(OpenAIMessage.fromJson(m));
-          } else if (c["model"] == GPTModel.gptv40Dall) {
+          } else if (c["model"] == Models.dalle3) {
             _msgs.add(OpenAIMessage.fromJson(m));
-          } else if (DeepSeekModel.all.contains(c["model"])) {
+          } else if (Models.checkORG(c["model"], Organization.deepseek)) {
             _msgs.add(OpenAIMessage.fromJson(m));
-          } else if (GeminiModel.all.contains(c["model"])) {
+          } else if (Models.checkORG(c["model"], Organization.google)) {
             _msgs.add(GeminiMessage.fromJson(m));
           } else {
             print("Chat fromJson error: unknow model");
@@ -618,7 +618,7 @@ class Chat with ChangeNotifier {
   Map<String, dynamic> toJson() => {
         'model': model,
         'messages': messages.map((m) => m.toJson()).toList(),
-        "tools": GeminiModel.all.contains(model)
+        "tools": Models.checkORG(model, Organization.google)
             ? tools
             : tools.map((e) => e.toJson()).toList(),
         "artifact": artifact,
@@ -693,22 +693,22 @@ class Chat with ChangeNotifier {
 
   void enable_tool(String name) {
     var funcSchema = Functions.all[name];
-    if (GeminiModel.all.contains(model)) {
+    if (Models.checkORG(model, Organization.google)) {
       // if (name == "google_search") {
       //   bool _exist = tools.any((x) => x.containsKey(name));
       //   if (!_exist) tools.add({name: {}});
       // } else {
       addFunctionToGeminiTools(name);
       // }
-    } else if (GPTModel.all.contains(model) ||
-        DeepSeekModel.all.contains(model)) {
+    } else if (Models.checkORG(model, Organization.openai) ||
+        Models.checkORG(model, Organization.deepseek)) {
       var gptTool = openai.ChatCompletionTool.fromJson({
         "type": "function",
         "function": funcSchema,
       });
       bool _exist = tools.any((x) => x.function.name == name);
       if (!_exist) tools.add(gptTool);
-    } else if (ClaudeModel.all.contains(model)) {
+    } else if (Models.checkORG(model, Organization.anthropic)) {
       var claudeTool = anthropic.Tool.custom(
         name: funcSchema['name'],
         description: funcSchema['description'],
@@ -722,11 +722,12 @@ class Chat with ChangeNotifier {
 
   void disable_tool(String name) {
     set_function_status(name, false);
-    if (GPTModel.all.contains(model) || DeepSeekModel.all.contains(model)) {
+    if (Models.checkORG(model, Organization.openai) ||
+        Models.checkORG(model, Organization.deepseek)) {
       tools.removeWhere((_tool) => _tool.function.name == name);
-    } else if (ClaudeModel.all.contains(model)) {
+    } else if (Models.checkORG(model, Organization.anthropic)) {
       tools.removeWhere((_tool) => _tool.name == name);
-    } else if (GeminiModel.all.contains(model) && tools.isEmpty) {
+    } else if (Models.checkORG(model, Organization.google) && tools.isEmpty) {
       // if (name == "google_search") {
       //   tools.removeWhere((gtool) => gtool.containsKey(name));
       // } else {

@@ -149,7 +149,7 @@ class SpiritCatState extends State<SpiritCat>
       if (user.cat_id != null) {
         handlePageID = assistant.newassistant(
             pages, property, user, user.cat_id!,
-            ass_id: ass_id, chat_title: "cat", model: GPTModel.gptv4omini);
+            ass_id: ass_id, chat_title: "cat", model: Models.gpt4oMini.id);
         pages.setGeneratingState(handlePageID, true);
         pages.getPage(handlePageID).addMessage(
               role: MessageTRole.system,

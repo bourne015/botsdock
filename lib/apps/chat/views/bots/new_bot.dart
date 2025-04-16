@@ -56,7 +56,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
   String? _logoURL;
   String? _localAvatar;
   double temperature = 1;
-  String _model = DefaultModelVersion;
+  String _model = DefaultModelVersion.id;
   GlobalKey _createBotformKey = GlobalKey<FormState>();
 
   @override
@@ -89,7 +89,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
       codeInterpreterFilesID = widget.bot!.code_interpreter_files ?? {};
       functionsBody = widget.bot!.functions ?? {};
       temperature = widget.bot!.temperature ?? 1.0;
-      _model = widget.bot!.model ?? DefaultModelVersion;
+      _model = widget.bot!.model ?? DefaultModelVersion.id;
     }
   }
 
@@ -285,7 +285,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                         modelSelecter(context),
-                        if (GPTModel.all.contains(_model))
+                        if (Models.checkORG(_model, Organization.openai))
                           assistantTools(context),
                         functions(context),
                         listFunctions(context),
@@ -392,7 +392,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                   _model = newValue;
                 });
               },
-              itemBuilder: (BuildContext context) => textmodels
+              itemBuilder: (BuildContext context) => Models.getTextModelIds()
                   .map((v) => buildPopupMenuItem(context,
                       value: v, icon: Icons.abc, title: v))
                   .toList(),

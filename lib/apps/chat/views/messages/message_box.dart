@@ -310,7 +310,7 @@ class MessageBoxState extends State<MessageBox> {
         contentWidgets.add(ChatTextMessage(role: msg.role, text: msg.content));
       } else if (msg.content is List)
         for (var _content in msg.content) {
-          if (GeminiModel.all.contains(widget.model!)) {
+          if (Models.checkORG(widget.model!, Organization.google)) {
             if (_content is GeminiTextContent &&
                 _content.text != null &&
                 _content.text!.isNotEmpty) {

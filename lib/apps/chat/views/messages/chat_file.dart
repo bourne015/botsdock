@@ -94,7 +94,7 @@ class ChatfileMessageState extends State<ChatfileMessage> {
       attachFile.downloading = true;
     });
     var res = 'can not download';
-    if (GPTModel.all.contains(widget.model!))
+    if (Models.checkORG(widget.model!, Organization.openai))
       res = await assistant.downloadFile(attachFile.file_id!, attachedFileName);
     setState(() {
       attachFile.downloading = false;

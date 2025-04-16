@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:botsdock/apps/chat/utils/prompts.dart';
 import 'package:botsdock/apps/chat/views/spirit_cat.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:botsdock/l10n/gallery_localizations.dart';
 
@@ -25,33 +26,32 @@ class InitPage extends StatefulWidget {
 }
 
 class InitPageState extends State<InitPage> {
-  List<String> gptSub = [
-    ...GPTModel.all,
-    GPTModel.gptv40Dall,
-  ];
-  String gptDropdownValue = DefaultModelVersion;
-  String claudeDropdownValue = DefaultClaudeModel;
-  String deepseekDropdownValue = DefaultDeepSeekModel;
-  String geminiDropdownValue = DefaultGeminiModel;
-  String? selected;
+  String? selectedORG;
   final ChatAPI chats = ChatAPI();
-  // RestorableBool switchArtifact = RestorableBool(true);
-  // RestorableBool switchInternet = RestorableBool(true);
 
-  // @override
-  // String get restorationId => 'switch_test';
-  // @override
-  // void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-  //   registerForRestoration(switchArtifact, 'switch_artifact');
-  //   registerForRestoration(switchInternet, 'switch_internet');
-  // }
+  Map<Organization, List<PopupMenuEntry<AIModel>>> modelItems = {
+    Organization.openai: [],
+    Organization.anthropic: [],
+    Organization.google: [],
+    Organization.deepseek: [],
+  };
 
   @override
   void initState() {
     super.initState();
-    // Property property = Provider.of<Property>(context, listen: false);
-    // switchArtifact = RestorableBool(property.artifact);
-    // switchInternet = RestorableBool(property.internet);
+  }
+
+  void _initializeMenuItems() {
+    modelItems = {
+      for (var org in Organization.values)
+        org: Models.getOrganizationModels(org)
+            .map((x) => _PopupMenuModelItem(
+                  value: x,
+                  inputType: x.isTextOnly ? "仅文本" : "多模态",
+                  modelName: x.name,
+                ))
+            .toList()
+    };
   }
 
   @override
@@ -62,20 +62,9 @@ class InitPageState extends State<InitPage> {
   @override
   Widget build(BuildContext context) {
     Property property = Provider.of<Property>(context);
-    if (gptSub.contains(property.initModelVersion)) {
-      selected = 'ChatGPT';
-      gptDropdownValue = property.initModelVersion;
-    } else if (ClaudeModel.all.contains(property.initModelVersion)) {
-      selected = 'Claude';
-      claudeDropdownValue = property.initModelVersion;
-    } else if (DeepSeekModel.all.contains(property.initModelVersion)) {
-      selected = 'DeepSeek';
-      deepseekDropdownValue = property.initModelVersion;
-    } else if (GeminiModel.all.contains(property.initModelVersion)) {
-      selected = 'Gemini';
-      geminiDropdownValue = property.initModelVersion;
-    }
-
+    final currentOrg = Models.getOrgByModelId(property.initModelVersion)!;
+    selectedORG = getOrgInfo(currentOrg).name;
+    _initializeMenuItems();
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       return Column(
@@ -85,15 +74,8 @@ class InitPageState extends State<InitPage> {
             modelSelectButton(context),
             Align(
               alignment: Alignment.center,
-              child: Text(
-                "Chat",
-                style: Theme.of(context).textTheme.displayLarge,
-                // style: TextStyle(
-                //   // color: AppColors.initPageBackgroundText,
-                //   fontSize: 55.0,
-                //   fontWeight: FontWeight.bold,
-                // ),
-              ),
+              child:
+                  Text("Chat", style: Theme.of(context).textTheme.displayLarge),
             ),
             if (isDisplayDesktop(context) && constraints.maxHeight > 350)
               Align(
@@ -101,7 +83,6 @@ class InitPageState extends State<InitPage> {
                   child: Wrap(
                     alignment: WrapAlignment.center,
                     children: [
-                      // botCard(context, "宠物猫", "assets/images/avatar/cat.png", Prompt.cat),
                       if (isDisplayDesktop(context) ||
                           constraints.maxHeight > 700)
                         CustomCard(
@@ -137,115 +118,14 @@ class InitPageState extends State<InitPage> {
     });
   }
 
-  Widget botCard(
-      BuildContext context, String name, String avartar, String prompt) {
-    Pages pages = Provider.of<Pages>(context);
-    Property property = Provider.of<Property>(context);
-    User user = Provider.of<User>(context);
-    return Card(
-        clipBehavior: Clip.antiAlias,
-        elevation: 5.0,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(15.0))),
-        child: InkWell(
-          // splashColor: Colors.blue.withAlpha(30),
-          onTap: () {
-            chats.newBot(pages, property, user, name: name, prompt: prompt);
-          },
-          child: Ink(
-              width: 75,
-              height: 75,
-              padding: const EdgeInsets.only(top: 50),
-              decoration: BoxDecoration(
-                  image: DecorationImage(
-                      fit: BoxFit.cover, image: AssetImage(avartar))),
-              child: Container(
-                  alignment: Alignment.bottomCenter,
-                  //width: double.infinity,
-                  // color: Color.fromRGBO(128, 128, 128, 0.4),
-                  child: Text(name,
-                      style: TextStyle(
-                        fontSize: 17,
-                        color: Colors.white,
-                      )))),
-        ));
-  }
-
   Widget modelSelectButton(BuildContext context) {
     Property property = Provider.of<Property>(context);
     return Stack(alignment: Alignment.topCenter, children: [
       Container(
           margin: EdgeInsets.only(top: 32),
           child: CustomSlidingSegmentedControl(
-            initialValue: selected,
-            children: {
-              'ChatGPT': Row(children: [
-                Tooltip(
-                    message: selected != "ChatGPT" ? "ChatGPT" : "",
-                    child: Image.asset(
-                      "assets/images/openai.png",
-                      height: 24,
-                      width: 24,
-                      color: selected == "ChatGPT" ? Colors.teal : Colors.grey,
-                    )),
-                if (selected == "ChatGPT")
-                  Container(
-                      width: 65,
-                      child: Text(' ChatGPT',
-                          maxLines: 1, overflow: TextOverflow.ellipsis)),
-                if (selected == "ChatGPT") gptdropdownMenu(context),
-              ]),
-              'Claude': Row(children: [
-                Tooltip(
-                    message: selected != "Claude" ? "Claude" : "",
-                    child: Image.asset(
-                      "assets/images/anthropic.png",
-                      height: 24,
-                      width: 24,
-                      color: selected == "Claude"
-                          ? Colors.yellow[900]
-                          : Colors.grey,
-                    )),
-                if (selected == "Claude")
-                  Container(
-                      width: 65,
-                      child: Text(' Claude',
-                          maxLines: 1, overflow: TextOverflow.ellipsis)),
-                if (selected == "Claude") claudedropdownMenu(context),
-              ]),
-              'Gemini': Row(children: [
-                Tooltip(
-                    message: selected != "Gemini" ? "Gemini" : "",
-                    child: Image.asset(
-                      "assets/images/google.png",
-                      height: 24,
-                      width: 24,
-                      color: selected == "Gemini" ? null : Colors.grey,
-                    )),
-                if (selected == "Gemini")
-                  Container(
-                      width: 65,
-                      child: Text(' Gemini ',
-                          maxLines: 1, overflow: TextOverflow.ellipsis)),
-                if (selected == "Gemini") geminidropdownMenu(context),
-              ]),
-              'DeepSeek': Row(children: [
-                Tooltip(
-                    message: selected != "DeepSeek" ? "DeepSeek" : "",
-                    child: Image.asset(
-                      "assets/images/deepseek.png",
-                      height: 24,
-                      width: 24,
-                      color: selected == "DeepSeek" ? Colors.blue : Colors.grey,
-                    )),
-                if (selected == "DeepSeek")
-                  Container(
-                      width: 65,
-                      child: Text('DeepSeek',
-                          maxLines: 1, overflow: TextOverflow.ellipsis)),
-                if (selected == "DeepSeek") deepseekdropdownMenu(context),
-              ]),
-            },
+            initialValue: selectedORG,
+            children: _buildModelSegments(context),
             decoration: BoxDecoration(
               borderRadius: BORDERRADIUS10,
               color: Theme.of(context).colorScheme.secondaryContainer,
@@ -264,31 +144,50 @@ class InitPageState extends State<InitPage> {
             ),
             duration: Duration(milliseconds: 300),
             curve: Curves.linear,
-            onValueChanged: (value) {
-              if (value == 'ChatGPT') {
-                property.initModelVersion = DefaultModelVersion;
-              } else if (value == 'Claude') {
-                property.initModelVersion = DefaultClaudeModel;
-              } else if (value == 'DeepSeek') {
-                property.initModelVersion = DefaultDeepSeekModel;
-              } else if (value == 'Gemini') {
-                property.initModelVersion = DefaultGeminiModel;
-              }
-              selected = value;
-              Global.saveProperties(model: property.initModelVersion);
+            onValueChanged: (orgName) {
+              _handleModelChange(orgName, property);
             },
           )),
       SpiritCat(),
     ]);
   }
 
-  Widget gptdropdownMenu(BuildContext context) {
+  Map<String, Widget> _buildModelSegments(BuildContext context) {
+    return Map.fromEntries(Organization.values.map((org) {
+      final _orginfo = getOrgInfo(org);
+      return MapEntry(
+          _orginfo.name,
+          ModelSegment(
+            selected: selectedORG == _orginfo.name,
+            logo: _orginfo.logo,
+            color: _orginfo.color,
+            name: _orginfo.name,
+            dropdownMenu: selectedORG == _orginfo.name
+                ? _DropdownMenu(
+                    context: context,
+                    organization: org,
+                    currentValue: currentModels[org]!,
+                    onSelected: (value) {
+                      setState(() {
+                        currentModels[org] = value;
+                      });
+                    })
+                : null,
+          ));
+    }));
+  }
+
+  Widget _DropdownMenu({
+    required BuildContext context,
+    required Organization organization,
+    required AIModel currentValue,
+    required Function(AIModel) onSelected,
+  }) {
     Property property = Provider.of<Property>(context);
-    return PopupMenuButton<String>(
-      initialValue: gptDropdownValue,
+
+    return PopupMenuButton<AIModel>(
+      initialValue: currentValue,
       tooltip: GalleryLocalizations.of(context)!.selectModelTooltip,
-      //icon: Icon(color: Colors.grey, size: 10, Icons.south),
-      // color: AppColors.drawerBackground,
       shadowColor: Colors.blue,
       elevation: 5,
       shape: RoundedRectangleBorder(
@@ -298,245 +197,37 @@ class InitPageState extends State<InitPage> {
         radius: 12,
         backgroundColor: AppColors.modelSelectorBackground,
         child: Text(
-          allModels[gptDropdownValue]!,
+          currentValue.abbrev,
           style: Theme.of(context).textTheme.labelSmall,
         ),
       ),
       padding: const EdgeInsets.only(left: 2),
-      onSelected: (String value) {
-        property.initModelVersion = value;
-        gptDropdownValue = value;
+      onSelected: (AIModel value) {
+        property.initModelVersion = value.id;
+        onSelected(value);
       },
       position: PopupMenuPosition.under,
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
-        //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
-        _buildPopupMenuItem(
-          context: context,
-          value: GPTModel.gptv4omini,
-          inputType: "多模态",
-          title: "ChatGPT 4o mini",
-          description:
-              GalleryLocalizations.of(context)?.chatGPT4oMiniDesc ?? '',
-        ),
-        // _buildPopupMenuItem(
-        //   context: context,
-        //   value: gptSub[5],
-        //   inputType: "文本",
-        //   title: "ChatGPT o3-mini",
-        //   description: GalleryLocalizations.of(context)?.chatGPTo3mDesc ?? '',
-        // ),
-        _buildPopupMenuItem(
-          context: context,
-          value: GPTModel.gptv4o,
-          inputType: "多模态",
-          title: "GPT 4o",
-          description: GalleryLocalizations.of(context)?.chatGPT4oDesc ?? '',
-        ),
-        _buildPopupMenuItem(
-          context: context,
-          value: GPTModel.gptvo3mini,
-          inputType: "文本",
-          title: "GPT o3-mini",
-          description: GalleryLocalizations.of(context)?.chatGPTo3mDesc ?? '',
-        ),
-        // _buildPopupMenuItem(
-        //   context: context,
-        //   value: gptSub[4],
-        //   inputType: "多模态",
-        //   title: "ChatGPT o1",
-        //   description: GalleryLocalizations.of(context)?.chatGPTo1Desc ?? '',
-        // ),
-        _buildPopupMenuItem(
-          context: context,
-          value: GPTModel.gptv40Dall,
-          inputType: "文本",
-          title: "DALL·E 3",
-          description: GalleryLocalizations.of(context)?.dallEDesc ?? '',
-        ),
-        // PopupMenuDivider(),
-        // _buildArtifactSwitch(context),
-        // _buildInternetSwitch(context, "Google"),
-      ],
+      itemBuilder: (BuildContext context) => modelItems[organization]!,
     );
   }
 
-  Widget claudedropdownMenu(BuildContext context) {
-    Property property = Provider.of<Property>(context);
-    return PopupMenuButton<String>(
-      initialValue: claudeDropdownValue,
-      tooltip: GalleryLocalizations.of(context)!.selectModelTooltip,
-      // color: AppColors.drawerBackground,
-      shadowColor: Colors.blue,
-      elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BORDERRADIUS10,
-      ),
-      icon: CircleAvatar(
-        radius: 12,
-        backgroundColor: AppColors.modelSelectorBackground,
-        child: Text(
-          allModels[claudeDropdownValue]![0],
-          style: Theme.of(context).textTheme.labelSmall,
-        ),
-      ),
-      padding: const EdgeInsets.only(left: 2),
-      onSelected: (String value) {
-        property.initModelVersion = value;
-        claudeDropdownValue = value;
-      },
-      position: PopupMenuPosition.under,
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        // _buildPopupMenuItem(context, claudeSub[0], "H", "Claude3 - Haiku",
-        //     GalleryLocalizations.of(context)?.claude3HaikuDesc ?? ''),
-        // _buildPopupMenuItem(context, claudeSub[1], "S", "Claude3 - Sonnet",
-        //     GalleryLocalizations.of(context)?.claude3SonnetDesc ?? ''),
-        _buildPopupMenuItem(
-          context: context,
-          value: ClaudeModel.sonnet_37,
-          inputType: "多模态",
-          title: "Claude3.7 - Sonnet",
-          description:
-              GalleryLocalizations.of(context)?.claude37SonnetDesc ?? '',
-        ),
-        _buildPopupMenuItem(
-          context: context,
-          value: ClaudeModel.sonnet_35,
-          inputType: "多模态",
-          title: "Claude3.5 - Sonnet",
-          description:
-              GalleryLocalizations.of(context)?.claude35SonnetDesc ?? '',
-        ),
-        _buildPopupMenuItem(
-          context: context,
-          value: ClaudeModel.haiku_35,
-          inputType: "多模态",
-          title: "Claude3.5 - Haiku",
-          description: GalleryLocalizations.of(context)?.claude3HaikuDesc ?? '',
-        ),
-        _buildPopupMenuItem(
-          context: context,
-          value: ClaudeModel.opus,
-          inputType: "多模态",
-          title: "Claude3 - Opus",
-          description: GalleryLocalizations.of(context)?.claude3OpusDesc ?? '',
-        ),
-        // PopupMenuDivider(),
-        // _buildArtifactSwitch(context),
-        // _buildInternetSwitch(context, "Google"),
-      ],
-    );
+  void _handleModelChange(String orgName, Property property) {
+    final org = Organization.values
+        .firstWhere((o) => o.name.toLowerCase() == orgName.toLowerCase());
+    final currentORGModel = currentModels[org]!;
+
+    setState(() {
+      property.initModelVersion = currentORGModel.id;
+      selectedORG = orgName;
+      currentModels[org] = currentORGModel;
+      Global.saveProperties(model: currentORGModel.id);
+    });
   }
 
-  Widget geminidropdownMenu(BuildContext context) {
-    Property property = Provider.of<Property>(context);
-    return PopupMenuButton<String>(
-      initialValue: geminiDropdownValue,
-      tooltip: GalleryLocalizations.of(context)!.selectModelTooltip,
-      //icon: Icon(color: Colors.grey, size: 10, Icons.south),
-      // color: AppColors.drawerBackground,
-      shadowColor: Colors.blue,
-      elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BORDERRADIUS10,
-      ),
-      icon: CircleAvatar(
-        radius: 12,
-        backgroundColor: AppColors.modelSelectorBackground,
-        child: Text(
-          allModels[geminiDropdownValue]!,
-          style: Theme.of(context).textTheme.labelSmall,
-        ),
-      ),
-      padding: const EdgeInsets.only(left: 2),
-      onSelected: (String value) {
-        property.initModelVersion = value;
-        geminiDropdownValue = value;
-      },
-      position: PopupMenuPosition.under,
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
-        //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
-        _buildPopupMenuItem(
-          context: context,
-          value: GeminiModel.pro_15,
-          inputType: "多模态",
-          title: "Gemini Pro 1.5",
-          description: GalleryLocalizations.of(context)?.geminiDesc ?? '',
-        ),
-        _buildPopupMenuItem(
-          context: context,
-          value: GeminiModel.flash_20,
-          inputType: "多模态",
-          title: "Gemini Flash 2.0",
-          description: GalleryLocalizations.of(context)?.geminiDesc ?? '',
-        ),
-        // PopupMenuDivider(),
-        // _buildArtifactSwitch(context),
-        // _buildInternetSwitch(context, "Google"),
-      ],
-    );
-  }
-
-  Widget deepseekdropdownMenu(BuildContext context) {
-    Property property = Provider.of<Property>(context);
-    return PopupMenuButton<String>(
-      initialValue: deepseekDropdownValue,
-      tooltip: GalleryLocalizations.of(context)!.selectModelTooltip,
-      //icon: Icon(color: Colors.grey, size: 10, Icons.south),
-      // color: AppColors.drawerBackground,
-      shadowColor: Colors.blue,
-      elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BORDERRADIUS10,
-      ),
-      icon: CircleAvatar(
-        radius: 12,
-        backgroundColor: AppColors.modelSelectorBackground,
-        child: Text(
-          allModels[deepseekDropdownValue]!,
-          style: Theme.of(context).textTheme.labelSmall,
-        ),
-      ),
-      padding: const EdgeInsets.only(left: 2),
-      onSelected: (String value) {
-        property.initModelVersion = value;
-        deepseekDropdownValue = value;
-      },
-      position: PopupMenuPosition.under,
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        // _buildPopupMenuItem(context, gptSub[0], "3.5", "ChatGPT 3.5",
-        //     GalleryLocalizations.of(context)?.chatGPT35Desc ?? ''),
-        _buildPopupMenuItem(
-          context: context,
-          value: DeepSeekModel.dc,
-          inputType: "文本",
-          title: "DeepSeek V3",
-          description: GalleryLocalizations.of(context)?.deepseekDesc ?? '',
-        ),
-        _buildPopupMenuItem(
-          context: context,
-          value: DeepSeekModel.dc_r,
-          inputType: "文本",
-          title: "DeepSeek R1",
-          description: GalleryLocalizations.of(context)?.deepseekR1Desc ?? '',
-        ),
-        // PopupMenuDivider(),
-        // _buildArtifactSwitch(context),
-        // _buildInternetSwitch(context, "Google"),
-      ],
-    );
-  }
-
-  Widget inputTypeIcon(String inputs) {
+  Widget inputTypeIcon(String inputs, bool selected) {
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        // gradient: const LinearGradient(
-        //   colors: [Colors.lightBlueAccent, Colors.blueAccent],
-        //   begin: Alignment.topLeft,
-        //   end: Alignment.bottomRight,
-        // ),
         boxShadow: [
           BoxShadow(
             color: Colors.blue.withValues(alpha: 0.3),
@@ -546,7 +237,7 @@ class InitPageState extends State<InitPage> {
           )
         ],
         border: Border.all(
-          color: Colors.yellowAccent,
+          color: selected ? Colors.tealAccent[400]! : Colors.yellowAccent,
           width: 1.5,
         ),
       ),
@@ -556,7 +247,7 @@ class InitPageState extends State<InitPage> {
         child: Text(
           inputs,
           style: TextStyle(
-            fontSize: 8,
+            fontSize: 7,
             fontWeight: FontWeight.w400,
             color: Colors.white,
             shadows: [
@@ -572,14 +263,14 @@ class InitPageState extends State<InitPage> {
     );
   }
 
-  PopupMenuItem<String> _buildPopupMenuItem({
-    required BuildContext context,
-    required String value,
+  PopupMenuItem<AIModel> _PopupMenuModelItem({
+    required AIModel value,
     required String inputType,
-    required String title,
-    required String description,
+    required String modelName,
   }) {
-    return PopupMenuItem<String>(
+    bool isSelected = currentModels[value.organization] == value;
+
+    return PopupMenuItem<AIModel>(
       padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       value: value,
       child: Material(
@@ -593,125 +284,78 @@ class InitPageState extends State<InitPage> {
           child: InkWell(
             borderRadius: BORDERRADIUS15,
             onTap: () {
-              Global.saveProperties(model: value);
+              Global.saveProperties(model: value.id);
               Navigator.pop(context, value);
             },
             //onHover: (hovering) {},
             child: ListTile(
               contentPadding: EdgeInsets.symmetric(horizontal: 5),
-              leading: inputTypeIcon(inputType),
-              title: Text(title),
-              subtitle: Text(description,
-                  style: TextStyle(fontSize: 12.5, color: AppColors.subTitle)),
-              trailing: deepseekDropdownValue == value ||
-                      geminiDropdownValue == value ||
-                      claudeDropdownValue == value ||
-                      gptDropdownValue == value
-                  ? Icon(Icons.check, color: Colors.blue[300])
-                  : null,
+              leading: inputTypeIcon(inputType, isSelected),
+              title: Text(modelName, overflow: TextOverflow.ellipsis),
+              subtitle: Container(
+                  width: 150,
+                  child: LinearPercentIndicator(
+                    width: 150,
+                    lineHeight: 11.5,
+                    padding: EdgeInsets.all(0),
+                    animation: true,
+                    animationDuration: 800,
+                    barRadius: Radius.circular(5.0),
+                    percent: value.score / 100,
+                    center: Text(
+                      value.score > 0 ? "score ${value.score}" : "",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 9,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    progressColor:
+                        isSelected ? Colors.tealAccent[400] : Colors.teal[50],
+                  )),
             ),
           ),
         ),
       ),
     );
   }
-/*
-  PopupMenuItem<String> _buildArtifactSwitch(BuildContext context) {
-    Property property = Provider.of<Property>(context, listen: false);
-    return PopupMenuItem<String>(
-        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-        // value: "value",
-        child: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-          return Material(
-              //color: Colors.transparent,
-              color: AppColors.drawerBackground,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 5),
-                decoration: BoxDecoration(
-                  borderRadius: BORDERRADIUS15,
-                ),
-                child: InkWell(
-                  borderRadius: BORDERRADIUS15,
-                  // onTap: null,
-                  child: ListTile(
-                      dense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 5),
-                      leading: Icon(
-                        Icons.auto_graph,
-                        color: switchArtifact.value ? Colors.blue[700] : null,
-                      ),
-                      title: Text("可视化(Beta)"),
-                      subtitle: Text("提供图表、动画、地图、网页预览等可视化内容",
-                          style: TextStyle(
-                              fontSize: 12.5, color: AppColors.subTitle)),
-                      trailing: Transform.scale(
-                        scale: 0.7,
-                        child: Switch(
-                          value: switchArtifact.value,
-                          activeColor: Colors.blue[300],
-                          onChanged: (value) {
-                            setState(() {
-                              switchArtifact.value = value;
-                              property.artifact = switchArtifact.value;
-                            });
-                            Global.saveProperties(artifact: property.artifact);
-                          },
-                        ),
-                      )),
-                ),
-              ));
-        }));
-  }
+}
 
-  PopupMenuItem<String> _buildInternetSwitch(
-      BuildContext context, String? engine) {
-    Property property = Provider.of<Property>(context, listen: false);
-    return PopupMenuItem<String>(
-        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-        // value: "value",
-        child: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-          return Material(
-              //color: Colors.transparent,
-              color: AppColors.drawerBackground,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 5),
-                decoration: BoxDecoration(
-                  borderRadius: BORDERRADIUS15,
-                ),
-                child: InkWell(
-                  borderRadius: BORDERRADIUS15,
-                  // onTap: null,
-                  child: ListTile(
-                      dense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 5),
-                      leading: Icon(Icons.cloud,
-                          color:
-                              switchInternet.value ? Colors.yellow[800] : null),
-                      title: Text("联网功能(Beta)"),
-                      subtitle: Text("获取${engine}搜索的结果",
-                          style: TextStyle(
-                              fontSize: 12.5, color: AppColors.subTitle)),
-                      trailing: Transform.scale(
-                        scale: 0.7,
-                        child: Switch(
-                          value: switchInternet.value,
-                          activeColor: Colors.blue[300],
-                          onChanged: (value) {
-                            setState(() {
-                              switchInternet.value = value;
-                              property.internet = switchInternet.value;
-                            });
-                            Global.saveProperties(internet: property.internet);
-                          },
-                        ),
-                      )),
-                ),
-              ));
-        }));
+class ModelSegment extends StatelessWidget {
+  final bool selected;
+  final String logo;
+  final Color? color;
+  final String name;
+  final Widget? dropdownMenu;
+
+  const ModelSegment({
+    required this.selected,
+    required this.logo,
+    required this.color,
+    required this.name,
+    required this.dropdownMenu,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      Tooltip(
+        message: selected ? "" : name,
+        child: Image.asset(
+          logo,
+          height: 24,
+          width: 24,
+          color: selected ? color : Colors.grey,
+        ),
+      ),
+      if (selected)
+        Container(
+          width: 65,
+          child: Text(' $name', maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+      if (selected && dropdownMenu != null) dropdownMenu!,
+    ]);
   }
-  */
 }
 
 class CustomCard extends StatelessWidget {
@@ -735,19 +379,8 @@ class CustomCard extends StatelessWidget {
     return Container(
         margin: EdgeInsets.symmetric(horizontal: 10),
         child: Card(
-          // shape: OutlineInputBorder(
-          //   borderSide: BorderSide(
-          //     style: BorderStyle.solid,
-          //     width: 0.7,
-          //     // color: Color.fromARGB(255, 206, 204, 204),
-          //   ),
-          //   borderRadius: BORDERRADIUS15,
-          // ),
-          // elevation: 1,
           child: InkWell(
               borderRadius: const BorderRadius.all(Radius.circular(10)),
-              // hoverColor: Color.fromARGB(255, 230, 227, 227)
-              //     .withValues(alpha: 0.3),
               onTap: () {
                 if (title == "使用说明")
                   describe(
@@ -763,9 +396,6 @@ class CustomCard extends StatelessWidget {
                   width: 150,
                   height: 100,
                   padding: EdgeInsets.all(10.0),
-                  // decoration: BoxDecoration(
-                  //     borderRadius:
-                  //         const BorderRadius.all(Radius.circular(15))),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
