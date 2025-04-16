@@ -120,6 +120,7 @@ class InitPageState extends State<InitPage> {
 
   Widget modelSelectButton(BuildContext context) {
     Property property = Provider.of<Property>(context);
+    User user = Provider.of<User>(context);
     return Stack(alignment: Alignment.topCenter, children: [
       Container(
           margin: EdgeInsets.only(top: 32),
@@ -148,7 +149,7 @@ class InitPageState extends State<InitPage> {
               _handleOrgChange(orgName, property);
             },
           )),
-      SpiritCat(),
+      if (user.settings?.cat == true) SpiritCat(),
     ]);
   }
 

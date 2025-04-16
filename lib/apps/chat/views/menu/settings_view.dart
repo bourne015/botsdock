@@ -20,6 +20,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
   double temperature = 1;
   RestorableBool internet = RestorableBool(false);
   RestorableBool artifact = RestorableBool(false);
+  RestorableBool cat = RestorableBool(false);
   ThemeMode theme = ThemeMode.system;
 
   @override
@@ -28,12 +29,14 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
   void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
     registerForRestoration(internet, 'model internet function');
     registerForRestoration(artifact, 'model artifact function');
+    registerForRestoration(cat, 'cat');
   }
 
   @override
   void initState() {
     artifact = RestorableBool(widget.user.settings?.artifact ?? false);
     internet = RestorableBool(widget.user.settings?.internet ?? false);
+    cat = RestorableBool(widget.user.settings?.cat ?? false);
     temperature = widget.user.settings?.temperature ?? 1.0;
     theme = widget.user.settings?.themeMode ?? ThemeMode.system;
     super.initState();
@@ -95,9 +98,19 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
       children: [
         functionSwitch(
           context,
+          cat,
+          name: "胖猫精灵",
+          desc: "一只拥有超强记忆力的猫咪, 双击它可开启对话",
+          onChange: (v) {
+            widget.user.cat = v;
+          },
+        ),
+        Divider(),
+        functionSwitch(
+          context,
           artifact,
           name: "可视化",
-          desc: "生成图表、动画、流程图、网页预览等可视化能",
+          desc: "生成图表、动画、流程图、网页预览等的能力",
           onChange: (v) {
             widget.user.settings?.artifact = v;
           },

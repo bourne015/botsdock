@@ -120,6 +120,11 @@ class User with ChangeNotifier {
     notifyListeners();
   }
 
+  set cat(bool v) {
+    _settings?.cat = v;
+    notifyListeners();
+  }
+
   Map<String, dynamic> toJson() => {
         'id': _id,
         'name': _name,
