@@ -68,6 +68,22 @@ class Models {
     organization: Organization.openai,
     visibleInUI: false,
   );
+  static const AIModel gpt41 = AIModel(
+    id: "gpt-4.1",
+    name: "GPT 4.1",
+    abbrev: "4.1",
+    organization: Organization.openai,
+    isDefault: true,
+    score: 58.41,
+  );
+  static const AIModel gpt41Mini = AIModel(
+    id: "gpt-4.1-mini",
+    name: "GPT 4.1 mini",
+    abbrev: "41m",
+    organization: Organization.openai,
+    isDefault: true,
+    score: 55.55,
+  );
   static const AIModel gpt4o = AIModel(
     id: "gpt-4o",
     name: "GPT 4o",
@@ -207,7 +223,9 @@ class Models {
   // All models list
   static const List<AIModel> all = [
     // OpenAI
-    gpt35, gpt40, gpt4o, gpt4oMini, o1, o1Mini, o3Mini, dalle3,
+    gpt35, gpt40,
+    gpt41, gpt41Mini, gpt4o, gpt4oMini, o1, o1Mini, o3Mini,
+    dalle3,
     // Claude
     claudeHaiku, claudeSonnet, claudeOpus, claudeSonnet35, claudeHaiku35,
     claudeSonnet37,
@@ -254,7 +272,7 @@ class Models {
   }
 }
 
-const DefaultModelVersion = Models.gpt4o;
+const DefaultModelVersion = Models.gpt41Mini;
 const ModelForTitleGen = Models.geminiFlash20Lite;
 Map<Organization, AIModel> currentModels = {
   Organization.openai: DefaultModelVersion,
