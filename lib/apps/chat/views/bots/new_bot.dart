@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
 import 'package:botsdock/apps/chat/utils/client/path.dart';
+import 'package:botsdock/apps/chat/utils/prompts.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:file_picker/file_picker.dart';
@@ -381,13 +382,13 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
             borderRadius: const BorderRadius.all(Radius.circular(15))),
         child: ListTile(
             title: Text(_model, style: Theme.of(context).textTheme.bodyMedium),
-            trailing: PopupMenuButton<String>(
+            trailing: PopupMenuButton<dynamic>(
               initialValue: _model,
               icon: const Icon(Icons.keyboard_arrow_down_rounded),
               iconSize: 24,
               elevation: 15,
               shadowColor: Colors.blue,
-              onSelected: (String newValue) {
+              onSelected: (dynamic newValue) {
                 setState(() {
                   _model = newValue;
                 });
@@ -902,12 +903,28 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                 tooltip: GalleryLocalizations.of(context)!.functionsTip,
               )
           ])),
-      FilledButton.tonalIcon(
-          icon: Icon(Icons.add, size: 15),
-          onPressed: () {
-            editFunction(context);
-          },
-          label: Text("Functions", style: TextStyle(fontSize: 14)))
+      // FilledButton.tonalIcon(
+      //     icon: Icon(Icons.add, size: 15),
+      //     onPressed: () {
+      //       editFunction(context);
+      //     },
+      //     label: Text("Functions", style: TextStyle(fontSize: 14)))
+      PopupMenuButton<dynamic>(
+        // initialValue: _model,
+        icon: Icon(Icons.add, size: 15),
+        iconSize: 24,
+        elevation: 15,
+        shadowColor: Colors.blue,
+        onSelected: (dynamic newValue) {
+          setState(() {
+            functionsBody[newValue["name"]] = newValue;
+          });
+        },
+        itemBuilder: (BuildContext context) => Functions.all.entries
+            .map((v) => buildPopupMenuItem(context,
+                value: v.value, icon: Icons.abc, title: v.key))
+            .toList(),
+      )
     ]);
   }
 
@@ -930,6 +947,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
                           child: Form(
                               key: _functionformKey,
                               child: TextFormField(
+                                readOnly: true,
                                 controller: _functionController,
                                 decoration: InputDecoration(
                                   hintText: function_sample1,
@@ -1008,7 +1026,7 @@ class CreateBotState extends State<CreateBot> with RestorationMixin {
             },
           ),
           onTap: () {
-            _functionController.text = funcContent;
+            _functionController.text = jsonEncode(funcContent);
             editFunction(context);
           },
         );

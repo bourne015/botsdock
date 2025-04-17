@@ -9,6 +9,7 @@ import 'package:botsdock/apps/chat/utils/client/http_client.dart';
 import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:botsdock/apps/chat/utils/global.dart';
 import 'package:botsdock/apps/chat/utils/logger.dart';
+import 'package:botsdock/apps/chat/utils/prompts.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/response.dart';
@@ -350,28 +351,10 @@ class ChatAPI {
       pages.getPage(handlePageID).botID = botID;
       pages.currentPage?.model = model ?? property.initModelVersion;
       if (functions != null && functions.isNotEmpty) {
-        if (Models.checkORG(pages.currentPage!.model, Organization.openai) ||
-            Models.checkORG(pages.currentPage!.model, Organization.deepseek)) {
-          functions.forEach((name, body) {
-            var func = {"type": "function", "function": json.decode(body)};
-            pages.getPage(handlePageID).tools.add(
-                  openai.ChatCompletionTool.fromJson(func),
-                );
-          });
-        } else {
-          functions.forEach((name, body) {
-            var func = json.decode(body);
-            var funcschema = func['input_schema'] ?? func['parameters'];
-            var jsfunc = {
-              "name": func['name'],
-              "description": func['description'],
-              "input_schema": funcschema
-            };
-            pages.getPage(handlePageID).tools.add(
-                  anthropic.Tool.fromJson(jsfunc),
-                );
-          });
-        }
+        functions.forEach((name, body) {
+          if (Functions.all.containsKey(name))
+            pages.getPage(handlePageID).enable_tool(name);
+        });
       }
       pages.getPage(handlePageID).addMessage(
           id: 0,

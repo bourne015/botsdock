@@ -119,9 +119,9 @@ Widget botTextFormField(
   );
 }
 
-PopupMenuItem<String> buildPopupMenuItem(BuildContext context,
-    {String? value, IconData? icon, String? title}) {
-  return PopupMenuItem<String>(
+PopupMenuItem<dynamic> buildPopupMenuItem(BuildContext context,
+    {dynamic value, IconData? icon, String? title}) {
+  return PopupMenuItem<dynamic>(
     padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
     value: value,
     child: Material(
