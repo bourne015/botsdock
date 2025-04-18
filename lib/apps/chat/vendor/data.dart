@@ -239,6 +239,13 @@ class Models {
     organization: Organization.google,
     score: 54.89,
   );
+  static const AIModel geminiFlash25 = AIModel(
+    id: "gemini-2.5-flash-preview-04-17",
+    name: "Gemini 2.5 Flash",
+    abbrev: "25f",
+    organization: Organization.google,
+    score: 71.21,
+  );
   static const AIModel geminiPro25 = AIModel(
     id: "gemini-2.5-pro-exp-03-25",
     name: "Gemini 2.5 Pro",
@@ -255,12 +262,15 @@ class Models {
     o4Mini, gpt41, gpt41Mini, gpt4o, gpt4oMini, o1, o1Mini, o3Mini,
     dalle3,
     // Claude
-    claudeHaiku, claudeSonnet, claudeOpus, claudeSonnet35, claudeHaiku35,
+    claudeHaiku, claudeSonnet, claudeOpus,
+    claudeSonnet35, claudeHaiku35,
     claudeSonnet37,
     // DeepSeek
     deepseekChat, deepseekReasoner,
     // Gemini
-    geminiPro15, geminiFlash20Lite, geminiFlash20, geminiPro25
+    geminiPro15,
+    geminiFlash20Lite, geminiFlash20,
+    geminiFlash25, geminiPro25
   ];
 
   //get default model of an organization
