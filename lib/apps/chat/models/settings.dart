@@ -1,7 +1,9 @@
+import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:flutter/material.dart';
 
 //all chat pages
 class Settings with ChangeNotifier {
+  String _defaultmodel;
   bool _cat;
   double _temperature;
   bool _internet;
@@ -9,16 +11,23 @@ class Settings with ChangeNotifier {
   ThemeMode _themeMode;
 
   Settings({
+    String? defaultmodel,
     bool? cat,
     double? temperature,
     bool? internet,
     bool? artifact,
     ThemeMode? themeMode,
   })  : _temperature = temperature ?? 1.0,
+        _defaultmodel = defaultmodel ?? DefaultModelVersion.id,
         _cat = cat ?? false,
         _internet = internet ?? false,
         _artifact = artifact ?? false,
         _themeMode = themeMode ?? ThemeMode.system;
+
+  String get defaultmodel => _defaultmodel;
+  set defaultmodel(String v) {
+    _defaultmodel = v;
+  }
 
   double get temperature => _temperature;
   set temperature(double v) {

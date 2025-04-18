@@ -1,5 +1,7 @@
 import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/apps/chat/utils/custom_widget.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
+import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:flutter/material.dart';
 import 'package:botsdock/l10n/gallery_localizations.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -22,6 +24,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
   RestorableBool artifact = RestorableBool(false);
   RestorableBool cat = RestorableBool(false);
   ThemeMode theme = ThemeMode.system;
+  String defaultmodel = DefaultModelVersion.id;
 
   @override
   String get restorationId => 'switch_demo';
@@ -34,20 +37,30 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
 
   @override
   void initState() {
+    super.initState();
     artifact = RestorableBool(widget.user.settings?.artifact ?? false);
     internet = RestorableBool(widget.user.settings?.internet ?? false);
     cat = RestorableBool(widget.user.settings?.cat ?? false);
     temperature = widget.user.settings?.temperature ?? 1.0;
     theme = widget.user.settings?.themeMode ?? ThemeMode.system;
-    super.initState();
+    defaultmodel = widget.user.settings?.defaultmodel ?? DefaultModelVersion.id;
   }
 
   @override
   void dispose() {
+    saveSetting();
+    super.dispose();
+  }
+
+  void saveSetting() {
     if (widget.user.isLogedin)
       ChatAPI().updateUser(
           widget.user.id, {"settings": widget.user.settings!.toJson()});
-    super.dispose();
+    DefaultModelVersion =
+        Models.getModelById(defaultmodel) ?? DefaultModelVersion;
+    if (Models.getOrgByModelId(defaultmodel) != null)
+      currentModels[Models.getOrgByModelId(defaultmodel)!] =
+          DefaultModelVersion;
   }
 
   @override
@@ -96,6 +109,8 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
   Widget settingItems(BuildContext context) {
     return Column(
       children: [
+        defaultModelSetting(context),
+        Divider(),
         functionSwitch(
           context,
           cat,
@@ -151,6 +166,32 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
         ),
       ],
     );
+  }
+
+  Widget defaultModelSetting(BuildContext context) {
+    return ListTile(
+        dense: true,
+        visualDensity: VisualDensity.compact,
+        title: Text("默认模型", style: Theme.of(context).textTheme.titleSmall),
+        subtitle:
+            Text(defaultmodel, style: Theme.of(context).textTheme.labelMedium),
+        trailing: PopupMenuButton<dynamic>(
+          initialValue: defaultmodel,
+          icon: const Icon(Icons.keyboard_arrow_down_rounded),
+          iconSize: 24,
+          elevation: 15,
+          shadowColor: Colors.blue,
+          onSelected: (dynamic newValue) {
+            setState(() {
+              defaultmodel = newValue;
+            });
+            widget.user.settings?.defaultmodel = newValue;
+          },
+          itemBuilder: (BuildContext context) => Models.getTextModelIds()
+              .map((v) => buildPopupMenuItem(context,
+                  value: v, icon: Icons.abc, title: v))
+              .toList(),
+        ));
   }
 
   Widget functionSwitch(

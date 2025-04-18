@@ -34,7 +34,7 @@ class AIModel {
   final String name; //display name
   final String abbrev;
   final Organization organization;
-  final bool isDefault; //default model in its org
+  // final bool isDefault; //default model in its org
   final bool visibleInUI;
   final String modelType; //modalities
   final double score; // Global average data from https://livebench.ai/
@@ -45,7 +45,7 @@ class AIModel {
     required this.name,
     required this.abbrev,
     required this.organization,
-    this.isDefault = false,
+    // this.isDefault = false,
     this.visibleInUI = true,
     this.modelType = "多模态",
     this.score = 0,
@@ -85,7 +85,7 @@ class Models {
     name: "GPT 4.1 mini",
     abbrev: "41m",
     organization: Organization.openai,
-    isDefault: true,
+    // isDefault: true,
     price: {"input": 0.4, "output": 1.6},
     score: 55.55,
   );
@@ -193,7 +193,7 @@ class Models {
     name: "Claude3.7 - sonnet",
     abbrev: "s",
     organization: Organization.anthropic,
-    isDefault: true,
+    // isDefault: true,
     price: {"input": 3.0, "output": 15.0},
     score: 70.57,
   );
@@ -212,7 +212,7 @@ class Models {
     name: "DeepSeek R1",
     abbrev: "r1",
     organization: Organization.deepseek,
-    isDefault: true,
+    // isDefault: true,
     price: {"input": 0.55, "output": 2.19},
     score: 67.47,
   );
@@ -244,7 +244,7 @@ class Models {
     name: "Gemini 2.5 Pro",
     abbrev: "25p",
     organization: Organization.google,
-    isDefault: true,
+    // isDefault: true,
     score: 77.43,
   );
 
@@ -264,12 +264,12 @@ class Models {
   ];
 
   //get default model of an organization
-  static AIModel getDefaultModel(Organization org) {
-    return all.firstWhere(
-        (m) => m.visibleInUI && m.organization == org && m.isDefault,
-        orElse: () =>
-            all.firstWhere((m) => m.visibleInUI && m.organization == org));
-  }
+  // static AIModel getDefaultModel(Organization org) {
+  //   return all.firstWhere(
+  //       (m) => m.visibleInUI && m.organization == org && m.isDefault,
+  //       orElse: () =>
+  //           all.firstWhere((m) => m.visibleInUI && m.organization == org));
+  // }
 
   //get all models of an organization
   static List<AIModel> getOrganizationModels(Organization organization) {
@@ -297,18 +297,25 @@ class Models {
     return null;
   }
 
+  static AIModel? getModelById(String modelId) {
+    for (var model in all) {
+      if (model.id == modelId) return model;
+    }
+    return null;
+  }
+
   static bool checkORG(String modelId, Organization org) {
     return all.any((m) => m.id == modelId && m.organization == org);
   }
 }
 
-final DefaultModelVersion = Models.getDefaultModel(Organization.openai);
+AIModel DefaultModelVersion = Models.gpt41Mini;
 final ModelForTitleGen = Models.geminiFlash20Lite;
 Map<Organization, AIModel> currentModels = {
-  Organization.openai: Models.getDefaultModel(Organization.openai),
-  Organization.anthropic: Models.getDefaultModel(Organization.anthropic),
-  Organization.google: Models.getDefaultModel(Organization.google),
-  Organization.deepseek: Models.getDefaultModel(Organization.deepseek),
+  Organization.openai: DefaultModelVersion,
+  Organization.anthropic: Models.claudeSonnet37,
+  Organization.google: Models.geminiPro25,
+  Organization.deepseek: Models.deepseekReasoner,
 };
 
 const claudeSupportedFiles = ['pdf'];

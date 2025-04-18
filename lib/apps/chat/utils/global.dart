@@ -18,7 +18,7 @@ class Global {
     _prefs = await SharedPreferences.getInstance();
     try {
       oss_init();
-      restoreProperties(property);
+      restoreProperties(property, user);
       int? user_id = _prefs.getInt("cached_user_id");
       if (_prefs.getBool("U${user_id}_isLogedin") == true) {
         User? _u = await chatApi.userInfo(user_id);
@@ -56,9 +56,11 @@ class Global {
     }
   }
 
-  void restoreProperties(Property property) {
+  void restoreProperties(Property property, User user) {
     if (_prefs.getString("init_model") != null)
       property.initModelVersion = _prefs.getString("init_model");
+    if (user.settings?.defaultmodel != null)
+      property.initModelVersion = user.settings?.defaultmodel;
     // if (_prefs.getBool("artifact") != null)
     //   property.artifact = _prefs.getBool("artifact") ?? false;
     // if (_prefs.getBool("internet") != null)
