@@ -28,13 +28,15 @@ dependencies:
   flutter_image_compress: ^2.4.0
   flutter_image_gallery_saver: ^0.0.2
   flutter_inappwebview: ^6.1.5
+  google_generative_ai:
+      git:
+        url: https://github.com/bourne015/generative-ai-dart
   custom_sliding_segmented_control: ^1.8.5
   highlight: ^0.7.0
   scrollable_positioned_list: ^0.3.8
   web: ^1.1.1
   openai_dart: ^0.4.5
   anthropic_sdk_dart: ^0.2.0+1
-  google_generative_ai: ^0.4.6
   flutter_dotenv: ^5.2.1
   flutter_markdown_latex:
     git:

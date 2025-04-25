@@ -239,6 +239,13 @@ class Models {
     organization: Organization.google,
     score: 54.89,
   );
+  static const AIModel geminiFlash20image = AIModel(
+    id: "gemini-2.0-flash-exp-image-generation",
+    name: "Gemini 2.0 Flash image generation",
+    abbrev: "20fi",
+    organization: Organization.google,
+    score: 54.89,
+  );
   static const AIModel geminiFlash25 = AIModel(
     id: "gemini-2.5-flash-preview-04-17",
     name: "Gemini 2.5 Flash",
@@ -269,7 +276,7 @@ class Models {
     deepseekChat, deepseekReasoner,
     // Gemini
     geminiPro15,
-    geminiFlash20Lite, geminiFlash20,
+    geminiFlash20Lite, geminiFlash20, geminiFlash20image,
     geminiFlash25, geminiPro25
   ];
 

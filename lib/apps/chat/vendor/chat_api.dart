@@ -15,8 +15,6 @@ import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/response.dart';
 
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
-import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
-import 'package:openai_dart/openai_dart.dart' as openai;
 
 import '../models/user.dart';
 import '../utils/constants.dart';
@@ -162,7 +160,7 @@ class ChatAPI {
     if (_data["result"] == "success") user.credit = _data["credit"];
   }
 
-  Future<String?> uploadFile(filename, imgData) async {
+  static Future<String?> uploadFile(filename, imgData) async {
     String? ossUrl;
     try {
       var resp = await Client().putObject(imgData, "chat/image/" + filename);

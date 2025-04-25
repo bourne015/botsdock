@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/utils/tools.dart';
+import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:botsdock/apps/chat/vendor/messages/deepseek.dart';
@@ -480,7 +481,7 @@ class Chat with ChangeNotifier {
     }
   }
 
-  void appendMessage({
+  Future<void> appendMessage({
     int? index,
     String? msg,
     String? reasoning_content,
@@ -488,7 +489,7 @@ class Chat with ChangeNotifier {
     dynamic toolUse,
     Map<String, VisionFile>? visionFiles,
     Map<String, Attachment>? attachments,
-  }) {
+  }) async {
     try {
       if (reasoning_content != null) {
         messages.last.onThinking = true;
@@ -538,6 +539,18 @@ class Chat with ChangeNotifier {
       if (attachments != null)
         attachments.forEach((String name, Attachment content) {
           messages.last.updateAttachments(name, content);
+        });
+      if (visionFiles != null)
+        visionFiles.forEach((String name, VisionFile content) async {
+          String? path = await ChatAPI.uploadFile(name, content.bytes);
+          String _fileType = name.split('.').last.toLowerCase();
+          var _imgPart = GeminiPart1(
+            inlineData: GeminiData1(mimeType: 'image/$_fileType', data: path),
+          );
+
+          messages.last.content.add(_imgPart);
+          messages.last.visionFiles[name] =
+              VisionFile(name: name, url: path ?? "");
         });
 
       if (doStream) _messageController.add(messages.last);

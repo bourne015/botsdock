@@ -514,10 +514,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
         {"type": "code_interpreter"},
       ];
     } else if (Models.checkORG(modelV, Organization.anthropic)) {
-      _file_url = await chats.uploadFile(
+      _file_url = await ChatAPI.uploadFile(
           selectedfile.files.first.name, selectedfile.files.first.bytes);
     } else if (Models.checkORG(modelV, Organization.google)) {
-      _file_url = await chats.uploadFile(
+      _file_url = await ChatAPI.uploadFile(
           selectedfile.files.first.name, selectedfile.files.first.bytes);
     }
     setState(() {
@@ -547,7 +547,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
           var _filename = entry.key;
           var _content = entry.value;
           String oss_name = "user${user.id}_${handlePageID}_${ts}" + _filename;
-          String? ossURL = await chats.uploadFile(oss_name, _content.bytes);
+          String? ossURL = await ChatAPI.uploadFile(oss_name, _content.bytes);
           _content.url = ossURL ?? "";
           pages
               .getPage(handlePageID)

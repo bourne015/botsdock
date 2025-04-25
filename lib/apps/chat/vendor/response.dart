@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/models/pages.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
@@ -211,7 +214,25 @@ class AIResponse {
   static void Gemini(Pages pages, Property property, User user,
       int handlePageID, Map<String, dynamic> j) async {
     var res = gemini.parseGenerateContentResponse(j);
-    pages.getPage(handlePageID).appendMessage(msg: res.text);
+
+    await pages.getPage(handlePageID).appendMessage(msg: res.text);
+    if (res.image != null) {
+      var ts = DateTime.now().millisecondsSinceEpoch;
+      String extension = res.image!.mimeType.split('/').last;
+      String imgname = "ai$ts.${extension}";
+      //////need to decode again
+      String secondBase64 = utf8.decode(res.image!.bytes);
+      Uint8List secondDecode = base64Decode(secondBase64);
+      //////
+      await pages.getPage(handlePageID).appendMessage(
+        visionFiles: {
+          "$imgname": VisionFile(
+            name: imgname,
+            bytes: secondDecode,
+          ),
+        },
+      );
+    }
 
     //gemini function call response is one time, not stream
     if (res.functionCalls.isNotEmpty && res.functionCalls.isNotEmpty) {
