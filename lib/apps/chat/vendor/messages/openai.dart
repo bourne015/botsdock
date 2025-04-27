@@ -15,6 +15,7 @@ class OpenAIMessage extends Message {
     final int? timestamp,
     bool? onProcessing = false,
     bool? onThinking = false,
+    ToolStatus? toolstatus,
   }) : super(
           id: id,
           role: role,
@@ -25,6 +26,7 @@ class OpenAIMessage extends Message {
           attachments: attachments,
           visionFiles: visionFiles,
           timestamp: timestamp,
+          toolstatus: toolstatus,
         );
 
   //useless in openai case
@@ -97,6 +99,7 @@ class OpenAIMessage extends Message {
         if (visionFiles.isNotEmpty)
           'visionFiles': visionFiles
               .map((key, visionFiles) => MapEntry(key, visionFiles.toJson())),
+        if (toolstatus != null) 'toolstatus': toolstatus!.name,
       };
 
   static OpenAIMessage fromJson(Map<String, dynamic> json) {
@@ -133,6 +136,16 @@ class OpenAIMessage extends Message {
     var toolCalls = (json['tool_calls'] as List?)
         ?.map((toolCall) => openai.RunToolCallObject.fromJson(toolCall))
         .toList();
+    ToolStatus? _toolstatus = null;
+    if (json['toolstatus'] is String) {
+      String statusString = json['toolstatus'];
+      try {
+        _toolstatus =
+            ToolStatus.values.firstWhere((e) => e.name == statusString);
+      } catch (e) {
+        _toolstatus = ToolStatus.none;
+      }
+    }
     return OpenAIMessage(
       id: id,
       role: role,
@@ -142,6 +155,7 @@ class OpenAIMessage extends Message {
       toolCalls: toolCalls,
       attachments: attachments,
       visionFiles: visionFile,
+      toolstatus: _toolstatus,
     );
   }
 }

@@ -1,8 +1,85 @@
 import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:botsdock/apps/chat/utils/logger.dart';
+import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:botsdock/apps/chat/views/messages/common.dart';
 import 'package:botsdock/apps/chat/views/messages/webveiw.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+class ChatToolMessage extends StatefulWidget {
+  final String? id;
+  final String toolName;
+  final String? descriping;
+  final ToolStatus? status;
+
+  ChatToolMessage({
+    Key? key,
+    this.id,
+    required this.toolName,
+    this.descriping,
+    this.status,
+  });
+
+  @override
+  State createState() => ChatToolMessageState();
+}
+
+class ChatToolMessageState extends State<ChatToolMessage> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 40,
+      width: 300,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.tertiary,
+        borderRadius: BORDERRADIUS10,
+      ),
+      child: ListTile(
+        dense: true,
+        visualDensity: VisualDensity.compact,
+        leading: Icon(Icons.construction),
+        title: Text(widget.toolName),
+        // subtitle: Text(
+        //   widget.descriping ?? "",
+        //   style: Theme.of(context).textTheme.labelMedium,
+        // ),
+        trailing: _buildTrailingWidget(),
+      ),
+    );
+  }
+
+  Widget? _buildTrailingWidget() {
+    switch (widget.status) {
+      case ToolStatus.none:
+        return SizedBox.shrink(key: ValueKey(ToolStatus.none));
+      case ToolStatus.running:
+        return Container(
+          key: ValueKey(ToolStatus.running),
+          width: 35,
+          height: 35,
+          child: SpinKitDualRing(
+            color: Colors.blue[200]!,
+            lineWidth: 2.5,
+            size: 25,
+          ),
+        );
+      case ToolStatus.finished:
+        return Icon(
+          Icons.check,
+          color: Colors.greenAccent[400],
+          key: ValueKey(ToolStatus.finished),
+        );
+      case ToolStatus.error:
+        return Icon(
+          Icons.error_outline,
+          color: Colors.red,
+          key: ValueKey(ToolStatus.error),
+        );
+      default:
+        return SizedBox.shrink(key: ValueKey('default'));
+    }
+  }
+}
 
 class ChatArtifactMessage extends StatefulWidget {
   final dynamic function;

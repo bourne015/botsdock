@@ -18,6 +18,7 @@ class DeepSeekMessage extends Message {
     final int? timestamp,
     bool? onProcessing = false,
     bool? onThinking = false,
+    ToolStatus? toolstatus = ToolStatus.none,
   }) : super(
           id: id,
           role: role,
@@ -28,6 +29,7 @@ class DeepSeekMessage extends Message {
           attachments: attachments,
           visionFiles: visionFiles,
           timestamp: timestamp,
+          toolstatus: toolstatus,
         );
 
   //useless in openai case
@@ -100,6 +102,7 @@ class DeepSeekMessage extends Message {
         if (visionFiles.isNotEmpty)
           'visionFiles': visionFiles
               .map((key, visionFiles) => MapEntry(key, visionFiles.toJson())),
+        if (toolstatus != null) 'toolstatus': toolstatus!.name,
       };
 
   static DeepSeekMessage fromJson(Map<String, dynamic> json) {
@@ -136,6 +139,16 @@ class DeepSeekMessage extends Message {
     var toolCalls = (json['tool_calls'] as List?)
         ?.map((toolCall) => openai.RunToolCallObject.fromJson(toolCall))
         .toList();
+    ToolStatus? _toolstatus = null;
+    if (json['toolstatus'] is String) {
+      String statusString = json['toolstatus'];
+      try {
+        _toolstatus =
+            ToolStatus.values.firstWhere((e) => e.name == statusString);
+      } catch (e) {
+        _toolstatus = ToolStatus.none;
+      }
+    }
     return DeepSeekMessage(
       id: id,
       role: role,
@@ -145,6 +158,7 @@ class DeepSeekMessage extends Message {
       toolCalls: toolCalls,
       attachments: attachments,
       visionFiles: visionFile,
+      toolstatus: _toolstatus,
     );
   }
 }

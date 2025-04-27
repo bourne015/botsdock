@@ -54,6 +54,7 @@ class ClaudeMessage extends Message {
     final int? timestamp,
     bool? onProcessing = false,
     bool? onThinking = false,
+    ToolStatus? toolstatus = ToolStatus.none,
   }) : super(
           id: id,
           role: role,
@@ -61,6 +62,7 @@ class ClaudeMessage extends Message {
           attachments: attachments,
           visionFiles: visionFiles,
           timestamp: timestamp,
+          toolstatus: toolstatus,
         );
 
   /**
@@ -131,6 +133,7 @@ class ClaudeMessage extends Message {
         if (visionFiles.isNotEmpty)
           'visionFiles': visionFiles
               .map((key, visionFiles) => MapEntry(key, visionFiles.toJson())),
+        if (toolstatus != null) 'toolstatus': toolstatus!.name,
       };
 
   static ClaudeMessage fromJson(Map<String, dynamic> json) {
@@ -156,11 +159,22 @@ class ClaudeMessage extends Message {
         content = json['content'];
       }
     }
+    ToolStatus? _toolstatus = null;
+    if (json['toolstatus'] is String) {
+      String statusString = json['toolstatus'];
+      try {
+        _toolstatus =
+            ToolStatus.values.firstWhere((e) => e.name == statusString);
+      } catch (e) {
+        _toolstatus = ToolStatus.none;
+      }
+    }
     return ClaudeMessage(
       id: id,
       role: role,
       content: content,
       visionFiles: visionFile,
+      toolstatus: _toolstatus,
     );
   }
 }

@@ -5,7 +5,7 @@ import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:botsdock/apps/chat/vendor/messages/deepseek.dart';
 import 'package:botsdock/apps/chat/vendor/messages/gemini.dart';
-import 'package:botsdock/apps/chat/views/messages/chat_artifact.dart';
+import 'package:botsdock/apps/chat/views/messages/chat_tool.dart';
 import 'package:botsdock/apps/chat/views/messages/chat_file.dart';
 import 'package:botsdock/apps/chat/views/messages/chat_image.dart';
 import 'package:botsdock/apps/chat/views/messages/chat_text.dart';
@@ -317,6 +317,11 @@ class MessageBoxState extends State<MessageBox> {
               contentWidgets.add(
                   ChatTextMessage(role: msg.role, text: _content.text ?? ""));
             } else if (_content is GeminiPart3) {
+              contentWidgets.add(ChatToolMessage(
+                toolName: _content.name ?? "",
+                // descriping: url,
+                status: msg.toolstatus,
+              ));
               if (_content.name == "save_artifact")
                 contentWidgets
                     .add(ChatArtifactMessage(function: _content.args));
@@ -351,16 +356,20 @@ class MessageBoxState extends State<MessageBox> {
               case "image_url":
                 break;
               case "tool_use":
+                var desc = "";
+                if (_content.name == "webpage_fetch") {
+                  desc = _content.input?["url"];
+                }
+                contentWidgets.add(ChatToolMessage(
+                  id: _content.id,
+                  toolName: _content.name,
+                  descriping: desc,
+                  status: msg.toolstatus,
+                ));
                 if (_content.name == "save_artifact")
                   contentWidgets
                       .add(ChatArtifactMessage(function: _content.input));
-                if (_content.name == "webpage_fetch") {
-                  final url = _content.input?["url"];
-                  if (url?.isNotEmpty ?? false) {
-                    contentWidgets.add(ChatTextMessage(
-                        role: msg.role, text: _content.input["url"]));
-                  }
-                }
+
                 break;
               case "tool_result": //only claude
                 if (_content.content != null &&
@@ -380,6 +389,12 @@ class MessageBoxState extends State<MessageBox> {
         }
 
       for (openai.RunToolCallObject tool in msg.toolCalls) {
+        contentWidgets.add(ChatToolMessage(
+          id: tool.id,
+          toolName: tool.function.name,
+          // descriping: arg["url"],
+          status: msg.toolstatus,
+        ));
         if (!isValidJson(tool.function.arguments)) {
           continue;
         }
@@ -391,9 +406,7 @@ class MessageBoxState extends State<MessageBox> {
           case "google_search":
             break;
           case "webpage_fetch":
-            var arg = jsonDecode(tool.function.arguments);
-            contentWidgets
-                .add(ChatTextMessage(role: msg.role, text: arg["url"]));
+            // var arg = jsonDecode(tool.function.arguments);
             break;
         }
       }

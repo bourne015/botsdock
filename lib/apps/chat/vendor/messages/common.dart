@@ -7,6 +7,8 @@ import 'package:openai_dart/openai_dart.dart' as openai;
 export "openai.dart";
 export "claude.dart";
 
+enum ToolStatus { none, running, finished, error }
+
 // Parsing different types of content parts
 dynamic parseContentPart(Map<String, dynamic> contentPart) {
   var type = contentPart['type'];
@@ -44,6 +46,7 @@ abstract class Message {
   final int? timestamp;
   bool onProcessing = false;
   bool onThinking = false;
+  ToolStatus? toolstatus;
   Message({
     required this.id,
     required this.role,
@@ -54,6 +57,7 @@ abstract class Message {
     Map<String, Attachment>? attachments,
     Map<String, VisionFile>? visionFiles,
     this.timestamp,
+    this.toolstatus,
   })  : attachments = attachments ?? {},
         visionFiles = visionFiles ?? {},
         toolCalls = toolCalls ?? [];

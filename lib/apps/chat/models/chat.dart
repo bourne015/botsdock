@@ -388,6 +388,7 @@ class Chat with ChangeNotifier {
     );
 
     var _toolID = messages.last.content[index].id;
+    messages.last.toolstatus = ToolStatus.finished;
     addMessage(
         role: MessageTRole.user,
         toolResult: anthropic.ToolResultBlock(
@@ -420,6 +421,7 @@ class Chat with ChangeNotifier {
       },
     );
 
+    messages.last.toolstatus = ToolStatus.finished;
     addMessage(
       role: MessageTRole.tool,
       geminiFunctionResponse: GeminiFunctionResponse(
@@ -463,6 +465,7 @@ class Chat with ChangeNotifier {
         },
       );
 
+      messages.last.toolstatus = ToolStatus.finished;
       addMessage(
         role: MessageTRole.tool,
         text: jsonEncode(toolres),
@@ -510,6 +513,7 @@ class Chat with ChangeNotifier {
       }
       //openai use toolscalls
       if (toolCalls != null) {
+        messages.last.toolstatus = ToolStatus.running;
         for (var i = 0; i < toolCalls.length; i++) {
           if (messages.last.toolCalls.length - 1 < toolCalls[i].index) {
             messages.last.toolCalls.add(
@@ -533,6 +537,7 @@ class Chat with ChangeNotifier {
       }
       //claude use tool_use
       if (toolUse != null) {
+        messages.last.toolstatus = ToolStatus.running;
         toolInputDelta += toolUse;
       }
 

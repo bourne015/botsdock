@@ -127,6 +127,7 @@ class GeminiMessage extends Message {
     final int? timestamp,
     bool? onProcessing = false,
     bool? onThinking = false,
+    ToolStatus? toolstatus = ToolStatus.none,
   }) : super(
           id: id,
           role: role,
@@ -135,6 +136,7 @@ class GeminiMessage extends Message {
           attachments: attachments,
           visionFiles: visionFiles,
           timestamp: timestamp,
+          toolstatus: toolstatus,
         );
 
   //useless in openai case
@@ -193,6 +195,7 @@ class GeminiMessage extends Message {
         if (visionFiles.isNotEmpty)
           'visionFiles': visionFiles
               .map((key, visionFiles) => MapEntry(key, visionFiles.toJson())),
+        if (toolstatus != null) 'toolstatus': toolstatus!.name,
       };
 
   static GeminiMessage fromJson(Map<String, dynamic> json) {
@@ -232,7 +235,16 @@ class GeminiMessage extends Message {
         content = json['content'];
       }
     }
-
+    ToolStatus? _toolstatus = null;
+    if (json['toolstatus'] is String) {
+      String statusString = json['toolstatus'];
+      try {
+        _toolstatus =
+            ToolStatus.values.firstWhere((e) => e.name == statusString);
+      } catch (e) {
+        _toolstatus = ToolStatus.none;
+      }
+    }
     return GeminiMessage(
       id: id,
       role: role,
@@ -240,6 +252,7 @@ class GeminiMessage extends Message {
       content: content,
       attachments: attachments,
       visionFiles: visionFile,
+      toolstatus: _toolstatus,
     );
   }
 }
