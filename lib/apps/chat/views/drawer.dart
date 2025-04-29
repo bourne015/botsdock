@@ -76,20 +76,23 @@ class _DrawerHeader extends StatelessWidget {
         ));
   }
 
+  Widget _homeButton(BuildContext context) {
+    return Container(
+      // margin: EdgeInsets.only(left: 17),
+      child: IconButton(
+        tooltip: "Home",
+        onPressed: () {
+          Navigator.of(context, rootNavigator: true).pop();
+        },
+        icon: Icon(Icons.home_outlined),
+      ),
+    );
+  }
+
   Widget _head(BuildContext context) {
     return Row(
       children: [
-        if (!kIsWeb &&
-            (Platform.isMacOS || Platform.isWindows || Platform.isLinux))
-          Container(
-            margin: EdgeInsets.only(left: 17),
-            child: IconButton(
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true).pop();
-              },
-              icon: Icon(Icons.home_outlined),
-            ),
-          ),
+        // _homeButton(context),
         Expanded(
           child: newchatButton(context),
         ),
@@ -116,7 +119,10 @@ class _DrawerHeader extends StatelessWidget {
           pages.currentPageID = -1;
           if (!isDisplayDesktop(context)) Navigator.pop(context);
         },
-        leading: const Icon(Icons.add),
+        leading: (!kIsWeb &&
+                (Platform.isMacOS || Platform.isWindows || Platform.isLinux))
+            ? _homeButton(context)
+            : const Icon(Icons.add),
         title: Text(
           GalleryLocalizations.of(context)!.newChat,
           style: Theme.of(context).textTheme.bodyLarge,
