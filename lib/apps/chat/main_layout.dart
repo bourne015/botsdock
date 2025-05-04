@@ -61,7 +61,7 @@ class MainLayoutState extends State<MainLayout> {
         Expanded(
             child: Scaffold(
           // backgroundColor: AppColors.chatPageBackground,
-          appBar: !property.onInitPage ? const MyAppBar() : null,
+          appBar: const MyAppBar(),
           body: AnimatedContainer(
             duration: _drawerAnimationDuration,
             child: _buildMainPageBody(context),

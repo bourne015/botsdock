@@ -72,7 +72,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
         toolbarHeight: 44,
         centerTitle: true,
         actions: [
-          if (!property.onInitPage) _appBarMenu(context),
+          _appBarMenu(context),
         ],
       ),
       // Divider(
@@ -115,9 +115,17 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
     return res;
   }
 
+  bool isSupportTools(Pages pages, Property property) {
+    if (property.onInitPage)
+      return property.initModelVersion != Models.deepseekReasoner.id;
+    else
+      return pages.currentPage!.model != Models.deepseekReasoner.id;
+  }
+
   Widget _appBarMenu(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
     User user = Provider.of<User>(context, listen: false);
+    Property property = Provider.of<Property>(context);
     return PopupMenuButton<String>(
       icon: Icon(Icons.more_vert_rounded),
       // color: AppColors.drawerBackground,
@@ -127,26 +135,23 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
       padding: const EdgeInsets.only(left: 2),
       shape: RoundedRectangleBorder(borderRadius: BORDERRADIUS10),
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        _buildPopupMenuItem(
-          context,
-          "clear",
-          icon: Icon(Icons.delete_outline),
-          title: "清空当前页面",
-          onTap: () {
-            Navigator.of(context).pop();
-            pages.clearCurrentPage();
-            ChatAPI().saveChats(user, pages, pages.currentPageID);
-          },
-        ),
+        if (!property.onInitPage)
+          _buildPopupMenuItem(
+            context,
+            "clear",
+            icon: Icon(Icons.delete_outline),
+            title: "清空当前页面",
+            onTap: () {
+              Navigator.of(context).pop();
+              pages.clearCurrentPage();
+              ChatAPI().saveChats(user, pages, pages.currentPageID);
+            },
+          ),
         PopupMenuDivider(),
-        if (pages.currentPage!.model != Models.deepseekReasoner.id)
-          _buildArtifactSwitch(context),
-        if (pages.currentPage!.model != Models.deepseekReasoner.id)
-          PopupMenuDivider(),
-        if (pages.currentPage!.model != Models.deepseekReasoner.id)
-          _buildInternetSwitch(context),
-        if (pages.currentPage!.model != Models.deepseekReasoner.id)
-          PopupMenuDivider(),
+        if (isSupportTools(pages, property)) _buildArtifactSwitch(context),
+        if (isSupportTools(pages, property)) PopupMenuDivider(),
+        if (isSupportTools(pages, property)) _buildInternetSwitch(context),
+        if (isSupportTools(pages, property)) PopupMenuDivider(),
         _buildtemperatureSlide(context),
       ],
     );
@@ -204,6 +209,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
   PopupMenuItem<String> _buildArtifactSwitch(BuildContext context) {
     Pages pages = Provider.of<Pages>(context, listen: false);
     User user = Provider.of<User>(context, listen: false);
+    Property property = Provider.of<Property>(context, listen: false);
     return PopupMenuItem<String>(
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         // value: "value",
@@ -243,9 +249,13 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                       onChanged: (value) {
                         setState(() {
                           switchArtifact.value = value;
-                          pages.set_artifact(pages.currentPageID, value);
+                          if (property.onInitPage)
+                            user.settings?.artifact = value;
+                          else
+                            pages.set_artifact(pages.currentPageID, value);
                         });
-                        ChatAPI().saveChats(user, pages, pages.currentPageID);
+                        if (!property.onInitPage)
+                          ChatAPI().saveChats(user, pages, pages.currentPageID);
                       },
                     ),
                   )),
@@ -257,6 +267,7 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
   PopupMenuItem<String> _buildInternetSwitch(BuildContext context) {
     Pages pages = Provider.of<Pages>(context, listen: false);
     User user = Provider.of<User>(context, listen: false);
+    Property property = Provider.of<Property>(context, listen: false);
     return PopupMenuItem<String>(
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         // value: "value",
@@ -294,9 +305,13 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                       onChanged: (value) {
                         setState(() {
                           switchInternet.value = value;
-                          pages.set_internet(pages.currentPageID, value);
+                          if (property.onInitPage)
+                            user.settings?.internet = value;
+                          else
+                            pages.set_internet(pages.currentPageID, value);
                         });
-                        ChatAPI().saveChats(user, pages, pages.currentPageID);
+                        if (!property.onInitPage)
+                          ChatAPI().saveChats(user, pages, pages.currentPageID);
                         // Global.saveProperties(internet: property.internet);
                       },
                     ),
@@ -307,8 +322,9 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
   }
 
   PopupMenuItem<String> _buildtemperatureSlide(BuildContext context) {
-    // User user = Provider.of<User>(context, listen: false);
+    User user = Provider.of<User>(context, listen: false);
     Pages pages = Provider.of<Pages>(context, listen: false);
+    Property property = Provider.of<Property>(context, listen: false);
     return PopupMenuItem<String>(
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         // value: "value",
@@ -351,7 +367,10 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
                               });
                             },
                             onChangeEnd: (value) {
-                              pages.currentPage?.temperature = value;
+                              if (property.onInitPage)
+                                user.settings?.temperature = value;
+                              else
+                                pages.currentPage?.temperature = value;
                             },
                           ),
                         ),
