@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:botsdock/apps/chat/models/settings.dart';
 import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
 import 'package:botsdock/apps/chat/utils/client/path.dart';
+import 'package:botsdock/apps/chat/views/menu/mcp_server_list.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -104,6 +105,9 @@ class Administrator extends StatelessWidget {
             case 'Instructions':
               InstructionsDialog(context, user);
               break;
+            case 'mcpsettings':
+              McpDialog(context, user);
+              break;
             case 'About':
               aboutDialog(context);
               break;
@@ -162,6 +166,12 @@ class Administrator extends StatelessWidget {
                   "Instructions",
                   Icons.settings_rounded,
                   GalleryLocalizations.of(context)!.setting),
+              _buildPopupMenuItem(
+                context,
+                "mcpsettings",
+                Icons.construction,
+                "MCP",
+              ),
               _buildPopupMenuItem(context, "About", Icons.info,
                   GalleryLocalizations.of(context)!.about),
               PopupMenuDivider(),
@@ -215,6 +225,19 @@ class Administrator extends StatelessWidget {
               child: ClipRRect(
             borderRadius: BORDERRADIUS15,
             child: SettingsView(user: user),
+          ));
+        });
+  }
+
+  void McpDialog(BuildContext context, User user) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Dialog(
+              child: ClipRRect(
+            borderRadius: BORDERRADIUS15,
+            child: MCPConfig(user: user),
           ));
         });
   }

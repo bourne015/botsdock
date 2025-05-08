@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:botsdock/apps/chat/models/mcp/mcp_settings_providers.dart';
 import 'package:dual_screen/dual_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,18 +14,32 @@ import 'package:botsdock/routes.dart';
 import 'package:botsdock/data/gallery_theme_data.dart';
 //import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
-  GoogleFonts.config.allowRuntimeFetching = false;
-  //await GetStorage.init();
+  // GoogleFonts.config.allowRuntimeFetching = false;
+  // //await GetStorage.init();
 
-  if (defaultTargetPlatform != TargetPlatform.linux &&
-      defaultTargetPlatform != TargetPlatform.windows &&
-      defaultTargetPlatform != TargetPlatform.macOS) {
-    WidgetsFlutterBinding.ensureInitialized();
-  }
+  // if (defaultTargetPlatform != TargetPlatform.linux &&
+  //     defaultTargetPlatform != TargetPlatform.windows &&
+  //     defaultTargetPlatform != TargetPlatform.macOS) {
+  WidgetsFlutterBinding.ensureInitialized();
+  // }
+  final prefs = await SharedPreferences.getInstance();
 
-  runApp(const GalleryApp());
+  final initialSettingsRepo = SettingsRepositoryImpl(prefs);
+  final initialServerList = await initialSettingsRepo.getMcpServerList();
+  runApp(ProviderScope(
+    overrides: [
+      sharedPreferencesProvider.overrideWithValue(prefs),
+      settingsRepositoryProvider.overrideWith(
+        (ref) => SettingsRepositoryImpl(ref.watch(sharedPreferencesProvider)),
+      ),
+      mcpServerListProvider.overrideWith((ref) => initialServerList),
+    ],
+    child: const GalleryApp(),
+  ));
 }
 
 class GalleryApp extends StatelessWidget {
