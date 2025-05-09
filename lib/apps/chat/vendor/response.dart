@@ -8,14 +8,21 @@ import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 
 import 'package:openai_dart/openai_dart.dart' as openai;
 import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
 import 'package:google_generative_ai/src/api.dart' as gemini;
 
 class AIResponse {
-  static void Openai(Pages pages, Property property, User user,
-      int handlePageID, Map<String, dynamic> j) async {
+  static void Openai(
+    Pages pages,
+    Property property,
+    User user,
+    int handlePageID,
+    Map<String, dynamic> j,
+    rp.WidgetRef ref,
+  ) async {
     var res = openai.CreateChatCompletionStreamResponse.fromJson(j);
 
     if (res.choices.isNotEmpty) {
@@ -26,8 +33,8 @@ class AIResponse {
 
       if (res.choices[0].finishReason ==
           openai.ChatCompletionFinishReason.toolCalls) {
-        await pages.getPage(handlePageID).handleOpenaiToolCall();
-        ChatAPI().submitText(pages, property, handlePageID, user);
+        await pages.getPage(handlePageID).handleOpenaiToolCall(ref);
+        ChatAPI().submitText(pages, property, handlePageID, user, ref);
       }
       if (res.choices[0].finishReason != null) {
         pages.setPageGenerateStatus(handlePageID, false);
@@ -119,8 +126,14 @@ class AIResponse {
     //pages.setGeneratingState(handlePageID, true);
   }
 
-  static void Claude(Pages pages, Property property, User user,
-      int handlePageID, Map<String, dynamic> j) {
+  static void Claude(
+    Pages pages,
+    Property property,
+    User user,
+    int handlePageID,
+    Map<String, dynamic> j,
+    rp.WidgetRef ref,
+  ) {
     try {
       anthropic.MessageStreamEvent res =
           anthropic.MessageStreamEvent.fromJson(j);
@@ -169,7 +182,7 @@ class AIResponse {
               pages.getPage(handlePageID).messages.last.content[i].type ==
                   "tool_use") {
             await pages.getPage(handlePageID).handleClaudeToolCall(i);
-            ChatAPI().submitText(pages, property, handlePageID, user);
+            ChatAPI().submitText(pages, property, handlePageID, user, ref);
           }
         },
         messageStop: (type) {
@@ -189,8 +202,14 @@ class AIResponse {
     }
   }
 
-  static void DeepSeek(Pages pages, Property property, User user,
-      int handlePageID, Map<String, dynamic> j) async {
+  static void DeepSeek(
+    Pages pages,
+    Property property,
+    User user,
+    int handlePageID,
+    Map<String, dynamic> j,
+    rp.WidgetRef ref,
+  ) async {
     var res = openai.CreateChatCompletionStreamResponse.fromJson(j);
     if (res.choices.isNotEmpty) {
       pages.getPage(handlePageID).appendMessage(
@@ -202,8 +221,8 @@ class AIResponse {
 
       if (res.choices[0].finishReason ==
           openai.ChatCompletionFinishReason.toolCalls) {
-        await pages.getPage(handlePageID).handleOpenaiToolCall();
-        ChatAPI().submitText(pages, property, handlePageID, user);
+        await pages.getPage(handlePageID).handleOpenaiToolCall(ref);
+        ChatAPI().submitText(pages, property, handlePageID, user, ref);
       }
       if (res.choices[0].finishReason != null) {
         pages.setPageGenerateStatus(handlePageID, false);
@@ -211,8 +230,14 @@ class AIResponse {
     }
   }
 
-  static void Gemini(Pages pages, Property property, User user,
-      int handlePageID, Map<String, dynamic> j) async {
+  static void Gemini(
+    Pages pages,
+    Property property,
+    User user,
+    int handlePageID,
+    Map<String, dynamic> j,
+    rp.WidgetRef ref,
+  ) async {
     var res = gemini.parseGenerateContentResponse(j);
 
     await pages.getPage(handlePageID).appendMessage(msg: res.text);
@@ -239,7 +264,7 @@ class AIResponse {
       await pages
           .getPage(handlePageID)
           .handleGeminiToolCall(res.functionCalls.first);
-      ChatAPI().submitText(pages, property, handlePageID, user);
+      ChatAPI().submitText(pages, property, handlePageID, user, ref);
       // pages.getPage(handlePageID).addMessage(
       //       role: MessageTRole.tool,
       //       text: "function response",

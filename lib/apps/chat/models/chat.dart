@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:botsdock/apps/chat/models/mcp/mcp_models.dart';
+import 'package:botsdock/apps/chat/models/mcp/mcp_providers.dart';
 import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:botsdock/apps/chat/utils/tools.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
@@ -12,6 +14,7 @@ import 'package:botsdock/apps/chat/vendor/messages/gemini.dart';
 import 'package:flutter/material.dart';
 import 'package:botsdock/apps/chat/models/data.dart';
 import 'package:botsdock/apps/chat/utils/prompts.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
@@ -331,14 +334,15 @@ class Chat with ChangeNotifier {
   Future<dynamic> excuteFunctionCalling({
     required String name,
     Map<String, dynamic>? kwargs,
+    rp.WidgetRef? ref,
   }) async {
     late final toolres;
     try {
       switch (name) {
         case "google_search":
           var res = await Tools.google_search(
-            query: kwargs?["query"] ?? "",
-            num_results: max(1, min(kwargs?["num_results"], 20)),
+            query: kwargs?["content"] ?? "",
+            num_results: max(1, min(kwargs?["resultCount"], 20)),
           );
           toolres = {"google_result": res};
           break;
@@ -350,8 +354,23 @@ class Chat with ChangeNotifier {
           toolres = {"result": "done"};
           break;
         default:
-          Logger.warn("tools: ${name} is unsupported");
-          toolres = {"result": "true"};
+          if (ref != null) {
+            final mcpState = ref.read(mcpClientProvider);
+            final mcpRepo = ref.read(mcpRepositoryProvider);
+            final serverId = mcpState.getServerIdForTool(name);
+            final resp = await mcpRepo.executeTool(
+              serverId: serverId!,
+              toolName: name,
+              arguments: kwargs!,
+            );
+            toolres = {
+              "result": resp
+                  .whereType<McpTextContent>()
+                  .map((t) => t.text)
+                  .join('\n'),
+            };
+          }
+
           break;
       }
     } catch (e, s) {
@@ -380,11 +399,7 @@ class Chat with ChangeNotifier {
 
     Map toolres = await excuteFunctionCalling(
       name: name,
-      kwargs: {
-        "query": input["content"],
-        "num_results": input["resultCount"],
-        "url": input["url"],
-      },
+      kwargs: input,
     );
 
     var _toolID = messages.last.content[index].id;
@@ -414,11 +429,7 @@ class Chat with ChangeNotifier {
 
     Map toolres = await excuteFunctionCalling(
       name: func.name,
-      kwargs: {
-        "query": func.args["content"],
-        "num_results": func.args["resultCount"],
-        "url": func.args["url"],
-      },
+      kwargs: func.args,
     );
 
     messages.last.toolstatus = ToolStatus.finished;
@@ -436,7 +447,7 @@ class Chat with ChangeNotifier {
    * 2. excetu function calling
    * 3. save function calling result into the same level with message content
    */
-  Future<void> handleOpenaiToolCall() async {
+  Future<void> handleOpenaiToolCall(rp.WidgetRef ref) async {
     // int _last = messages.length - 1;
     for (int index = 0; index < openaiToolInputDelta.length; index++) {
       //toolcall id
@@ -458,11 +469,8 @@ class Chat with ChangeNotifier {
       var args = jsonDecode(_toolcalls[index].function.arguments);
       Map toolres = await excuteFunctionCalling(
         name: _toolcalls[index].function.name,
-        kwargs: {
-          "query": args["content"],
-          "num_results": args["resultCount"],
-          "url": args["url"],
-        },
+        kwargs: args,
+        ref: ref,
       );
 
       messages.last.toolstatus = ToolStatus.finished;
@@ -677,7 +685,7 @@ class Chat with ChangeNotifier {
       case "webpage_fetch":
         break;
       default:
-        debugPrint("unsupport tool $name, $status");
+        debugPrint("tool $name, status: $status");
         return;
     }
   }
@@ -709,14 +717,14 @@ class Chat with ChangeNotifier {
     }
   }
 
-  void enable_tool(String name) {
-    var funcSchema = Functions.all[name];
+  void enable_tool(Map<String, dynamic> funcSchema) {
+    // var funcSchema = Functions.all[name];
     if (Models.checkORG(model, Organization.google)) {
       // if (name == "google_search") {
       //   bool _exist = tools.any((x) => x.containsKey(name));
       //   if (!_exist) tools.add({name: {}});
       // } else {
-      addFunctionToGeminiTools(name);
+      addFunctionToGeminiTools(funcSchema["name"]);
       // }
     } else if (Models.checkORG(model, Organization.openai) ||
         Models.checkORG(model, Organization.deepseek)) {
@@ -724,7 +732,7 @@ class Chat with ChangeNotifier {
         "type": "function",
         "function": funcSchema,
       });
-      bool _exist = tools.any((x) => x.function.name == name);
+      bool _exist = tools.any((x) => x.function.name == funcSchema["name"]);
       if (!_exist) tools.add(gptTool);
     } else if (Models.checkORG(model, Organization.anthropic)) {
       var claudeTool = anthropic.Tool.custom(
@@ -732,10 +740,10 @@ class Chat with ChangeNotifier {
         description: funcSchema['description'],
         inputSchema: funcSchema['input_schema'] ?? funcSchema['parameters'],
       );
-      bool _exist = tools.any((x) => x.name == name);
+      bool _exist = tools.any((x) => x.name == funcSchema["name"]);
       if (!_exist) tools.add(claudeTool);
     }
-    set_function_status(name, true);
+    set_function_status(funcSchema["name"], true);
   }
 
   void disable_tool(String name) {

@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:file_picker/file_picker.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
+
 import '../models/pages.dart';
 import '../models/chat.dart';
 import '../models/data.dart';
@@ -49,35 +51,39 @@ class _ChatInputFieldState extends State<ChatInputField> {
     double _hmargin =
         isDisplayDesktop(context) ? (property.isDrawerOpen ? 100 : 180) : 50;
 
-    return AnimatedContainer(
-      curve: Curves.easeInOut,
-      duration: Duration(milliseconds: 270),
-      decoration: BoxDecoration(
-          color: Theme.of(context).inputDecorationTheme.focusColor,
-          border: Border.all(color: AppColors.gray60, width: 1.0),
-          borderRadius: BORDERRADIUS10),
-      margin: EdgeInsets.fromLTRB(_hmargin, 5, _hmargin, 30),
-      child: Column(
-        children: [
-          if (attachments.isNotEmpty)
-            Container(height: 70, child: attachmentsList(context)),
-          if (visionFiles.isNotEmpty)
-            Container(height: 70, child: visionFilesList(context)),
-          KeyboardListener(
-            focusNode: FocusNode(),
-            onKeyEvent: (event) {
-              if (event is KeyDownEvent &&
-                  event.logicalKey == LogicalKeyboardKey.enter &&
-                  HardwareKeyboard.instance.isControlPressed &&
-                  isUserReady(user) &&
-                  isContentReady(pages, property)) {
-                _sendContent(pages, property, user);
-              }
-            },
-            child: textField(context),
-          )
-        ],
-      ),
+    return rp.Consumer(
+      builder: (context, rp.WidgetRef ref, child) {
+        return AnimatedContainer(
+          curve: Curves.easeInOut,
+          duration: Duration(milliseconds: 270),
+          decoration: BoxDecoration(
+              color: Theme.of(context).inputDecorationTheme.focusColor,
+              border: Border.all(color: AppColors.gray60, width: 1.0),
+              borderRadius: BORDERRADIUS10),
+          margin: EdgeInsets.fromLTRB(_hmargin, 5, _hmargin, 30),
+          child: Column(
+            children: [
+              if (attachments.isNotEmpty)
+                Container(height: 70, child: attachmentsList(context)),
+              if (visionFiles.isNotEmpty)
+                Container(height: 70, child: visionFilesList(context)),
+              KeyboardListener(
+                focusNode: FocusNode(),
+                onKeyEvent: (event) {
+                  if (event is KeyDownEvent &&
+                      event.logicalKey == LogicalKeyboardKey.enter &&
+                      HardwareKeyboard.instance.isControlPressed &&
+                      isUserReady(user) &&
+                      isContentReady(pages, property)) {
+                    _sendContent(pages, property, user, ref);
+                  }
+                },
+                child: textField(context, ref),
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -186,7 +192,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
-  Widget textField(BuildContext context) {
+  Widget textField(BuildContext context, rp.WidgetRef ref) {
     Pages pages = Provider.of<Pages>(context, listen: false);
     Property property = Provider.of<Property>(context, listen: false);
     User user = Provider.of<User>(context);
@@ -230,7 +236,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
                 icon: Icon(Icons.attachment, size: 20),
               ),
         suffixIcon:
-            _userReady ? sendButton(context) : lockButton(context, user),
+            _userReady ? sendButton(context, ref) : lockButton(context, user),
       ),
       minLines: 1,
       maxLines: 10,
@@ -373,7 +379,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     return isReady;
   }
 
-  Widget sendButton(BuildContext context) {
+  Widget sendButton(BuildContext context, rp.WidgetRef ref) {
     Pages pages = Provider.of<Pages>(context, listen: false);
     Property property = Provider.of<Property>(context);
     User user = Provider.of<User>(context);
@@ -398,7 +404,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
                 tooltip: _enabled ? "Ctrl+Enter发送" : "",
                 onPressed: _enabled
                     ? () async {
-                        _sendContent(pages, property, user);
+                        _sendContent(pages, property, user, ref);
                       }
                     : null,
               );
@@ -406,7 +412,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
-  void _sendContent(pages, property, User user) async {
+  void _sendContent(pages, property, User user, rp.WidgetRef ref) async {
     int newPageId = -1;
 
     if (property.onInitPage) {
@@ -433,7 +439,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     } else {
       newPageId = pages.currentPageID;
     }
-    _submitText(pages, property, newPageId, _controller.text, user);
+    _submitText(pages, property, newPageId, _controller.text, user, ref);
     _controller.clear();
     _hasInputContent = false;
     attachments.clear();
@@ -528,7 +534,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
   }
 
   void _submitText(Pages pages, Property property, int handlePageID,
-      String text, User user) async {
+      String text, User user, rp.WidgetRef ref) async {
     try {
       pages.setGeneratingState(handlePageID, true);
       var ts = DateTime.now().millisecondsSinceEpoch;
@@ -566,6 +572,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
     if (pages.getPage(handlePageID).assistantID != null)
       chats.submitAssistant(pages, property, handlePageID, user, attachments);
     else
-      chats.submitText(pages, property, handlePageID, user);
+      chats.submitText(pages, property, handlePageID, user, ref);
   }
 }

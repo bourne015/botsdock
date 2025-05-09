@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:botsdock/apps/chat/models/chat.dart';
 import 'package:botsdock/apps/chat/models/data.dart';
+import 'package:botsdock/apps/chat/models/mcp/mcp_providers.dart';
 import 'package:botsdock/apps/chat/models/pages.dart';
 import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
 import 'package:botsdock/apps/chat/utils/client/http_client.dart';
@@ -15,6 +16,7 @@ import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/response.dart';
 
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 
 import '../models/user.dart';
 import '../utils/constants.dart';
@@ -233,6 +235,7 @@ class ChatAPI {
     Property property,
     int handlePageID,
     user,
+    rp.WidgetRef ref,
   ) async {
     // StreamSubscription? subscription;
     try {
@@ -241,18 +244,30 @@ class ChatAPI {
       if (property.initModelVersion == Models.dalle3.id) {
         _imageGeneration(pages, property, handlePageID, user);
       } else {
+        pages.getPage(handlePageID).tools.clear();
         if (pages.getPage(handlePageID).model != Models.deepseekReasoner.id) {
           if (pages.getPage(handlePageID).artifact)
-            pages.getPage(handlePageID).enable_tool("save_artifact");
-          else
-            pages.getPage(handlePageID).disable_tool("save_artifact");
+            pages
+                .getPage(handlePageID)
+                .enable_tool(Functions.all["save_artifact"]);
           if (pages.getPage(handlePageID).internet) {
-            pages.getPage(handlePageID).enable_tool("google_search");
-            pages.getPage(handlePageID).enable_tool("webpage_fetch");
-          } else {
-            pages.getPage(handlePageID).disable_tool("google_search");
-            pages.getPage(handlePageID).disable_tool("webpage_fetch");
+            pages
+                .getPage(handlePageID)
+                .enable_tool(Functions.all["google_search"]);
+            pages
+                .getPage(handlePageID)
+                .enable_tool(Functions.all["webpage_fetch"]);
           }
+          final mcpState = ref.read(mcpClientProvider);
+          for (var tools in mcpState.discoveredTools.entries)
+            for (var mcpTool in tools.value) {
+              pages.getPage(handlePageID).enable_tool({
+                "name": mcpTool.name,
+                "description": mcpTool.description ?? "",
+                "parameters": mcpTool.inputSchema,
+              });
+            }
+          ;
         }
         final stream = await HttpClient.createStream(
           baseUrl: ChatPath.base,
@@ -264,7 +279,8 @@ class ChatAPI {
         pages.setPageGenerateStatus(handlePageID, true);
         var _streamSubscription = stream.listen(
           (String? data) async {
-            await _handleChatStream(pages, handlePageID, property, user, data);
+            await _handleChatStream(
+                pages, handlePageID, property, user, data, ref);
           },
           onError: (e) async {
             await _onStreamError(pages, handlePageID, e);
@@ -351,7 +367,7 @@ class ChatAPI {
       if (functions != null && functions.isNotEmpty) {
         functions.forEach((name, body) {
           if (Functions.all.containsKey(name))
-            pages.getPage(handlePageID).enable_tool(name);
+            pages.getPage(handlePageID).enable_tool(Functions.all[name]);
         });
       }
       pages.getPage(handlePageID).addMessage(
@@ -359,7 +375,7 @@ class ChatAPI {
           role: MessageTRole.system,
           text: prompt ?? "",
           timestamp: DateTime.now().millisecondsSinceEpoch);
-      submitText(pages, property, handlePageID, user);
+      //submitText(pages, property, handlePageID, user);
     } catch (e) {
       Logger.error("newBot error: $e");
     }
@@ -397,7 +413,7 @@ class ChatAPI {
         text: prompt,
         timestamp: DateTime.now().millisecondsSinceEpoch);
 
-    submitText(pages, property, handlePageID, user);
+    //submitText(pages, property, handlePageID, user);
   }
 }
 
@@ -407,19 +423,20 @@ Future<void> _handleChatStream(
   Property property,
   User user,
   String? data,
+  rp.WidgetRef ref,
 ) async {
   pages.getPage(handlePageID).messages.last.onProcessing = false;
   if (data != null && isValidJson(data)) {
     var res = json.decode(data);
     String modelID = pages.getPage(handlePageID).model;
     if (Models.getOrgByModelId(modelID) == Organization.openai) {
-      AIResponse.Openai(pages, property, user, handlePageID, res);
+      AIResponse.Openai(pages, property, user, handlePageID, res, ref);
     } else if (Models.getOrgByModelId(modelID) == Organization.deepseek) {
-      AIResponse.DeepSeek(pages, property, user, handlePageID, res);
+      AIResponse.DeepSeek(pages, property, user, handlePageID, res, ref);
     } else if (Models.getOrgByModelId(modelID) == Organization.google) {
-      AIResponse.Gemini(pages, property, user, handlePageID, res);
+      AIResponse.Gemini(pages, property, user, handlePageID, res, ref);
     } else if (Models.getOrgByModelId(modelID) == Organization.anthropic) {
-      AIResponse.Claude(pages, property, user, handlePageID, res);
+      AIResponse.Claude(pages, property, user, handlePageID, res, ref);
     }
   } else {
     pages.getPage(handlePageID).appendMessage(msg: data);
