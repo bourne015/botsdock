@@ -30,6 +30,7 @@ class ChatToolMessageState extends State<ChatToolMessage> {
     return Container(
       height: 40,
       width: 300,
+      margin: EdgeInsets.symmetric(vertical: 2),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.tertiary,
         borderRadius: BORDERRADIUS10,
@@ -38,7 +39,11 @@ class ChatToolMessageState extends State<ChatToolMessage> {
         dense: true,
         visualDensity: VisualDensity.compact,
         leading: Icon(Icons.construction),
-        title: Text(widget.toolName),
+        title: Text(
+          widget.toolName,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         // subtitle: Text(
         //   widget.descriping ?? "",
         //   style: Theme.of(context).textTheme.labelMedium,

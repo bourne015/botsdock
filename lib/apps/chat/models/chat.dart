@@ -385,7 +385,7 @@ class Chat with ChangeNotifier {
    * 2. excetu function calling
    * 3. save function calling result to tool message inside message-content
    */
-  Future<void> handleClaudeToolCall(int index) async {
+  Future<void> handleClaudeToolCall(int index, rp.WidgetRef ref) async {
     var id = (messages.last.content[index] as anthropic.ToolUseBlock).id;
     var name = (messages.last.content[index] as anthropic.ToolUseBlock).name;
     var type = (messages.last.content[index] as anthropic.ToolUseBlock).type;
@@ -400,6 +400,7 @@ class Chat with ChangeNotifier {
     Map toolres = await excuteFunctionCalling(
       name: name,
       kwargs: input,
+      ref: ref,
     );
 
     var _toolID = messages.last.content[index].id;
@@ -421,7 +422,7 @@ class Chat with ChangeNotifier {
    * current tools(web search & query) are integrated in Gemini
    * it's no need to excute those tools
    */
-  Future<void> handleGeminiToolCall(func) async {
+  Future<void> handleGeminiToolCall(func, rp.WidgetRef ref) async {
     messages.last.content.last = GeminiPart3(
       name: func.name,
       args: func.args,
@@ -430,6 +431,7 @@ class Chat with ChangeNotifier {
     Map toolres = await excuteFunctionCalling(
       name: func.name,
       kwargs: func.args,
+      ref: ref,
     );
 
     messages.last.toolstatus = ToolStatus.finished;
@@ -690,8 +692,7 @@ class Chat with ChangeNotifier {
     }
   }
 
-  void addFunctionToGeminiTools(String functionName) {
-    var functionToAdd = Functions.all[functionName];
+  void addFunctionToGeminiTools(Map<String, dynamic> functionToAdd) {
     bool functionDeclarationsExists = false;
 
     for (var gtool in tools) {
@@ -700,7 +701,7 @@ class Chat with ChangeNotifier {
         List functionDeclarations = gtool["function_declarations"];
         bool functionExists = false;
         for (var existingFunction in functionDeclarations) {
-          if (existingFunction["name"] == functionName) {
+          if (existingFunction["name"] == functionToAdd["name"]) {
             functionExists = true;
             break;
           }
@@ -724,7 +725,7 @@ class Chat with ChangeNotifier {
       //   bool _exist = tools.any((x) => x.containsKey(name));
       //   if (!_exist) tools.add({name: {}});
       // } else {
-      addFunctionToGeminiTools(funcSchema["name"]);
+      addFunctionToGeminiTools(funcSchema);
       // }
     } else if (Models.checkORG(model, Organization.openai) ||
         Models.checkORG(model, Organization.deepseek)) {

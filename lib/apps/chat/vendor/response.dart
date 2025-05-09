@@ -181,7 +181,7 @@ class AIResponse {
           if (pages.getPage(handlePageID).messages.last.content is List &&
               pages.getPage(handlePageID).messages.last.content[i].type ==
                   "tool_use") {
-            await pages.getPage(handlePageID).handleClaudeToolCall(i);
+            await pages.getPage(handlePageID).handleClaudeToolCall(i, ref);
             ChatAPI().submitText(pages, property, handlePageID, user, ref);
           }
         },
@@ -263,7 +263,7 @@ class AIResponse {
     if (res.functionCalls.isNotEmpty && res.functionCalls.isNotEmpty) {
       await pages
           .getPage(handlePageID)
-          .handleGeminiToolCall(res.functionCalls.first);
+          .handleGeminiToolCall(res.functionCalls.first, ref);
       ChatAPI().submitText(pages, property, handlePageID, user, ref);
       // pages.getPage(handlePageID).addMessage(
       //       role: MessageTRole.tool,
