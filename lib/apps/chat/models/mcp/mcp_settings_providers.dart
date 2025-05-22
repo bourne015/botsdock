@@ -47,7 +47,6 @@ class SettingsRepositoryImpl implements SettingsRepository {
         "Authorization": ACCESS_TOKEN != null ? "Bearer $ACCESS_TOKEN" : "",
         "Content-Type": "application/json",
       };
-      print("token: ${ACCESS_TOKEN}");
       final _data = await dio.get(ChatPath.share);
       List<McpServerConfig> dblist = [];
 

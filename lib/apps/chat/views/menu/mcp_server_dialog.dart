@@ -185,139 +185,143 @@ class _ServerDialogState extends State<ServerDialog> {
     return AlertDialog(
       title: Text(_isEditing ? 'Edit Server' : 'Add New Server'),
       contentPadding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 0.0),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Server Name*'),
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Name cannot be empty'
-                    : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _descController,
-                decoration:
-                    const InputDecoration(labelText: 'Server Description'),
-                maxLength: 255,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _commandController,
-                decoration: const InputDecoration(
-                  labelText: 'Server Command*',
-                  hintText: r'/path/to/server or server.exe',
+      content: Container(
+        width: 500,
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(labelText: 'Server Name*'),
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Name cannot be empty'
+                      : null,
                 ),
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Command cannot be empty'
-                    : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _argsController,
-                decoration: const InputDecoration(
-                  labelText: 'Server Arguments',
-                  hintText: r'--port 1234 --verbose',
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _descController,
+                  decoration:
+                      const InputDecoration(labelText: 'Server Description'),
+                  maxLines: 2,
+                  maxLength: 255,
                 ),
-              ),
-              const SizedBox(height: 12),
-              SwitchListTile(
-                title: const Text('Connect Automatically'),
-                subtitle: const Text('Applies when settings change'),
-                value: _isActive,
-                onChanged: (bool value) => setState(() => _isActive = value),
-                contentPadding: EdgeInsets.zero,
-              ),
-              const Divider(height: 20),
-              SwitchListTile(
-                title: const Text('MCP server visibility'),
-                subtitle: const Text('Is visible to other users'),
-                value: _isPublic,
-                onChanged: (bool value) => setState(() => _isPublic = value),
-                contentPadding: EdgeInsets.zero,
-              ),
-              const Divider(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Custom Environment Variables',
-                    style: Theme.of(context).textTheme.titleMedium,
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _commandController,
+                  decoration: const InputDecoration(
+                    labelText: 'Server Command*',
+                    hintText: r'/path/to/server or server.exe',
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.add_circle_outline),
-                    tooltip: 'Add Variable',
-                    onPressed: _addEnvVar,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Command cannot be empty'
+                      : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _argsController,
+                  decoration: const InputDecoration(
+                    labelText: 'Server Arguments',
+                    hintText: r'--port 1234 --verbose',
                   ),
-                ],
-              ),
-              const Text(
-                'Overrides system variables.',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              const SizedBox(height: 8),
-              if (_envVars.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text(
-                    'No custom variables defined.',
-                    style: TextStyle(
-                      fontStyle: FontStyle.italic,
-                      color: Colors.grey,
+                ),
+                const SizedBox(height: 12),
+                SwitchListTile(
+                  title: const Text('Connect Automatically'),
+                  subtitle: const Text('Applies when settings change'),
+                  value: _isActive,
+                  onChanged: (bool value) => setState(() => _isActive = value),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                const Divider(height: 20),
+                SwitchListTile(
+                  title: const Text('MCP server visibility'),
+                  subtitle: const Text('Is visible to other users'),
+                  value: _isPublic,
+                  onChanged: (bool value) => setState(() => _isPublic = value),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                const Divider(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Custom Environment Variables',
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                  ),
-                )
-              else
-                ...List.generate(_envVars.length, (index) {
-                  final pair = _envVars[index];
-                  return Padding(
-                    key: ValueKey(pair.id),
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: TextFormField(
-                            controller: pair.keyController,
-                            decoration: const InputDecoration(
-                              labelText: 'Key',
-                              isDense: true,
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline),
+                      tooltip: 'Add Variable',
+                      onPressed: _addEnvVar,
+                    ),
+                  ],
+                ),
+                const Text(
+                  'Overrides system variables.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                const SizedBox(height: 8),
+                if (_envVars.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text(
+                      'No custom variables defined.',
+                      style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  )
+                else
+                  ...List.generate(_envVars.length, (index) {
+                    final pair = _envVars[index];
+                    return Padding(
+                      key: ValueKey(pair.id),
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: TextFormField(
+                              controller: pair.keyController,
+                              decoration: const InputDecoration(
+                                labelText: 'Key',
+                                isDense: true,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          flex: 3,
-                          child: TextFormField(
-                            controller: pair.valueController,
-                            obscureText: true,
-                            decoration: const InputDecoration(
-                              labelText: 'Value',
-                              isDense: true,
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 3,
+                            child: TextFormField(
+                              controller: pair.valueController,
+                              obscureText: true,
+                              decoration: const InputDecoration(
+                                labelText: 'Value',
+                                isDense: true,
+                              ),
                             ),
                           ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.remove_circle_outline,
-                            color: Theme.of(context).colorScheme.error,
-                            size: 20,
+                          IconButton(
+                            icon: Icon(
+                              Icons.remove_circle_outline,
+                              color: Theme.of(context).colorScheme.error,
+                              size: 20,
+                            ),
+                            tooltip: 'Remove Variable',
+                            onPressed: () => _removeEnvVar(pair.id),
                           ),
-                          tooltip: 'Remove Variable',
-                          onPressed: () => _removeEnvVar(pair.id),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              const SizedBox(height: 16),
-            ],
+                        ],
+                      ),
+                    );
+                  }),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
