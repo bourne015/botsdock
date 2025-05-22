@@ -32,12 +32,13 @@ class Global {
           Global.saveProfile(user);
           await pages.fetch_pages(user.id);
         } else {
+          ACCESS_TOKEN = _prefs.getString("chat_access_token");
+          if (ACCESS_TOKEN == null) return;
           final String? jsonUser = _prefs.getString("U${user_id}");
           if (jsonUser != null) {
             user.copy(User.fromJson(jsonDecode(jsonUser)));
             get_local_chats(user, pages);
             // pages.sortPages();
-            ACCESS_TOKEN = _prefs.getString("chat_access_token");
           }
         }
         pages.flattenPages();
@@ -46,7 +47,6 @@ class Global {
       debugPrint("init error, reset:${e}");
       Global.reset();
     }
-    return _prefs;
   }
 
   void get_local_chats(User user, Pages pages) {
