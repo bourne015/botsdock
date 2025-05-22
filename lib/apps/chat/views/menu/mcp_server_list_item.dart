@@ -1,5 +1,6 @@
 import 'package:botsdock/apps/chat/models/mcp/mcp_models.dart';
 import 'package:botsdock/apps/chat/models/mcp/mcp_server_config.dart';
+import 'package:botsdock/apps/chat/models/user.dart';
 import 'package:flutter/material.dart';
 
 import 'mcp_connection_status.dart';
@@ -8,6 +9,7 @@ class McpServerListItem extends StatelessWidget {
   final McpServerConfig server;
   final McpConnectionStatus status;
   final String? errorMessage;
+  final User? user;
   final Function(String, bool) onToggleActive;
   final Function(McpServerConfig) onEdit;
   final Function(McpServerConfig) onDelete;
@@ -16,6 +18,7 @@ class McpServerListItem extends StatelessWidget {
     super.key,
     required this.server,
     required this.status,
+    this.user,
     this.errorMessage,
     required this.onToggleActive,
     required this.onEdit,
@@ -95,32 +98,33 @@ class McpServerListItem extends StatelessWidget {
                         )
                       : const SizedBox(height: 14),
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit_note, size: 20),
-                      tooltip: 'Edit Server',
-                      onPressed: () => onEdit(server),
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: Icon(
-                        Icons.delete_outline,
-                        size: 20,
-                        color: theme.colorScheme.error,
+                if (user != null && user!.id == server.owner_id)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit_note, size: 20),
+                        tooltip: 'Edit Server',
+                        onPressed: () => onEdit(server),
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
                       ),
-                      tooltip: 'Delete Server',
-                      onPressed: () => onDelete(server),
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: Icon(
+                          Icons.delete_outline,
+                          size: 20,
+                          color: theme.colorScheme.error,
+                        ),
+                        tooltip: 'Delete Server',
+                        onPressed: () => onDelete(server),
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),

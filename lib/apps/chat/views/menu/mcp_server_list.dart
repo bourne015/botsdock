@@ -84,6 +84,7 @@ class _MCPConfigState extends ConsumerState<MCPConfig> {
                     server: server,
                     status: status,
                     errorMessage: error,
+                    user: widget.user,
                     onToggleActive: _toggleServerActive,
                     onEdit: (server) => _openServerDialog(serverToEdit: server),
                     onDelete: _deleteServer,
