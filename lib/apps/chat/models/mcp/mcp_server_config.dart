@@ -3,30 +3,39 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 /// Configuration for a single MCP server.
-@immutable
 class McpServerConfig {
   final String id; // Unique ID
   final String name;
   final String command;
   final String args;
-  final bool isActive; // User's desired state (connect on apply)
+  bool isActive; // User's desired state (connect on apply)
   final Map<String, String> customEnvironment;
+  final String? description;
+  final int? owner_id;
+  final String? owner_name;
+  final bool? is_public;
 
-  const McpServerConfig({
+  McpServerConfig({
     required this.id,
     required this.name,
     required this.command,
     required this.args,
     this.isActive = false,
     this.customEnvironment = const {},
+    this.description,
+    this.owner_id,
+    this.owner_name,
+    this.is_public,
   });
 
   McpServerConfig copyWith({
     String? id,
     String? name,
+    String? description,
     String? command,
     String? args,
     bool? isActive,
+    bool? is_public,
     Map<String, String>? customEnvironment,
   }) {
     return McpServerConfig(
@@ -36,6 +45,10 @@ class McpServerConfig {
       args: args ?? this.args,
       isActive: isActive ?? this.isActive,
       customEnvironment: customEnvironment ?? this.customEnvironment,
+      description: description ?? this.description,
+      owner_id: owner_id ?? this.owner_id,
+      owner_name: owner_name ?? this.owner_name,
+      is_public: is_public ?? this.is_public,
     );
   }
 
@@ -45,15 +58,19 @@ class McpServerConfig {
         'command': command,
         'args': args,
         'isActive': isActive,
-        'customEnvironment': customEnvironment,
+        'custom_environment': customEnvironment,
+        'description': description,
+        'owner_id': owner_id,
+        'owner_name': owner_name,
+        'is_public': is_public,
       };
 
   factory McpServerConfig.fromJson(Map<String, dynamic> json) {
     Map<String, String> environment = {};
-    if (json['customEnvironment'] is Map) {
+    if (json['custom_environment'] is Map) {
       try {
         environment = Map<String, String>.from(
-          (json['customEnvironment'] as Map).map(
+          (json['custom_environment'] as Map).map(
             (k, v) => MapEntry(k.toString(), v.toString()),
           ),
         );
@@ -71,6 +88,10 @@ class McpServerConfig {
       args: json['args'] as String,
       isActive: json['isActive'] as bool? ?? false,
       customEnvironment: environment,
+      description: json['description'] as String?,
+      owner_id: json['owner_id'] as int?,
+      owner_name: json['owner_name'] as String?,
+      is_public: json['is_public'] as bool? ?? true,
     );
   }
 
@@ -84,6 +105,10 @@ class McpServerConfig {
           command == other.command &&
           args == other.args &&
           isActive == other.isActive &&
+          description == other.description &&
+          owner_id == other.owner_id &&
+          owner_name == other.owner_name &&
+          is_public == other.is_public &&
           const MapEquality().equals(
             customEnvironment,
             other.customEnvironment,

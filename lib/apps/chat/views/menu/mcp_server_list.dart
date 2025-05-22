@@ -55,7 +55,7 @@ class _MCPConfigState extends ConsumerState<MCPConfig> {
         ),
         const SizedBox(height: 4.0),
         Text(
-          '$connectedCount server(s) connected. Changes are applied automatically.',
+          '$connectedCount server(s) connected. Desktop Platform only.',
           style: const TextStyle(fontSize: 12.0, color: Colors.grey),
         ),
         const SizedBox(height: 12.0),
@@ -102,7 +102,8 @@ class _MCPConfigState extends ConsumerState<MCPConfig> {
       onAddServer: (name, command, args, envVars, isActive) {
         ref
             .read(settingsServiceProvider)
-            .addMcpServer(name, command, args, envVars)
+            .addMcpServer(
+                name, command, args, envVars, widget.user.id, widget.user.name)
             .then((_) => _showSnackbar('Server "$name" added.'))
             .catchError((e) => _showSnackbar('Error saving server: $e'));
       },

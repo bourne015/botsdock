@@ -52,9 +52,11 @@ class ServerDialog extends StatefulWidget {
 
 class _ServerDialogState extends State<ServerDialog> {
   late final TextEditingController _nameController;
+  late final TextEditingController _descController;
   late final TextEditingController _commandController;
   late final TextEditingController _argsController;
   late bool _isActive;
+  late bool _isPublic;
   late List<_EnvVarPair> _envVars;
   final List<TextEditingController> _allControllers = [];
   final _formKey = GlobalKey<FormState>();
@@ -67,6 +69,9 @@ class _ServerDialogState extends State<ServerDialog> {
     _nameController = TextEditingController(
       text: widget.serverToEdit?.name ?? '',
     );
+    _descController = TextEditingController(
+      text: widget.serverToEdit?.description ?? '',
+    );
     _commandController = TextEditingController(
       text: widget.serverToEdit?.command ?? '',
     );
@@ -74,6 +79,7 @@ class _ServerDialogState extends State<ServerDialog> {
       text: widget.serverToEdit?.args ?? '',
     );
     _isActive = widget.serverToEdit?.isActive ?? false;
+    _isPublic = widget.serverToEdit?.is_public ?? false;
 
     _envVars = widget.serverToEdit?.customEnvironment.entries
             .map((e) => _EnvVarPair.fromMapEntry(e))
@@ -86,6 +92,7 @@ class _ServerDialogState extends State<ServerDialog> {
   void _registerControllers() {
     _allControllers.addAll([
       _nameController,
+      _descController,
       _commandController,
       _argsController,
     ]);
@@ -129,6 +136,7 @@ class _ServerDialogState extends State<ServerDialog> {
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
       final name = _nameController.text.trim();
+      final desc = _descController.text.trim();
       final command = _commandController.text.trim();
       final args = _argsController.text.trim();
       final Map<String, String> customEnvMap = {};
@@ -158,9 +166,11 @@ class _ServerDialogState extends State<ServerDialog> {
       if (_isEditing) {
         final updatedServer = widget.serverToEdit!.copyWith(
           name: name,
+          description: desc,
           command: command,
           args: args,
           isActive: _isActive,
+          is_public: _isPublic,
           customEnvironment: customEnvMap,
         );
         widget.onUpdateServer(updatedServer);
@@ -191,6 +201,13 @@ class _ServerDialogState extends State<ServerDialog> {
               ),
               const SizedBox(height: 12),
               TextFormField(
+                controller: _descController,
+                decoration:
+                    const InputDecoration(labelText: 'Server Description'),
+                maxLength: 255,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
                 controller: _commandController,
                 decoration: const InputDecoration(
                   labelText: 'Server Command*',
@@ -214,6 +231,14 @@ class _ServerDialogState extends State<ServerDialog> {
                 subtitle: const Text('Applies when settings change'),
                 value: _isActive,
                 onChanged: (bool value) => setState(() => _isActive = value),
+                contentPadding: EdgeInsets.zero,
+              ),
+              const Divider(height: 20),
+              SwitchListTile(
+                title: const Text('MCP server visibility'),
+                subtitle: const Text('Is visible to other users'),
+                value: _isPublic,
+                onChanged: (bool value) => setState(() => _isPublic = value),
                 contentPadding: EdgeInsets.zero,
               ),
               const Divider(height: 20),
@@ -271,6 +296,7 @@ class _ServerDialogState extends State<ServerDialog> {
                           flex: 3,
                           child: TextFormField(
                             controller: pair.valueController,
+                            obscureText: true,
                             decoration: const InputDecoration(
                               labelText: 'Value',
                               isDense: true,

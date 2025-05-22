@@ -13,7 +13,6 @@ import 'package:botsdock/data/gallery_options.dart';
 import 'package:botsdock/routes.dart';
 import 'package:botsdock/data/gallery_theme_data.dart';
 //import 'package:get_storage/get_storage.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,15 +27,15 @@ void main() async {
   // }
   final prefs = await SharedPreferences.getInstance();
 
-  final initialSettingsRepo = SettingsRepositoryImpl(prefs);
-  final initialServerList = await initialSettingsRepo.getMcpServerList();
+  // final initialSettingsRepo = SettingsRepositoryImpl(prefs);
+  // final initialServerList = await initialSettingsRepo.getMcpServerList();
   runApp(ProviderScope(
     overrides: [
       sharedPreferencesProvider.overrideWithValue(prefs),
-      settingsRepositoryProvider.overrideWith(
-        (ref) => SettingsRepositoryImpl(ref.watch(sharedPreferencesProvider)),
-      ),
-      mcpServerListProvider.overrideWith((ref) => initialServerList),
+      // settingsRepositoryProvider.overrideWith(
+      //   (ref) => SettingsRepositoryImpl(ref.watch(sharedPreferencesProvider)),
+      // ),
+      // mcpServerListProvider.overrideWith((ref) => initialServerList),
     ],
     child: const GalleryApp(),
   ));

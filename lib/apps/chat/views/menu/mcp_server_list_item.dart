@@ -55,7 +55,7 @@ class McpServerListItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${server.command} ${server.args}'.trim(),
+                  '${server.description}'.trim(),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: const TextStyle(fontSize: 12, color: Colors.grey),

@@ -18,6 +18,7 @@ class User with ChangeNotifier {
   bool _signUP = false;
   int _updated_at = 0;
   Settings? _settings;
+  String? token;
 
   User({
     bool? isLogedin,
@@ -32,6 +33,7 @@ class User with ChangeNotifier {
     bool? signUP = true,
     int? updated_at = 0,
     Settings? settings,
+    String? token,
   })  : _isLogedin = isLogedin ?? false,
         _id = id ?? 0,
         _name = name,
@@ -210,6 +212,7 @@ class User with ChangeNotifier {
     if (u.cat_id != null) _cat_id = u.cat_id;
     if (u.credit != null) _credit = u.credit;
     if (u.settings != null) _settings = u.settings;
+    if (u.token != null) token = u.token;
     notifyListeners();
   }
 }

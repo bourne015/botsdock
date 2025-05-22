@@ -30,4 +30,8 @@ class ChatPath {
   static const String bot = "/v1/bot";
   static const String bots = "/v1/bot/bots";
   static String botid(int botId) => "/v1/bot/${botId}";
+
+  static const String mcp = "/v1/mcp";
+  static const String mcps = "/v1/mcps";
+  static String mcpinfo(String mcpId) => "/v1/mcp/${mcpId}";
 }

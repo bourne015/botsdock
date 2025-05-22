@@ -64,6 +64,7 @@ const String CHAT_URL = "${BASE_URL}/v1/chat";
 const String IMAGE_URL = "${BASE_URL}/v1/image";
 const String USER_URL = "${BASE_URL}/v1/user";
 const String BOT_URL = "${BASE_URL}/v1/bot";
+String? ACCESS_TOKEN;
 
 const String aboutText = """
 基于GPT API和Cloude API封装.

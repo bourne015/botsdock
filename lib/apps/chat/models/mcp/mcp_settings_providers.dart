@@ -1,6 +1,9 @@
 import 'dart:convert';
 
 import 'package:botsdock/apps/chat/models/mcp/mcp_server_config.dart';
+import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
+import 'package:botsdock/apps/chat/utils/client/path.dart';
+import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,19 +17,45 @@ const String mcpServerListKey = 'mcpServerList';
 abstract class SettingsRepository {
   // MCP Server List
   Future<List<McpServerConfig>> getMcpServerList();
-  Future<void> saveMcpServerList(List<McpServerConfig> servers);
+  Future<void> saveMcpServerList(List<McpServerConfig> servers,
+      {int? addIndex, int? editIndex, String? deleteID});
 }
 
 /// Implementation of SettingsRepository using SharedPreferences.
 class SettingsRepositoryImpl implements SettingsRepository {
   final SharedPreferences _prefs;
+  final dio = DioClient();
 
   SettingsRepositoryImpl(this._prefs);
+
+  Future<List<dynamic>> fetchMCP() async {
+    try {
+      debugPrint("fetch mcp servers from db");
+      final resp = await dio.get(ChatPath.mcps);
+      final List<dynamic> list = resp['mcps'] ?? [];
+      return list;
+    } catch (e) {
+      return [];
+    }
+  }
 
   // --- MCP Server List ---
   @override
   Future<List<McpServerConfig>> getMcpServerList() async {
     try {
+      dio.dio.options.headers = {
+        "Authorization": ACCESS_TOKEN != null ? "Bearer $ACCESS_TOKEN" : "",
+        "Content-Type": "application/json",
+      };
+      print("token: ${ACCESS_TOKEN}");
+      final _data = await dio.get(ChatPath.share);
+      List<McpServerConfig> dblist = [];
+
+      if (_data["mcp_updated"] != _prefs.getInt("mcp_updated_at")) {
+        final list = await fetchMCP();
+        if (list.isNotEmpty)
+          dblist = list.map((item) => McpServerConfig.fromJson(item)).toList();
+      }
       final serverListJson = _prefs.getString(mcpServerListKey);
       if (serverListJson != null && serverListJson.isNotEmpty) {
         final decodedList = jsonDecode(serverListJson) as List;
@@ -35,9 +64,16 @@ class SettingsRepositoryImpl implements SettingsRepository {
               (item) => McpServerConfig.fromJson(item as Map<String, dynamic>),
             )
             .toList();
+        for (int i = 0; i < dblist.length; i++)
+          for (int j = 0; j < configList.length; j++) {
+            if (dblist[i].id == configList[j].id) {
+              dblist[i].isActive = configList[j].isActive;
+            }
+          }
+        if (dblist.isNotEmpty) return dblist;
         return configList;
       }
-      return [];
+      return dblist;
     } catch (e) {
       debugPrint("Error loading/parsing server list in repository: $e");
       return []; // Return empty list on error
@@ -45,12 +81,22 @@ class SettingsRepositoryImpl implements SettingsRepository {
   }
 
   @override
-  Future<void> saveMcpServerList(List<McpServerConfig> servers) async {
+  Future<void> saveMcpServerList(List<McpServerConfig> servers,
+      {int? addIndex, int? editIndex, String? deleteID}) async {
     try {
       final serverListJson = jsonEncode(
         servers.map((s) => s.toJson()).toList(),
       );
       await _prefs.setString(mcpServerListKey, serverListJson);
+
+      if (addIndex != null) {
+        await dio.post(ChatPath.mcp, data: servers.last);
+      } else if (editIndex != null) {
+        await dio.post(ChatPath.mcpinfo(servers[editIndex].id),
+            data: servers[editIndex]);
+      } else if (deleteID != null) {
+        await dio.delete(ChatPath.mcpinfo(deleteID));
+      }
     } catch (e) {
       debugPrint("Error saving MCP server list in repository: $e");
       rethrow;
@@ -64,22 +110,25 @@ class SettingsRepositoryImpl implements SettingsRepository {
 class SettingsService {
   final SettingsRepository _repository;
 
-  final StateController<List<McpServerConfig>> _mcpServerListNotifier;
+  final McpServerListNotifier _mcpServerListNotifier;
 
   SettingsService({
     required SettingsRepository repository,
-    required StateController<List<McpServerConfig>> mcpServerListNotifier,
+    required McpServerListNotifier mcpServerListNotifier,
   })  : _repository = repository,
         _mcpServerListNotifier = mcpServerListNotifier;
 
   /// Saves the current list of MCP servers to the repository.
   /// This is called internally after any modification to the server list.
-  Future<void> _saveCurrentMcpListState() async {
+  /// index: index of the new server
+  Future<void> _saveCurrentMcpListState(
+      {int? addIndex, int? editIndex, String? deleteID}) async {
     // Read the current list from the state
-    final currentList = _mcpServerListNotifier.state;
+    final currentList = _mcpServerListNotifier.currentList;
     try {
       // Persist the list using the repository
-      await _repository.saveMcpServerList(currentList);
+      await _repository.saveMcpServerList(currentList,
+          addIndex: addIndex, editIndex: editIndex, deleteID: deleteID);
       debugPrint(
         "SettingsService: MCP Server list saved to repository. Count: ${currentList.length}",
       );
@@ -95,6 +144,8 @@ class SettingsService {
     String command,
     String args,
     Map<String, String> customEnv,
+    int user_id,
+    String? user_name,
   ) async {
     // Create a new server config with a unique ID
     final newServer = McpServerConfig(
@@ -105,26 +156,26 @@ class SettingsService {
       isActive: false, // New servers default to inactive
       customEnvironment: customEnv,
     );
-    final currentList = _mcpServerListNotifier.state;
+    final currentList = _mcpServerListNotifier.currentList;
     // Update the state with the new list
-    _mcpServerListNotifier.state = [...currentList, newServer];
+    _mcpServerListNotifier.currentList = [...currentList, newServer];
     // Persist the updated list
-    await _saveCurrentMcpListState();
+    await _saveCurrentMcpListState(addIndex: -1);
     debugPrint("SettingsService: Added MCP Server '${newServer.name}'.");
   }
 
   /// Updates an existing MCP server configuration in the state and persists.
   Future<void> updateMcpServer(McpServerConfig updatedServer) async {
-    final currentList = _mcpServerListNotifier.state;
+    final currentList = _mcpServerListNotifier.currentList;
     // Find the index of the server to update
     final index = currentList.indexWhere((s) => s.id == updatedServer.id);
     if (index != -1) {
       // Create a mutable copy, update the item, and update the state
       final newList = List<McpServerConfig>.from(currentList);
       newList[index] = updatedServer;
-      _mcpServerListNotifier.state = newList;
+      _mcpServerListNotifier.currentList = newList;
       // Persist the updated list
-      await _saveCurrentMcpListState();
+      await _saveCurrentMcpListState(editIndex: index);
       debugPrint(
         "SettingsService: Updated MCP Server '${updatedServer.name}'.",
       );
@@ -138,7 +189,7 @@ class SettingsService {
 
   /// Deletes an MCP server configuration from the state and persists.
   Future<void> deleteMcpServer(String serverId) async {
-    final currentList = _mcpServerListNotifier.state;
+    final currentList = _mcpServerListNotifier.currentList;
     final serverName = currentList
         .firstWhere(
           (s) => s.id == serverId,
@@ -154,9 +205,9 @@ class SettingsService {
     final newList = currentList.where((s) => s.id != serverId).toList();
     // Check if the list actually changed (i.e., the server was found and removed)
     if (newList.length < currentList.length) {
-      _mcpServerListNotifier.state = newList;
+      _mcpServerListNotifier.currentList = newList;
       // Persist the updated list
-      await _saveCurrentMcpListState();
+      await _saveCurrentMcpListState(deleteID: serverId);
       debugPrint(
         "SettingsService: Deleted MCP Server '$serverName' ($serverId).",
       );
@@ -171,7 +222,7 @@ class SettingsService {
   /// Toggles the `isActive` flag for a specific MCP server in the state and persists.
   /// This change will be picked up by the `McpClientNotifier` to initiate connection/disconnection.
   Future<void> toggleMcpServerActive(String serverId, bool isActive) async {
-    final currentList = _mcpServerListNotifier.state;
+    final currentList = _mcpServerListNotifier.currentList;
     final index = currentList.indexWhere((s) => s.id == serverId);
     if (index != -1) {
       // Create a mutable copy, update the isActive flag, and update the state
@@ -180,9 +231,9 @@ class SettingsService {
       newList[index] = newList[index].copyWith(
         isActive: isActive,
       ); // Use copyWith
-      _mcpServerListNotifier.state = newList;
+      _mcpServerListNotifier.currentList = newList;
       // Persist the updated list
-      await _saveCurrentMcpListState();
+      await _saveCurrentMcpListState(editIndex: index);
       debugPrint(
         "SettingsService: Toggled server '$serverName' ($serverId) isActive to: $isActive",
       );
@@ -192,6 +243,29 @@ class SettingsService {
         "SettingsService: Error - Tried to toggle non-existent server ID '$serverId'.",
       );
     }
+  }
+}
+
+class McpServerListNotifier extends StateNotifier<List<McpServerConfig>> {
+  final SettingsRepository _repository;
+
+  McpServerListNotifier(this._repository) : super([]) {
+    _loadInitialList();
+  }
+
+  List<McpServerConfig> get currentList => state;
+  set currentList(List<McpServerConfig> list) {
+    state = list;
+  }
+
+  Future<void> _loadInitialList() async {
+    final list = await _repository.getMcpServerList();
+    state = list;
+  }
+
+  Future<void> refresh() async {
+    final list = await _repository.getMcpServerList();
+    state = list;
   }
 }
 
@@ -210,7 +284,12 @@ final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
 });
 
 /// Holds the list of configured MCP servers. This is the source of truth for UI and MCP connection sync.
-final mcpServerListProvider = StateProvider<List<McpServerConfig>>((ref) => []);
+// final mcpServerListProvider = StateProvider<List<McpServerConfig>>((ref) => []);
+final mcpServerListProvider =
+    StateNotifierProvider<McpServerListNotifier, List<McpServerConfig>>((ref) {
+  final repository = ref.watch(settingsRepositoryProvider);
+  return McpServerListNotifier(repository);
+});
 
 /// Provider for the SettingsService instance.
 final settingsServiceProvider = Provider<SettingsService>((ref) {

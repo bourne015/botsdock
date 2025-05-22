@@ -1,3 +1,4 @@
+import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,6 +37,7 @@ class Global {
             user.copy(User.fromJson(jsonDecode(jsonUser)));
             get_local_chats(user, pages);
             // pages.sortPages();
+            ACCESS_TOKEN = _prefs.getString("chat_access_token");
           }
         }
         pages.flattenPages();
@@ -44,6 +46,7 @@ class Global {
       debugPrint("init error, reset:${e}");
       Global.reset();
     }
+    return _prefs;
   }
 
   void get_local_chats(User user, Pages pages) {
@@ -78,6 +81,7 @@ class Global {
     _prefs.setInt("cached_user_id", user.id);
     _prefs.setBool("U${user.id}_isLogedin", user.isLogedin);
     _prefs.setString("U${user.id}", jsonEncode(user.toJson()));
+    if (user.token != null) _prefs.setString("chat_access_token", user.token!);
   }
 
   static saveChats(user_id, page_id, cdata, updated_at) {

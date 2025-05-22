@@ -364,6 +364,7 @@ class Administrator extends StatelessWidget {
               pages.flattenPages();
               property.isLoading = false;
               Global.saveProfile(user);
+              ACCESS_TOKEN = user.token;
             });
           } else
             notifyBox(context: context, title: "login status", content: res);
@@ -562,6 +563,7 @@ class Administrator extends StatelessWidget {
         user.updated_at = _data["updated_at"];
         user.isLogedin = true;
         user.settings = Settings.fromJson(_data["settings"] ?? {});
+        user.token = _data["access_token"];
       } else {
         user.isLogedin = false;
       }
