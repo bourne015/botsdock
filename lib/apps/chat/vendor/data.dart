@@ -78,7 +78,7 @@ class Models {
     abbrev: "4.1",
     organization: Organization.openai,
     price: {"input": 2.00, "output": 8.00},
-    score: 58.41,
+    score: 62.99,
   );
   static const AIModel gpt41Mini = AIModel(
     id: "gpt-4.1-mini",
@@ -87,7 +87,7 @@ class Models {
     organization: Organization.openai,
     // isDefault: true,
     price: {"input": 0.4, "output": 1.6},
-    score: 55.55,
+    score: 59.05,
   );
   static const AIModel gpt4o = AIModel(
     id: "gpt-4o",
@@ -95,7 +95,7 @@ class Models {
     abbrev: "4o",
     organization: Organization.openai,
     price: {"input": 2.5, "output": 10.0},
-    score: 49.21,
+    score: 53.95,
   );
   static const AIModel gpt4oMini = AIModel(
     id: "gpt-4o-mini",
@@ -103,7 +103,7 @@ class Models {
     abbrev: "4m",
     organization: Organization.openai,
     price: {"input": 0.15, "output": 0.60},
-    score: 37.63,
+    score: 43.41,
   );
   static const AIModel o1 = AIModel(
     id: "o1",
@@ -197,6 +197,24 @@ class Models {
     price: {"input": 3.0, "output": 15.0},
     score: 70.57,
   );
+  static const AIModel claudeOpus40 = AIModel(
+    id: "claude-opus-4-20250514",
+    name: "Claude4.0 - opus",
+    abbrev: "o",
+    organization: Organization.anthropic,
+    // isDefault: true,
+    price: {"input": 15.0, "output": 75.0},
+    score: 79.53,
+  );
+  static const AIModel claudeSonnet40 = AIModel(
+    id: "claude-sonnet-4-20250514",
+    name: "Claude4.0 - sonnet",
+    abbrev: "s",
+    organization: Organization.anthropic,
+    // isDefault: true,
+    price: {"input": 3.0, "output": 15.0},
+    score: 79.09,
+  );
 
   // DeepSeek models
   static const AIModel deepseekChat = AIModel(
@@ -224,6 +242,7 @@ class Models {
     abbrev: "15p",
     organization: Organization.google,
     score: 47.77,
+    visibleInUI: false,
   );
   static const AIModel geminiFlash20Lite = AIModel(
     id: "gemini-2.0-flash-lite",
@@ -240,38 +259,41 @@ class Models {
     score: 54.89,
   );
   static const AIModel geminiFlash20image = AIModel(
-    id: "gemini-2.0-flash-exp-image-generation",
-    name: "Gemini 2.0 Flash image generation",
+    id: "gemini-2.0-flash-preview-image-generation",
+    name: "Gemini图片编辑生成",
     abbrev: "20fi",
     organization: Organization.google,
     score: 54.89,
   );
   static const AIModel geminiFlash25 = AIModel(
-    id: "gemini-2.5-flash-preview-04-17",
+    id: "gemini-2.5-flash-preview-05-20",
     name: "Gemini 2.5 Flash",
     abbrev: "25f",
     organization: Organization.google,
-    score: 71.21,
+    score: 71.98,
   );
   static const AIModel geminiPro25 = AIModel(
-    id: "gemini-2.5-pro-exp-03-25",
+    id: "gemini-2.5-pro-preview-05-06",
     name: "Gemini 2.5 Pro",
     abbrev: "25p",
     organization: Organization.google,
     // isDefault: true,
-    score: 77.43,
+    price: {"input": 1.50, "output": 10.00},
+    score: 78.99,
   );
 
   // All models list
   static const List<AIModel> all = [
     // OpenAI
     gpt35, gpt40,
-    o4Mini, gpt41, gpt41Mini, gpt4o, gpt4oMini, o1, o1Mini, o3Mini,
+    o1, o1Mini, o3Mini, o4Mini,
+    gpt41, gpt41Mini, gpt4o, gpt4oMini,
     dalle3,
     // Claude
     claudeHaiku, claudeSonnet, claudeOpus,
     claudeSonnet35, claudeHaiku35,
     claudeSonnet37,
+    claudeOpus40, claudeSonnet40,
     // DeepSeek
     deepseekChat, deepseekReasoner,
     // Gemini
@@ -330,7 +352,7 @@ AIModel DefaultModelVersion = Models.gpt41Mini;
 final ModelForTitleGen = Models.geminiFlash20Lite;
 Map<Organization, AIModel> currentModels = {
   Organization.openai: DefaultModelVersion,
-  Organization.anthropic: Models.claudeSonnet37,
+  Organization.anthropic: Models.claudeSonnet40,
   Organization.google: Models.geminiPro25,
   Organization.deepseek: Models.deepseekReasoner,
 };
