@@ -142,10 +142,16 @@ class GalleryLocalizationsEn extends GalleryLocalizations {
   String get exploreMore => 'More';
 
   @override
-  String get botEdit => 'edit';
+  String get add => 'Add';
 
   @override
-  String get botDelete => 'delete';
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get remove => 'Remove';
 
   @override
   String get botCreateTitle => 'customize bot';
@@ -188,4 +194,46 @@ class GalleryLocalizationsEn extends GalleryLocalizations {
 
   @override
   String get cancel => 'Cancel';
+
+  @override
+  String get mcpServers => 'MCP Servers';
+
+  @override
+  String get mcpNote => 'Desktop platform only';
+
+  @override
+  String get mcpAdd => 'Add New Server';
+
+  @override
+  String get mcpEdit => 'Edit Server';
+
+  @override
+  String get mcpDel => 'Delete Server';
+
+  @override
+  String get mcpName => 'Server Name';
+
+  @override
+  String get mcpDesc => 'Server Description';
+
+  @override
+  String get mcpCmd => 'Server Command';
+
+  @override
+  String get mcpArgs => 'Server Arguments';
+
+  @override
+  String get mcpConn => 'Connect Automatically';
+
+  @override
+  String get mcpConnNote => 'Applies when settings change';
+
+  @override
+  String get mcpVisibility => 'MCP Server visibility';
+
+  @override
+  String get mcpVisibilityNote => 'Is visible to other users';
+
+  @override
+  String get mcpEnv => 'Custom Environment Variables';
 }

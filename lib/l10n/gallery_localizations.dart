@@ -352,17 +352,29 @@ abstract class GalleryLocalizations {
   /// **'More'**
   String get exploreMore;
 
+  /// add
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
   /// botEdit
   ///
   /// In en, this message translates to:
-  /// **'edit'**
-  String get botEdit;
+  /// **'Edit'**
+  String get edit;
 
-  /// delete
+  /// delete bot
   ///
   /// In en, this message translates to:
-  /// **'delete'**
-  String get botDelete;
+  /// **'Delete'**
+  String get delete;
+
+  /// remove
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
 
   /// bot Create Title
   ///
@@ -447,6 +459,90 @@ abstract class GalleryLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get cancel;
+
+  /// mcp Servers title
+  ///
+  /// In en, this message translates to:
+  /// **'MCP Servers'**
+  String get mcpServers;
+
+  /// mcpNote
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop platform only'**
+  String get mcpNote;
+
+  /// Add New Server
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Server'**
+  String get mcpAdd;
+
+  /// Edit Server
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Server'**
+  String get mcpEdit;
+
+  /// Delete Server
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Server'**
+  String get mcpDel;
+
+  /// Server Name
+  ///
+  /// In en, this message translates to:
+  /// **'Server Name'**
+  String get mcpName;
+
+  /// Server description
+  ///
+  /// In en, this message translates to:
+  /// **'Server Description'**
+  String get mcpDesc;
+
+  /// Server Command
+  ///
+  /// In en, this message translates to:
+  /// **'Server Command'**
+  String get mcpCmd;
+
+  /// Server Arguments
+  ///
+  /// In en, this message translates to:
+  /// **'Server Arguments'**
+  String get mcpArgs;
+
+  /// MCP Connect Automatically
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Automatically'**
+  String get mcpConn;
+
+  /// mcp Connect Note
+  ///
+  /// In en, this message translates to:
+  /// **'Applies when settings change'**
+  String get mcpConnNote;
+
+  /// MCP Server visibility
+  ///
+  /// In en, this message translates to:
+  /// **'MCP Server visibility'**
+  String get mcpVisibility;
+
+  /// mcpVisibilityNote
+  ///
+  /// In en, this message translates to:
+  /// **'Is visible to other users'**
+  String get mcpVisibilityNote;
+
+  /// Custom Environment Variables
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Environment Variables'**
+  String get mcpEnv;
 }
 
 class _GalleryLocalizationsDelegate extends LocalizationsDelegate<GalleryLocalizations> {

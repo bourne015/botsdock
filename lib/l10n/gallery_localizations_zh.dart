@@ -142,10 +142,16 @@ class GalleryLocalizationsZh extends GalleryLocalizations {
   String get exploreMore => '探索更多';
 
   @override
-  String get botEdit => '编辑';
+  String get add => '添加';
 
   @override
-  String get botDelete => '删除';
+  String get edit => '编辑';
+
+  @override
+  String get delete => '删除';
+
+  @override
+  String get remove => '移除';
 
   @override
   String get botCreateTitle => '个性化配置智能体';
@@ -188,4 +194,46 @@ class GalleryLocalizationsZh extends GalleryLocalizations {
 
   @override
   String get cancel => '取消';
+
+  @override
+  String get mcpServers => 'MCP服务';
+
+  @override
+  String get mcpNote => '仅支持桌面端平台';
+
+  @override
+  String get mcpAdd => '添加MCP';
+
+  @override
+  String get mcpEdit => '编辑MCP';
+
+  @override
+  String get mcpDel => '删除MCP';
+
+  @override
+  String get mcpName => '名字';
+
+  @override
+  String get mcpDesc => '描述';
+
+  @override
+  String get mcpCmd => '指令';
+
+  @override
+  String get mcpArgs => '参数';
+
+  @override
+  String get mcpConn => '自动连接';
+
+  @override
+  String get mcpConnNote => '当修改设置时自动应用';
+
+  @override
+  String get mcpVisibility => 'MCP服务可见性';
+
+  @override
+  String get mcpVisibilityNote => '该服务是否对其他用户可见';
+
+  @override
+  String get mcpEnv => '自定义环境变量';
 }

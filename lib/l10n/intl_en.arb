@@ -181,13 +181,21 @@
   "@exploreMore": {
     "description": "bot centre explore more"
   },
-  "botEdit": "edit",
-  "@botEdit": {
+  "add": "Add",
+  "@add": {
+    "description": "add"
+  },
+  "edit": "Edit",
+  "@edit": {
     "description": "botEdit"
   },
-  "botDelete": "delete",
-  "@botDelete": {
-    "description": "delete"
+  "delete": "Delete",
+  "@delete": {
+    "description": "delete bot"
+  },
+  "remove": "Remove",
+  "@remove": {
+    "description": "remove"
   },
   "botCreateTitle": "customize bot",
   "@botCreateTitle": {
@@ -244,5 +252,61 @@
   "cancel": "Cancel",
   "@cancel": {
     "description": "cancel"
+  },
+  "mcpServers": "MCP Servers",
+  "@mcpServers": {
+    "description": "mcp Servers title"
+  },
+  "mcpNote": "Desktop platform only",
+  "@mcpNote": {
+    "description": "mcpNote"
+  },
+  "mcpAdd": "Add New Server",
+  "@mcpAdd": {
+    "description": "Add New Server"
+  },
+  "mcpEdit": "Edit Server",
+  "@mcpEdit": {
+    "description": "Edit Server"
+  },
+  "mcpDel": "Delete Server",
+  "@mcpDel": {
+    "description": "Delete Server"
+  },
+  "mcpName": "Server Name",
+  "@mcpName": {
+    "description": "Server Name"
+  },
+  "mcpDesc": "Server Description",
+  "@mcpDesc": {
+    "description": "Server description"
+  },
+  "mcpCmd": "Server Command",
+  "@mcpCmd": {
+    "description": "Server Command"
+  },
+  "mcpArgs": "Server Arguments",
+  "@mcpArgs": {
+    "description": "Server Arguments"
+  },
+  "mcpConn": "Connect Automatically",
+  "@mcpConn": {
+    "description": "MCP Connect Automatically"
+  },
+  "mcpConnNote": "Applies when settings change",
+  "@mcpConnNote": {
+    "description": "mcp Connect Note"
+  },
+  "mcpVisibility": "MCP Server visibility",
+  "@mcpVisibility": {
+    "description": "MCP Server visibility"
+  },
+  "mcpVisibilityNote": "Is visible to other users",
+  "@mcpVisibilityNote": {
+    "description": "mcpVisibilityNote"
+  },
+  "mcpEnv": "Custom Environment Variables",
+  "@mcpEnv": {
+    "description": "Custom Environment Variables"
   }
 }

@@ -5,6 +5,7 @@ import 'package:botsdock/apps/chat/models/mcp/mcp_settings_providers.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
 import 'package:botsdock/apps/chat/views/menu/mcp_server_list_item.dart';
 import 'package:botsdock/apps/chat/views/menu/mcp_server_dialog.dart';
+import 'package:botsdock/l10n/gallery_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -42,20 +43,20 @@ class _MCPConfigState extends ConsumerState<MCPConfig> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              'MCP Servers',
+            Text(
+              GalleryLocalizations.of(context)!.mcpServers,
               style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
             IconButton(
               icon: const Icon(Icons.add_circle_outline),
-              tooltip: 'Add New MCP Server',
+              tooltip: GalleryLocalizations.of(context)!.mcpAdd,
               onPressed: () => _openServerDialog(),
             ),
           ],
         ),
         const SizedBox(height: 4.0),
         Text(
-          '$connectedCount server(s) connected. Desktop Platform only.',
+          '$connectedCount server(s) connected. ${GalleryLocalizations.of(context)!.mcpNote}.',
           style: const TextStyle(fontSize: 12.0, color: Colors.grey),
         ),
         const SizedBox(height: 12.0),
@@ -143,20 +144,20 @@ class _MCPConfigState extends ConsumerState<MCPConfig> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Delete Server?'),
+          title: Text('${GalleryLocalizations.of(context)!.mcpDel}?'),
           content: Text(
             'Are you sure you want to delete the server "${server.name}"?',
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(GalleryLocalizations.of(context)!.cancel),
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
             TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.error,
               ),
-              child: const Text('Delete'),
+              child: Text(GalleryLocalizations.of(context)!.delete),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 ref

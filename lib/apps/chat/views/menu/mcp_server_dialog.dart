@@ -1,4 +1,5 @@
 import 'package:botsdock/apps/chat/models/mcp/mcp_server_config.dart';
+import 'package:botsdock/l10n/gallery_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -183,7 +184,12 @@ class _ServerDialogState extends State<ServerDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(_isEditing ? 'Edit Server' : 'Add New Server'),
+      title: Text(
+        _isEditing
+            ? GalleryLocalizations.of(context)!.mcpEdit
+            : GalleryLocalizations.of(context)!.mcpAdd,
+        textAlign: TextAlign.center,
+      ),
       contentPadding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 0.0),
       content: Container(
         width: 500,
@@ -196,7 +202,9 @@ class _ServerDialogState extends State<ServerDialog> {
               children: <Widget>[
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Server Name*'),
+                  decoration: InputDecoration(
+                    labelText: GalleryLocalizations.of(context)!.mcpName,
+                  ),
                   validator: (v) => (v == null || v.trim().isEmpty)
                       ? 'Name cannot be empty'
                       : null,
@@ -204,16 +212,17 @@ class _ServerDialogState extends State<ServerDialog> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _descController,
-                  decoration:
-                      const InputDecoration(labelText: 'Server Description'),
+                  decoration: InputDecoration(
+                    labelText: GalleryLocalizations.of(context)!.mcpDesc,
+                  ),
                   maxLines: 2,
                   maxLength: 255,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _commandController,
-                  decoration: const InputDecoration(
-                    labelText: 'Server Command*',
+                  decoration: InputDecoration(
+                    labelText: GalleryLocalizations.of(context)!.mcpCmd,
                     hintText: r'/path/to/server or server.exe',
                   ),
                   validator: (v) => (v == null || v.trim().isEmpty)
@@ -223,23 +232,29 @@ class _ServerDialogState extends State<ServerDialog> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _argsController,
-                  decoration: const InputDecoration(
-                    labelText: 'Server Arguments',
+                  decoration: InputDecoration(
+                    labelText: GalleryLocalizations.of(context)!.mcpArgs,
                     hintText: r'--port 1234 --verbose',
                   ),
                 ),
                 const SizedBox(height: 12),
                 SwitchListTile(
-                  title: const Text('Connect Automatically'),
-                  subtitle: const Text('Applies when settings change'),
+                  title: Text(GalleryLocalizations.of(context)!.mcpConn),
+                  subtitle: Text(
+                    GalleryLocalizations.of(context)!.mcpConnNote,
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
                   value: _isActive,
                   onChanged: (bool value) => setState(() => _isActive = value),
                   contentPadding: EdgeInsets.zero,
                 ),
                 const Divider(height: 20),
                 SwitchListTile(
-                  title: const Text('MCP server visibility'),
-                  subtitle: const Text('Is visible to other users'),
+                  title: Text(GalleryLocalizations.of(context)!.mcpVisibility),
+                  subtitle: Text(
+                    GalleryLocalizations.of(context)!.mcpVisibilityNote,
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
                   value: _isPublic,
                   onChanged: (bool value) => setState(() => _isPublic = value),
                   contentPadding: EdgeInsets.zero,
@@ -249,12 +264,12 @@ class _ServerDialogState extends State<ServerDialog> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Custom Environment Variables',
+                      GalleryLocalizations.of(context)!.mcpEnv,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     IconButton(
                       icon: const Icon(Icons.add_circle_outline),
-                      tooltip: 'Add Variable',
+                      tooltip: GalleryLocalizations.of(context)!.add,
                       onPressed: _addEnvVar,
                     ),
                   ],
@@ -312,7 +327,7 @@ class _ServerDialogState extends State<ServerDialog> {
                               color: Theme.of(context).colorScheme.error,
                               size: 20,
                             ),
-                            tooltip: 'Remove Variable',
+                            tooltip: GalleryLocalizations.of(context)!.remove,
                             onPressed: () => _removeEnvVar(pair.id),
                           ),
                         ],
@@ -327,12 +342,12 @@ class _ServerDialogState extends State<ServerDialog> {
       ),
       actions: <Widget>[
         TextButton(
-          child: const Text('Cancel'),
+          child: Text(GalleryLocalizations.of(context)!.cancel),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
           onPressed: _handleSubmit,
-          child: Text(_isEditing ? 'Save Changes' : 'Add Server'),
+          child: Text(GalleryLocalizations.of(context)!.save),
         ),
       ],
     );

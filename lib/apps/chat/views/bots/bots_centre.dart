@@ -179,7 +179,7 @@ class BotsState extends State<BotsCentre> {
             child: ListTile(
               dense: true,
               leading: Icon(Icons.edit_rounded, size: 14),
-              title: Text(GalleryLocalizations.of(context)!.botEdit),
+              title: Text(GalleryLocalizations.of(context)!.edit),
             )),
         PopupMenuDivider(height: 1.0),
         PopupMenuItem<String>(
@@ -187,7 +187,7 @@ class BotsState extends State<BotsCentre> {
             child: ListTile(
               dense: true,
               leading: Icon(Icons.delete, size: 14),
-              title: Text(GalleryLocalizations.of(context)!.botDelete),
+              title: Text(GalleryLocalizations.of(context)!.delete),
             )),
       ],
     );

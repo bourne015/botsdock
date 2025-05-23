@@ -1,6 +1,7 @@
 import 'package:botsdock/apps/chat/models/mcp/mcp_models.dart';
 import 'package:botsdock/apps/chat/models/mcp/mcp_server_config.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/l10n/gallery_localizations.dart';
 import 'package:flutter/material.dart';
 
 import 'mcp_connection_status.dart';
@@ -60,7 +61,7 @@ class McpServerListItem extends StatelessWidget {
                 Text(
                   '${server.description}'.trim(),
                   overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
+                  maxLines: 2,
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 if (customEnvCount > 0)
@@ -104,7 +105,7 @@ class McpServerListItem extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit_note, size: 20),
-                        tooltip: 'Edit Server',
+                        tooltip: GalleryLocalizations.of(context)!.edit,
                         onPressed: () => onEdit(server),
                         visualDensity: VisualDensity.compact,
                         padding: EdgeInsets.zero,
@@ -117,7 +118,7 @@ class McpServerListItem extends StatelessWidget {
                           size: 20,
                           color: theme.colorScheme.error,
                         ),
-                        tooltip: 'Delete Server',
+                        tooltip: GalleryLocalizations.of(context)!.delete,
                         onPressed: () => onDelete(server),
                         visualDensity: VisualDensity.compact,
                         padding: EdgeInsets.zero,
