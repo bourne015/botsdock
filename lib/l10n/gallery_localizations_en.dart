@@ -46,16 +46,20 @@ class GalleryLocalizationsEn extends GalleryLocalizations {
   String get chatGPTo1Desc => 'Designed to solve hard problems across domains';
 
   @override
-  String get chatGPTo3mDesc => 'Designed to excel at science, math, and coding tasks.';
+  String get chatGPTo3mDesc =>
+      'Designed to excel at science, math, and coding tasks.';
 
   @override
-  String get chatGPT4oMiniDesc => 'affordable and intelligent small model for fast, lightweight tasks';
+  String get chatGPT4oMiniDesc =>
+      'affordable and intelligent small model for fast, lightweight tasks';
 
   @override
-  String get dallEDesc => 'A model that can generate images given a natural language prompt';
+  String get dallEDesc =>
+      'A model that can generate images given a natural language prompt';
 
   @override
-  String get claude3HaikuDesc => 'Fastest and most compact model for near-instant responsiveness';
+  String get claude3HaikuDesc =>
+      'Fastest and most compact model for near-instant responsiveness';
 
   @override
   String get claude3SonnetDesc => 'Balance of intelligence and speed';
@@ -70,10 +74,12 @@ class GalleryLocalizationsEn extends GalleryLocalizations {
   String get claude37SonnetDesc => 'Most intelligent claude model';
 
   @override
-  String get geminiDesc => 'New generation features, speed, and multimodal generation, suitable for a variety of tasks';
+  String get geminiDesc =>
+      'New generation features, speed, and multimodal generation, suitable for a variety of tasks';
 
   @override
-  String get gemini15proDesc => 'Complex reasoning tasks that require higher intelligence';
+  String get gemini15proDesc =>
+      'Complex reasoning tasks that require higher intelligence';
 
   @override
   String get deepseekDesc => 'Open source model from China, deepseek chat v3';
@@ -175,19 +181,23 @@ class GalleryLocalizationsEn extends GalleryLocalizations {
   String get functions => 'Functions';
 
   @override
-  String get fileSearchTip => 'File search enables the assistant with knowledge from files that you or your users upload.\nOnce a file is uploaded, the assistant automatically decides when to retrieve content based on user requests.';
+  String get fileSearchTip =>
+      'File search enables the assistant with knowledge from files that you or your users upload.\nOnce a file is uploaded, the assistant automatically decides when to retrieve content based on user requests.';
 
   @override
-  String get codeInterpreterTip => 'Code Interpreter enables the assistant to write and run code.\nThis tool can process files with diverse data and formatting, and generate files such as graphs.';
+  String get codeInterpreterTip =>
+      'Code Interpreter enables the assistant to write and run code.\nThis tool can process files with diverse data and formatting, and generate files such as graphs.';
 
   @override
-  String get functionsTip => 'Function calling lets you describe custom functions of your app or external APIs to the assistant.\nThis allows the assistant to intelligently call those functions by outputting a JSON object containing relevant arguments.';
+  String get functionsTip =>
+      'Function calling lets you describe custom functions of your app or external APIs to the assistant.\nThis allows the assistant to intelligently call those functions by outputting a JSON object containing relevant arguments.';
 
   @override
   String get functionsDialog => 'Add function';
 
   @override
-  String get functionsDialogTip => 'The model will intelligently decide to call functions based on the input it receives from the user.';
+  String get functionsDialogTip =>
+      'The model will intelligently decide to call functions based on the input it receives from the user.';
 
   @override
   String get save => 'Save';

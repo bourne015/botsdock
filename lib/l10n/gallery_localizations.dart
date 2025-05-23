@@ -61,15 +61,18 @@ import 'gallery_localizations_zh.dart' deferred as gallery_localizations_zh;
 /// be consistent with the languages listed in the GalleryLocalizations.supportedLocales
 /// property.
 abstract class GalleryLocalizations {
-  GalleryLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  GalleryLocalizations(String locale)
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
   static GalleryLocalizations? of(BuildContext context) {
-    return Localizations.of<GalleryLocalizations>(context, GalleryLocalizations);
+    return Localizations.of<GalleryLocalizations>(
+        context, GalleryLocalizations);
   }
 
-  static const LocalizationsDelegate<GalleryLocalizations> delegate = _GalleryLocalizationsDelegate();
+  static const LocalizationsDelegate<GalleryLocalizations> delegate =
+      _GalleryLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -81,7 +84,8 @@ abstract class GalleryLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -545,7 +549,8 @@ abstract class GalleryLocalizations {
   String get mcpEnv;
 }
 
-class _GalleryLocalizationsDelegate extends LocalizationsDelegate<GalleryLocalizations> {
+class _GalleryLocalizationsDelegate
+    extends LocalizationsDelegate<GalleryLocalizations> {
   const _GalleryLocalizationsDelegate();
 
   @override
@@ -554,25 +559,27 @@ class _GalleryLocalizationsDelegate extends LocalizationsDelegate<GalleryLocaliz
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'zh'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'zh'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_GalleryLocalizationsDelegate old) => false;
 }
 
 Future<GalleryLocalizations> lookupGalleryLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return gallery_localizations_en.loadLibrary().then((dynamic _) => gallery_localizations_en.GalleryLocalizationsEn());
-    case 'zh': return gallery_localizations_zh.loadLibrary().then((dynamic _) => gallery_localizations_zh.GalleryLocalizationsZh());
+    case 'en':
+      return gallery_localizations_en.loadLibrary().then(
+          (dynamic _) => gallery_localizations_en.GalleryLocalizationsEn());
+    case 'zh':
+      return gallery_localizations_zh.loadLibrary().then(
+          (dynamic _) => gallery_localizations_zh.GalleryLocalizationsZh());
   }
 
   throw FlutterError(
-    'GalleryLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
-  );
+      'GalleryLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

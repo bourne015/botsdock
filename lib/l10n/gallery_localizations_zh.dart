@@ -175,13 +175,16 @@ class GalleryLocalizationsZh extends GalleryLocalizations {
   String get functions => '函数调用';
 
   @override
-  String get fileSearchTip => '文件搜索使助手能够从您上传的文件中获得知识。\n上传文件后，助理会根据用户请求自动决定何时检索内容';
+  String get fileSearchTip =>
+      '文件搜索使助手能够从您上传的文件中获得知识。\n上传文件后，助理会根据用户请求自动决定何时检索内容';
 
   @override
-  String get codeInterpreterTip => '代码解释器使助手能够编写和运行代码。\n该工具可以处理具有不同数据和格式的文件，并生成图形等文件';
+  String get codeInterpreterTip =>
+      '代码解释器使助手能够编写和运行代码。\n该工具可以处理具有不同数据和格式的文件，并生成图形等文件';
 
   @override
-  String get functionsTip => '函数调用允许您向助手描述应用程序或外部API的自定义函数。\n助手将通过输出包含相关参数的JSON对象来智能地调用这些函数';
+  String get functionsTip =>
+      '函数调用允许您向助手描述应用程序或外部API的自定义函数。\n助手将通过输出包含相关参数的JSON对象来智能地调用这些函数';
 
   @override
   String get functionsDialog => '添加函数';
