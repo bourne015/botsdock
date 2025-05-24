@@ -20,26 +20,18 @@ class Global {
     try {
       oss_init();
       restoreProperties(property, user);
-      int? user_id = _prefs.getInt("cached_user_id");
-      if (_prefs.getBool("U${user_id}_isLogedin") == true) {
-        User? _u = await chatApi.userInfo(user_id);
-        if (_u == null || _u.id != user_id) {
-          debugPrint("failed to get user info");
-        } else if (_u.updated_at != _prefs.getInt("U${user_id}_updated_at")) {
+      ACCESS_TOKEN = _prefs.getString("chat_access_token");
+      if (ACCESS_TOKEN == null) return;
+      User? _u = await chatApi.userFromToken();
+      if (_u != null) {
+        user.copy(_u);
+        user.update(isLogedin: true, access_token: ACCESS_TOKEN);
+        if (_u.updated_at != _prefs.getInt("U${_u.id}_updated_at")) {
           Global.reset();
-          user.copy(_u);
-          user.update(isLogedin: true);
           Global.saveProfile(user);
           await pages.fetch_pages(user.id);
         } else {
-          ACCESS_TOKEN = _prefs.getString("chat_access_token");
-          if (ACCESS_TOKEN == null) return;
-          final String? jsonUser = _prefs.getString("U${user_id}");
-          if (jsonUser != null) {
-            user.copy(User.fromJson(jsonDecode(jsonUser)));
-            get_local_chats(user, pages);
-            // pages.sortPages();
-          }
+          get_local_chats(user, pages);
         }
         pages.flattenPages();
       }
@@ -78,9 +70,9 @@ class Global {
 
   static saveProfile(User user) {
     _prefs.setInt("U${user.id}_updated_at", user.updated_at);
-    _prefs.setInt("cached_user_id", user.id);
-    _prefs.setBool("U${user.id}_isLogedin", user.isLogedin);
-    _prefs.setString("U${user.id}", jsonEncode(user.toJson()));
+    // _prefs.setInt("cached_user_id", user.id);
+    // _prefs.setBool("U${user.id}_isLogedin", user.isLogedin);
+    // _prefs.setString("U${user.id}", jsonEncode(user.toJson()));
     if (user.token != null) _prefs.setString("chat_access_token", user.token!);
   }
 

@@ -43,10 +43,6 @@ class SettingsRepositoryImpl implements SettingsRepository {
   @override
   Future<List<McpServerConfig>> getMcpServerList() async {
     try {
-      dio.dio.options.headers = {
-        "Authorization": ACCESS_TOKEN != null ? "Bearer $ACCESS_TOKEN" : "",
-        "Content-Type": "application/json",
-      };
       final _data = await dio.get(ChatPath.share);
       List<McpServerConfig> dblist = [];
 

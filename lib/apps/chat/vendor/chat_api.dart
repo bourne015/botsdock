@@ -72,6 +72,23 @@ class ChatAPI {
   }
 
   /**
+   * get user information by access token
+   */
+  Future<User?> userFromToken() async {
+    try {
+      dio.dio.options.headers = {
+        "Authorization": ACCESS_TOKEN != null ? "Bearer $ACCESS_TOKEN" : "",
+        "Content-Type": "application/json",
+      };
+      var _user = await dio.get(ChatPath.token);
+      return User.fromJson(_user);
+    } catch (error) {
+      Logger.error('UserInfo error: $error');
+    }
+    return null;
+  }
+
+  /**
    * get all chat from db
    */
   Future<dynamic> chats(userId) async {

@@ -5,6 +5,7 @@ class ChatPath {
   static const String user = "/v1/user";
   static const String allUsers = "/v1/users";
   static const String login = "/v1/user/login";
+  static const String token = "/v1/user/me";
   static const String share = "/v1/shares";
 
   static String allChats(int userId) => "/v1/user/${userId}/chats";

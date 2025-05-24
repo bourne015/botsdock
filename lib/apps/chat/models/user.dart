@@ -183,6 +183,7 @@ class User with ChangeNotifier {
     bool? signUP,
     int? updated_at,
     Settings? settings,
+    String? access_token,
   }) {
     if (isLogedin != null) _isLogedin = isLogedin;
     if (id != null) _id = id;
@@ -196,6 +197,7 @@ class User with ChangeNotifier {
     if (signUP != null) _signUP = signUP;
     if (updated_at != null) _updated_at = updated_at;
     if (settings != null) _settings = settings;
+    if (access_token != null) token = access_token;
     notifyListeners();
   }
 
