@@ -111,6 +111,7 @@ class _DrawerHeader extends StatelessWidget {
       ),
       margin: const EdgeInsets.fromLTRB(10, 15, 10, 10),
       child: ListTile(
+        contentPadding: EdgeInsets.only(left: 7),
         shape: RoundedRectangleBorder(
           borderRadius: BORDERRADIUS10,
         ),
@@ -119,10 +120,7 @@ class _DrawerHeader extends StatelessWidget {
           pages.currentPageID = -1;
           if (!isDisplayDesktop(context)) Navigator.pop(context);
         },
-        leading: (!kIsWeb &&
-                (Platform.isMacOS || Platform.isWindows || Platform.isLinux))
-            ? _homeButton(context)
-            : const Icon(Icons.add),
+        leading: _homeButton(context),
         title: Text(
           GalleryLocalizations.of(context)!.newChat,
           style: Theme.of(context).textTheme.bodyLarge,
