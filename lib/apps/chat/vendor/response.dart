@@ -15,7 +15,7 @@ import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart' as anthropic;
 import 'package:google_generative_ai/src/api.dart' as gemini;
 
 class AIResponse {
-  static void Openai(
+  static Future<void> Openai(
     Pages pages,
     Property property,
     User user,
@@ -43,11 +43,11 @@ class AIResponse {
     }
   }
 
-  static void openaiAssistant(
+  static Future<void> openaiAssistant(
     Pages pages,
     int handlePageID,
     openai.AssistantStreamEvent event,
-  ) {
+  ) async {
     String? _text;
     Map<String, Attachment> attachments = {};
     Map<String, VisionFile> visionFiles = {};
@@ -126,14 +126,14 @@ class AIResponse {
     //pages.setGeneratingState(handlePageID, true);
   }
 
-  static void Claude(
+  static Future<void> Claude(
     Pages pages,
     Property property,
     User user,
     int handlePageID,
     Map<String, dynamic> j,
     rp.WidgetRef ref,
-  ) {
+  ) async {
     try {
       anthropic.MessageStreamEvent res =
           anthropic.MessageStreamEvent.fromJson(j);
@@ -202,7 +202,7 @@ class AIResponse {
     }
   }
 
-  static void DeepSeek(
+  static Future<void> DeepSeek(
     Pages pages,
     Property property,
     User user,
@@ -230,7 +230,7 @@ class AIResponse {
     }
   }
 
-  static void Gemini(
+  static Future<void> Gemini(
     Pages pages,
     Property property,
     User user,

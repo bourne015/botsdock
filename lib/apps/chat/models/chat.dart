@@ -555,18 +555,21 @@ class Chat with ChangeNotifier {
         attachments.forEach((String name, Attachment content) {
           messages.last.updateAttachments(name, content);
         });
-      if (visionFiles != null)
-        visionFiles.forEach((String name, VisionFile content) async {
+      if (visionFiles != null) {
+        for (var entry in visionFiles.entries) {
+          String name = entry.key;
+          VisionFile content = entry.value;
+
           String? path = await ChatAPI.uploadFile(name, content.bytes);
           String _fileType = name.split('.').last.toLowerCase();
           var _imgPart = GeminiPart1(
             inlineData: GeminiData1(mimeType: 'image/$_fileType', data: path),
           );
-
           messages.last.content.add(_imgPart);
           messages.last.visionFiles[name] =
               VisionFile(name: name, url: path ?? "");
-        });
+        }
+      }
 
       if (doStream) _messageController.add(messages.last);
     } catch (e) {

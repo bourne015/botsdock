@@ -277,23 +277,17 @@ class ChatAPI {
         );
         _initializeAssistantMessage(pages, handlePageID);
         pages.setPageGenerateStatus(handlePageID, true);
-        var _streamSubscription = stream.listen(
-          (String? data) async {
-            await _handleChatStream(
-                pages, handlePageID, property, user, data, ref);
-          },
+        var _streamSubscription = stream
+            .asyncMap((data) => _handleChatStream(
+                pages, handlePageID, property, user, data, ref))
+            .listen(
+          (_) {},
           onError: (e) async {
             await _onStreamError(pages, handlePageID, e);
-            // if (pages.getPage(handlePageID).streamSubscription != null)
-            //   pages.getPage(handlePageID).streamSubscription!.cancel();
-            // pages.getPage(handlePageID).streamSubscription = null;
             _cleanupSubscription(pages, handlePageID);
           },
           onDone: () async {
             await _onStreamDone(pages, handlePageID, user);
-            // if (pages.getPage(handlePageID).streamSubscription != null)
-            //   pages.getPage(handlePageID).streamSubscription!.cancel();
-            // pages.getPage(handlePageID).streamSubscription = null;
             _cleanupSubscription(pages, handlePageID);
           },
           cancelOnError: true,
@@ -430,16 +424,16 @@ Future<void> _handleChatStream(
     var res = json.decode(data);
     String modelID = pages.getPage(handlePageID).model;
     if (Models.getOrgByModelId(modelID) == Organization.openai) {
-      AIResponse.Openai(pages, property, user, handlePageID, res, ref);
+      await AIResponse.Openai(pages, property, user, handlePageID, res, ref);
     } else if (Models.getOrgByModelId(modelID) == Organization.deepseek) {
-      AIResponse.DeepSeek(pages, property, user, handlePageID, res, ref);
+      await AIResponse.DeepSeek(pages, property, user, handlePageID, res, ref);
     } else if (Models.getOrgByModelId(modelID) == Organization.google) {
-      AIResponse.Gemini(pages, property, user, handlePageID, res, ref);
+      await AIResponse.Gemini(pages, property, user, handlePageID, res, ref);
     } else if (Models.getOrgByModelId(modelID) == Organization.anthropic) {
-      AIResponse.Claude(pages, property, user, handlePageID, res, ref);
+      await AIResponse.Claude(pages, property, user, handlePageID, res, ref);
     }
   } else {
-    pages.getPage(handlePageID).appendMessage(msg: data);
+    await pages.getPage(handlePageID).appendMessage(msg: data);
   }
 }
 
