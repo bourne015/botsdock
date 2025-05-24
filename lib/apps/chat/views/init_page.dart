@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:botsdock/apps/chat/utils/prompts.dart';
 import 'package:botsdock/apps/chat/views/spirit_cat.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:botsdock/l10n/gallery_localizations.dart';
@@ -392,7 +393,8 @@ class CustomCard extends StatelessWidget {
     User user = Provider.of<User>(context, listen: false);
     Pages pages = Provider.of<Pages>(context, listen: false);
     Property property = Provider.of<Property>(context, listen: false);
-    return Container(
+    return rp.Consumer(builder: (context, rp.WidgetRef ref, child) {
+      return Container(
         margin: EdgeInsets.symmetric(horizontal: 10),
         child: Card(
           child: InkWell(
@@ -404,7 +406,7 @@ class CustomCard extends StatelessWidget {
                     title: title,
                   );
                 else if (user.isLogedin)
-                  chats.newTextChat(pages, property, user, prompt);
+                  chats.newSampleChat(pages, property, user, prompt, ref);
                 else
                   showMessage(context, "请登录");
               },
@@ -428,7 +430,9 @@ class CustomCard extends StatelessWidget {
                           child: Text(title, style: TextStyle(fontSize: 15)))
                     ],
                   ))),
-        ));
+        ),
+      );
+    });
   }
 
   void describe({context, var title}) {

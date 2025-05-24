@@ -375,11 +375,12 @@ class ChatAPI {
     }
   }
 
-  void newTextChat(
+  void newSampleChat(
     Pages pages,
     Property property,
     User user,
     String prompt,
+    ref,
   ) {
     int handlePageID = pages.addPage(
         Chat(
@@ -407,7 +408,7 @@ class ChatAPI {
         text: prompt,
         timestamp: DateTime.now().millisecondsSinceEpoch);
 
-    //submitText(pages, property, handlePageID, user);
+    submitText(pages, property, handlePageID, user, ref);
   }
 }
 
