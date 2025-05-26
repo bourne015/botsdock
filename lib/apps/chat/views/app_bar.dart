@@ -1,23 +1,30 @@
+import 'package:botsdock/apps/chat/models/mcp/mcp_models.dart';
+import 'package:botsdock/apps/chat/models/mcp/mcp_providers.dart';
+import 'package:botsdock/apps/chat/models/mcp/mcp_settings_providers.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
+import 'package:botsdock/apps/chat/views/menu/mcp_connection_status.dart';
+import 'package:botsdock/l10n/gallery_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:provider/provider.dart';
 
 import '../utils/utils.dart';
 import '../utils/constants.dart';
 import '../models/pages.dart';
 
-class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
+class MyAppBar extends rp.ConsumerStatefulWidget
+    implements PreferredSizeWidget {
   const MyAppBar({Key? key}) : super(key: key);
   @override
-  State<MyAppBar> createState() => MyAppBarState();
+  rp.ConsumerState<MyAppBar> createState() => MyAppBarState();
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight + 1.0);
 }
 
-class MyAppBarState extends State<MyAppBar> with RestorationMixin {
+class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
   double temperature = 1;
   RestorableBool switchArtifact = RestorableBool(true);
   RestorableBool switchInternet = RestorableBool(true);
@@ -126,6 +133,8 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
     Pages pages = Provider.of<Pages>(context);
     User user = Provider.of<User>(context, listen: false);
     Property property = Provider.of<Property>(context);
+    final serverList = ref.read(mcpServerListProvider);
+
     return PopupMenuButton<String>(
       icon: Icon(Icons.more_vert_rounded),
       // color: AppColors.drawerBackground,
@@ -153,6 +162,12 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
         if (isSupportTools(pages, property)) _buildInternetSwitch(context),
         if (isSupportTools(pages, property)) PopupMenuDivider(),
         _buildtemperatureSlide(context),
+        if (serverList.isNotEmpty) PopupMenuDivider(),
+        PopupMenuItem(
+          enabled: false,
+          child: Text(GalleryLocalizations.of(context)!.mcpServers),
+        ),
+        if (serverList.isNotEmpty) _buildMCPlist(context),
       ],
     );
   }
@@ -180,6 +195,106 @@ class MyAppBarState extends State<MyAppBar> with RestorationMixin {
               ),
             )),
       ),
+    );
+  }
+
+  PopupMenuItem<String> _buildMCPlist(
+    BuildContext context,
+  ) {
+    return PopupMenuItem<String>(
+      padding: EdgeInsets.symmetric(horizontal: 0),
+      value: "mcp",
+      child: rp.Consumer(
+        builder: (context, ref, child) {
+          final serverList = ref.watch(mcpServerListProvider);
+          final mcpState = ref.watch(mcpClientProvider);
+          final serverStatuses = mcpState.serverStatuses;
+          double _height = serverList.length * 70;
+          _height = _height <= 210 ? _height : 270;
+          return Material(
+              //color: Colors.transparent,
+              // color: AppColors.drawerBackground,
+              child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: BORDERRADIUS15,
+                  ),
+                  child: Container(
+                    height: _height,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: serverList.map<Widget>((server) {
+                          final status = serverStatuses[server.id] ??
+                              McpConnectionStatus.disconnected;
+                          return Card(
+                            margin: EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: InkWell(
+                              borderRadius: BORDERRADIUS15,
+                              child: ListTile(
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 5),
+                                leading: Tooltip(
+                                  message: status.name,
+                                  child: McpConnectionStatusIndicator(
+                                      status: status),
+                                ),
+                                title: Text(
+                                  server.name,
+                                  style: TextStyle(
+                                    fontWeight: server.isActive
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                                subtitle: Tooltip(
+                                  waitDuration: Duration(milliseconds: 600),
+                                  message: '${server.description}'.trim(),
+                                  child: Text(
+                                    '${server.description}'.trim(),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: const TextStyle(
+                                        fontSize: 12, color: Colors.grey),
+                                  ),
+                                ),
+                                trailing: Transform.scale(
+                                  scale: 0.7,
+                                  child: Switch(
+                                    value: server.isActive,
+                                    activeColor: Colors.blue[300],
+                                    onChanged: (bool value) {
+                                      _toggleServerActive(server.id, value);
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  )));
+        },
+      ),
+    );
+  }
+
+  void _toggleServerActive(String serverId, bool isActive) {
+    ref
+        .read(settingsServiceProvider)
+        .toggleMcpServerActive(serverId, isActive)
+        .catchError(
+          (e) => _showSnackbar('Error updating server active state: $e'),
+        );
+  }
+
+  void _showSnackbar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
     );
   }
 
