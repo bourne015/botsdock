@@ -1,6 +1,7 @@
 import 'package:botsdock/apps/chat/models/mcp/mcp_models.dart';
 import 'package:botsdock/apps/chat/models/mcp/mcp_server_config.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:botsdock/l10n/gallery_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -34,19 +35,24 @@ class McpServerListItem extends StatelessWidget {
 
     return Card(
       elevation: userWantsActive ? 2 : 1,
-      margin: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+      child: InkWell(
+        onLongPress: () => onEdit(server),
+        borderRadius: BORDERRADIUS10,
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
           ListTile(
             leading: Tooltip(
               message: status.name,
               child: McpConnectionStatusIndicator(status: status),
             ),
-            trailing: Switch(
-              value: userWantsActive,
-              onChanged: (bool value) => onToggleActive(server.id, value),
-              activeColor: theme.colorScheme.primary,
+            trailing: Transform.scale(
+              scale: 0.7,
+              child: Switch(
+                value: userWantsActive,
+                onChanged: (bool value) => onToggleActive(server.id, value),
+                activeColor: theme.colorScheme.primary,
+              ),
             ),
             title: Text(
               server.name,
@@ -74,7 +80,7 @@ class McpServerListItem extends StatelessWidget {
                   ),
               ],
             ),
-            onLongPress: () => onEdit(server),
+            // onLongPress: () => onEdit(server),
           ),
           // Error and Action Row
           Padding(
@@ -86,6 +92,7 @@ class McpServerListItem extends StatelessWidget {
                 Expanded(
                   child: errorMessage != null
                       ? Tooltip(
+                          waitDuration: Duration(milliseconds: 500),
                           message: errorMessage!,
                           child: Text(
                             'Error: $errorMessage',
@@ -129,7 +136,7 @@ class McpServerListItem extends StatelessWidget {
               ],
             ),
           ),
-        ],
+        ]),
       ),
     );
   }
