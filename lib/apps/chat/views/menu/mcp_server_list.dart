@@ -37,6 +37,8 @@ class _MCPConfigState extends ConsumerState<MCPConfig> {
     final serverStatuses = mcpState.serverStatuses;
     final serverErrors = mcpState.serverErrorMessages;
     final connectedCount = mcpState.connectedServerCount;
+    final serverTools = mcpState.discoveredTools;
+
     return ListView(
       children: [
         Row(
@@ -80,11 +82,13 @@ class _MCPConfigState extends ConsumerState<MCPConfig> {
                   final status = serverStatuses[server.id] ??
                       McpConnectionStatus.disconnected;
                   final error = serverErrors[server.id];
+                  final tools = serverTools[server.id];
 
                   return McpServerListItem(
                     server: server,
                     status: status,
                     errorMessage: error,
+                    tools: tools,
                     user: widget.user,
                     onToggleActive: _toggleServerActive,
                     onEdit: (server) => _openServerDialog(serverToEdit: server),
