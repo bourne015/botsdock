@@ -365,6 +365,11 @@ class Administrator extends StatelessWidget {
               property.isLoading = false;
               Global.saveProfile(user);
               ACCESS_TOKEN = user.token;
+              dio.dio.options.headers = {
+                "Authorization":
+                    ACCESS_TOKEN != null ? "Bearer $ACCESS_TOKEN" : "",
+                "Content-Type": "application/json",
+              };
             });
           } else
             notifyBox(context: context, title: "login status", content: res);
