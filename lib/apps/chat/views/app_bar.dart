@@ -210,72 +210,59 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
           final mcpState = ref.watch(mcpClientProvider);
           final serverStatuses = mcpState.serverStatuses;
           double _height = serverList.length * 70;
-          _height = _height <= 210 ? _height : 270;
           return Material(
-              //color: Colors.transparent,
-              // color: AppColors.drawerBackground,
               child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BORDERRADIUS15,
-                  ),
-                  child: Container(
-                    height: _height,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: serverList.map<Widget>((server) {
-                          final status = serverStatuses[server.id] ??
-                              McpConnectionStatus.disconnected;
-                          return Card(
-                            margin: EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 5),
-                            child: InkWell(
-                              borderRadius: BORDERRADIUS15,
-                              child: ListTile(
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 5),
-                                leading: Tooltip(
-                                  message: status.name,
-                                  child: McpConnectionStatusIndicator(
-                                      status: status),
-                                ),
-                                title: Text(
-                                  server.name,
-                                  style: TextStyle(
-                                    fontWeight: server.isActive
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
-                                ),
-                                subtitle: Tooltip(
-                                  waitDuration: Duration(milliseconds: 600),
-                                  message: '${server.description}'.trim(),
-                                  child: Text(
-                                    '${server.description}'.trim(),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    style: const TextStyle(
-                                        fontSize: 12, color: Colors.grey),
-                                  ),
-                                ),
-                                trailing: Transform.scale(
-                                  scale: 0.7,
-                                  child: Switch(
-                                    value: server.isActive,
-                                    activeColor: Colors.blue[300],
-                                    onChanged: (bool value) {
-                                      _toggleServerActive(server.id, value);
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            height: _height <= 210 ? _height : 270,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: serverList.map<Widget>((server) {
+                  final status = serverStatuses[server.id] ??
+                      McpConnectionStatus.disconnected;
+                  return Card(
+                    margin: EdgeInsets.symmetric(vertical: 4, horizontal: 5),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 5),
+                      leading: Tooltip(
+                        message: status.name,
+                        child: McpConnectionStatusIndicator(status: status),
+                      ),
+                      title: Text(
+                        server.name,
+                        style: TextStyle(
+                          fontWeight: server.isActive
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                      subtitle: Tooltip(
+                        waitDuration: Duration(milliseconds: 600),
+                        message: '${server.description}'.trim(),
+                        child: Text(
+                          '${server.description}'.trim(),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style:
+                              const TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ),
+                      trailing: Transform.scale(
+                        scale: 0.7,
+                        child: Switch(
+                          value: server.isActive,
+                          activeColor: Colors.blue[300],
+                          onChanged: (bool value) {
+                            _toggleServerActive(server.id, value);
+                          },
+                        ),
                       ),
                     ),
-                  )));
+                  );
+                }).toList(),
+              ),
+            ),
+          ));
         },
       ),
     );
