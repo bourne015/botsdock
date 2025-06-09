@@ -133,7 +133,7 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
     Pages pages = Provider.of<Pages>(context);
     User user = Provider.of<User>(context, listen: false);
     Property property = Provider.of<Property>(context);
-    final serverList = ref.read(mcpServerListProvider);
+    // final serverList = ref.read(mcpServerListProvider);
 
     return PopupMenuButton<String>(
       icon: Icon(Icons.more_vert_rounded),
@@ -162,12 +162,12 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
         if (isSupportTools(pages, property)) _buildInternetSwitch(context),
         if (isSupportTools(pages, property)) PopupMenuDivider(),
         _buildtemperatureSlide(context),
-        if (serverList.isNotEmpty) PopupMenuDivider(),
-        PopupMenuItem(
-          enabled: false,
-          child: Text(GalleryLocalizations.of(context)!.mcpServers),
-        ),
-        if (serverList.isNotEmpty) _buildMCPlist(context),
+        // if (serverList.isNotEmpty) PopupMenuDivider(),
+        // PopupMenuItem(
+        //   enabled: false,
+        //   child: Text(GalleryLocalizations.of(context)!.mcpServers),
+        // ),
+        // if (serverList.isNotEmpty) _buildMCPlist(context),
       ],
     );
   }
