@@ -63,7 +63,7 @@ class ChatThemeData {
   static const ColorScheme lightColorScheme = ColorScheme(
     primary: Color.fromARGB(255, 108, 159, 247), //Color(0xffbb86fc),
     primaryContainer: Color(0xFF117378),
-    secondary: Color.fromARGB(255, 228, 242, 242),
+    secondary: Color.fromARGB(255, 228, 228, 228),
     secondaryFixed: Color.fromARGB(255, 223, 223, 223),
     secondaryContainer: Color.fromARGB(255, 244, 244, 244),
     // background: Color(0xFFE6EBEB),
@@ -131,7 +131,7 @@ class ChatThemeData {
     //bot author, chat group date
     labelMedium: TextStyle(
       fontWeight: _medium,
-      fontSize: 12,
+      fontSize: 12.5,
       color: Colors.grey,
     ),
     labelSmall: TextStyle(

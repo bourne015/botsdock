@@ -16,6 +16,7 @@ class ChatPath {
   static String usersecurity(int userId) => "/v1/user/$userId/security";
   static String creds(int userId) => "/v1/user/$userId/oss_credentials";
   static String charge(int userId) => "/v1/user/charge/$userId";
+  static String newOrder(int userId) => "/v1/user/charge/$userId/new_order";
 
   static String saveChat(int userId) => "/v1/user/$userId/chat";
   static String chatStream(int userId) => "${completion}?user_id=${userId}";

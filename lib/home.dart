@@ -4,6 +4,7 @@
 
 import 'dart:math' as math;
 
+import 'package:botsdock/apps/chat/views/menu/charge.dart';
 import 'package:flutter/material.dart';
 import 'package:botsdock/l10n/gallery_localizations.dart';
 import 'package:botsdock/constants.dart';
@@ -26,6 +27,16 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final params = parseUrlParams();
+
+    if (params.containsKey("out_trade_no")) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        clearUrlQueryParams();
+      });
+      return PayResultPage(params: params);
+    }
+    ;
+
     final localizations = GalleryLocalizations.of(context)!;
     final studyDemos = Demos.studies(localizations);
     final carouselCards = <Widget>[

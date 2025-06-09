@@ -455,10 +455,10 @@ packages:
     dependency: "direct main"
     description:
       name: mcp_dart
-      sha256: e34f154ed7242076a408012901e949bf4b63f3a00a89b4fceb54939bc4aadab4
+      sha256: "5a8b334da76fe7b8fa5b10b57a5344b3bac7ba8e6316379ef442708e0877eac1"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.5.0"
+    version: "0.5.1"
   meta:
     dependency: transitive
     description:
@@ -679,10 +679,10 @@ packages:
     dependency: transitive
     description:
       name: pointer_interceptor_web
-      sha256: "7a7087782110f8c1827170660b09f8aa893e0e9a61431dbbe2ac3fc482e8c044"
+      sha256: "460b600e71de6fcea2b3d5f662c92293c049c4319e27f0829310e5a953b3ee2a"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.10.2+1"
+    version: "0.10.3"
   provider:
     dependency: "direct main"
     description:
@@ -940,10 +940,10 @@ packages:
     dependency: transitive
     description:
       name: vector_graphics_compiler
-      sha256: "1b4b9e706a10294258727674a340ae0d6e64a7231980f9f9a3d12e4b42407aad"
+      sha256: "557a315b7d2a6dbb0aaaff84d857967ce6bdc96a63dc6ee2a57ce5a6ee5d3331"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.1.16"
+    version: "1.1.17"
   vector_math:
     dependency: transitive
     description:

@@ -2,6 +2,7 @@ import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
 import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
+import 'package:botsdock/apps/chat/views/menu/charge.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -69,8 +70,14 @@ class _UserInfoTabState extends State<UserInfo> {
           title: Text(title),
           bottom: TabBar(
             tabs: <Widget>[
-              Tab(icon: Icon(Icons.beach_access_sharp)),
-              Tab(icon: Icon(Icons.currency_exchange_rounded)),
+              Tab(
+                icon: Icon(Icons.beach_access_sharp),
+                text: "资料",
+              ),
+              Tab(
+                icon: Icon(Icons.currency_exchange_rounded),
+                text: "充值",
+              ),
               if (widget.user.id == 1)
                 Tab(icon: Icon(Icons.manage_accounts_outlined)),
             ],
@@ -79,7 +86,7 @@ class _UserInfoTabState extends State<UserInfo> {
         body: TabBarView(
           children: <Widget>[
             SingleChildScrollView(child: UserInfoPage(context, title)),
-            SingleChildScrollView(child: UserCharge(context)),
+            SingleChildScrollView(child: ChargePage(user: widget.user)),
             if (widget.user.id == 1) UsersManage(),
           ],
         ));
