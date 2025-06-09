@@ -49,7 +49,8 @@ class _AppState extends rp.ConsumerState<ChatApp> {
       property.isLoading = false;
     });
     await dotenv.load(fileName: "assets/env.conf");
-    await ref.read(mcpServerListProvider.notifier).refresh();
+    if (user.isLogedin)
+      await ref.read(mcpServerListProvider.notifier).refresh();
   }
 
   @override
