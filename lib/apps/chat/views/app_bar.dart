@@ -226,7 +226,8 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
                       contentPadding: EdgeInsets.symmetric(horizontal: 5),
                       leading: Tooltip(
                         message: status.name,
-                        child: McpConnectionStatusIndicator(status: status),
+                        child: McpConnectionStatusIndicator(
+                            status: status, name: server.name),
                       ),
                       title: Text(
                         server.name,

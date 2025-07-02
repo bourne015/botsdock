@@ -3,16 +3,18 @@ import 'package:flutter/material.dart';
 
 class McpConnectionStatusIndicator extends StatelessWidget {
   final McpConnectionStatus status;
+  final String name;
 
-  const McpConnectionStatusIndicator({super.key, required this.status});
+  const McpConnectionStatusIndicator(
+      {super.key, required this.status, required this.name});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
+    var statusIcon;
     switch (status) {
       case McpConnectionStatus.connected:
-        return Icon(Icons.check_circle, color: Colors.green[700], size: 20);
+        statusIcon = Icon(Icons.circle, color: Colors.greenAccent, size: 10);
       case McpConnectionStatus.connecting:
         return const SizedBox(
           width: 20,
@@ -20,14 +22,33 @@ class McpConnectionStatusIndicator extends StatelessWidget {
           child: CircularProgressIndicator(strokeWidth: 2),
         );
       case McpConnectionStatus.error:
-        return Icon(Icons.error, color: theme.colorScheme.error, size: 20);
+        statusIcon = Icon(Icons.circle, color: Colors.redAccent, size: 10);
       case McpConnectionStatus.disconnected:
-        return Icon(
+        statusIcon = Icon(
           Icons.circle_outlined,
           color: theme.disabledColor,
-          size: 20,
+          size: 10,
         );
     }
+    return Stack(
+      alignment: AlignmentDirectional.bottomEnd,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(50),
+          child: Container(
+            width: 40,
+            height: 40,
+            // padding: EdgeInsets.all(5),
+            // margin: EdgeInsets.all(5),
+            color: Theme.of(context).colorScheme.surfaceTint,
+            child: Center(
+                child: Text(name[0] ?? "M",
+                    style: Theme.of(context).textTheme.headlineSmall)),
+          ),
+        ),
+        statusIcon,
+      ],
+    );
   }
 }
 

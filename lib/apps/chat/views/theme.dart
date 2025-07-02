@@ -76,6 +76,7 @@ class ChatThemeData {
     onSecondary: Color(0xFF322942),
     onSurface: Color(0xFF241E30),
     brightness: Brightness.light,
+    surfaceTint: Color.fromARGB(255, 215, 215, 215),
   );
 
   static const ColorScheme darkColorScheme = ColorScheme(
@@ -92,6 +93,7 @@ class ChatThemeData {
     onSecondary: _darkFillColor,
     onSurface: _darkFillColor,
     brightness: Brightness.dark,
+    surfaceTint: Color.fromARGB(255, 91, 91, 91),
   );
 
   // static const _light = FontWeight.w300;

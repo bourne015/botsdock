@@ -22,6 +22,7 @@ class _MCPConfigState extends ConsumerState<MCPConfig> {
   Widget build(BuildContext context) {
     return Container(
       width: 500,
+      height: 1000,
       margin: EdgeInsets.all(15),
       child: Scaffold(
         appBar: AppBar(title: Text("MCP servers")),
@@ -58,7 +59,7 @@ class _MCPConfigState extends ConsumerState<MCPConfig> {
         ),
         const SizedBox(height: 4.0),
         Text(
-          '$connectedCount server(s) connected. ${GalleryLocalizations.of(context)!.mcpNote}.',
+          '$connectedCount server(s) connected.',
           style: const TextStyle(fontSize: 12.0, color: Colors.grey),
         ),
         const SizedBox(height: 12.0),

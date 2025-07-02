@@ -47,7 +47,8 @@ class McpServerListItem extends StatelessWidget {
           ListTile(
             leading: Tooltip(
               message: status.name,
-              child: McpConnectionStatusIndicator(status: status),
+              child: McpConnectionStatusIndicator(
+                  status: status, name: server.name),
             ),
             trailing: Transform.scale(
               scale: 0.7,
@@ -86,13 +87,13 @@ class McpServerListItem extends StatelessWidget {
           ),
           // Error and Action Row
           Padding(
-            padding: const EdgeInsets.only(left: 52.0, right: 8.0, bottom: 8.0),
+            padding: const EdgeInsets.only(left: 65.0, right: 30.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (tools != null) toolsButton(context),
-                NoteMessage(context),
+                toolsButton(context),
+                if (server.isActive) NoteMessage(context),
                 SizedBox(width: 20),
                 if (user != null && user!.id == server.owner_id)
                   actions(context)
@@ -105,18 +106,25 @@ class McpServerListItem extends StatelessWidget {
   }
 
   Widget toolsButton(BuildContext context) {
+    var title = '';
+    if (!server.isActive)
+      title = "Disabled";
+    else if (tools != null)
+      title = "${tools?.length} tools enabled";
+    else if (errorMessage != null) title = "Connection failed:";
     return Transform.scale(
       scale: 0.9,
       child: TextButton.icon(
         style: ButtonStyle(
           visualDensity: VisualDensity.compact,
-          padding: WidgetStateProperty.all(EdgeInsets.only(right: 5)),
+          padding: WidgetStateProperty.all(EdgeInsets.zero),
         ),
-        label: Text("Tools:"),
+        label: Text(title, style: Theme.of(context).textTheme.bodyMedium),
         onPressed: () {
-          toolsList(context);
+          if (tools != null) toolsList(context);
         },
-        icon: Icon(Icons.construction),
+        icon: tools != null ? Icon(Icons.expand_more) : null,
+        iconAlignment: IconAlignment.end,
       ),
     );
   }
@@ -128,13 +136,10 @@ class McpServerListItem extends StatelessWidget {
               waitDuration: Duration(milliseconds: 500),
               message: errorMessage!,
               child: Text(
-                'Error: $errorMessage',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontSize: 11,
-                ),
+                '$errorMessage',
+                style: Theme.of(context).textTheme.labelSmall,
                 overflow: TextOverflow.ellipsis,
-                maxLines: 2,
+                maxLines: 1,
               ),
             )
           : tools != null
@@ -152,10 +157,12 @@ class McpServerListItem extends StatelessWidget {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          child: Container(
-            padding: EdgeInsets.all(20),
+        return AlertDialog(
+          title: Text("工具列表"),
+          content: Container(
+            padding: EdgeInsets.only(top: 10),
             width: 400,
+            height: 500,
             child: ListView.builder(
               itemCount: tools!.length,
               itemBuilder: (context, index) {
@@ -184,9 +191,10 @@ class McpServerListItem extends StatelessWidget {
   Widget actions(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         IconButton(
-          icon: const Icon(Icons.edit_note, size: 20),
+          icon: const Icon(Icons.edit_outlined, size: 18),
           tooltip: GalleryLocalizations.of(context)!.edit,
           onPressed: () => onEdit(server),
           visualDensity: VisualDensity.compact,
@@ -197,7 +205,7 @@ class McpServerListItem extends StatelessWidget {
         IconButton(
           icon: Icon(
             Icons.delete_outline,
-            size: 20,
+            size: 18,
             color: Theme.of(context).colorScheme.error,
           ),
           tooltip: GalleryLocalizations.of(context)!.delete,

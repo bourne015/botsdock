@@ -223,7 +223,7 @@ class _ServerDialogState extends State<ServerDialog> {
                   controller: _commandController,
                   decoration: InputDecoration(
                     labelText: GalleryLocalizations.of(context)!.mcpCmd,
-                    hintText: r'/path/to/server or server.exe',
+                    hintText: r'http or sse or npx',
                   ),
                   validator: (v) => (v == null || v.trim().isEmpty)
                       ? 'Command cannot be empty'
