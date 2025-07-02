@@ -1,13 +1,16 @@
-import 'dart:io';
+// import 'dart:io';
 
 import 'package:botsdock/apps/chat/models/mcp/mcp_models.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mcp_dart/mcp_dart.dart';
 
 class McpClient {
   final String serverId;
   final Client mcp;
-  StdioClientTransport? _transport;
+  StreamableHttpClientTransport? _transport;
+  String? sessionId;
+  int notificationCount = 0;
   List<McpToolDefinition> _tools = []; // Store raw tool definitions
   bool _isConnected = false;
 
@@ -24,8 +27,14 @@ class McpClient {
       : mcp = Client(
           Implementation(
             name: "mcp-client",
-            version: "1.0.0",
+            version: "1.0.1",
           ), // Generic client name
+          options: const ClientOptions(
+            capabilities: ClientCapabilities(
+              roots: ClientCapabilitiesRoots(listChanged: true),
+              // sampling: {},
+            ),
+          ),
         );
 
   void setupCallbacks({
@@ -54,14 +63,32 @@ class McpClient {
     final Function(String serverId)? localOnCloseCallback = _onClose;
 
     try {
-      _transport = StdioClientTransport(
-        StdioServerParameters(
-          command: command,
-          args: args,
-          environment: environment,
-          stderrMode: ProcessStartMode.normal,
-        ),
-      );
+      if (command.toLowerCase().startsWith(RegExp(r'^(http|sse)'))) {
+        _transport = StreamableHttpClientTransport(
+          Uri.parse(args[0]),
+          opts: StreamableHttpClientTransportOptions(
+            sessionId: sessionId,
+            reconnectionOptions: StreamableHttpReconnectionOptions(
+              initialReconnectionDelay: 1000,
+              maxReconnectionDelay: 30000,
+              reconnectionDelayGrowFactor: 1.5,
+              maxRetries: 3,
+            ),
+          ),
+        );
+        _transport!.onmessage = (message) {
+          debugPrint(" Received: ${message.runtimeType}");
+        };
+      } else {
+        // _transport = StdioClientTransport(
+        //   StdioServerParameters(
+        //     command: command,
+        //     args: args,
+        //     environment: environment,
+        //     stderrMode: ProcessStartMode.normal,
+        //   ),
+        // );
+      }
       _transport!.onerror = (error) {
         final errorMsg = "MCP Transport error [$serverId]: $error";
         debugPrint(errorMsg);
@@ -80,6 +107,9 @@ class McpClient {
         _tools = []; // Clear tools on close
       };
       await mcp.connect(_transport!);
+      if (command.toLowerCase().startsWith(RegExp(r'^(http|sse)'))) {
+        sessionId = _transport!.sessionId;
+      }
       _isConnected = true;
       debugPrint(
         "McpClient [$serverId]: Connected successfully. Fetching tools...",
