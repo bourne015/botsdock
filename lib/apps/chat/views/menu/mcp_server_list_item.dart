@@ -87,7 +87,7 @@ class McpServerListItem extends StatelessWidget {
           ),
           // Error and Action Row
           Padding(
-            padding: const EdgeInsets.only(left: 65.0, right: 30.0),
+            padding: const EdgeInsets.only(left: 55.0, right: 30.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -109,6 +109,8 @@ class McpServerListItem extends StatelessWidget {
     var title = '';
     if (!server.isActive)
       title = "Disabled";
+    else if (status == McpConnectionStatus.connecting)
+      title = "Connecting...";
     else if (tools != null)
       title = "${tools?.length} tools enabled";
     else if (errorMessage != null) title = "Connection failed:";
@@ -117,7 +119,8 @@ class McpServerListItem extends StatelessWidget {
       child: TextButton.icon(
         style: ButtonStyle(
           visualDensity: VisualDensity.compact,
-          padding: WidgetStateProperty.all(EdgeInsets.zero),
+          padding:
+              WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 10)),
         ),
         label: Text(title, style: Theme.of(context).textTheme.bodyMedium),
         onPressed: () {

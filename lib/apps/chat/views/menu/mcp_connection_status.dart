@@ -16,11 +16,12 @@ class McpConnectionStatusIndicator extends StatelessWidget {
       case McpConnectionStatus.connected:
         statusIcon = Icon(Icons.circle, color: Colors.greenAccent, size: 10);
       case McpConnectionStatus.connecting:
-        return const SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        );
+        // return const SizedBox(
+        //   width: 20,
+        //   height: 20,
+        //   child: CircularProgressIndicator(strokeWidth: 2),
+        // );
+        statusIcon = Icon(Icons.circle, color: Colors.yellow, size: 10);
       case McpConnectionStatus.error:
         statusIcon = Icon(Icons.circle, color: Colors.redAccent, size: 10);
       case McpConnectionStatus.disconnected:
@@ -42,7 +43,7 @@ class McpConnectionStatusIndicator extends StatelessWidget {
             // margin: EdgeInsets.all(5),
             color: Theme.of(context).colorScheme.surfaceTint,
             child: Center(
-                child: Text(name[0] ?? "M",
+                child: Text(name[0],
                     style: Theme.of(context).textTheme.headlineSmall)),
           ),
         ),
