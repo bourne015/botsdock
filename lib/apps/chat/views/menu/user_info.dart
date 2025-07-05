@@ -55,6 +55,7 @@ class _UserInfoTabState extends State<UserInfo> {
             borderRadius: BORDERRADIUS15,
             child: Container(
               width: 400,
+              height: 800,
               child: DefaultTabController(
                 initialIndex: 0,
                 length: widget.user.id == 1 ? 3 : 2,

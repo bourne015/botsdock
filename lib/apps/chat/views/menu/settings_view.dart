@@ -69,6 +69,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
         borderRadius: BORDERRADIUS15,
         child: Container(
           width: 400,
+          height: 800,
           child: DefaultTabController(
             initialIndex: 0,
             length: 2,
