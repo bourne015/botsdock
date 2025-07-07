@@ -28,6 +28,18 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
   double temperature = 1;
   RestorableBool switchArtifact = RestorableBool(true);
   RestorableBool switchInternet = RestorableBool(true);
+  final flag_artifact = Tooltip(
+    message: "artifact",
+    child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 5),
+        child: Icon(Icons.bar_chart, color: Colors.blue[400], size: 18)),
+  );
+  final flag_network = Tooltip(
+    message: "network",
+    child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 5),
+        child: Icon(Icons.language, color: Colors.blue[400], size: 18)),
+  );
 
   @override
   String get restorationId => 'switch_test';
@@ -91,34 +103,37 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
   }
 
   List<Widget> appbarIcons(Pages pages, Property property) {
-    var res = [
-      Container(
-          margin: EdgeInsets.symmetric(horizontal: 5),
-          child: Icon(null, color: Colors.blue[700])),
-      Container(
-          margin: EdgeInsets.symmetric(horizontal: 5),
-          child: Icon(null, color: Colors.blue[700])),
-    ];
+    List<Widget> res = [];
+    final mcpState = ref.watch(mcpClientProvider);
+    final connectedCount = mcpState.connectedServerCount;
     if (!property.onInitPage &&
         pages.currentPage!.model != Models.deepseekReasoner.id) {
       if (pages.currentPage!.artifact && pages.currentPage!.internet)
-        res = [
-          Container(
-              margin: EdgeInsets.symmetric(horizontal: 5),
-              child: Icon(Icons.bar_chart, color: Colors.blue[400])),
-          Container(
-              margin: EdgeInsets.symmetric(horizontal: 5),
-              child: Icon(Icons.language, color: Colors.blue[400])),
-        ];
+        res = [flag_artifact, flag_network];
       else if (pages.currentPage!.artifact)
-        res[0] = Container(
-            margin: EdgeInsets.symmetric(horizontal: 5),
-            child: Icon(Icons.bar_chart, color: Colors.blue[400]));
-      else if (pages.currentPage!.internet)
-        res[0] = Container(
-            margin: EdgeInsets.symmetric(horizontal: 5),
-            child: Icon(Icons.language, color: Colors.blue[400]));
+        res = [flag_artifact];
+      else if (pages.currentPage!.internet) res = [flag_network];
     }
+
+    if (!property.onInitPage && connectedCount > 0)
+      res.add(
+        Tooltip(
+          message: "$connectedCount MCP connected",
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+            margin: EdgeInsets.symmetric(horizontal: 7),
+            constraints: BoxConstraints(maxWidth: 50),
+            decoration: BoxDecoration(
+              border: BoxBorder.all(color: Colors.blue[400]!, width: 0.5),
+              borderRadius: BorderRadius.circular(5.0),
+            ),
+            child: Text(
+              "$connectedCount mcp",
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+          ),
+        ),
+      );
     return res;
   }
 
@@ -288,10 +303,20 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
 
   Widget appbarTitle(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
-    return Text(
-      pages.currentPageID > -1 ? pages.currentPage!.model : "",
-      // style: const TextStyle(fontSize: 16, color: AppColors.appBarText),
-      style: Theme.of(context).textTheme.bodyLarge,
+    double _width = 130;
+
+    if (isDisplayDesktop(context)) _width = 300;
+    return Tooltip(
+      message: pages.currentPageID > -1 ? pages.currentPage!.model : "",
+      child: Container(
+        constraints: BoxConstraints(maxWidth: _width),
+        child: Text(
+          pages.currentPageID > -1 ? pages.currentPage!.model : "",
+          maxLines: 1,
+          // style: const TextStyle(fontSize: 16, color: AppColors.appBarText),
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ),
     );
   }
 
