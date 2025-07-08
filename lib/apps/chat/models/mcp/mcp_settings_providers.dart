@@ -3,11 +3,12 @@ import 'dart:convert';
 import 'package:botsdock/apps/chat/models/mcp/mcp_server_config.dart';
 import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
 import 'package:botsdock/apps/chat/utils/client/path.dart';
-import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+
+enum McpAction { add, edit, active, delete }
 
 // UUID generator for creating unique server IDs
 const _uuid = Uuid();
@@ -17,8 +18,9 @@ const String mcpServerListKey = 'mcpServerList';
 abstract class SettingsRepository {
   // MCP Server List
   Future<List<McpServerConfig>> getMcpServerList();
-  Future<void> saveMcpServerList(List<McpServerConfig> servers,
-      {int? addIndex, int? editIndex, String? deleteID});
+  Future<void> saveMcpServerList(
+      List<McpServerConfig> servers, McpAction action,
+      {int? index, String? deleteID});
 }
 
 /// Implementation of SettingsRepository using SharedPreferences.
@@ -76,21 +78,28 @@ class SettingsRepositoryImpl implements SettingsRepository {
   }
 
   @override
-  Future<void> saveMcpServerList(List<McpServerConfig> servers,
-      {int? addIndex, int? editIndex, String? deleteID}) async {
+  Future<void> saveMcpServerList(
+      List<McpServerConfig> servers, McpAction action,
+      {int? index, String? deleteID}) async {
     try {
       final serverListJson = jsonEncode(
         servers.map((s) => s.toJson()).toList(),
       );
       await _prefs.setString(mcpServerListKey, serverListJson);
 
-      if (addIndex != null) {
-        await dio.post(ChatPath.mcp, data: servers.last);
-      } else if (editIndex != null) {
-        await dio.post(ChatPath.mcpinfo(servers[editIndex].id),
-            data: servers[editIndex]);
-      } else if (deleteID != null) {
-        await dio.delete(ChatPath.mcpinfo(deleteID));
+      switch (action) {
+        case McpAction.add:
+          await dio.post(ChatPath.mcp, data: servers.last);
+          break;
+        case McpAction.edit:
+          await dio.post(ChatPath.mcpinfo(servers[index!].id),
+              data: servers[index]);
+          break;
+        case McpAction.active:
+          break;
+        case McpAction.delete:
+          await dio.delete(ChatPath.mcpinfo(deleteID!));
+          break;
       }
     } catch (e) {
       debugPrint("Error saving MCP server list in repository: $e");
@@ -116,14 +125,14 @@ class SettingsService {
   /// Saves the current list of MCP servers to the repository.
   /// This is called internally after any modification to the server list.
   /// index: index of the new server
-  Future<void> _saveCurrentMcpListState(
-      {int? addIndex, int? editIndex, String? deleteID}) async {
+  Future<void> _saveCurrentMcpListState(McpAction action,
+      {int? index, String? deleteID}) async {
     // Read the current list from the state
     final currentList = _mcpServerListNotifier.currentList;
     try {
       // Persist the list using the repository
-      await _repository.saveMcpServerList(currentList,
-          addIndex: addIndex, editIndex: editIndex, deleteID: deleteID);
+      await _repository.saveMcpServerList(currentList, action,
+          index: index, deleteID: deleteID);
       debugPrint(
         "SettingsService: MCP Server list saved to repository. Count: ${currentList.length}",
       );
@@ -155,7 +164,7 @@ class SettingsService {
     // Update the state with the new list
     _mcpServerListNotifier.currentList = [...currentList, newServer];
     // Persist the updated list
-    await _saveCurrentMcpListState(addIndex: -1);
+    await _saveCurrentMcpListState(McpAction.add, index: -1);
     debugPrint("SettingsService: Added MCP Server '${newServer.name}'.");
   }
 
@@ -170,7 +179,7 @@ class SettingsService {
       newList[index] = updatedServer;
       _mcpServerListNotifier.currentList = newList;
       // Persist the updated list
-      await _saveCurrentMcpListState(editIndex: index);
+      await _saveCurrentMcpListState(McpAction.edit, index: index);
       debugPrint(
         "SettingsService: Updated MCP Server '${updatedServer.name}'.",
       );
@@ -202,7 +211,7 @@ class SettingsService {
     if (newList.length < currentList.length) {
       _mcpServerListNotifier.currentList = newList;
       // Persist the updated list
-      await _saveCurrentMcpListState(deleteID: serverId);
+      await _saveCurrentMcpListState(McpAction.delete, deleteID: serverId);
       debugPrint(
         "SettingsService: Deleted MCP Server '$serverName' ($serverId).",
       );
@@ -228,7 +237,7 @@ class SettingsService {
       ); // Use copyWith
       _mcpServerListNotifier.currentList = newList;
       // Persist the updated list
-      await _saveCurrentMcpListState(editIndex: index);
+      await _saveCurrentMcpListState(McpAction.active, index: index);
       debugPrint(
         "SettingsService: Toggled server '$serverName' ($serverId) isActive to: $isActive",
       );
