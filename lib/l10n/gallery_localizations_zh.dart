@@ -214,10 +214,13 @@ class GalleryLocalizationsZh extends GalleryLocalizations {
   String get mcpDel => '删除MCP';
 
   @override
-  String get mcpName => '名字';
+  String get mcpName => '服务器名称';
 
   @override
-  String get mcpDesc => '描述';
+  String get mcpDesc => '服务器简介';
+
+  @override
+  String get mcpURL => '服务器URL';
 
   @override
   String get mcpCmd => '指令';

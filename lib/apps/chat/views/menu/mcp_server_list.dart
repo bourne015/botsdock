@@ -106,11 +106,11 @@ class _MCPConfigState extends ConsumerState<MCPConfig> {
     showServerDialog(
       context: context,
       serverToEdit: serverToEdit,
-      onAddServer: (name, command, args, envVars, isActive) {
+      onAddServer: (name, type, command, args, envVars, isActive) {
         ref
             .read(settingsServiceProvider)
-            .addMcpServer(
-                name, command, args, envVars, widget.user.id, widget.user.name)
+            .addMcpServer(name, type, command, args, envVars, widget.user.id,
+                widget.user.name)
             .then((_) => _showSnackbar('Server "$name" added.'))
             .catchError((e) => _showSnackbar('Error saving server: $e'));
       },

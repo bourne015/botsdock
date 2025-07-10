@@ -106,6 +106,7 @@ class McpClientNotifier extends StateNotifier<McpClientState> {
       _mcpRepo
           .connectServer(
         serverId: config.id,
+        transportType: config.transportType,
         command: config.command,
         args: config.args,
         environment: config.customEnvironment,

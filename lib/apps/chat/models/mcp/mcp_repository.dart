@@ -1,3 +1,5 @@
+import 'package:botsdock/apps/chat/models/mcp/mcp_server_config.dart';
+
 import './mcp_models.dart'; // Local domain entities ONLY
 
 /// Abstract repository for managing MCP connections and interactions.
@@ -7,7 +9,8 @@ abstract class McpRepository {
   /// Handles discovery of tools provided by the server.
   Future<void> connectServer({
     required String serverId,
-    required String command,
+    required TransportType transportType,
+    String? command,
     required String args,
     required Map<String, String> environment,
   });

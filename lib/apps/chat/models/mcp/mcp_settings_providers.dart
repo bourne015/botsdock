@@ -145,6 +145,7 @@ class SettingsService {
   /// Adds a new MCP server configuration to the state and persists the change.
   Future<void> addMcpServer(
     String name,
+    TransportType transportType,
     String command,
     String args,
     Map<String, String> customEnv,
@@ -155,6 +156,7 @@ class SettingsService {
     final newServer = McpServerConfig(
       id: _uuid.v4(), // Generate unique ID
       name: name,
+      transportType: transportType,
       command: command,
       args: args,
       isActive: false, // New servers default to inactive
@@ -202,6 +204,7 @@ class SettingsService {
             name: 'Unknown',
             command: '',
             args: '',
+            transportType: TransportType.StreamableHTTP,
           ),
         )
         .name;

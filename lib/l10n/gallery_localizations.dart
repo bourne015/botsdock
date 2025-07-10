@@ -506,6 +506,12 @@ abstract class GalleryLocalizations {
   /// **'Server Description'**
   String get mcpDesc;
 
+  /// Server URl
+  ///
+  /// In en, this message translates to:
+  /// **'Server URL'**
+  String get mcpURL;
+
   /// Server Command
   ///
   /// In en, this message translates to:

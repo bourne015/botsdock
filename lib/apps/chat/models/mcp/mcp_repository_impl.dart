@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:botsdock/apps/chat/models/mcp/mcp_models.dart';
 import 'package:botsdock/apps/chat/models/mcp/mcp_repository.dart';
+import 'package:botsdock/apps/chat/models/mcp/mcp_server_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mcp_dart/mcp_dart.dart';
 
@@ -110,7 +111,8 @@ class McpRepositoryImpl implements McpRepository {
   Future<void> connectServer({
     // Updated signature
     required String serverId,
-    required String command,
+    required TransportType transportType,
+    String? command,
     required String args,
     required Map<String, String> environment,
   }) async {
@@ -125,7 +127,8 @@ class McpRepositoryImpl implements McpRepository {
 
     // Removed AI Repo check
 
-    if (command.trim().isEmpty) {
+    if (transportType == TransportType.STDIO &&
+        (command == null || command.trim().isEmpty)) {
       _updateStatus(
         serverId,
         McpConnectionStatus.error,
@@ -154,7 +157,8 @@ class McpRepositoryImpl implements McpRepository {
       );
 
       // connectToServer now fetches tools and calls onConnectSuccess/onError
-      await newClientInstance.connectToServer(command, argsList, environment);
+      await newClientInstance.connectToServer(
+          transportType, command, argsList, environment);
 
       // Status is updated via callbacks (_handleClientConnectSuccess or _handleClientError)
     } catch (e) {

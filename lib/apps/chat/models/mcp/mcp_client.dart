@@ -1,6 +1,7 @@
 // import 'dart:io';
 
 import 'package:botsdock/apps/chat/models/mcp/mcp_models.dart';
+import 'package:botsdock/apps/chat/models/mcp/mcp_server_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mcp_dart/mcp_dart.dart';
@@ -48,12 +49,14 @@ class McpClient {
   }
 
   Future<void> connectToServer(
-    String command,
+    TransportType transportType,
+    String? command,
     List<String> args,
     Map<String, String> environment,
   ) async {
     if (_isConnected) return;
-    if (command.trim().isEmpty) {
+    if (transportType == TransportType.STDIO &&
+        (command == null || command.trim().isEmpty)) {
       throw ArgumentError("MCP command cannot be empty.");
     }
     debugPrint("McpClient [$serverId]: Connecting: $command ${args.join(' ')}");
@@ -63,7 +66,7 @@ class McpClient {
     final Function(String serverId)? localOnCloseCallback = _onClose;
 
     try {
-      if (command.toLowerCase().startsWith(RegExp(r'^(http|sse)'))) {
+      if (transportType == TransportType.StreamableHTTP) {
         _transport = StreamableHttpClientTransport(
           Uri.parse(args[0]),
           opts: StreamableHttpClientTransportOptions(
@@ -107,7 +110,7 @@ class McpClient {
         _tools = []; // Clear tools on close
       };
       await mcp.connect(_transport!);
-      if (command.toLowerCase().startsWith(RegExp(r'^(http|sse)'))) {
+      if (transportType == TransportType.StreamableHTTP) {
         sessionId = _transport!.sessionId;
       }
       _isConnected = true;

@@ -1,4 +1,5 @@
 import 'package:botsdock/apps/chat/models/mcp/mcp_server_config.dart';
+import 'package:botsdock/apps/chat/utils/custom_widget.dart';
 import 'package:botsdock/l10n/gallery_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -31,6 +32,7 @@ class ServerDialog extends StatefulWidget {
   final McpServerConfig? serverToEdit;
   final Function(
     String name,
+    TransportType transportType,
     String command,
     String args,
     Map<String, String> envVars,
@@ -61,6 +63,7 @@ class _ServerDialogState extends State<ServerDialog> {
   late List<_EnvVarPair> _envVars;
   final List<TextEditingController> _allControllers = [];
   final _formKey = GlobalKey<FormState>();
+  late TransportType _transportType = TransportType.StreamableHTTP;
 
   bool get _isEditing => widget.serverToEdit != null;
 
@@ -137,6 +140,7 @@ class _ServerDialogState extends State<ServerDialog> {
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
       final name = _nameController.text.trim();
+      final transportType = _transportType;
       final desc = _descController.text.trim();
       final command = _commandController.text.trim();
       final args = _argsController.text.trim();
@@ -168,6 +172,7 @@ class _ServerDialogState extends State<ServerDialog> {
         final updatedServer = widget.serverToEdit!.copyWith(
           name: name,
           description: desc,
+          transportType: transportType,
           command: command,
           args: args,
           isActive: _isActive,
@@ -176,7 +181,8 @@ class _ServerDialogState extends State<ServerDialog> {
         );
         widget.onUpdateServer(updatedServer);
       } else {
-        widget.onAddServer(name, command, args, customEnvMap, _isActive);
+        widget.onAddServer(
+            name, transportType, command, args, customEnvMap, _isActive);
       }
     }
   }
@@ -200,64 +206,120 @@ class _ServerDialogState extends State<ServerDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: GalleryLocalizations.of(context)!.mcpName,
-                  ),
-                  validator: (v) => (v == null || v.trim().isEmpty)
-                      ? 'Name cannot be empty'
-                      : null,
+                Text(
+                  GalleryLocalizations.of(context)!.mcpName,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _descController,
-                  decoration: InputDecoration(
-                    labelText: GalleryLocalizations.of(context)!.mcpDesc,
-                  ),
-                  maxLines: 2,
+                botTextFormField(
+                  context: context,
+                  hintText: '输入服务器名称',
+                  maxLength: 50,
+                  ctr: _nameController,
+                ),
+                Text(
+                  GalleryLocalizations.of(context)!.mcpDesc,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                botTextFormField(
+                  context: context,
+                  hintText: '介绍服务器的基本功能',
+                  maxLines: 3,
                   maxLength: 255,
+                  ctr: _descController,
                 ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _commandController,
-                  decoration: InputDecoration(
-                    labelText: GalleryLocalizations.of(context)!.mcpCmd,
-                    hintText: r'http or sse or npx',
+                Text(
+                  "服务器类型",
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Radio(
+                      value: TransportType.StreamableHTTP,
+                      groupValue: _transportType,
+                      onChanged: (value) {
+                        setState(() {
+                          _transportType = value!;
+                        });
+                      },
+                    ),
+                    const Text('Streamable HTTP'),
+                    const SizedBox(width: 40),
+                    Radio(
+                      value: TransportType.STDIO,
+                      groupValue: _transportType,
+                      onChanged: (value) {
+                        setState(() {
+                          _transportType = value!;
+                        });
+                      },
+                    ),
+                    const Text('STDIO')
+                  ],
+                ),
+                if (_transportType == TransportType.STDIO) ...[
+                  const SizedBox(height: 10),
+                  Text(
+                    GalleryLocalizations.of(context)!.mcpCmd,
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
-                  validator: (v) => (v == null || v.trim().isEmpty)
-                      ? 'Command cannot be empty'
-                      : null,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _argsController,
-                  decoration: InputDecoration(
-                    labelText: GalleryLocalizations.of(context)!.mcpArgs,
-                    hintText: r'--port 1234 --verbose',
+                  botTextFormField(
+                    context: context,
+                    hintText: 'eg.: nxp',
+                    maxLines: 1,
+                    // maxLength: 255,
+                    ctr: _commandController,
                   ),
+                ],
+                const SizedBox(height: 10),
+                Text(
+                  _transportType == TransportType.STDIO
+                      ? GalleryLocalizations.of(context)!.mcpArgs
+                      : GalleryLocalizations.of(context)!.mcpURL,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
-                const SizedBox(height: 12),
-                SwitchListTile(
-                  title: Text(GalleryLocalizations.of(context)!.mcpConn),
-                  subtitle: Text(
-                    GalleryLocalizations.of(context)!.mcpConnNote,
-                    style: Theme.of(context).textTheme.labelMedium,
+                botTextFormField(
+                  context: context,
+                  hintText: _transportType == TransportType.STDIO
+                      ? 'eg.:--port 1234 --verbose'
+                      : 'eg.:http://localhost/mcp/fetch',
+                  maxLines: 1,
+                  // maxLength: 255,
+                  ctr: _argsController,
+                ),
+                const SizedBox(height: 10),
+                // SwitchListTile(
+                //   title: Text(GalleryLocalizations.of(context)!.mcpConn),
+                //   subtitle: Text(
+                //     GalleryLocalizations.of(context)!.mcpConnNote,
+                //     style: Theme.of(context).textTheme.labelMedium,
+                //   ),
+                //   value: _isActive,
+                //   onChanged: (bool value) => setState(() => _isActive = value),
+                //   contentPadding: EdgeInsets.zero,
+                // ),
+                // const Divider(height: 20),
+                ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.only(left: 0),
+                  visualDensity: VisualDensity.compact,
+                  title: Text(
+                    GalleryLocalizations.of(context)!.mcpVisibility,
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
-                  value: _isActive,
-                  onChanged: (bool value) => setState(() => _isActive = value),
-                  contentPadding: EdgeInsets.zero,
-                ),
-                const Divider(height: 20),
-                SwitchListTile(
-                  title: Text(GalleryLocalizations.of(context)!.mcpVisibility),
                   subtitle: Text(
                     GalleryLocalizations.of(context)!.mcpVisibilityNote,
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
-                  value: _isPublic,
-                  onChanged: (bool value) => setState(() => _isPublic = value),
-                  contentPadding: EdgeInsets.zero,
+                  trailing: Transform.scale(
+                    scale: 0.7,
+                    child: Switch(
+                      value: _isPublic,
+                      activeColor: Colors.blue[300],
+                      onChanged: (bool value) =>
+                          setState(() => _isPublic = value),
+                    ),
+                  ),
                 ),
                 const Divider(height: 20),
                 Row(
@@ -360,6 +422,7 @@ Future<void> showServerDialog({
   McpServerConfig? serverToEdit,
   required Function(
     String name,
+    TransportType type,
     String command,
     String args,
     Map<String, String> envVars,

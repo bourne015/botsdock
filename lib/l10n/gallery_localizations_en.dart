@@ -227,6 +227,9 @@ class GalleryLocalizationsEn extends GalleryLocalizations {
   String get mcpDesc => 'Server Description';
 
   @override
+  String get mcpURL => 'Server URL';
+
+  @override
   String get mcpCmd => 'Server Command';
 
   @override

@@ -105,17 +105,16 @@ Widget botTextFormField(
   return Container(
     margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
     child: TextFormField(
-        controller: ctr,
-        maxLines: maxLines,
-        maxLength: maxLength,
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: Theme.of(context!).textTheme.labelMedium,
-          // border: OutlineInputBorder(borderRadius: BORDERRADIUS10),
-        ),
-        validator: (v) {
-          return v == null || v.trim().isNotEmpty ? null : "不能为空";
-        }),
+      controller: ctr,
+      maxLines: maxLines,
+      maxLength: maxLength,
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: Theme.of(context!).textTheme.labelMedium,
+        // border: OutlineInputBorder(borderRadius: BORDERRADIUS10),
+      ),
+      validator: (v) => (v == null || v.trim().isEmpty) ? '不能为空' : null,
+    ),
   );
 }
 

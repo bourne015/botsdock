@@ -2,11 +2,14 @@ import 'package:collection/collection.dart';
 
 import 'package:flutter/material.dart';
 
+enum TransportType { STDIO, StreamableHTTP }
+
 /// Configuration for a single MCP server.
 class McpServerConfig {
   final String id; // Unique ID
   final String name;
-  final String command;
+  final TransportType transportType;
+  final String? command;
   final String args;
   bool isActive; // User's desired state (connect on apply)
   final Map<String, String> customEnvironment;
@@ -18,7 +21,8 @@ class McpServerConfig {
   McpServerConfig({
     required this.id,
     required this.name,
-    required this.command,
+    required this.transportType,
+    this.command,
     required this.args,
     this.isActive = false,
     this.customEnvironment = const {},
@@ -31,6 +35,7 @@ class McpServerConfig {
   McpServerConfig copyWith({
     String? id,
     String? name,
+    TransportType? transportType,
     String? description,
     String? command,
     String? args,
@@ -41,6 +46,7 @@ class McpServerConfig {
     return McpServerConfig(
       id: id ?? this.id,
       name: name ?? this.name,
+      transportType: transportType ?? this.transportType,
       command: command ?? this.command,
       args: args ?? this.args,
       isActive: isActive ?? this.isActive,
@@ -56,6 +62,7 @@ class McpServerConfig {
         'id': id,
         'name': name,
         'command': command,
+        'transport_type': transportType.name,
         'args': args,
         'isActive': isActive,
         'custom_environment': customEnvironment,
@@ -84,6 +91,10 @@ class McpServerConfig {
     return McpServerConfig(
       id: json['id'] as String,
       name: json['name'] as String,
+      transportType: TransportType.values.firstWhere(
+        (e) => e.name == json['transport_type'],
+        orElse: () => TransportType.StreamableHTTP,
+      ),
       command: json['command'] as String,
       args: json['args'] as String,
       isActive: json['isActive'] as bool? ?? false,
@@ -102,6 +113,7 @@ class McpServerConfig {
           runtimeType == other.runtimeType &&
           id == other.id &&
           name == other.name &&
+          transportType == other.transportType &&
           command == other.command &&
           args == other.args &&
           isActive == other.isActive &&
@@ -118,6 +130,7 @@ class McpServerConfig {
   int get hashCode =>
       id.hashCode ^
       name.hashCode ^
+      transportType.hashCode ^
       command.hashCode ^
       args.hashCode ^
       isActive.hashCode ^

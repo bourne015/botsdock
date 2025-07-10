@@ -281,6 +281,10 @@
   "@mcpDesc": {
     "description": "Server description"
   },
+  "mcpURL": "Server URL",
+  "@mcpURL": {
+    "description": "Server URl"
+  },
   "mcpCmd": "Server Command",
   "@mcpCmd": {
     "description": "Server Command"
