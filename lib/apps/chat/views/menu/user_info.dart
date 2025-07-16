@@ -15,17 +15,18 @@ import 'package:botsdock/apps/chat/utils/custom_widget.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:botsdock/apps/chat/utils/global.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'users_manage.dart';
 
-class UserInfo extends StatefulWidget {
+class UserInfo extends rp.ConsumerStatefulWidget {
   final User user;
   UserInfo({super.key, required this.user});
 
   @override
-  State<UserInfo> createState() => _UserInfoTabState();
+  rp.ConsumerState<UserInfo> createState() => _UserInfoTabState();
 }
 
-class _UserInfoTabState extends State<UserInfo> {
+class _UserInfoTabState extends rp.ConsumerState<UserInfo> {
   final _emailcontroller = TextEditingController();
   final _namecontroller = TextEditingController();
   final _phonecontroller = TextEditingController();
@@ -46,7 +47,7 @@ class _UserInfoTabState extends State<UserInfo> {
 
   @override
   Widget build(BuildContext context) {
-    //User user = Provider.of<User>(context, listen: false);
+    //User user = ref.watch(UserNotifierProvider);
     //Pages pages = Provider.of<Pages>(context);
     return Dialog(
         shape: RoundedRectangleBorder(
@@ -326,7 +327,9 @@ class _UserInfoTabState extends State<UserInfo> {
                           _editName = false;
                         });
                         if (_data["result"] == 'success') {
-                          widget.user.name = userdata['name'];
+                          ref
+                              .read(userProvider.notifier)
+                              .update(name: userdata['name']);
                           Global.saveProfile(widget.user);
                         }
                       },
@@ -368,7 +371,9 @@ class _UserInfoTabState extends State<UserInfo> {
                           _editPhone = false;
                         });
                         if (_data["result"] == 'success') {
-                          widget.user.phone = userdata['phone'];
+                          ref
+                              .read(userProvider.notifier)
+                              .update(phone: userdata['phone']);
                           Global.saveProfile(widget.user);
                         }
                       },
@@ -640,7 +645,7 @@ class _UserInfoTabState extends State<UserInfo> {
       if (oldAvatar != null && oldAvatar.startsWith("http"))
         ChatAPI.deleteOSSObj(oldAvatar);
       setState(() {
-        widget.user.avatar = userdata['avatar'];
+        ref.read(userProvider.notifier).update(avatar: userdata['avatar']);
         Global.saveProfile(widget.user);
       });
     } else {
@@ -658,7 +663,10 @@ class _UserInfoTabState extends State<UserInfo> {
       if (oldAvatar != null && oldAvatar.startsWith("http"))
         ChatAPI.deleteOSSObj(oldAvatar);
       setState(() {
-        widget.user.avatar_bot = userdata['avatar_bot'];
+        ref
+            .read(userProvider.notifier)
+            .update(avatar_bot: userdata['avatar_bot']);
+
         Global.saveProfile(widget.user);
       });
     } else {

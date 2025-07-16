@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_saver/file_saver.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 
 import '../models/bot.dart';
 import '../models/chat.dart';
@@ -226,19 +227,23 @@ class AssistantsAPI {
   /**
    * newassistant()
    */
-  int newassistant(Pages pages, Property property, User user, String thread_id,
+  int newassistant(rp.WidgetRef ref, Pages pages, User user, String thread_id,
       {Bot? bot, String? ass_id, String? chat_title, String? model}) {
+    final propertyState = ref.read(propertyProvider);
+    final PropertyNotifier propertyNotifier =
+        ref.read(propertyProvider.notifier);
+
     String? _model = model != null
         ? model
         : (bot != null && bot.model != null)
             ? bot.model
-            : property.initModelVersion;
+            : propertyState.initModelVersion;
     int handlePageID = pages.addPage(
         Chat(
             title: (bot != null ? bot.name : chat_title ?? "Chat 0"),
             model: _model!),
         sort: true);
-    property.onInitPage = false;
+    propertyNotifier.setOnInitPage(false);
     pages.currentPageID = handlePageID;
     //pages.setPageTitle(handlePageID, bot.name);
     pages.getPage(handlePageID).model = _model;

@@ -5,7 +5,6 @@ import 'package:botsdock/apps/chat/models/user.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/views/menu/mcp_connection_status.dart';
-import 'package:botsdock/l10n/gallery_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:provider/provider.dart';
@@ -61,10 +60,10 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
 
   @override
   Widget build(BuildContext context) {
-    Property property = Provider.of<Property>(context);
+    final propertyState = ref.read(propertyProvider);
     Pages pages = Provider.of<Pages>(context);
-    User user = Provider.of<User>(context);
-    if (property.onInitPage) {
+    User user = ref.watch(userProvider);
+    if (propertyState.onInitPage) {
       switchArtifact.value = user.settings?.artifact ?? false;
       switchInternet.value = user.settings?.internet ?? false;
       temperature = user.settings?.temperature ?? 1.0;
@@ -75,15 +74,13 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
     }
     return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
       AppBar(
-        leading: !isDisplayDesktop(context)
-            ? appbarLeading(context, property)
-            : null,
+        leading: !isDisplayDesktop(context) ? appbarLeading(context) : null,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             appbarTitle(context),
             SizedBox(width: 10),
-            ...appbarIcons(pages, property),
+            ...appbarIcons(pages),
           ],
         ),
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -102,11 +99,12 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
     ]);
   }
 
-  List<Widget> appbarIcons(Pages pages, Property property) {
+  List<Widget> appbarIcons(Pages pages) {
     List<Widget> res = [];
     final mcpState = ref.watch(mcpClientProvider);
     final connectedCount = mcpState.connectedServerCount;
-    if (!property.onInitPage &&
+    final propertyState = ref.watch(propertyProvider);
+    if (!propertyState.onInitPage &&
         pages.currentPage!.model != Models.deepseekReasoner.id) {
       if (pages.currentPage!.artifact && pages.currentPage!.internet)
         res = [flag_artifact, flag_network];
@@ -115,7 +113,7 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
       else if (pages.currentPage!.internet) res = [flag_network];
     }
 
-    if (!property.onInitPage && connectedCount > 0)
+    if (!propertyState.onInitPage && connectedCount > 0)
       res.add(
         Tooltip(
           message: "$connectedCount MCP connected",
@@ -137,17 +135,18 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
     return res;
   }
 
-  bool isSupportTools(Pages pages, Property property) {
-    if (property.onInitPage)
-      return property.initModelVersion != Models.deepseekReasoner.id;
+  bool isSupportTools(Pages pages) {
+    final propertyState = ref.read(propertyProvider);
+    if (propertyState.onInitPage)
+      return propertyState.initModelVersion != Models.deepseekReasoner.id;
     else
       return pages.currentPage!.model != Models.deepseekReasoner.id;
   }
 
   Widget _appBarMenu(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
-    User user = Provider.of<User>(context, listen: false);
-    Property property = Provider.of<Property>(context);
+    User user = ref.watch(userProvider);
+    final propertyState = ref.watch(propertyProvider);
     // final serverList = ref.read(mcpServerListProvider);
 
     return PopupMenuButton<String>(
@@ -159,7 +158,7 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
       padding: const EdgeInsets.only(left: 2),
       shape: RoundedRectangleBorder(borderRadius: BORDERRADIUS10),
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        if (!property.onInitPage)
+        if (!propertyState.onInitPage)
           _buildPopupMenuItem(
             context,
             "clear",
@@ -172,10 +171,10 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
             },
           ),
         PopupMenuDivider(),
-        if (isSupportTools(pages, property)) _buildArtifactSwitch(context),
-        if (isSupportTools(pages, property)) PopupMenuDivider(),
-        if (isSupportTools(pages, property)) _buildInternetSwitch(context),
-        if (isSupportTools(pages, property)) PopupMenuDivider(),
+        if (isSupportTools(pages)) _buildArtifactSwitch(context),
+        if (isSupportTools(pages)) PopupMenuDivider(),
+        if (isSupportTools(pages)) _buildInternetSwitch(context),
+        if (isSupportTools(pages)) PopupMenuDivider(),
         _buildtemperatureSlide(context),
         // if (serverList.isNotEmpty) PopupMenuDivider(),
         // PopupMenuItem(
@@ -320,12 +319,14 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
     );
   }
 
-  Widget appbarLeading(BuildContext context, Property property) {
+  Widget appbarLeading(BuildContext context) {
+    final propertyState = ref.watch(propertyProvider);
+    final propertyNotifier = ref.watch(propertyProvider.notifier);
     return IconButton(
       icon: const Icon(Icons.menu),
       onPressed: () {
         if (isDisplayDesktop(context)) {
-          property.isDrawerOpen = !property.isDrawerOpen;
+          propertyNotifier.setIsDrawerOpen(!propertyState.isDrawerOpen);
         } else {
           Scaffold.of(context).openDrawer();
         }
@@ -336,8 +337,8 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
 
   PopupMenuItem<String> _buildArtifactSwitch(BuildContext context) {
     Pages pages = Provider.of<Pages>(context, listen: false);
-    User user = Provider.of<User>(context, listen: false);
-    Property property = Provider.of<Property>(context, listen: false);
+    User user = ref.watch(userProvider);
+    final propertyState = ref.read(propertyProvider);
     return PopupMenuItem<String>(
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         // value: "value",
@@ -377,12 +378,14 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
                       onChanged: (value) {
                         setState(() {
                           switchArtifact.value = value;
-                          if (property.onInitPage)
-                            user.settings?.artifact = value;
+                          if (propertyState.onInitPage)
+                            ref
+                                .read(userProvider.notifier)
+                                .updateArtifact(value);
                           else
                             pages.set_artifact(pages.currentPageID, value);
                         });
-                        if (!property.onInitPage)
+                        if (!propertyState.onInitPage)
                           ChatAPI().saveChats(user, pages, pages.currentPageID);
                       },
                     ),
@@ -394,8 +397,8 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
 
   PopupMenuItem<String> _buildInternetSwitch(BuildContext context) {
     Pages pages = Provider.of<Pages>(context, listen: false);
-    User user = Provider.of<User>(context, listen: false);
-    Property property = Provider.of<Property>(context, listen: false);
+    User user = ref.watch(userProvider);
+    final propertyState = ref.read(propertyProvider);
     return PopupMenuItem<String>(
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         // value: "value",
@@ -433,12 +436,14 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
                       onChanged: (value) {
                         setState(() {
                           switchInternet.value = value;
-                          if (property.onInitPage)
-                            user.settings?.internet = value;
+                          if (propertyState.onInitPage)
+                            ref
+                                .read(userProvider.notifier)
+                                .updateInternet(value);
                           else
                             pages.set_internet(pages.currentPageID, value);
                         });
-                        if (!property.onInitPage)
+                        if (!propertyState.onInitPage)
                           ChatAPI().saveChats(user, pages, pages.currentPageID);
                         // Global.saveProperties(internet: property.internet);
                       },
@@ -450,9 +455,8 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
   }
 
   PopupMenuItem<String> _buildtemperatureSlide(BuildContext context) {
-    User user = Provider.of<User>(context, listen: false);
     Pages pages = Provider.of<Pages>(context, listen: false);
-    Property property = Provider.of<Property>(context, listen: false);
+    final propertyState = ref.read(propertyProvider);
     return PopupMenuItem<String>(
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         // value: "value",
@@ -495,8 +499,10 @@ class MyAppBarState extends rp.ConsumerState<MyAppBar> with RestorationMixin {
                               });
                             },
                             onChangeEnd: (value) {
-                              if (property.onInitPage)
-                                user.settings?.temperature = value;
+                              if (propertyState.onInitPage)
+                                ref
+                                    .read(userProvider.notifier)
+                                    .updateTemperature(value);
                               else
                                 pages.currentPage?.temperature = value;
                             },

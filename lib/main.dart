@@ -3,15 +3,18 @@
 // found in the LICENSE file.
 
 import 'package:botsdock/apps/chat/models/mcp/mcp_settings_providers.dart';
+import 'package:botsdock/apps/chat/models/user.dart';
+import 'package:botsdock/apps/chat/utils/global.dart';
+import 'package:botsdock/data/theme.dart';
 import 'package:dual_screen/dual_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:botsdock/l10n/gallery_localizations.dart';
 import 'package:botsdock/constants.dart';
 import 'package:botsdock/data/gallery_options.dart';
 import 'package:botsdock/routes.dart';
-import 'package:botsdock/data/gallery_theme_data.dart';
 //import 'package:get_storage/get_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,7 +29,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // }
   final prefs = await SharedPreferences.getInstance();
-
+  Global.setUp(prefs);
   // final initialSettingsRepo = SettingsRepositoryImpl(prefs);
   // final initialServerList = await initialSettingsRepo.getMcpServerList();
   runApp(ProviderScope(
@@ -41,7 +44,7 @@ void main() async {
   ));
 }
 
-class GalleryApp extends StatelessWidget {
+class GalleryApp extends rp.ConsumerWidget {
   const GalleryApp({
     super.key,
     this.initialRoute,
@@ -52,7 +55,7 @@ class GalleryApp extends StatelessWidget {
   final bool isTestMode;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, rp.WidgetRef ref) {
     return ModelBinding(
       initialModel: GalleryOptions(
         themeMode: ThemeMode.system,
@@ -66,15 +69,16 @@ class GalleryApp extends StatelessWidget {
         builder: (context) {
           final options = GalleryOptions.of(context);
           final hasHinge = MediaQuery.of(context).hinge?.bounds != null;
+          User user = ref.watch(userProvider);
           return MaterialApp(
             restorationScopeId: 'rootGallery',
             title: "AI启示录",
             debugShowCheckedModeBanner: false,
-            themeMode: options.themeMode,
-            theme: GalleryThemeData.lightThemeData.copyWith(
+            themeMode: user.settings?.themeMode ?? ThemeMode.system,
+            theme: ChatThemeData.lightThemeData.copyWith(
               platform: options.platform,
             ),
-            darkTheme: GalleryThemeData.darkThemeData.copyWith(
+            darkTheme: ChatThemeData.darkThemeData.copyWith(
               platform: options.platform,
             ),
             localizationsDelegates: const [

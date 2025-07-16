@@ -5,20 +5,21 @@ import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:flutter/material.dart';
 import 'package:botsdock/l10n/gallery_localizations.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:markdown/markdown.dart' as md;
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:botsdock/apps/chat/utils/constants.dart';
 
-class SettingsView extends StatefulWidget {
-  final User user;
-  const SettingsView({super.key, required this.user});
+class SettingsView extends rp.ConsumerStatefulWidget {
+  const SettingsView({super.key});
 
   @override
-  State<SettingsView> createState() => SettingsViewState();
+  rp.ConsumerState<SettingsView> createState() => SettingsViewState();
 }
 
-class SettingsViewState extends State<SettingsView> with RestorationMixin {
+class SettingsViewState extends rp.ConsumerState<SettingsView>
+    with RestorationMixin {
   double temperature = 1;
   RestorableBool internet = RestorableBool(false);
   RestorableBool artifact = RestorableBool(false);
@@ -38,24 +39,24 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
   @override
   void initState() {
     super.initState();
-    artifact = RestorableBool(widget.user.settings?.artifact ?? false);
-    internet = RestorableBool(widget.user.settings?.internet ?? false);
-    cat = RestorableBool(widget.user.settings?.cat ?? false);
-    temperature = widget.user.settings?.temperature ?? 1.0;
-    theme = widget.user.settings?.themeMode ?? ThemeMode.system;
-    defaultmodel = widget.user.settings?.defaultmodel ?? DefaultModelVersion.id;
+    User user = ref.read(userProvider);
+    artifact = RestorableBool(user.settings?.artifact ?? false);
+    internet = RestorableBool(user.settings?.internet ?? false);
+    cat = RestorableBool(user.settings?.cat ?? false);
+    temperature = user.settings?.temperature ?? 1.0;
+    theme = user.settings?.themeMode ?? ThemeMode.system;
+    defaultmodel = user.settings?.defaultmodel ?? DefaultModelVersion.id;
   }
 
   @override
   void dispose() {
-    saveSetting();
     super.dispose();
   }
 
-  void saveSetting() {
-    if (widget.user.isLogedin)
-      ChatAPI().updateUser(
-          widget.user.id, {"settings": widget.user.settings!.toJson()});
+  void saveSetting() async {
+    User user = ref.read(userProvider);
+    if (user.isLogedin)
+      ChatAPI().updateUser(user.id, {"settings": user.settings!.toJson()});
     DefaultModelVersion =
         Models.getModelById(defaultmodel) ?? DefaultModelVersion;
     if (Models.getOrgByModelId(defaultmodel) != null)
@@ -118,7 +119,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
           name: "胖猫精灵",
           desc: "一只拥有超强记忆力的猫咪, 双击它可开启对话",
           onChange: (v) {
-            widget.user.cat = v;
+            ref.read(userProvider.notifier).updateCat(v);
           },
         ),
         Divider(),
@@ -128,7 +129,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
           name: "可视化",
           desc: "生成图表、动画、流程图、网页预览等的能力",
           onChange: (v) {
-            widget.user.settings?.artifact = v;
+            ref.read(userProvider.notifier).updateArtifact(v);
           },
         ),
         Divider(),
@@ -138,7 +139,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
           name: "联网",
           desc: "获取Google搜索的数据",
           onChange: (v) {
-            widget.user.settings?.internet = v;
+            ref.read(userProvider.notifier).updateInternet(v);
           },
         ),
         Divider(),
@@ -186,7 +187,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
             setState(() {
               defaultmodel = newValue;
             });
-            widget.user.settings?.defaultmodel = newValue;
+            ref.read(userProvider.notifier).updateDefaultModel(newValue);
           },
           itemBuilder: (BuildContext context) => Models.getTextModelIds()
               .map((v) => buildPopupMenuItem(context,
@@ -260,7 +261,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
                 });
               },
               onChangeEnd: (value) {
-                widget.user.settings?.temperature = value;
+                ref.read(userProvider.notifier).updateTemperature(value);
               },
             ),
           ),
@@ -302,7 +303,7 @@ class SettingsViewState extends State<SettingsView> with RestorationMixin {
           // selected at one time, so its value is always the first
           // item in the selected set.
           theme = newSelection.first;
-          widget.user.themeMode = theme;
+          ref.read(userProvider.notifier).updateThemeMode(theme);
         });
       },
     );

@@ -11,8 +11,8 @@ import 'package:botsdock/apps/chat/views/messages/chat_image.dart';
 import 'package:botsdock/apps/chat/views/messages/chat_text.dart';
 import 'package:botsdock/apps/chat/views/messages/chat_thinking.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:openai_dart/openai_dart.dart' as openai;
-import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:botsdock/apps/chat/models/user.dart';
@@ -20,7 +20,7 @@ import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:botsdock/apps/chat/utils/custom_widget.dart';
 import 'package:botsdock/apps/chat/utils/utils.dart';
 
-class MessageBox extends StatefulWidget {
+class MessageBox extends rp.ConsumerStatefulWidget {
   final Message msg;
   final bool isLast;
   final bool isSameRole;
@@ -43,10 +43,10 @@ class MessageBox extends StatefulWidget {
   }) : super(key: ValueKey(msg.id));
 
   @override
-  State createState() => MessageBoxState();
+  rp.ConsumerState createState() => MessageBoxState();
 }
 
-class MessageBoxState extends State<MessageBox> {
+class MessageBoxState extends rp.ConsumerState<MessageBox> {
   late final ScrollController _attachmentscroll;
   late final ScrollController _visionFilescroll;
   late final Stream<Message> _messageStream;
@@ -248,7 +248,7 @@ class MessageBoxState extends State<MessageBox> {
   }
 
   Widget roleIcon(BuildContext context, Message msg) {
-    User user = Provider.of<User>(context, listen: false);
+    User user = ref.watch(userProvider);
     if (widget.isSameRole) return SizedBox(width: 32, height: 32);
     if (widget.role == MessageTRole.assistant)
       return Container(

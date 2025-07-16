@@ -2,25 +2,45 @@ import 'dart:convert';
 
 import 'package:botsdock/apps/chat/models/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+enum UserStatus { loggedOut, loggedIn, loading }
 
 //all chat pages
-class User with ChangeNotifier {
-  bool _isLogedin = false;
-  int _id = 0;
-  String? _name;
-  String? _email;
-  String? _phone;
-  String? _avatar;
-  String? _avatar_bot;
-  String? _cat_id;
-  double? _credit;
-  bool _signUP = false;
-  int _updated_at = 0;
-  Settings? _settings;
-  String? token;
+class User {
+  final bool isLogedin;
+  final int id;
+  final String? name;
+  final String? email;
+  final String? phone;
+  final String? avatar;
+  final String? avatar_bot;
+  final String? cat_id;
+  final double? credit;
+  final bool signUP;
+  final int updated_at;
+  final Settings? settings;
+  final String? token;
+  final UserStatus? status;
 
-  User({
+  const User({
+    this.isLogedin = false,
+    this.id = 0,
+    this.name,
+    this.email,
+    this.phone,
+    this.avatar,
+    this.avatar_bot,
+    this.cat_id,
+    this.credit,
+    this.signUP = false,
+    this.updated_at = 0,
+    this.settings,
+    this.token,
+    this.status,
+  });
+
+  User copyWith({
     bool? isLogedin,
     int? id,
     String? name,
@@ -30,124 +50,50 @@ class User with ChangeNotifier {
     String? avatar_bot,
     String? cat_id,
     double? credit,
-    bool? signUP = true,
-    int? updated_at = 0,
+    bool? signUP,
+    int? updated_at,
     Settings? settings,
     String? token,
-  })  : _isLogedin = isLogedin ?? false,
-        _id = id ?? 0,
-        _name = name,
-        _email = email,
-        _phone = phone,
-        _avatar = avatar,
-        _avatar_bot = avatar_bot,
-        _cat_id = cat_id,
-        _credit = credit,
-        _signUP = signUP ?? false,
-        _settings = settings ?? Settings(),
-        _updated_at = updated_at ?? 0;
-
-  int get id => _id;
-  set id(int user_id) {
-    _id = user_id;
-  }
-
-  int get updated_at => _updated_at;
-  set updated_at(int updated_time) {
-    _updated_at = updated_time;
-  }
-
-  String? get name => _name;
-  set name(String? name) {
-    _name = name;
-  }
-
-  String? get email => _email;
-  set email(String? mail) {
-    _email = mail;
-  }
-
-  String? get phone => _phone;
-  set phone(String? num) {
-    _phone = num;
-  }
-
-  String? get avatar => _avatar;
-  set avatar(String? newavatar) {
-    _avatar = newavatar;
-    notifyListeners();
-  }
-
-  String? get avatar_bot => _avatar_bot;
-  set avatar_bot(String? newavatar) {
-    _avatar_bot = newavatar;
-    notifyListeners();
-  }
-
-  bool get isLogedin => _isLogedin;
-  set isLogedin(bool v) {
-    _isLogedin = v;
-    notifyListeners();
-  }
-
-  bool get signUP => _signUP;
-  set signUP(bool v) {
-    _signUP = v;
-    notifyListeners();
-  }
-
-  String? get cat_id => _cat_id;
-  set cat_id(String? v) {
-    _cat_id = v;
-  }
-
-  double? get credit => _credit;
-  set credit(double? recharge) {
-    _credit = recharge;
-  }
-
-  void reset() {
-    _isLogedin = false;
-    notifyListeners();
-  }
-
-  Settings? get settings => _settings;
-  set settings(Settings? value) {
-    _settings = value;
-    notifyListeners();
-  }
-
-  set themeMode(ThemeMode v) {
-    _settings?.themeMode = v;
-    notifyListeners();
-  }
-
-  set cat(bool v) {
-    _settings?.cat = v;
-    notifyListeners();
+    UserStatus? status,
+  }) {
+    return User(
+      isLogedin: isLogedin ?? this.isLogedin,
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      avatar: avatar ?? this.avatar,
+      avatar_bot: avatar_bot ?? this.avatar_bot,
+      cat_id: cat_id ?? this.cat_id,
+      credit: credit ?? this.credit,
+      signUP: signUP ?? this.signUP,
+      updated_at: updated_at ?? this.updated_at,
+      settings: settings ?? this.settings,
+      token: token ?? this.token,
+      status: status ?? this.status,
+    );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': _id,
-        'name': _name,
-        "email": _email,
-        "phone": _phone,
-        "avatar": _avatar,
-        "avatar_bot": _avatar_bot,
-        "cat_id": _cat_id,
-        "credit": _credit,
-        "isLogedin": _isLogedin,
-        "updated_at": _updated_at,
+        'id': id,
+        'name': name,
+        "email": email,
+        "phone": phone,
+        "avatar": avatar,
+        "avatar_bot": avatar_bot,
+        "cat_id": cat_id,
+        "credit": credit,
+        "isLogedin": isLogedin,
+        "updated_at": updated_at,
         "settings": settings?.toJson(),
       };
 
-  static User fromJson(u) {
+  static User fromJson(dynamic u) {
     Map<String, dynamic> settingsJson = {};
     if (u["settings"] != null) {
       if (u["settings"] is Map) {
         settingsJson = Map<String, dynamic>.from(u["settings"]);
       } else if (u["settings"] is String) {
-        // 如果后端返回的是JSON字符串，需要解析
         try {
           settingsJson = jsonDecode(u["settings"]);
         } catch (e) {
@@ -169,6 +115,107 @@ class User with ChangeNotifier {
       settings: Settings.fromJson(settingsJson),
     );
   }
+}
+
+class UserNotifier extends Notifier<User> {
+  @override
+  User build() {
+    return User(
+      status: UserStatus.loggedOut,
+      settings: Settings(), // 确保有默认的 Settings
+    );
+  }
+
+  // void updateId(int id) {
+  //   state = state.copyWith(id: id);
+  // }
+
+  // void updateUpdatedAt(int updatedAt) {
+  //   state = state.copyWith(updated_at: updatedAt);
+  // }
+
+  // void updateName(String? name) {
+  //   state = state.copyWith(name: name);
+  // }
+
+  // void updateEmail(String? email) {
+  //   state = state.copyWith(email: email);
+  // }
+
+  // void updatePhone(String? phone) {
+  //   state = state.copyWith(phone: phone);
+  // }
+
+  // void updateAvatar(String? avatar) {
+  //   state = state.copyWith(avatar: avatar);
+  // }
+
+  // void updateAvatarBot(String? avatarBot) {
+  //   state = state.copyWith(avatar_bot: avatarBot);
+  // }
+
+  // void updateIsLogedin(bool isLogedin) {
+  //   state = state.copyWith(isLogedin: isLogedin);
+  // }
+
+  // void updateSignUP(bool signUP) {
+  //   state = state.copyWith(signUP: signUP);
+  // }
+
+  // void updateCatId(String? catId) {
+  //   state = state.copyWith(cat_id: catId);
+  // }
+
+  // void updateCredit(double? credit) {
+  //   state = state.copyWith(credit: credit);
+  // }
+
+  void updateSettings(Settings? settings) {
+    state = state.copyWith(settings: settings);
+  }
+
+  void updateThemeMode(ThemeMode themeMode) {
+    final currentSettings = state.settings ?? Settings();
+    final newSettings = currentSettings.copyWith(themeMode: themeMode);
+    state = state.copyWith(settings: newSettings);
+  }
+
+  void updateCat(bool cat) {
+    final currentSettings = state.settings ?? Settings();
+    final newSettings = currentSettings.copyWith(cat: cat);
+    state = state.copyWith(settings: newSettings);
+  }
+
+  void updateTemperature(double temperature) {
+    final currentSettings = state.settings ?? Settings();
+    final newSettings = currentSettings.copyWith(temperature: temperature);
+    state = state.copyWith(settings: newSettings);
+  }
+
+  void updateDefaultModel(String model) {
+    final currentSettings = state.settings ?? Settings();
+    final newSettings = currentSettings.copyWith(defaultmodel: model);
+    state = state.copyWith(settings: newSettings);
+  }
+
+  void updateInternet(bool internet) {
+    final currentSettings = state.settings ?? Settings();
+    final newSettings = currentSettings.copyWith(internet: internet);
+    state = state.copyWith(settings: newSettings);
+  }
+
+  void updateArtifact(bool artifact) {
+    final currentSettings = state.settings ?? Settings();
+    final newSettings = currentSettings.copyWith(artifact: artifact);
+    state = state.copyWith(settings: newSettings);
+  }
+
+  void reset() {
+    state = User(
+      status: UserStatus.loggedOut,
+      settings: Settings(),
+    );
+  }
 
   void update({
     bool? isLogedin,
@@ -184,37 +231,31 @@ class User with ChangeNotifier {
     int? updated_at,
     Settings? settings,
     String? access_token,
+    UserStatus? status,
   }) {
-    if (isLogedin != null) _isLogedin = isLogedin;
-    if (id != null) _id = id;
-    if (name != null) _name = name;
-    if (email != null) _email = email;
-    if (phone != null) _phone = phone;
-    if (avatar != null) _avatar = avatar;
-    if (avatar_bot != null) _avatar_bot = avatar_bot;
-    if (cat_id != null) _cat_id = cat_id;
-    if (credit != null) _credit = credit;
-    if (signUP != null) _signUP = signUP;
-    if (updated_at != null) _updated_at = updated_at;
-    if (settings != null) _settings = settings;
-    if (access_token != null) token = access_token;
-    notifyListeners();
+    state = state.copyWith(
+      isLogedin: isLogedin,
+      id: id,
+      name: name,
+      email: email,
+      phone: phone,
+      avatar: avatar,
+      avatar_bot: avatar_bot,
+      cat_id: cat_id,
+      credit: credit,
+      signUP: signUP,
+      updated_at: updated_at,
+      settings: settings,
+      token: access_token,
+      status: status,
+    );
   }
 
-  void copy(User u) {
-    _isLogedin = u.isLogedin;
-    _id = u.id;
-    _signUP = u.signUP;
-    _updated_at = u.updated_at;
-    if (u.name != null) _name = u.name;
-    if (u.email != null) _email = u.email;
-    if (u.phone != null) _phone = u.phone;
-    if (u.avatar != null) _avatar = u.avatar;
-    if (u.avatar_bot != null) _avatar_bot = u.avatar_bot;
-    if (u.cat_id != null) _cat_id = u.cat_id;
-    if (u.credit != null) _credit = u.credit;
-    if (u.settings != null) _settings = u.settings;
-    if (u.token != null) token = u.token;
-    notifyListeners();
+  void copy(User user) {
+    state = user;
   }
 }
+
+final userProvider = NotifierProvider<UserNotifier, User>(() {
+  return UserNotifier();
+});

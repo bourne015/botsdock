@@ -10,18 +10,19 @@ import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:provider/provider.dart';
 
 import '../../../data/adaptive.dart';
 
-class SpiritCat extends StatefulWidget {
+class SpiritCat extends rp.ConsumerStatefulWidget {
   SpiritCat({Key? key}) : super(key: key);
 
   @override
-  SpiritCatState createState() => SpiritCatState();
+  rp.ConsumerState createState() => SpiritCatState();
 }
 
-class SpiritCatState extends State<SpiritCat>
+class SpiritCatState extends rp.ConsumerState<SpiritCat>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   String _currentRestPose = '';
@@ -65,9 +66,8 @@ class SpiritCatState extends State<SpiritCat>
 
   @override
   Widget build(BuildContext context) {
-    User user = Provider.of<User>(context, listen: false);
+    User user = ref.watch(userProvider);
     Pages pages = Provider.of<Pages>(context, listen: false);
-    Property property = Provider.of<Property>(context, listen: false);
     if (!isDisplayDesktop(context)) {
       _controller.stop();
     }
@@ -77,7 +77,7 @@ class SpiritCatState extends State<SpiritCat>
       child: GestureDetector(
           onDoubleTap: user.isLogedin
               ? () async {
-                  chat_cat(pages, user, property);
+                  chat_cat(pages, user);
                 }
               : null,
           onTap: () {
@@ -120,7 +120,8 @@ class SpiritCatState extends State<SpiritCat>
     );
   }
 
-  void chat_cat(Pages pages, User user, Property property) async {
+  void chat_cat(Pages pages, User user) async {
+    final propertyNotifier = ref.read(propertyProvider.notifier);
     String? ass_id = dotenv.maybeGet(
       "assistant_id_cat",
       fallback: null,
@@ -129,17 +130,19 @@ class SpiritCatState extends State<SpiritCat>
     int handlePageID = pages.checkCat(ass_id);
     if (handlePageID != -1) {
       pages.currentPageID = handlePageID;
-      property.onInitPage = false;
+      propertyNotifier.setOnInitPage(false);
     } else {
       if (user.cat_id == null) {
-        user.cat_id = await assistant.createThread();
+        ref
+            .read(userProvider.notifier)
+            .update(cat_id: await assistant.createThread());
         chats.updateUser(user.id, {"cat_id": user.cat_id});
         Global.saveProfile(user);
       } else {
         //check whether the thread is ineffective
         var thd_valid = assistant.retriveThread(user.cat_id!);
         if (thd_valid == false) {
-          user.cat_id = null;
+          ref.read(userProvider.notifier).update(cat_id: null);
           chats.updateUser(user.id, {"cat_id": user.cat_id});
           Global.saveProfile(user);
           return;
@@ -148,14 +151,20 @@ class SpiritCatState extends State<SpiritCat>
 
       if (user.cat_id != null) {
         handlePageID = assistant.newassistant(
-            pages, property, user, user.cat_id!,
-            ass_id: ass_id, chat_title: "cat", model: Models.gpt4oMini.id);
+          ref,
+          pages,
+          user,
+          user.cat_id!,
+          ass_id: ass_id,
+          chat_title: "cat",
+          model: Models.gpt4oMini.id,
+        );
         pages.setGeneratingState(handlePageID, true);
         pages.getPage(handlePageID).addMessage(
               role: MessageTRole.system,
               text: "我是你的主人${user.name}",
             );
-        chats.submitAssistant(pages, property, handlePageID, user, {});
+        chats.submitAssistant(ref, pages, handlePageID, user, {});
       }
     }
   }

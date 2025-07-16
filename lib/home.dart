@@ -5,6 +5,7 @@
 import 'dart:math' as math;
 
 import 'package:botsdock/apps/chat/views/menu/charge.dart';
+import 'package:botsdock/apps/chat/views/menu/user_management.dart';
 import 'package:flutter/material.dart';
 import 'package:botsdock/l10n/gallery_localizations.dart';
 import 'package:botsdock/constants.dart';
@@ -105,13 +106,24 @@ class Header extends StatelessWidget {
           top: isDisplayDesktop(context) ? 63 : 15,
           bottom: isDisplayDesktop(context) ? 21 : 11,
         ),
-        child: SelectableText(
-          text,
-          style: Theme.of(context).textTheme.headlineMedium!.apply(
-                color: color,
-                fontSizeDelta:
-                    isDisplayDesktop(context) ? desktopDisplay1FontDelta : 0,
-              ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SelectableText(
+              text,
+              style: Theme.of(context).textTheme.headlineMedium!.apply(
+                    color: color,
+                    fontSizeDelta: isDisplayDesktop(context)
+                        ? desktopDisplay1FontDelta
+                        : 0,
+                  ),
+            ),
+            Container(
+              constraints: BoxConstraints(maxWidth: 200),
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+              child: UserManagement(),
+            ),
+          ],
         ),
       ),
     );
@@ -126,9 +138,9 @@ class _DesktopHomeItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.center,
+      alignment: Alignment.centerLeft,
       child: Container(
-        constraints: const BoxConstraints(maxWidth: maxHomeItemWidth),
+        // constraints: const BoxConstraints(maxWidth: maxHomeItemWidth),
         padding: EdgeInsets.symmetric(
           horizontal:
               isDisplayDesktop(context) ? _horizontalDesktopPadding : 30,

@@ -3,6 +3,7 @@ import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:flutter/material.dart';
 import 'package:botsdock/l10n/gallery_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
@@ -16,16 +17,16 @@ import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:botsdock/apps/chat/views/bots/new_bot.dart';
 import 'package:botsdock/apps/chat/vendor/assistants_api.dart';
 
-class BotsCentre extends StatefulWidget {
+class BotsCentre extends rp.ConsumerStatefulWidget {
   const BotsCentre({
     super.key,
   });
 
   @override
-  State<BotsCentre> createState() => BotsState();
+  rp.ConsumerState<BotsCentre> createState() => BotsState();
 }
 
-class BotsState extends State<BotsCentre> {
+class BotsState extends rp.ConsumerState<BotsCentre> {
   final ChatAPI chats = ChatAPI();
   var user_likes = [];
   var botsPublicMe = [];
@@ -35,7 +36,7 @@ class BotsState extends State<BotsCentre> {
   @override
   void initState() {
     super.initState();
-    User user = Provider.of<User>(context, listen: false);
+    User user = ref.read(userProvider);
     _fetchBotsFuture =
         Provider.of<Bots>(context, listen: false).fetchBots(user.id);
   }
@@ -114,7 +115,7 @@ class BotsState extends State<BotsCentre> {
   }
 
   Widget createBotButton(BuildContext context) {
-    User user = Provider.of<User>(context, listen: false);
+    User user = ref.watch(userProvider);
     return Container(
         // padding: EdgeInsets.only(left: isDisplayDesktop(context) ? 50 : 20),
         child: OutlinedButton.icon(
@@ -151,7 +152,7 @@ class BotsState extends State<BotsCentre> {
   }
 
   Widget BotTabEdit(BuildContext context, bot) {
-    User user = Provider.of<User>(context, listen: false);
+    User user = ref.watch(userProvider);
     Bots bots = Provider.of<Bots>(context, listen: false);
     return PopupMenuButton<String>(
       //initialValue: "edit",
@@ -228,7 +229,7 @@ class BotsState extends State<BotsCentre> {
     String title = bot.name;
     String description = bot.description ?? "";
     String? creator = bot.author_name ?? "anonymous";
-    User user = Provider.of<User>(context, listen: false);
+    User user = ref.watch(userProvider);
     return Card(
         color: Theme.of(context).colorScheme.secondaryContainer,
         shape: RoundedRectangleBorder(borderRadius: BORDERRADIUS15),
@@ -289,8 +290,8 @@ class BotsState extends State<BotsCentre> {
   }
 
   Widget BotTab(BuildContext context, Bots bots, int index) {
-    Property property = Provider.of<Property>(context, listen: false);
-    User user = Provider.of<User>(context, listen: false);
+    final propertyNotifier = ref.read(propertyProvider.notifier);
+    User user = ref.watch(userProvider);
     Pages pages = Provider.of<Pages>(context, listen: false);
     Bot bot = bots.bots_public[index];
     return buildTab(
@@ -302,17 +303,16 @@ class BotsState extends State<BotsCentre> {
             int _pid = pages.checkBot(bot.id);
             if (_pid >= 0) {
               pages.currentPageID = _pid;
-              property.onInitPage = false;
+              propertyNotifier.setOnInitPage(false);
             } else if (bot.assistant_id != null) {
               String? thread_id = await assistant.createThread();
               //TODO: save thread_id to bot in db
               if (thread_id != null)
-                assistant.newassistant(pages, property, user, thread_id,
-                    bot: bot);
+                assistant.newassistant(ref, pages, user, thread_id, bot: bot);
             } else {
               chats.newBot(
+                ref,
                 pages,
-                property,
                 user,
                 botID: bot.id,
                 name: bot.name,

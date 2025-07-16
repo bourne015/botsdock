@@ -1,5 +1,6 @@
 import 'package:botsdock/apps/chat/models/mcp/mcp_settings_providers.dart';
-import 'package:botsdock/apps/chat/views/theme.dart';
+import 'package:botsdock/apps/chat/utils/global.dart';
+import 'package:botsdock/data/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:botsdock/apps/chat/views/bots/bots_centre.dart';
@@ -14,7 +15,6 @@ import './models/bot.dart';
 import 'main_layout.dart';
 import 'routes.dart' as routes;
 import './utils/constants.dart';
-import './utils/global.dart';
 
 void main() {
   runApp(ChatApp());
@@ -31,57 +31,76 @@ class ChatApp extends rp.ConsumerStatefulWidget {
 }
 
 class _AppState extends rp.ConsumerState<ChatApp> {
-  User user = User();
   Pages pages = Pages();
-  Property property = Property();
   Bots bots = Bots();
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _initData();
   }
 
-  Future<void> _initData() async {
-    property.isLoading = true;
-    await Global().init(user, pages, property);
-    setState(() {
-      property.isLoading = false;
-    });
-    await dotenv.load(fileName: "assets/env.conf");
-    if (user.isLogedin)
+  Future<void> _initializeData() async {
+    if (_isInitialized) return;
+    _isInitialized = true;
+    final user = ref.read(userProvider);
+    final propertyNotifier = ref.read(propertyProvider.notifier);
+
+    await _initData(user, pages, propertyNotifier);
+  }
+
+  Future<void> _initData(
+    User user,
+    Pages pages,
+    PropertyNotifier propertyNotifier,
+  ) async {
+    print("init chat");
+    if (!user.isLogedin) {
+      await Global.restoreLocalUser(user, ref);
+      user = ref.read(userProvider);
+    }
+    if (user.isLogedin) {
+      print("restore chat");
+      await Global.restoreChats(user, pages, propertyNotifier);
       await ref.read(mcpServerListProvider.notifier).refresh();
+    }
+
+    await dotenv.load(fileName: "assets/env.conf");
   }
 
   @override
   Widget build(BuildContext context) {
+    User user = ref.watch(userProvider);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
+    });
     return MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (context) => pages),
-          ChangeNotifierProvider(create: (context) => property),
-          ChangeNotifierProvider(create: (context) => user),
-          ChangeNotifierProvider(create: (context) => bots),
+      providers: [
+        ChangeNotifierProvider(create: (context) => pages),
+        // ChangeNotifierProvider(create: (context) => property),
+        // ChangeNotifierProvider(create: (context) => user),
+        ChangeNotifierProvider(create: (context) => bots),
+      ],
+      child: MaterialApp(
+        title: appTitle,
+        themeMode: user.settings?.themeMode ?? ThemeMode.system,
+        theme: ChatThemeData.lightThemeData.copyWith(
+          platform: defaultTargetPlatform,
+        ),
+        darkTheme: ChatThemeData.darkThemeData.copyWith(
+          platform: defaultTargetPlatform,
+        ),
+        initialRoute: ChatApp.homeRoute,
+        routes: {
+          ChatApp.homeRoute: (context) => const MainLayout(),
+          ChatApp.botCentre: (context) => const BotsCentre(),
+        },
+        localizationsDelegates: GalleryLocalizations.localizationsDelegates,
+        supportedLocales: [
+          Locale('zh'),
         ],
-        child: Consumer<User>(builder: (context, _user, _) {
-          return MaterialApp(
-            title: appTitle,
-            themeMode: _user.settings?.themeMode ?? ThemeMode.system,
-            theme: ChatThemeData.lightThemeData.copyWith(
-              platform: defaultTargetPlatform,
-            ),
-            darkTheme: ChatThemeData.darkThemeData.copyWith(
-              platform: defaultTargetPlatform,
-            ),
-            initialRoute: ChatApp.homeRoute,
-            routes: {
-              ChatApp.homeRoute: (context) => const MainLayout(),
-              ChatApp.botCentre: (context) => const BotsCentre(),
-            },
-            localizationsDelegates: GalleryLocalizations.localizationsDelegates,
-            supportedLocales: [
-              Locale('zh'),
-            ],
-          );
-        }));
+      ),
+    );
   }
 }

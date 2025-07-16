@@ -17,16 +17,16 @@ import '../utils/constants.dart';
 import '../utils/custom_widget.dart';
 import '../utils/utils.dart';
 
-class InitPage extends StatefulWidget {
+class InitPage extends rp.ConsumerStatefulWidget {
   const InitPage({
     Key? key,
   }) : super(key: key);
 
   @override
-  State createState() => InitPageState();
+  rp.ConsumerState createState() => InitPageState();
 }
 
-class InitPageState extends State<InitPage> {
+class InitPageState extends rp.ConsumerState<InitPage> {
   String? selectedORG;
   final ChatAPI chats = ChatAPI();
 
@@ -62,8 +62,8 @@ class InitPageState extends State<InitPage> {
 
   @override
   Widget build(BuildContext context) {
-    Property property = Provider.of<Property>(context);
-    final currentOrg = Models.getOrgByModelId(property.initModelVersion)!;
+    final propertyState = ref.watch(propertyProvider);
+    final currentOrg = Models.getOrgByModelId(propertyState.initModelVersion)!;
     selectedORG = getOrgInfo(currentOrg).name;
     _initializeMenuItems();
     return LayoutBuilder(
@@ -120,8 +120,7 @@ class InitPageState extends State<InitPage> {
   }
 
   Widget modelSelectButton(BuildContext context) {
-    Property property = Provider.of<Property>(context);
-    User user = Provider.of<User>(context);
+    User user = ref.watch(userProvider);
     return Stack(alignment: Alignment.topCenter, children: [
       Container(
           margin: EdgeInsets.only(top: 32),
@@ -147,7 +146,7 @@ class InitPageState extends State<InitPage> {
             duration: Duration(milliseconds: 300),
             curve: Curves.linear,
             onValueChanged: (orgName) {
-              _handleOrgChange(orgName, property);
+              _handleOrgChange(orgName);
             },
           )),
       if (user.settings?.cat == true) SpiritCat(),
@@ -185,7 +184,7 @@ class InitPageState extends State<InitPage> {
     required AIModel currentValue,
     required Function(AIModel) onSelected,
   }) {
-    Property property = Provider.of<Property>(context);
+    final propertyNotifier = ref.watch(propertyProvider.notifier);
 
     return PopupMenuButton<AIModel>(
       initialValue: currentValue,
@@ -205,7 +204,7 @@ class InitPageState extends State<InitPage> {
       ),
       padding: const EdgeInsets.only(left: 2),
       onSelected: (AIModel value) {
-        property.initModelVersion = value.id;
+        propertyNotifier.setInitModelVersion(value.id);
         onSelected(value);
       },
       position: PopupMenuPosition.under,
@@ -213,13 +212,14 @@ class InitPageState extends State<InitPage> {
     );
   }
 
-  void _handleOrgChange(String orgName, Property property) {
+  void _handleOrgChange(String orgName) {
+    final propertyNotifier = ref.read(propertyProvider.notifier);
     final org = Organization.values
         .firstWhere((o) => o.name.toLowerCase() == orgName.toLowerCase());
     final currentORGModel = currentModels[org]!;
 
     setState(() {
-      property.initModelVersion = currentORGModel.id;
+      propertyNotifier.setInitModelVersion(currentORGModel.id);
       selectedORG = orgName;
       Global.saveProperties(model: currentORGModel.id);
     });
@@ -375,7 +375,7 @@ class ModelSegment extends StatelessWidget {
   }
 }
 
-class CustomCard extends StatelessWidget {
+class CustomCard extends rp.ConsumerWidget {
   final IconData icon;
   final Color color;
   final String title;
@@ -389,10 +389,9 @@ class CustomCard extends StatelessWidget {
       required this.prompt});
 
   @override
-  Widget build(BuildContext context) {
-    User user = Provider.of<User>(context, listen: false);
+  Widget build(BuildContext context, rp.WidgetRef ref) {
+    User user = ref.watch(userProvider);
     Pages pages = Provider.of<Pages>(context, listen: false);
-    Property property = Provider.of<Property>(context, listen: false);
     return rp.Consumer(builder: (context, rp.WidgetRef ref, child) {
       return Container(
         margin: EdgeInsets.symmetric(horizontal: 10),
@@ -406,7 +405,7 @@ class CustomCard extends StatelessWidget {
                     title: title,
                   );
                 else if (user.isLogedin)
-                  chats.newSampleChat(pages, property, user, prompt, ref);
+                  chats.newSampleChat(pages, user, prompt, ref);
                 else
                   showMessage(context, "请登录");
               },

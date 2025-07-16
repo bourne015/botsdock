@@ -1,6 +1,7 @@
 import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -13,49 +14,78 @@ import '../models/user.dart';
 
 class Global {
   static late SharedPreferences _prefs;
-  var chatApi = ChatAPI();
+  static var chatApi = ChatAPI();
 
-  Future init(User user, Pages pages, Property property) async {
-    _prefs = await SharedPreferences.getInstance();
-    try {
-      oss_init();
-      restoreProperties(property, user);
-      ACCESS_TOKEN = _prefs.getString("chat_access_token");
-      if (ACCESS_TOKEN == null) return;
-      User? _u = await chatApi.userFromToken();
-      if (_u != null) {
-        user.copy(_u);
-        user.update(isLogedin: true, access_token: ACCESS_TOKEN);
-        if (_u.updated_at != _prefs.getInt("U${_u.id}_updated_at")) {
-          Global.reset();
-          Global.saveProfile(user);
-          await pages.fetch_pages(user.id);
-        } else {
-          get_local_chats(user, pages);
-        }
-        pages.flattenPages();
-      }
-    } catch (e) {
-      debugPrint("init error, reset:${e}");
-      Global.reset();
+  static void setUp(pf) {
+    _prefs = pf;
+  }
+
+  static Future restoreLocalUser(User user, rp.WidgetRef ref) async {
+    if (user.status == UserStatus.loggedIn) {
+      // ref.read(userProvider.notifier).update(status: UserStatus.loggedIn);
+      return;
+    }
+    ACCESS_TOKEN = _prefs.getString("chat_access_token");
+    if (ACCESS_TOKEN == null || ACCESS_TOKEN!.isEmpty) {
+      // ref.read(userProvider.notifier).update(status: UserStatus.loggedOut);
+      return;
+    }
+    ref.read(userProvider.notifier).update(status: UserStatus.loading);
+    User? _u = await chatApi.userFromToken();
+    if (_u != null) {
+      ref.read(userProvider.notifier).copy(_u);
+      ref.read(userProvider.notifier).update(
+            isLogedin: true,
+            access_token: ACCESS_TOKEN,
+            status: UserStatus.loggedIn,
+          );
+    } else {
+      ref.read(userProvider.notifier).update(status: UserStatus.loggedOut);
     }
   }
 
-  void get_local_chats(User user, Pages pages) {
-    final keys =
-        _prefs.getKeys().where((key) => key.startsWith('U${user.id}_chat_'));
-    for (var key in keys) {
+  static Future restoreChats(
+      User user, Pages pages, PropertyNotifier propertyNotifier) async {
+    try {
+      oss_init();
+      restoreProperties(propertyNotifier, user);
+      propertyNotifier.setIsLoading(true);
+      final localChats =
+          _prefs.getKeys().where((key) => key.startsWith('U${user.id}_chat_'));
+      if (localChats.isEmpty ||
+          user.updated_at != _prefs.getInt("U${user.id}_updated_at")) {
+        reset();
+        saveProfile(user);
+        debugPrint("fetch remote chat");
+        await pages.fetch_pages(user.id);
+      } else {
+        debugPrint("fetch local chat");
+        await get_local_chats(user, pages, localChats);
+      }
+      pages.flattenPages();
+    } catch (e) {
+      debugPrint("init error, reset:${e}");
+      reset();
+    }
+    propertyNotifier.setIsLoading(false);
+  }
+
+  static Future<void> get_local_chats(
+      User user, Pages pages, localChats) async {
+    for (var key in localChats) {
       final jsonChat = _prefs.getString(key);
       if (jsonChat != null) //pages.restore_single_page(jsonDecode(jsonChat));
         pages.addPage(Chat.fromJson(jsonDecode(jsonChat)));
     }
   }
 
-  void restoreProperties(Property property, User user) {
-    if (_prefs.getString("init_model") != null)
-      property.initModelVersion = _prefs.getString("init_model");
-    if (user.settings?.defaultmodel != null)
-      property.initModelVersion = user.settings?.defaultmodel;
+  static void restoreProperties(PropertyNotifier propertyNotifier, User user) {
+    if (_prefs.getString("init_model") != null) {
+      propertyNotifier.setInitModelVersion(_prefs.getString("init_model")!);
+    }
+    if (user.settings?.defaultmodel != null) {
+      propertyNotifier.setInitModelVersion(user.settings!.defaultmodel);
+    }
     // if (_prefs.getBool("artifact") != null)
     //   property.artifact = _prefs.getBool("artifact") ?? false;
     // if (_prefs.getBool("internet") != null)
@@ -111,11 +141,11 @@ class Global {
     }
   }
 
-  static reset() {
-    _prefs.clear();
+  static reset() async {
+    await _prefs.clear();
   }
 
-  void oss_init() async {
+  static void oss_init() async {
     Client.init(
         //stsUrl: "server sts url",
         ossEndpoint: "oss-cn-shanghai.aliyuncs.com",
@@ -123,7 +153,7 @@ class Global {
         authGetter: _authGetter);
   }
 
-  Future<Auth> _authGetter() async {
+  static Future<Auth> _authGetter() async {
     //Auth _authGetter() {
     var creds = await chatApi.get_creds();
     return Auth(

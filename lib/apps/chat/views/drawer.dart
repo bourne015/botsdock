@@ -2,6 +2,7 @@ import 'package:botsdock/apps/chat/utils/client/dio_client.dart';
 import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:botsdock/apps/chat/main.dart';
 import 'package:provider/provider.dart';
@@ -17,17 +18,17 @@ import 'package:botsdock/apps/chat/models/user.dart';
 import 'package:botsdock/apps/chat/views/menu/administrator.dart';
 import 'package:botsdock/apps/chat/utils/global.dart';
 
-class ChatDrawer extends StatefulWidget {
+class ChatDrawer extends rp.ConsumerStatefulWidget {
   const ChatDrawer({super.key});
 
   @override
-  State<ChatDrawer> createState() => ChatDrawerState();
+  rp.ConsumerState<ChatDrawer> createState() => ChatDrawerState();
 }
 
-class ChatDrawerState extends State<ChatDrawer> {
+class ChatDrawerState extends rp.ConsumerState<ChatDrawer> {
   @override
   Widget build(BuildContext context) {
-    Property property = Provider.of<Property>(context);
+    final propertyState = ref.watch(propertyProvider);
     return PointerInterceptor(
       child: Drawer(
         width: DRAWERWIDTH,
@@ -41,8 +42,8 @@ class ChatDrawerState extends State<ChatDrawer> {
         child: LayoutBuilder(builder: (context, constraints) {
           return Column(
             children: [
-              const _DrawerHeader(),
-              property.isLoading
+              _DrawerHeader(),
+              propertyState.isLoading
                   ? const Expanded(
                       child: SpinKitThreeBounce(
                         color: AppColors.generatingAnimation,
@@ -59,15 +60,14 @@ class ChatDrawerState extends State<ChatDrawer> {
   }
 }
 
-class _DrawerHeader extends StatelessWidget {
-  const _DrawerHeader({Key? key}) : super(key: key);
+class _DrawerHeader extends rp.ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, rp.WidgetRef ref) {
     return Material(
         color: Theme.of(context).colorScheme.secondaryContainer,
         child: Column(
           children: [
-            _head(context),
+            _head(context, ref),
             botsCentre(context),
           ],
         ));
@@ -86,20 +86,20 @@ class _DrawerHeader extends StatelessWidget {
     );
   }
 
-  Widget _head(BuildContext context) {
+  Widget _head(BuildContext context, rp.WidgetRef ref) {
     return Row(
       children: [
         // _homeButton(context),
         Expanded(
-          child: newchatButton(context),
+          child: newchatButton(context, ref),
         ),
       ],
     );
   }
 
-  Widget newchatButton(BuildContext context) {
+  Widget newchatButton(BuildContext context, rp.WidgetRef ref) {
     Pages pages = Provider.of<Pages>(context, listen: false);
-    Property property = Provider.of<Property>(context, listen: false);
+    final propertyNotifier = ref.read(propertyProvider.notifier);
     return Container(
       decoration: BoxDecoration(
         border:
@@ -113,7 +113,7 @@ class _DrawerHeader extends StatelessWidget {
           borderRadius: BORDERRADIUS10,
         ),
         onTap: () {
-          property.onInitPage = true;
+          propertyNotifier.setOnInitPage(true);
           pages.currentPageID = -1;
           if (!isDisplayDesktop(context)) Navigator.pop(context);
         },
@@ -172,18 +172,17 @@ class _DrawerFooter extends StatelessWidget {
   }
 }
 
-class ChatPageList extends StatefulWidget {
+class ChatPageList extends rp.ConsumerStatefulWidget {
   const ChatPageList({Key? key}) : super(key: key);
 
   @override
-  _ChatPageListState createState() => _ChatPageListState();
+  rp.ConsumerState createState() => _ChatPageListState();
 }
 
-class _ChatPageListState extends State<ChatPageList> {
+class _ChatPageListState extends rp.ConsumerState<ChatPageList> {
   @override
   Widget build(BuildContext context) {
     final pages = Provider.of<Pages>(context);
-    final property = Provider.of<Property>(context);
 
     // List _flattenedItems = pages.flattenPages();
     List _flattenedItems = pages.flattenedPages;
@@ -202,7 +201,6 @@ class _ChatPageListState extends State<ChatPageList> {
               context: context,
               pages: pages,
               page: item,
-              property: property,
             );
           }
           return const SizedBox.shrink();
@@ -222,31 +220,30 @@ class _ChatPageListState extends State<ChatPageList> {
   }
 }
 
-class ChatPageTab extends StatefulWidget {
+class ChatPageTab extends rp.ConsumerStatefulWidget {
   final BuildContext context;
   final Pages pages;
   final Chat page;
-  final Property property;
   final assistant = AssistantsAPI();
 
-  ChatPageTab(
-      {Key? key,
-      required this.context,
-      required this.pages,
-      required this.page,
-      required this.property})
-      : super(key: key);
+  ChatPageTab({
+    Key? key,
+    required this.context,
+    required this.pages,
+    required this.page,
+  }) : super(key: key);
 
   @override
-  _ChatPageTabState createState() => _ChatPageTabState();
+  rp.ConsumerState createState() => _ChatPageTabState();
 }
 
-class _ChatPageTabState extends State<ChatPageTab> {
+class _ChatPageTabState extends rp.ConsumerState<ChatPageTab> {
   bool isHovered = false;
   final assistant = AssistantsAPI();
 
   @override
   Widget build(BuildContext context) {
+    final propertyNotifier = ref.read(propertyProvider.notifier);
     var bot_id = widget.page.botID;
     return MouseRegion(
         onEnter: (event) {
@@ -285,20 +282,18 @@ class _ChatPageTabState extends State<ChatPageTab> {
             ),
             onTap: () {
               widget.pages.currentPageID = widget.page.id;
-              widget.property.onInitPage = false;
+              propertyNotifier.setOnInitPage(false);
               if (!isDisplayDesktop(context)) Navigator.pop(context);
             },
             //always keep chat 0
             trailing: widget.pages.currentPageID == widget.page.id || isHovered
-                ? delChattabButton(
-                    context, widget.pages, widget.page.id, widget.property)
+                ? delChattabButton(context, widget.pages, widget.page.id)
                 : null,
           ),
         ));
   }
 
-  Widget delChattabButton(
-      BuildContext context, Pages pages, int removeID, Property property) {
+  Widget delChattabButton(BuildContext context, Pages pages, int removeID) {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(
         icon: const Icon(Icons.close),
@@ -306,15 +301,16 @@ class _ChatPageTabState extends State<ChatPageTab> {
         tooltip: "delete",
         visualDensity: VisualDensity.compact,
         onPressed: () async {
-          doDeletePage(pages, removeID, property);
+          doDeletePage(pages, removeID);
         },
       ),
     ]);
   }
 
-  void doDeletePage(Pages pages, int removeID, Property property) async {
+  void doDeletePage(Pages pages, int removeID) async {
     try {
-      User user = Provider.of<User>(context, listen: false);
+      final propertyNotifier = ref.read(propertyProvider.notifier);
+      User user = ref.watch(userProvider);
       var did = pages.getPage(removeID).dbID;
       var msgs = pages.getPage(removeID).messages;
       var tid = pages.getPage(removeID).threadID;
@@ -322,7 +318,7 @@ class _ChatPageTabState extends State<ChatPageTab> {
       pages.flattenPages();
       if (removeID == pages.currentPageID) {
         pages.currentPageID = -1;
-        property.onInitPage = true;
+        propertyNotifier.setOnInitPage(true);
       }
       if (user.isLogedin) {
         var cres = await DioClient().delete(ChatPath.chatDelete(user.id, did!));

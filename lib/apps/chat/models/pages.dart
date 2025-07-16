@@ -4,6 +4,7 @@ import 'package:botsdock/apps/chat/vendor/chat_api.dart';
 import 'package:botsdock/apps/chat/vendor/data.dart';
 import 'package:botsdock/apps/chat/vendor/messages/common.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 
 import '../utils/global.dart';
 import 'chat.dart';
@@ -204,59 +205,6 @@ class Pages with ChangeNotifier {
   }
 }
 
-class Property with ChangeNotifier {
-  String _initModelVersion = DefaultModelVersion.id;
-  bool _isDrawerOpen = true;
-  bool _onInitPage = true;
-  bool _isLoading = false;
-  // bool _artifact = false;
-  // bool _internet = false;
-
-  String get initModelVersion => _initModelVersion;
-
-  set initModelVersion(String? v) {
-    _initModelVersion = v!;
-    notifyListeners();
-  }
-
-  bool get isDrawerOpen => _isDrawerOpen;
-  set isDrawerOpen(bool v) {
-    _isDrawerOpen = v;
-    notifyListeners();
-  }
-
-  bool get isLoading => _isLoading;
-  set isLoading(bool val) {
-    _isLoading = val;
-    notifyListeners();
-  }
-
-  bool get onInitPage => _onInitPage;
-  set onInitPage(bool val) {
-    _onInitPage = val;
-    notifyListeners();
-  }
-
-  // bool get artifact => _artifact;
-
-  // set artifact(bool v) {
-  //   _artifact = v;
-  // }
-
-  // bool get internet => _internet;
-
-  // set internet(bool v) {
-  //   _internet = v;
-  // }
-
-  void reset() {
-    _initModelVersion = DefaultModelVersion.id;
-    _isDrawerOpen = true;
-    _onInitPage = true;
-    _isLoading = false;
-  }
-}
-
 class PageGroup {
   final String label;
   final DateTime? date;
@@ -267,3 +215,73 @@ class PageGroup {
   // String get dateLabel => '$label (${DateFormat('MM-dd').format(date)})';
   String get dateLabel => '$label';
 }
+
+class PropertyState {
+  final String initModelVersion;
+  final bool isDrawerOpen;
+  final bool onInitPage;
+  final bool isLoading;
+
+  const PropertyState({
+    required this.initModelVersion,
+    required this.isDrawerOpen,
+    required this.onInitPage,
+    required this.isLoading,
+  });
+
+  PropertyState copyWith({
+    String? initModelVersion,
+    bool? isDrawerOpen,
+    bool? onInitPage,
+    bool? isLoading,
+  }) {
+    return PropertyState(
+      initModelVersion: initModelVersion ?? this.initModelVersion,
+      isDrawerOpen: isDrawerOpen ?? this.isDrawerOpen,
+      onInitPage: onInitPage ?? this.onInitPage,
+      isLoading: isLoading ?? this.isLoading,
+    );
+  }
+}
+
+// StateNotifier
+class PropertyNotifier extends rp.StateNotifier<PropertyState> {
+  PropertyNotifier()
+      : super(PropertyState(
+          initModelVersion: DefaultModelVersion.id,
+          isDrawerOpen: true,
+          onInitPage: true,
+          isLoading: false,
+        ));
+
+  void setInitModelVersion(String value) {
+    state = state.copyWith(initModelVersion: value);
+  }
+
+  void setIsDrawerOpen(bool value) {
+    state = state.copyWith(isDrawerOpen: value);
+  }
+
+  void setIsLoading(bool value) {
+    state = state.copyWith(isLoading: value);
+  }
+
+  void setOnInitPage(bool value) {
+    state = state.copyWith(onInitPage: value);
+  }
+
+  void reset() {
+    state = PropertyState(
+      initModelVersion: DefaultModelVersion.id,
+      isDrawerOpen: true,
+      onInitPage: true,
+      isLoading: false,
+    );
+  }
+}
+
+// Provider
+final propertyProvider =
+    rp.StateNotifierProvider<PropertyNotifier, PropertyState>((ref) {
+  return PropertyNotifier();
+});

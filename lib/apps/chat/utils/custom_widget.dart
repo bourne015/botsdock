@@ -228,31 +228,6 @@ void showCustomBottomSheet(BuildContext context,
   );
 }
 
-Widget image_show(String img_path, double radius) {
-  return img_path.startsWith("http")
-      ? ClipRRect(
-          borderRadius: BorderRadius.circular(80),
-          child: Image.network(
-            img_path,
-            width: radius * 2,
-            height: radius * 2,
-            errorBuilder: (BuildContext context, Object exception,
-                StackTrace? stackTrace) {
-              return Container(
-                width: radius * 2,
-                height: radius * 2,
-                decoration: BoxDecoration(
-                    color: Colors.grey,
-                    borderRadius: BorderRadius.circular(80)),
-              );
-            },
-          ))
-      : CircleAvatar(
-          radius: radius,
-          backgroundImage: AssetImage(img_path),
-        );
-}
-
 /**
  * animation for loading
  */
@@ -291,4 +266,29 @@ class ThinkingIndicator extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget image_show(String img_path, double radius) {
+  return img_path.startsWith("http")
+      ? ClipRRect(
+          borderRadius: BorderRadius.circular(80),
+          child: Image.network(
+            img_path,
+            width: radius * 2,
+            height: radius * 2,
+            errorBuilder: (BuildContext context, Object exception,
+                StackTrace? stackTrace) {
+              return Container(
+                width: radius * 2,
+                height: radius * 2,
+                decoration: BoxDecoration(
+                    color: Colors.grey,
+                    borderRadius: BorderRadius.circular(80)),
+              );
+            },
+          ))
+      : CircleAvatar(
+          radius: radius,
+          backgroundImage: AssetImage(img_path),
+        );
 }

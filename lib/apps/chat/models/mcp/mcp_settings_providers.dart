@@ -48,12 +48,17 @@ class SettingsRepositoryImpl implements SettingsRepository {
       final _data = await dio.get(ChatPath.share);
       List<McpServerConfig> dblist = [];
 
-      if (_data["mcp_updated"] != _prefs.getInt("mcp_updated_at")) {
-        final list = await fetchMCP();
-        if (list.isNotEmpty)
-          dblist = list.map((item) => McpServerConfig.fromJson(item)).toList();
-      }
       final serverListJson = _prefs.getString(mcpServerListKey);
+      if (serverListJson == null ||
+          _data["mcp_updated"] != _prefs.getInt("mcp_updated_at")) {
+        final list = await fetchMCP();
+        if (list.isNotEmpty) {
+          dblist = list.map((item) => McpServerConfig.fromJson(item)).toList();
+          await _prefs.setString(mcpServerListKey, jsonEncode(list));
+        }
+        _prefs.setInt("mcp_updated_at", _data["mcp_updated"]);
+      }
+
       if (serverListJson != null && serverListJson.isNotEmpty) {
         final decodedList = jsonDecode(serverListJson) as List;
         final configList = decodedList

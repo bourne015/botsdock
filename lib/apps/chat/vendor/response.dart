@@ -17,7 +17,6 @@ import 'package:google_generative_ai/src/api.dart' as gemini;
 class AIResponse {
   static Future<void> Openai(
     Pages pages,
-    Property property,
     User user,
     int handlePageID,
     Map<String, dynamic> j,
@@ -34,7 +33,7 @@ class AIResponse {
       if (res.choices[0].finishReason ==
           openai.ChatCompletionFinishReason.toolCalls) {
         await pages.getPage(handlePageID).handleOpenaiToolCall(ref);
-        ChatAPI().submitText(pages, property, handlePageID, user, ref);
+        ChatAPI().submitText(pages, handlePageID, user, ref);
       }
       if (res.choices[0].finishReason != null) {
         pages.setPageGenerateStatus(handlePageID, false);
@@ -128,7 +127,6 @@ class AIResponse {
 
   static Future<void> Claude(
     Pages pages,
-    Property property,
     User user,
     int handlePageID,
     Map<String, dynamic> j,
@@ -182,7 +180,7 @@ class AIResponse {
               pages.getPage(handlePageID).messages.last.content[i].type ==
                   "tool_use") {
             await pages.getPage(handlePageID).handleClaudeToolCall(i, ref);
-            ChatAPI().submitText(pages, property, handlePageID, user, ref);
+            ChatAPI().submitText(pages, handlePageID, user, ref);
           }
         },
         messageStop: (type) {
@@ -204,7 +202,6 @@ class AIResponse {
 
   static Future<void> DeepSeek(
     Pages pages,
-    Property property,
     User user,
     int handlePageID,
     Map<String, dynamic> j,
@@ -222,7 +219,7 @@ class AIResponse {
       if (res.choices[0].finishReason ==
           openai.ChatCompletionFinishReason.toolCalls) {
         await pages.getPage(handlePageID).handleOpenaiToolCall(ref);
-        ChatAPI().submitText(pages, property, handlePageID, user, ref);
+        ChatAPI().submitText(pages, handlePageID, user, ref);
       }
       if (res.choices[0].finishReason != null) {
         pages.setPageGenerateStatus(handlePageID, false);
@@ -232,7 +229,6 @@ class AIResponse {
 
   static Future<void> Gemini(
     Pages pages,
-    Property property,
     User user,
     int handlePageID,
     Map<String, dynamic> j,
@@ -264,7 +260,7 @@ class AIResponse {
       await pages
           .getPage(handlePageID)
           .handleGeminiToolCall(res.functionCalls.first, ref);
-      ChatAPI().submitText(pages, property, handlePageID, user, ref);
+      ChatAPI().submitText(pages, handlePageID, user, ref);
       // pages.getPage(handlePageID).addMessage(
       //       role: MessageTRole.tool,
       //       text: "function response",

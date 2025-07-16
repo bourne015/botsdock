@@ -18,14 +18,14 @@ import '../utils/constants.dart';
 import '../utils/utils.dart';
 import '../vendor/assistants_api.dart';
 
-class ChatInputField extends StatefulWidget {
+class ChatInputField extends rp.ConsumerStatefulWidget {
   const ChatInputField({super.key});
 
   @override
-  State createState() => _ChatInputFieldState();
+  rp.ConsumerState createState() => _ChatInputFieldState();
 }
 
-class _ChatInputFieldState extends State<ChatInputField> {
+class _ChatInputFieldState extends rp.ConsumerState<ChatInputField> {
   final ChatAPI chats = ChatAPI();
   final _controller = TextEditingController();
   bool _hasInputContent = false;
@@ -45,11 +45,12 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   @override
   Widget build(BuildContext context) {
-    User user = Provider.of<User>(context);
-    Property property = Provider.of<Property>(context);
+    User user = ref.watch(userProvider);
+    final propertyState = ref.watch(propertyProvider);
     Pages pages = Provider.of<Pages>(context, listen: false);
-    double _hmargin =
-        isDisplayDesktop(context) ? (property.isDrawerOpen ? 100 : 180) : 50;
+    double _hmargin = isDisplayDesktop(context)
+        ? (propertyState.isDrawerOpen ? 100 : 180)
+        : 50;
 
     return rp.Consumer(
       builder: (context, rp.WidgetRef ref, child) {
@@ -74,8 +75,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
                       event.logicalKey == LogicalKeyboardKey.enter &&
                       HardwareKeyboard.instance.isControlPressed &&
                       isUserReady(user) &&
-                      isContentReady(pages, property)) {
-                    _sendContent(pages, property, user, ref);
+                      isContentReady(pages, propertyState.onInitPage)) {
+                    _sendContent(pages, user, ref);
                   }
                 },
                 child: textField(context, ref),
@@ -194,13 +195,13 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   Widget textField(BuildContext context, rp.WidgetRef ref) {
     Pages pages = Provider.of<Pages>(context, listen: false);
-    Property property = Provider.of<Property>(context, listen: false);
-    User user = Provider.of<User>(context);
+    final propertyState = ref.read(propertyProvider);
+    User user = ref.watch(userProvider);
     String hintText = "text, image, file";
     bool _userReady = isUserReady(user);
     var _modelV;
-    if (property.onInitPage)
-      _modelV = property.initModelVersion;
+    if (propertyState.onInitPage)
+      _modelV = propertyState.initModelVersion;
     else
       _modelV = pages.currentPage?.model;
     if (_modelV == Models.gpt35.id ||
@@ -305,11 +306,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   Widget? pickButton(BuildContext context) {
     Pages pages = Provider.of<Pages>(context);
-    Property property = Provider.of<Property>(context);
-
+    final propertyState = ref.watch(propertyProvider);
     String _modelV;
-    if (property.onInitPage)
-      _modelV = property.initModelVersion;
+    if (propertyState.onInitPage)
+      _modelV = propertyState.initModelVersion;
     else
       _modelV = pages.currentPage!.model;
 
@@ -333,7 +333,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     //         _pickFile(_modelV);
     //       });
     if (Models.checkORG(_modelV, Organization.openai) &&
-        !property.onInitPage &&
+        !propertyState.onInitPage &&
         pages.currentPage!.assistantID == null) {
       return IconButton(
           tooltip: "选择图片",
@@ -371,19 +371,18 @@ class _ChatInputFieldState extends State<ChatInputField> {
     return (user.isLogedin && user.credit! > 0) ? true : false;
   }
 
-  bool isContentReady(Pages pages, Property property) {
+  bool isContentReady(Pages pages, bool onInitPage) {
     bool isReady = false;
-    if (_hasInputContent &&
-        (property.onInitPage || !pages.currentPage!.onGenerating))
+    if (_hasInputContent && (onInitPage || !pages.currentPage!.onGenerating))
       isReady = true;
     return isReady;
   }
 
   Widget sendButton(BuildContext context, rp.WidgetRef ref) {
     Pages pages = Provider.of<Pages>(context, listen: false);
-    Property property = Provider.of<Property>(context);
-    User user = Provider.of<User>(context);
-    bool _enabled = isContentReady(pages, property);
+    final propertyState = ref.read(propertyProvider);
+    User user = ref.watch(userProvider);
+    bool _enabled = isContentReady(pages, propertyState.onInitPage);
 
     return Selector<Pages, bool>(
       selector: (_, pages) => pages.getPageGenerateStatus(pages.currentPageID),
@@ -404,7 +403,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
                 tooltip: _enabled ? "Ctrl+Enter发送" : "",
                 onPressed: _enabled
                     ? () async {
-                        _sendContent(pages, property, user, ref);
+                        _sendContent(pages, user, ref);
                       }
                     : null,
               );
@@ -412,34 +411,37 @@ class _ChatInputFieldState extends State<ChatInputField> {
     );
   }
 
-  void _sendContent(pages, property, User user, rp.WidgetRef ref) async {
+  void _sendContent(Pages pages, User user, rp.WidgetRef ref) async {
     int newPageId = -1;
-
-    if (property.onInitPage) {
+    final propertyState = ref.read(propertyProvider);
+    final propertyNotifier = ref.read(propertyProvider.notifier);
+    if (propertyState.onInitPage) {
       String? thread_id = null;
-      if (Models.checkORG(property.initModelVersion, Organization.openai) &&
+      if (Models.checkORG(
+              propertyState.initModelVersion, Organization.openai) &&
           attachments.isNotEmpty) thread_id = await assistant.createThread();
       if (thread_id != null) {
-        newPageId = assistant.newassistant(pages, property, user, thread_id,
+        newPageId = assistant.newassistant(ref, pages, user, thread_id,
             ass_id: chatAssistantID);
       } else {
         newPageId = pages.addPage(
           Chat(
             title: "Chat 0",
-            model: property.initModelVersion,
+            model: propertyState.initModelVersion,
             artifact: user.settings?.artifact ?? false,
             internet: user.settings?.internet ?? false,
             temperature: user.settings?.temperature,
           ),
           sort: true,
         );
-        property.onInitPage = false;
+
+        propertyNotifier.setOnInitPage(false);
         pages.currentPageID = newPageId;
       }
     } else {
       newPageId = pages.currentPageID;
     }
-    _submitText(pages, property, newPageId, _controller.text, user, ref);
+    _submitText(pages, newPageId, _controller.text, user, ref);
     _controller.clear();
     _hasInputContent = false;
     attachments.clear();
@@ -533,8 +535,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
     });
   }
 
-  void _submitText(Pages pages, Property property, int handlePageID,
-      String text, User user, rp.WidgetRef ref) async {
+  void _submitText(Pages pages, int handlePageID, String text, User user,
+      rp.WidgetRef ref) async {
     try {
       pages.setGeneratingState(handlePageID, true);
       var ts = DateTime.now().millisecondsSinceEpoch;
@@ -570,8 +572,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
       pages.setGeneratingState(handlePageID, false);
     }
     if (pages.getPage(handlePageID).assistantID != null)
-      chats.submitAssistant(pages, property, handlePageID, user, attachments);
+      chats.submitAssistant(ref, pages, handlePageID, user, attachments);
     else
-      chats.submitText(pages, property, handlePageID, user, ref);
+      chats.submitText(pages, handlePageID, user, ref);
   }
 }

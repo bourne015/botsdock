@@ -174,9 +174,10 @@ class ChatAPI {
     }
   }
 
-  Future<void> updateCredit(User user) async {
+  Future<void> updateCredit(User user, rp.WidgetRef ref) async {
     var _data = await dio.post(ChatPath.userInfo(user.id));
-    if (_data["result"] == "success") user.credit = _data["credit"];
+    if (_data["result"] == "success")
+      ref.read(userProvider.notifier).update(credit: _data["credit"]);
   }
 
   static Future<String?> uploadFile(filename, imgData) async {
@@ -192,7 +193,7 @@ class ChatAPI {
   }
 
   Future<void> _imageGeneration(
-      Pages pages, Property property, int handlePageID, user) async {
+      Pages pages, int handlePageID, user, rp.WidgetRef ref) async {
     var q = pages.getMessages(handlePageID)!.last.content;
     var chatData1 = {
       "model": Models.dalle3.id,
@@ -218,7 +219,7 @@ class ChatAPI {
           _aiImageName,
           ossURL ?? "",
         );
-    _onStreamDone(pages, handlePageID, user);
+    _onStreamDone(pages, handlePageID, user, ref);
   }
 
   Future<void> _onStreamError(
@@ -227,7 +228,7 @@ class ChatAPI {
     pages.setPageGenerateStatus(handlePageID, false);
   }
 
-  Future<void> _onStreamDone(pages, handlePageID, user) async {
+  Future<void> _onStreamDone(pages, handlePageID, user, ref) async {
     Logger.info('SSE complete');
     pages.setPageGenerateStatus(handlePageID, false);
     var pageTitle = pages.getPage(handlePageID).title;
@@ -235,7 +236,7 @@ class ChatAPI {
       await titleGenerate(pages, handlePageID, user);
     }
     await saveChats(user, pages, handlePageID);
-    await updateCredit(user);
+    await updateCredit(user, ref);
   }
 
   void _cleanupSubscription(Pages page, int handlePageID) {
@@ -249,7 +250,6 @@ class ChatAPI {
 
   void submitText(
     Pages pages,
-    Property property,
     int handlePageID,
     user,
     rp.WidgetRef ref,
@@ -258,8 +258,9 @@ class ChatAPI {
     try {
       // if (pages.getPage(handlePageID).streamSubscription != null)
       //   pages.getPage(handlePageID).streamSubscription!.cancel();
-      if (property.initModelVersion == Models.dalle3.id) {
-        _imageGeneration(pages, property, handlePageID, user);
+      final propertyState = ref.read(propertyProvider);
+      if (propertyState.initModelVersion == Models.dalle3.id) {
+        _imageGeneration(pages, handlePageID, user, ref);
       } else {
         pages.getPage(handlePageID).tools.clear();
         if (pages.getPage(handlePageID).model != Models.deepseekReasoner.id) {
@@ -295,8 +296,8 @@ class ChatAPI {
         _initializeAssistantMessage(pages, handlePageID);
         pages.setPageGenerateStatus(handlePageID, true);
         var _streamSubscription = stream
-            .asyncMap((data) => _handleChatStream(
-                pages, handlePageID, property, user, data, ref))
+            .asyncMap((data) =>
+                _handleChatStream(pages, handlePageID, user, data, ref))
             .listen(
           (_) {},
           onError: (e) async {
@@ -304,7 +305,7 @@ class ChatAPI {
             _cleanupSubscription(pages, handlePageID);
           },
           onDone: () async {
-            await _onStreamDone(pages, handlePageID, user);
+            await _onStreamDone(pages, handlePageID, user, ref);
             _cleanupSubscription(pages, handlePageID);
           },
           cancelOnError: true,
@@ -318,8 +319,8 @@ class ChatAPI {
   }
 
   void submitAssistant(
+    rp.WidgetRef ref,
     Pages pages,
-    Property property,
     int handlePageID,
     user,
     attachments,
@@ -346,7 +347,7 @@ class ChatAPI {
           _cleanupSubscription(pages, handlePageID);
         },
         onDone: () async {
-          _onStreamDone(pages, handlePageID, user);
+          _onStreamDone(pages, handlePageID, user, ref);
           _cleanupSubscription(pages, handlePageID);
         },
         cancelOnError: true,
@@ -358,23 +359,26 @@ class ChatAPI {
     }
   }
 
-  void newBot(Pages pages, Property property, User user,
+  void newBot(ref, Pages pages, User user,
       {int? botID,
       String? name,
       String? prompt,
       String? model,
       Map<String, dynamic>? functions}) {
     try {
+      final propertyState = ref.read(propertyProvider);
+      final PropertyNotifier propertyNotifier =
+          ref.read(propertyProvider.notifier);
       int handlePageID = pages.addPage(
           Chat(
               title: name ?? "bot 0",
-              model: model ?? property.initModelVersion),
+              model: model ?? propertyState.initModelVersion),
           sort: true);
-      property.onInitPage = false;
+      propertyNotifier.setOnInitPage(false);
       pages.currentPageID = handlePageID;
       pages.setPageTitle(handlePageID, name ?? "Chat 0");
       pages.getPage(handlePageID).botID = botID;
-      pages.currentPage?.model = model ?? property.initModelVersion;
+      pages.currentPage?.model = model ?? propertyState.initModelVersion;
       if (functions != null && functions.isNotEmpty) {
         functions.forEach((name, body) {
           if (Functions.all.containsKey(name))
@@ -394,23 +398,24 @@ class ChatAPI {
 
   void newSampleChat(
     Pages pages,
-    Property property,
     User user,
     String prompt,
-    ref,
+    rp.WidgetRef ref,
   ) {
+    final propertyState = ref.read(propertyProvider);
+    final propertyNotifier = ref.read(propertyProvider.notifier);
     int handlePageID = pages.addPage(
         Chat(
           title: "Chat 0",
-          model: property.initModelVersion,
+          model: propertyState.initModelVersion,
           artifact: user.settings?.artifact ?? false,
           internet: user.settings?.internet ?? false,
           temperature: user.settings?.temperature,
         ),
         sort: true);
-    property.onInitPage = false;
+    propertyNotifier.setOnInitPage(false);
     pages.currentPageID = handlePageID;
-    pages.currentPage?.model = property.initModelVersion;
+    pages.currentPage?.model = propertyState.initModelVersion;
 
     // if (pages.getPage(handlePageID).artifact)
     //   pages.getPage(handlePageID).addArtifact();
@@ -425,14 +430,13 @@ class ChatAPI {
         text: prompt,
         timestamp: DateTime.now().millisecondsSinceEpoch);
 
-    submitText(pages, property, handlePageID, user, ref);
+    submitText(pages, handlePageID, user, ref);
   }
 }
 
 Future<void> _handleChatStream(
   Pages pages,
   int handlePageID,
-  Property property,
   User user,
   String? data,
   rp.WidgetRef ref,
@@ -442,13 +446,13 @@ Future<void> _handleChatStream(
     var res = json.decode(data);
     String modelID = pages.getPage(handlePageID).model;
     if (Models.getOrgByModelId(modelID) == Organization.openai) {
-      await AIResponse.Openai(pages, property, user, handlePageID, res, ref);
+      await AIResponse.Openai(pages, user, handlePageID, res, ref);
     } else if (Models.getOrgByModelId(modelID) == Organization.deepseek) {
-      await AIResponse.DeepSeek(pages, property, user, handlePageID, res, ref);
+      await AIResponse.DeepSeek(pages, user, handlePageID, res, ref);
     } else if (Models.getOrgByModelId(modelID) == Organization.google) {
-      await AIResponse.Gemini(pages, property, user, handlePageID, res, ref);
+      await AIResponse.Gemini(pages, user, handlePageID, res, ref);
     } else if (Models.getOrgByModelId(modelID) == Organization.anthropic) {
-      await AIResponse.Claude(pages, property, user, handlePageID, res, ref);
+      await AIResponse.Claude(pages, user, handlePageID, res, ref);
     }
   } else {
     await pages.getPage(handlePageID).appendMessage(msg: data);
