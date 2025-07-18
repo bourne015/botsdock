@@ -270,25 +270,56 @@ class ThinkingIndicator extends StatelessWidget {
 
 Widget image_show(String img_path, double radius) {
   return img_path.startsWith("http")
-      ? ClipRRect(
-          borderRadius: BorderRadius.circular(80),
-          child: Image.network(
+      ? CircleAvatar(
+          radius: radius,
+          // borderRadius: BorderRadius.circular(radius * factor),
+          // radius: radius,
+          backgroundImage: Image.network(
             img_path,
-            width: radius * 2,
-            height: radius * 2,
+            // width: radius * factor,
+            // height: radius * factor,
             errorBuilder: (BuildContext context, Object exception,
                 StackTrace? stackTrace) {
               return Container(
-                width: radius * 2,
-                height: radius * 2,
+                width: radius,
+                height: radius,
                 decoration: BoxDecoration(
                     color: Colors.grey,
                     borderRadius: BorderRadius.circular(80)),
               );
             },
-          ))
+          ).image,
+        )
       : CircleAvatar(
           radius: radius,
           backgroundImage: AssetImage(img_path),
         );
+}
+
+PopupMenuItem<String> SettingsMenuItem(
+    BuildContext context, String value, IconData icon, String title) {
+  return PopupMenuItem<String>(
+    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+    value: value,
+    child: Material(
+      // color: AppColors.drawerBackground,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 5),
+        decoration: BoxDecoration(
+          borderRadius: BORDERRADIUS15,
+        ),
+        child: InkWell(
+          borderRadius: BORDERRADIUS15,
+          onTap: () {
+            Navigator.pop(context, value);
+          },
+          //onHover: (hovering) {},
+          child: ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 5),
+              leading: Icon(size: 20, icon),
+              title: Text(title)),
+        ),
+      ),
+    ),
+  );
 }

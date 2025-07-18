@@ -94,11 +94,15 @@ class Administrator extends rp.ConsumerWidget {
               if (user.isLogedin)
                 PopupMenuItem(
                   enabled: false,
-                  height: 100,
+                  height: 80,
                   padding: EdgeInsets.all(0),
                   value: "user",
-                  textStyle: Theme.of(context).textTheme.bodyMedium,
-                  child: UserThumbnail2(user: user, enabled: false),
+                  child: MenuItemUserThumbnail(
+                    user: user,
+                    enabled: false,
+                    radius: 40,
+                    height: 80,
+                  ),
                 ),
               if (user.isLogedin) PopupMenuDivider(),
               // _buildPopupMenuItem(
@@ -106,51 +110,24 @@ class Administrator extends rp.ConsumerWidget {
               //     "Customize ChatGPT",
               //     Icons.add_home_outlined,
               //     GalleryLocalizations.of(context)!.custmizeGPT),
-              _buildPopupMenuItem(
-                  context,
-                  "Instructions",
-                  Icons.settings_rounded,
-                  GalleryLocalizations.of(context)!.setting),
-              _buildPopupMenuItem(
+              SettingsMenuItem(
+                context,
+                "Instructions",
+                Icons.settings_rounded,
+                GalleryLocalizations.of(context)!.setting,
+              ),
+              SettingsMenuItem(
                 context,
                 "mcpsettings",
                 Icons.construction,
                 "MCP",
               ),
-              _buildPopupMenuItem(context, "About", Icons.info,
+              SettingsMenuItem(context, "About", Icons.info,
                   GalleryLocalizations.of(context)!.about),
               // PopupMenuDivider(),
               // _buildPopupMenuItem(context, "Logout", Icons.logout,
               //     GalleryLocalizations.of(context)!.logout),
             ]);
-  }
-
-  PopupMenuItem<String> _buildPopupMenuItem(
-      BuildContext context, String value, IconData icon, String title) {
-    return PopupMenuItem<String>(
-      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-      value: value,
-      child: Material(
-        // color: AppColors.drawerBackground,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 5),
-          decoration: BoxDecoration(
-            borderRadius: BORDERRADIUS15,
-          ),
-          child: InkWell(
-            borderRadius: BORDERRADIUS15,
-            onTap: () {
-              Navigator.pop(context, value);
-            },
-            //onHover: (hovering) {},
-            child: ListTile(
-                contentPadding: EdgeInsets.symmetric(horizontal: 5),
-                leading: Icon(size: 20, icon),
-                title: Text(title)),
-          ),
-        ),
-      ),
-    );
   }
 
   void InstructionsDialog(BuildContext context, User user, rp.WidgetRef ref) {

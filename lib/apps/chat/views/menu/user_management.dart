@@ -63,6 +63,7 @@ class UserManagementState extends rp.ConsumerState<UserManagement> {
         ),
         enabled: user.status == UserStatus.loading ? false : true,
         child: UserThumbnail(
+          maxWidth: isDisplayDesktop(context) ? 150 : 110,
           user: user,
           onTap: () {
             _popupMenuKey.currentState?.showButtonMenu();
@@ -97,45 +98,17 @@ class UserManagementState extends rp.ConsumerState<UserManagement> {
                   ? PopupMenuItem(
                       padding: EdgeInsets.all(0),
                       value: "user",
-                      child: UserThumbnail2(user: user, enabled: true),
+                      child: MenuItemUserThumbnail(user: user, enabled: true),
                     )
-                  : _buildPopupMenuItem(context, "Login", Icons.login,
+                  : SettingsMenuItem(context, "Login", Icons.login,
                       GalleryLocalizations.of(context)!.login),
               PopupMenuDivider(),
-              _buildPopupMenuItem(context, "About", Icons.info,
+              SettingsMenuItem(context, "About", Icons.info,
                   GalleryLocalizations.of(context)!.about),
               PopupMenuDivider(),
-              _buildPopupMenuItem(context, "Logout", Icons.logout,
+              SettingsMenuItem(context, "Logout", Icons.logout,
                   GalleryLocalizations.of(context)!.logout),
             ]);
-  }
-
-  PopupMenuItem<String> _buildPopupMenuItem(
-      BuildContext context, String value, IconData icon, String title) {
-    return PopupMenuItem<String>(
-      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-      value: value,
-      child: Material(
-        // color: AppColors.drawerBackground,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 5),
-          decoration: BoxDecoration(
-            borderRadius: BORDERRADIUS15,
-          ),
-          child: InkWell(
-            borderRadius: BORDERRADIUS15,
-            onTap: () {
-              Navigator.pop(context, value);
-            },
-            //onHover: (hovering) {},
-            child: ListTile(
-                contentPadding: EdgeInsets.symmetric(horizontal: 5),
-                leading: Icon(size: 20, icon),
-                title: Text(title)),
-          ),
-        ),
-      ),
-    );
   }
 
   void userInfoDialog(BuildContext context, User user) {
@@ -426,10 +399,12 @@ class UserThumbnail extends StatelessWidget {
   final User user;
   final GestureTapCallback? onTap;
   final Color? color;
+  final double maxWidth;
 
   const UserThumbnail({
     super.key,
     this.color,
+    this.maxWidth = 300,
     required this.user,
     required this.onTap,
   });
@@ -444,6 +419,7 @@ class UserThumbnail extends StatelessWidget {
           borderRadius: BORDERRADIUS15,
           color: Colors.transparent,
         ),
+        constraints: BoxConstraints(maxWidth: maxWidth),
         child: InkWell(
           borderRadius: BORDERRADIUS15,
           onTap: onTap,
@@ -464,10 +440,11 @@ class UserThumbnail extends StatelessWidget {
               UserStatus.loggedOut => Icon(Icons.account_circle),
               _ => Icon(Icons.no_accounts_outlined)
             },
-            minLeadingWidth: 0,
+            // minLeadingWidth: 0,
             contentPadding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 1),
+                const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
             title: Text(
+              // textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               switch (user.status) {
@@ -486,13 +463,17 @@ class UserThumbnail extends StatelessWidget {
   }
 }
 
-class UserThumbnail2 extends StatelessWidget {
+class MenuItemUserThumbnail extends StatelessWidget {
   final User user;
   final bool enabled;
+  final double radius;
+  final double? height;
 
-  const UserThumbnail2({
+  const MenuItemUserThumbnail({
     super.key,
     this.enabled = true,
+    this.radius = 20,
+    this.height,
     required this.user,
   });
 
@@ -501,7 +482,8 @@ class UserThumbnail2 extends StatelessWidget {
     return Material(
       // color: AppColors.drawerBackground,
       child: Container(
-        width: 400,
+        width: isDisplayDesktop(context) ? 400 : 250,
+        height: height,
         padding: EdgeInsets.only(left: 5, right: 5),
         //margin: EdgeInsets.only(left: 50),
         decoration: BoxDecoration(
@@ -524,15 +506,37 @@ class UserThumbnail2 extends StatelessWidget {
   }
 
   Widget userTab(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-      leading: image_show(user.avatar!, 25),
-      title: Text(
-        user.name ?? "",
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(user.email ?? ""),
+    return Row(
+      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 10),
+          child: image_show(user.avatar!, radius),
+        ),
+        Expanded(
+            child: Container(
+          //  width: isDisplayDesktop(context) ? 150 : 100,
+          constraints:
+              BoxConstraints(maxWidth: isDisplayDesktop(context) ? 150 : 100),
+          margin: EdgeInsets.only(
+            left: 10,
+            right: isDisplayDesktop(context) ? 10 : 1,
+          ),
+          child: ListTile(
+            title: Text(
+              user.name ?? "",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            subtitle: Text(
+              user.email ?? "",
+              maxLines: 2,
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+          ),
+        ))
+      ],
     );
   }
 }

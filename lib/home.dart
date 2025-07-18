@@ -64,6 +64,7 @@ class HomePage extends StatelessWidget {
             primary: true,
             padding: const EdgeInsetsDirectional.only(
               top: firstHeaderDesktopTopPadding,
+              end: 0,
             ),
             children: [
               _DesktopHomeItem(child: _GalleryHeader()),
@@ -141,9 +142,9 @@ class _DesktopHomeItem extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Container(
         // constraints: const BoxConstraints(maxWidth: maxHomeItemWidth),
-        padding: EdgeInsets.symmetric(
-          horizontal:
-              isDisplayDesktop(context) ? _horizontalDesktopPadding : 30,
+        padding: EdgeInsets.only(
+          left: isDisplayDesktop(context) ? _horizontalDesktopPadding : 20,
+          right: isDisplayDesktop(context) ? _horizontalDesktopPadding : 5,
         ),
         child: child,
       ),
