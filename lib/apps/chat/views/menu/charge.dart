@@ -5,7 +5,6 @@ import 'package:botsdock/apps/chat/utils/client/path.dart';
 import 'package:botsdock/apps/chat/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:web/web.dart' as web;
 
 class ChargePage extends StatefulWidget {
   final User user;
@@ -230,16 +229,6 @@ class _ChargePageState extends State<ChargePage> {
     );
     launchUrl(Uri.parse(response["url"]!));
   }
-}
-
-Map<String, String> parseUrlParams() {
-  final uri = Uri.parse(web.window.location.href);
-  return uri.queryParameters;
-}
-
-void clearUrlQueryParams() {
-  final path = web.window.location.pathname + web.window.location.hash;
-  web.window.history.replaceState(null, '支付结果', path);
 }
 
 class PayResultPage extends StatelessWidget {

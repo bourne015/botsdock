@@ -1,4 +1,6 @@
+import 'package:botsdock/apps/chat/models/mcp/mcp_server_config.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mcp_dart/mcp_dart.dart';
 // import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
 // import 'dart:ui_web' as ui;
@@ -26,6 +28,50 @@ void downloadImageFile(
     ..setAttribute('download', fileName ?? 'ai')
     ..click();
   if (imageData != null) web.URL.revokeObjectURL(url);
+}
+
+Map<String, String> parseUrlParams() {
+  final uri = Uri.parse(web.window.location.href);
+  return uri.queryParameters;
+}
+
+void clearUrlQueryParams() {
+  final path = web.window.location.pathname + web.window.location.hash;
+  web.window.history.replaceState(null, '支付结果', path);
+}
+
+dynamic CreateClientTransport(
+  TransportType transportType,
+  String? command,
+  List<String> args,
+  Map<String, String> environment,
+  String? sessionId,
+) {
+  if (transportType == TransportType.StreamableHTTP) {
+    return StreamableHttpClientTransport(
+      Uri.parse(args[0]),
+      opts: StreamableHttpClientTransportOptions(
+        sessionId: sessionId,
+        reconnectionOptions: StreamableHttpReconnectionOptions(
+          initialReconnectionDelay: 1000,
+          maxReconnectionDelay: 30000,
+          reconnectionDelayGrowFactor: 1.5,
+          maxRetries: 3,
+        ),
+      ),
+    );
+  } else {
+    // return StdioClientTransport(
+    //   StdioServerParameters(
+    //     command: command!,
+    //     args: args,
+    //     environment: environment,
+    //     stderrMode: ProcessStartMode.normal,
+    //   ),
+    // );
+    print("not support stdiotransport");
+    return null;
+  }
 }
 
 /*

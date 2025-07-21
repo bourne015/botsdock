@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:botsdock/apps/chat/models/mcp/mcp_server_config.dart';
 import 'package:botsdock/apps/chat/utils/logger.dart';
 import 'package:flutter_image_gallery_saver/flutter_image_gallery_saver.dart';
 import 'package:http/http.dart' as http;
+import 'package:mcp_dart/mcp_dart.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -85,5 +87,45 @@ Future<void> _saveToDesktop(Uint8List imageData, String name) async {
     Logger.info("Image saved to $path");
   } catch (e) {
     Logger.info("Error saving to desktop: $e");
+  }
+}
+
+Map<String, String> parseUrlParams() {
+  return {};
+}
+
+void clearUrlQueryParams() {
+  return;
+}
+
+dynamic CreateClientTransport(
+  TransportType transportType,
+  String? command,
+  List<String> args,
+  Map<String, String> environment,
+  String? sessionId,
+) {
+  if (transportType == TransportType.StreamableHTTP) {
+    return StreamableHttpClientTransport(
+      Uri.parse(args[0]),
+      opts: StreamableHttpClientTransportOptions(
+        sessionId: sessionId,
+        reconnectionOptions: StreamableHttpReconnectionOptions(
+          initialReconnectionDelay: 1000,
+          maxReconnectionDelay: 30000,
+          reconnectionDelayGrowFactor: 1.5,
+          maxRetries: 3,
+        ),
+      ),
+    );
+  } else {
+    return StdioClientTransport(
+      StdioServerParameters(
+        command: command!,
+        args: args,
+        environment: environment,
+        stderrMode: ProcessStartMode.normal,
+      ),
+    );
   }
 }

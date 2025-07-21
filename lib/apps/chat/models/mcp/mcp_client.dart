@@ -2,6 +2,7 @@
 
 import 'package:botsdock/apps/chat/models/mcp/mcp_models.dart';
 import 'package:botsdock/apps/chat/models/mcp/mcp_server_config.dart';
+import 'package:botsdock/apps/chat/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mcp_dart/mcp_dart.dart';
@@ -9,7 +10,7 @@ import 'package:mcp_dart/mcp_dart.dart';
 class McpClient {
   final String serverId;
   final Client mcp;
-  StreamableHttpClientTransport? _transport;
+  var _transport;
   String? sessionId;
   int notificationCount = 0;
   List<McpToolDefinition> _tools = []; // Store raw tool definitions
@@ -66,31 +67,17 @@ class McpClient {
     final Function(String serverId)? localOnCloseCallback = _onClose;
 
     try {
+      _transport = CreateMcpClientTransport(
+        transportType,
+        command,
+        args,
+        environment,
+        sessionId,
+      );
       if (transportType == TransportType.StreamableHTTP) {
-        _transport = StreamableHttpClientTransport(
-          Uri.parse(args[0]),
-          opts: StreamableHttpClientTransportOptions(
-            sessionId: sessionId,
-            reconnectionOptions: StreamableHttpReconnectionOptions(
-              initialReconnectionDelay: 1000,
-              maxReconnectionDelay: 30000,
-              reconnectionDelayGrowFactor: 1.5,
-              maxRetries: 3,
-            ),
-          ),
-        );
         _transport!.onmessage = (message) {
           debugPrint(" Received: ${message.runtimeType}");
         };
-      } else {
-        // _transport = StdioClientTransport(
-        //   StdioServerParameters(
-        //     command: command,
-        //     args: args,
-        //     environment: environment,
-        //     stderrMode: ProcessStartMode.normal,
-        //   ),
-        // );
       }
       _transport!.onerror = (error) {
         final errorMsg = "MCP Transport error [$serverId]: $error";

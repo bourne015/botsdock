@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:botsdock/apps/chat/models/mcp/mcp_server_config.dart';
 import 'package:dual_screen/dual_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import "package:botsdock/apps/chat/utils/implement_mobile.dart"
-    if (kIsWeb) 'package:botsdock/apps/chat/utils/implement_web.dart';
+    if (dart.library.js_interop) 'package:botsdock/apps/chat/utils/implement_web.dart';
 import 'dart:async';
 
 import '../models/data.dart';
@@ -88,5 +89,24 @@ void downloadImage({String? fileName, String? fileUrl, Uint8List? imageData}) {
     fileName: fileName,
     fileUrl: fileUrl,
     imageData: imageData,
+  );
+}
+
+Map<String, String> parseChargeUrlParams() {
+  return parseUrlParams();
+}
+
+void clearChargeUrlQueryParams() {
+  clearUrlQueryParams();
+}
+
+dynamic CreateMcpClientTransport(TransportType transportType, String? command,
+    List<String> args, Map<String, String> environment, String? sessionId) {
+  return CreateClientTransport(
+    transportType,
+    command,
+    args,
+    environment,
+    sessionId,
   );
 }

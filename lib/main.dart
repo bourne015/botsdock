@@ -5,6 +5,8 @@
 import 'package:botsdock/apps/chat/models/mcp/mcp_settings_providers.dart';
 import 'package:botsdock/apps/chat/models/user.dart';
 import 'package:botsdock/apps/chat/utils/global.dart';
+import 'package:botsdock/apps/chat/utils/utils.dart';
+import 'package:botsdock/apps/chat/views/menu/charge.dart';
 import 'package:botsdock/data/theme.dart';
 import 'package:dual_screen/dual_screen.dart';
 import 'package:flutter/foundation.dart';
@@ -44,18 +46,39 @@ void main() async {
   ));
 }
 
-class GalleryApp extends rp.ConsumerWidget {
-  const GalleryApp({
-    super.key,
-    this.initialRoute,
-    this.isTestMode = false,
-  });
-
+class GalleryApp extends rp.ConsumerStatefulWidget {
+  const GalleryApp({super.key, this.initialRoute, this.isTestMode = false});
   final String? initialRoute;
   final bool isTestMode;
 
   @override
-  Widget build(BuildContext context, rp.WidgetRef ref) {
+  rp.ConsumerState<GalleryApp> createState() => _GalleryAppState();
+}
+
+class _GalleryAppState extends rp.ConsumerState<GalleryApp> {
+  Map<String, String> params = {};
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (kIsWeb) {
+      params = parseChargeUrlParams();
+      if (params.containsKey("out_trade_no")) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          clearChargeUrlQueryParams();
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => PayResultPage(params: params),
+            ),
+          );
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ModelBinding(
       initialModel: GalleryOptions(
         themeMode: ThemeMode.system,
@@ -63,7 +86,7 @@ class GalleryApp extends rp.ConsumerWidget {
         locale: null,
         timeDilation: timeDilation,
         platform: defaultTargetPlatform,
-        isTestMode: isTestMode,
+        isTestMode: widget.isTestMode,
       ),
       child: Builder(
         builder: (context) {
@@ -85,7 +108,7 @@ class GalleryApp extends rp.ConsumerWidget {
               ...GalleryLocalizations.localizationsDelegates,
               //LocaleNamesLocalizationsDelegate()
             ],
-            initialRoute: initialRoute,
+            initialRoute: widget.initialRoute,
             //supportedLocales: GalleryLocalizations.supportedLocales,
             supportedLocales: [
               Locale('zh'),
