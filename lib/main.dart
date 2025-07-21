@@ -67,7 +67,7 @@ class _GalleryAppState extends rp.ConsumerState<GalleryApp> {
       if (params.containsKey("out_trade_no")) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           clearChargeUrlQueryParams();
-          Navigator.of(context).pushReplacement(
+          Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => PayResultPage(params: params),
             ),
